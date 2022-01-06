@@ -3,20 +3,22 @@
 A repository of code development and report and paper writing for simulation studies carried out by the working group.
 
 Working group:
-Tim Miller (NEFSC, chair)
-Chris Legault (NEFSC)
-Liz Brooks (NEFSC)
-Gavin Fay (UMass Dartmouth)
-John Wiedenmann (Rutgers)
-Greg Britten (MIT)
-Brandon Muffley (MAFMC)
+ - Tim Miller (NEFSC, chair)
+ - Chris Legault (NEFSC)
+ - Liz Brooks (NEFSC)
+ - Alex Hansell (NEFSC)
+ - Gavin Fay (UMass Dartmouth)
+ - John Wiedenmann (Rutgers)
+ - Greg Britten (MIT)
+ - Brandon Muffley (MAFMC)
 
 Other collaborators:
-Brian Stock (IMR)
-Noel Cadigan (Memorial U)
-Anders Nielsen (DTU Aqua)
-Greg Bopp (NEFSC)
-Jon Deroba (NEFSC)
+ - Brian Stock (IMR)
+ - Noel Cadigan (Memorial U)
+ - Anders Nielsen (DTU Aqua)
+ - Greg Bopp (NEFSC)
+ - Jon Deroba (NEFSC)
+ - Charles Perretti (NEFSC)
 
 Peer-review: Fall 2023
 

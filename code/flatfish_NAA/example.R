@@ -156,3 +156,80 @@ m = 1
 
 sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1])
 
+
+make_basic_input <- function(years = 1982:2021) { #changed years
+    digifish = list()
+    digifish$ages = 1:10
+    digifish$years = years
+    na = length(digifish$ages)
+    ny = length(digifish$years)
+
+    digifish$n_fleets = 1
+    digifish$catch_cv = matrix(0.1, ny, digifish$n_fleets)
+    digifish$catch_Neff = matrix(200, ny, digifish$n_fleets)
+    digifish$n_indices = 1
+    digifish$index_cv = matrix(0.3, ny, digifish$n_indices)
+    digifish$index_Neff = matrix(100, ny, digifish$n_indices)
+    digifish$fracyr_indices = matrix(0.5, ny, digifish$n_indices)
+    digifish$index_units = rep(1, length(digifish$n_indices)) #biomass
+    digifish$index_paa_units = rep(2, length(digifish$n_indices)) #abundance
+    digifish$maturity = t(matrix(1/(1 + exp(-1*(1:na - na/2))), na, ny))
+
+    L = 100*(1-exp(-0.3*(1:na - 0)))
+    W = exp(-11)*L^3
+    nwaa = digifish$n_indices + digifish$n_fleets + 2
+    digifish$waa = array(NA, dim = c(nwaa, ny, na))
+    for(i in 1:nwaa) digifish$waa[i,,] = t(matrix(W, na, ny))
+
+    digifish$fracyr_SSB = rep(0.25,ny)
+    #digifish$q = rep(0.3, digifish$n_indices)
+    mid = floor(ny/2)
+    #up then down
+    #digifish$F = matrix(0.2 + c(seq(0,0.4,length.out = ny/2),seq(0.4,0,length.out=ny-mid)),ny, digifish$n_fleets)
+
+    digifish$selblock_pointer_fleets = t(matrix(1:digifish$n_fleets, digifish$n_fleets, ny))
+    digifish$selblock_pointer_indices = t(matrix(digifish$n_fleets + 1:digifish$n_indices, digifish$n_indices, ny))
+    return(digifish)
+}
+basic_input = make_basic_input()
+
+selectivity = list(model = c(rep("logistic", digifish$n_fleets),rep("logistic", digifish$n_indices)),
+    digifish$n_fleets + digifish$n_indices)) #fleet, index
+
+M = list(initial_means = rep(0.2, length(digifish$ages)))
+
+fit_init_par = list()
+# sim the 90 models!
+for(m in 1:n.mods){
+
+    if(is.na(df.mods$NAA_sig[m])) {
+        NAA_re$sigma = "rec" #random about mean
+    } else NAA_re$sigma = "rec+1"
+    
+
+    if(!is.na(df.mods$ar1_a[m]) & !is.na(df.mods$ar1_y[m])) {
+        NAA_re$cor = "2dar1"
+    }
+    if(is.na(df.mods$ar1_a[m]) & !is.na(df.mods$ar1_y[m])) {
+        NAA_re$cor = "ar1_y"
+    }
+    if(!is.na(df.mods$ar1_a[m]) & is.na(df.mods$ar1_y[m])) {
+        NAA_re$cor = "ar1_a"
+    }
+    if(is.na(df.mods$ar1_a[m]) & is.na(df.mods$ar1_y[m])) {
+        NAA_re$cor = "iid"
+    }
+    
+    NAA_re$use_steepness = 0
+    NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
+
+    input = prepare_wham_input(basic_info = basic_info, selectivity = selectivity, M = M, NAA_re = NAA_re)
+
+
+    #all RE and data are simulated
+    fit_input[[m]] = lapply(1:nsim, function(x) {
+        input_i = input
+        input_i$data = sim_input[[m]][[x]]
+        return(input_i)
+    })
+}
