@@ -20,7 +20,8 @@ if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
 setwd(write.dir)
 
 #number of simulations for each scenario
-nsim = 100
+#nsim = 100
+nsim = 10
 
 #NAA sigmas for each scenario
 sigs = cbind(R_sig = c(0.3,0.5,0.7), NAA_sig = c(0.1,0.3,0.5))
@@ -39,7 +40,7 @@ df.mods
 
 #taken from example 10 script in WHAM
 #make a list of input components that prepare_wham_input can use to generate an input for fit_wham
-make_digifish <- function(years = 1975:2014) {
+make_digifish <- function(years = 1982:2021) { #changed years
     digifish = list()
     digifish$ages = 1:10
     digifish$years = years
@@ -141,16 +142,17 @@ for(m in 1:n.mods){
 
 #save simulated data sets to google drive?
 
+sim_fits = list()
 #for(m in 1:n.mods){
 m = 1
-    sim_fits = lapply(1:nsim, function(x){
-        input = sim_input[[1]][[x]]
-        cat(paste("sim:", x))
-        fit_wham(sim_input[[1]][[1]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
+    sim_fits[[m]] = lapply(1:nsim, function(x){
+        input = sim_input[[m]][[x]]
+        cat(paste("model:",m, "fit:", x, "start \n"))
+        out = fit_wham(sim_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
         cat(paste("model:",m, "fit:", x, "done \n"))
+        return(out)
         })
 #}
 
-temp = fit_wham(sim_input[[1]][[1]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
-plot_wham_output(temp, out.type = "html")
+sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1])
 
