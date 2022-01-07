@@ -146,7 +146,6 @@ sim_fits = list()
 #for(m in 1:n.mods){
 m = 1
     sim_fits[[m]] = lapply(1:nsim, function(x){
-        input = sim_input[[m]][[x]]
         cat(paste("model:",m, "fit:", x, "start \n"))
         out = fit_wham(sim_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
         cat(paste("model:",m, "fit:", x, "done \n"))
@@ -156,6 +155,8 @@ m = 1
 
 sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1])
 
+###########################################################################
+#use more generic starting values
 
 make_basic_input <- function(years = 1982:2021) { #changed years
     digifish = list()
@@ -228,3 +229,17 @@ for(m in 1:n.mods){
     fit_init_par[[m]] = prepare_wham_input(basic_info = basic_input, selectivity = selectivity, M = M, NAA_re = NAA_re)$par
 }
 
+sim_fits_2 = list()
+#for(m in 1:n.mods){
+m = 1
+    sim_fits_2[[m]] = lapply(1:nsim, function(x){
+        input = sim_input[[m]][[x]]
+        input$par = fit_init_par[[m]]
+        cat(paste("model:",m, "fit:", x, "start \n"))
+        out = fit_wham(input, do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
+        cat(paste("model:",m, "fit:", x, "done \n"))
+        return(out)
+        })
+#}
+cbind(sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1]), 
+    sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1]))
