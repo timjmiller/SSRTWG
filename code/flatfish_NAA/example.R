@@ -193,10 +193,12 @@ make_basic_input <- function(years = 1982:2021) { #changed years
 }
 basic_input = make_basic_input()
 
-selectivity = list(model = c(rep("logistic", digifish$n_fleets),rep("logistic", digifish$n_indices)),
-    digifish$n_fleets + digifish$n_indices)) #fleet, index
+selectivity = list(model = c(rep("logistic", digifish$n_fleets),rep("logistic", digifish$n_indices))) #fleet, index
 
 M = list(initial_means = rep(0.2, length(digifish$ages)))
+
+#initial numbers at age
+NAA_re = list(N1_pars = rep(exp(10), length(digifish$ages)))
 
 fit_init_par = list()
 # sim the 90 models!
@@ -223,13 +225,6 @@ for(m in 1:n.mods){
     NAA_re$use_steepness = 0
     NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
 
-    input = prepare_wham_input(basic_info = basic_info, selectivity = selectivity, M = M, NAA_re = NAA_re)
-
-
-    #all RE and data are simulated
-    fit_input[[m]] = lapply(1:nsim, function(x) {
-        input_i = input
-        input_i$data = sim_input[[m]][[x]]
-        return(input_i)
-    })
+    fit_init_par[[m]] = prepare_wham_input(basic_info = basic_input, selectivity = selectivity, M = M, NAA_re = NAA_re)$par
 }
+
