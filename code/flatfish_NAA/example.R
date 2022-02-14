@@ -158,39 +158,39 @@ sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1])
 ###########################################################################
 #use more generic starting values
 
-make_basic_input <- function(years = 1982:2021) { #changed years
-    digifish = list()
-    digifish$ages = 1:10
-    digifish$years = years
-    na = length(digifish$ages)
-    ny = length(digifish$years)
+make_basic_input <- function(years = 1982:2021, ages = 1:10) { #changed years
+    info = list()
+    info$ages = ages
+    info$years = years
+    na = length(info$ages)
+    ny = length(info$years)
 
-    digifish$n_fleets = 1
-    digifish$catch_cv = matrix(0.1, ny, digifish$n_fleets)
-    digifish$catch_Neff = matrix(200, ny, digifish$n_fleets)
-    digifish$n_indices = 1
-    digifish$index_cv = matrix(0.3, ny, digifish$n_indices)
-    digifish$index_Neff = matrix(100, ny, digifish$n_indices)
-    digifish$fracyr_indices = matrix(0.5, ny, digifish$n_indices)
-    digifish$index_units = rep(1, length(digifish$n_indices)) #biomass
-    digifish$index_paa_units = rep(2, length(digifish$n_indices)) #abundance
-    digifish$maturity = t(matrix(1/(1 + exp(-1*(1:na - na/2))), na, ny))
+    info$n_fleets = 1
+    info$catch_cv = matrix(0.1, ny, info$n_fleets)
+    info$catch_Neff = matrix(200, ny, info$n_fleets)
+    info$n_indices = 1
+    info$index_cv = matrix(0.3, ny, info$n_indices)
+    info$index_Neff = matrix(100, ny, info$n_indices)
+    info$fracyr_indices = matrix(0.5, ny, info$n_indices)
+    info$index_units = rep(1, length(info$n_indices)) #biomass
+    info$index_paa_units = rep(2, length(info$n_indices)) #abundance
+    info$maturity = t(matrix(1/(1 + exp(-1*(1:na - na/2))), na, ny))
 
     L = 100*(1-exp(-0.3*(1:na - 0)))
     W = exp(-11)*L^3
-    nwaa = digifish$n_indices + digifish$n_fleets + 2
-    digifish$waa = array(NA, dim = c(nwaa, ny, na))
-    for(i in 1:nwaa) digifish$waa[i,,] = t(matrix(W, na, ny))
+    nwaa = info$n_indices + info$n_fleets + 2
+    info$waa = array(NA, dim = c(nwaa, ny, na))
+    for(i in 1:nwaa) info$waa[i,,] = t(matrix(W, na, ny))
 
-    digifish$fracyr_SSB = rep(0.25,ny)
-    #digifish$q = rep(0.3, digifish$n_indices)
+    info$fracyr_SSB = rep(0.25,ny)
+    #info$q = rep(0.3, info$n_indices)
     mid = floor(ny/2)
     #up then down
-    #digifish$F = matrix(0.2 + c(seq(0,0.4,length.out = ny/2),seq(0.4,0,length.out=ny-mid)),ny, digifish$n_fleets)
+    info$F = matrix(0.2 + c(seq(0,0.4,length.out = ny/2),seq(0.4,0,length.out=ny-mid)),ny, info$n_fleets)
 
-    digifish$selblock_pointer_fleets = t(matrix(1:digifish$n_fleets, digifish$n_fleets, ny))
-    digifish$selblock_pointer_indices = t(matrix(digifish$n_fleets + 1:digifish$n_indices, digifish$n_indices, ny))
-    return(digifish)
+    info$selblock_pointer_fleets = t(matrix(1:info$n_fleets, info$n_fleets, ny))
+    info$selblock_pointer_indices = t(matrix(info$n_fleets + 1:info$n_indices, info$n_indices, ny))
+    return(info)
 }
 basic_input = make_basic_input()
 
@@ -242,4 +242,5 @@ m = 1
         })
 #}
 cbind(sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1]), 
-    sapply(sim_fits[[1]], function(x) x$parList$log_NAA_sigma[1]))
+    sapply(sim_fits_2[[1]], function(x) x$parList$log_NAA_sigma[1]))
+
