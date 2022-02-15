@@ -11,3 +11,6 @@ opt
 opt$hessian ## <-- FD hessian from optim
 obj$he()    ## <-- Analytical hessian
 sdreport(obj)
+
+obj$simulate()
+obj$simulate(complete=TRUE)

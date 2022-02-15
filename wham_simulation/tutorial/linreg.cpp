@@ -8,7 +8,9 @@ Type objective_function<Type>::operator() ()
   PARAMETER(b);
   PARAMETER(logSigma);
   ADREPORT(exp(2*logSigma));
-  Type nll=-sum(dnorm(Y,a+b*x,exp(logSigma),true));
+  vector<Type> Yhat = a + b*x;
+  REPORT(Yhat);
+  Type nll=-sum(dnorm(Y,Yhat,exp(logSigma),true));
   return nll;
 }
 
