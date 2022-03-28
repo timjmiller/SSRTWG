@@ -11,6 +11,7 @@ Working group:
  - John Wiedenmann (Rutgers)
  - Greg Britten (MIT)
  - Brandon Muffley (MAFMC)
+ - Andy Applegate (NEFMC)
 
 Other collaborators:
  - Brian Stock (IMR)
