@@ -1,8 +1,9 @@
-#' Specify NAA configuration
+#' Specify model and parameter configuration for numbers at age
 #'
 #' @param input list containing data, parameters, map, and random elements (output from \code{\link{prepare_wham_input}})
-#' @param NAA_re list specifying options for numbers-at-age random effects, initial parameter values, and recruitment model (see details)
+#' @param NAA_re (optional) list specifying options for numbers-at-age random effects, initial parameter values, and recruitment model (see details)
 #' 
+#' If \code{NAA_re = NULL}, a traditional statistical catch-at-age model is fit (NAA = pred_NAA for all ages, deterministic). Otherwise,
 #' \code{NAA_re} specifies numbers-at-age configuration. It is a list with the following possible entries:
 #'   \describe{
 #'     \item{$sigma}{Which ages allow deviations from pred_NAA? Common options are specified with the strings:
@@ -14,12 +15,27 @@
 #'                   NAA_sigma to use for that age. E.g. c(1,2,2,3,3,3) will estimate 3 \code{sigma_a}, with recruitment (age-1) deviations having their
 #'                   own \code{sigma_R}, ages 2-3 sharing \code{sigma_2}, and ages 4-6 sharing \code{sigma_3}.
 #'                  }
+#'     \item{$sigma_vals}{Initial standard deviation values to use for the NAA deviations. Values are not used if recruit_model = 1 and NAA_re$sigma is
+#'                  not specifed. Otherwise when \code{NAA_re$sigma} =
+#'                  \describe{
+#'                    \item{"rec"}{must be a single value.}
+#'                    \item{"rec+1"}{2 values must be specified. First is for the first age class (recruits), second is for all other ages.}
+#'                    \item{vector of values (length = number of age classes)}{either 1 value or the number of values is equal to the number of unique values provided to \code{NAA_re$sigma}.}
+#'                  }
+#'                }
 #'     \item{$cor}{Correlation structure for the NAA deviations. Options are:
 #'                  \describe{
 #'                    \item{"iid"}{NAA deviations vary by year and age, but uncorrelated.}
 #'                    \item{"ar1_a"}{NAA deviations correlated by age (AR1).}
 #'                    \item{"ar1_y"}{NAA deviations correlated by year (AR1).}
 #'                    \item{"2dar1"}{NAA deviations correlated by year and age (2D AR1).}
+#'                  }
+#'                }
+#'     \item{$cor_vals}{Initial correlation values to use for the NAA deviations. If unspecified all initial values are 0. When \code{NAA_re$cor} = 
+#'                  \describe{
+#'                    \item{"iid"}{values are not used.}
+#'                    \item{"ar1_a" or "ar1_y"}{cor_vals must be a single value.}
+#'                    \item{"2dar1"}{2 values must be specified. First is for "year", second is for "age".}
 #'                  }
 #'                }
 #'     \item{$N1_model}{Integer determining which way to model the initial numbers at age:
@@ -138,7 +154,7 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
     if(NAA_re$cor == "ar1_a") map$trans_NAA_rho <- factor(c(NA,1))
     if(NAA_re$cor == "ar1_y") map$trans_NAA_rho <- factor(c(1,NA))
   } else map$trans_NAA_rho <- factor(c(NA,NA))
-  
+
   par$log_NAA = matrix(10, data$n_years_model-1, data$n_ages)
   par$logR_proj <- 0 # will be set by prepare_projection if SCAA
   map$logR_proj <- factor(NA)
