@@ -35,19 +35,13 @@
 #'                      M at all ages is fixed at \code{M$initial_means} (if not \code{NULL}) or row 1 of the MAA matrix from the ASAP file (if \code{M$initial_means = NULL}).}
 #'     \item{$logb_prior}{(Only if \code{$model = "weight-at-age"}) TRUE or FALSE (default), should a N(0.305, 0.08) prior be
 #'                        used on log_b? Based on Fig. 1 and Table 1 (marine fish) in \href{https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1095-8649.1996.tb00060.x}{Lorenzen (1996)}.}
-#'     \item{$sigma_vals}{Initial standard deviation values to use for the M deviations. Values are not used if \code{M$re} = "none".
-#'                  Otherwise when \code{NAA_re$sigma} =
-#'                  \describe{
-#'                    \item{"rec"}{must be a single value.}
-#'                    \item{"rec+1"}{2 values must be specified. First is for the first age class (recruits), second is for all other ages.}
-#'                    \item{vector of values (length = number of age classes)}{either 1 value or the number of values is equal to the number of unique values provided to \code{NAA_re$sigma}.}
-#'                  }
-#'                }
+#'     \item{$b_size}{if \code{$model = "weight-at-age"}, initial value for random effect with prior defined by logb_prior (intended for simulating data).
+#'     \item{$sigma_val}{Initial standard deviation value to use for the M deviations. Values are not used if \code{M$re} = "none". Otherwise, a single value.
 #'     \item{$cor_vals}{Initial correlation values to use for the M deviations. If unspecified all initial values are 0. When \code{M$re} = 
 #'                  \describe{
-#'                    \item{"iid"}{values are not used.}
+#'                    \item{"iid" or "none"}{values are not used.}
 #'                    \item{"ar1_a" or "ar1_y"}{cor_vals must be a single value.}
-#'                    \item{"2dar1"}{2 values must be specified. First is for "year", second is for "age".}
+#'                    \item{"2dar1"}{2 values must be specified. First is for "age", second is for "year".}
 #'                  }
 #'                }
 #'   }
@@ -134,12 +128,34 @@ without changing ASAP file, specify M$initial_means.")
   par$M_a <- M_a_ini # deviations by age
   par$M_re <- M_re_ini # deviations from mean M_a on log-scale, PARAMETER_ARRAY
   par$M_repars <- rep(0, 3)
-  par$M_repars[1] <- log(0.1) # start sigma at 0.1, rho at 0
-  if(data$M_re_model == 3) par$M_repars[3] <- 0 # if ar1 over ages only, fix rho_y = 0
-  if(data$M_re_model == 4) par$M_repars[2] <- 0 # if ar1 over years only, fix rho_a = 0
+  if(is.null(M$sigma_val)){
+    par$M_repars[1] <- log(0.1) # start sigma at 0.1, rho at 0
+  } else {
+    if(length(M$sigma_val)==1) par$M_repar[1] = log(M$sigma_val)
+    else stop("M$sigma_val can be only 1 value.")
+  }
+  if(is.null(M$cor_vals)) {
+    #already set to 0 above
+    #if(data$M_re_model == 3) par$M_repars[3] <- 0 # if ar1 over ages only, fix rho_y = 0
+    #if(data$M_re_model == 4) par$M_repars[2] <- 0 # if ar1 over years only, fix rho_a = 0
+    } else{
+    if(data$M_re_model == 3) par$M_repars[2] <- log(M$cor_vals) # if ar1 over ages only, fix rho_y = 0
+    if(data$M_re_model == 4) par$M_repars[3] <- log(M$cor_vals) # if ar1 over years only, fix rho_a = 0
+    if(data$M_re_model == 5) par$M_repars[2:3] <- log(M$cor_vals) # if ar1 over years only, fix rho_a = 0
+  }
+  # M_repars: sigma_M, rho_M_a, rho_M_y
+  if(data$M_re_model == 1) tmp <- rep(NA,3) # no RE pars to estimate
+  if(data$M_re_model == 2) tmp <- c(1,NA,NA) # estimate sigma
+  if(data$M_re_model == 3) tmp <- c(1,2,NA) # ar1_a: estimate sigma, rho_a
+  if(data$M_re_model == 4) tmp <- c(1,NA,2) # ar1_y: estimate sigma, rho_y
+  if(data$M_re_model == 5) tmp <- 1:3 # 2dar1: estimate all
+  map$M_repars = factor(tmp)
+
   # check if only 1 estimated mean M (e.g. because weight-at-age M or if all but 1 age is fixed), can't estimate rho_a
   # if(data$n_M_est < 2) par$M_repars[2] <- 0
-  par$log_b = log(0.305)
+  if(is.null(M$b_size)) par$log_b = log(0.305)
+  else par$log_b = log(M$b_size)
+  
 
   tmp <- par$M_a
   tmp[data$M_est==0] = NA
@@ -162,13 +178,6 @@ without changing ASAP file, specify M$initial_means.")
   }
   map$M_re <- factor(tmp)
 
-  # M_repars: sigma_M, rho_M_a, rho_M_y
-  if(data$M_re_model == 1) tmp <- rep(NA,3) # no RE pars to estimate
-  if(data$M_re_model == 2) tmp <- c(1,NA,NA) # estimate sigma
-  if(data$M_re_model == 3) tmp <- c(1,2,NA) # ar1_a: estimate sigma, rho_a
-  if(data$M_re_model == 4) tmp <- c(1,NA,2) # ar1_y: estimate sigma, rho_y
-  if(data$M_re_model == 5) tmp <- 1:3 # 2dar1: estimate all
-  map$M_repars = factor(tmp)
 
   input$data = data
   input$par = par

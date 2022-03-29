@@ -35,7 +35,7 @@
 #'                  \describe{
 #'                    \item{"iid"}{values are not used.}
 #'                    \item{"ar1_a" or "ar1_y"}{cor_vals must be a single value.}
-#'                    \item{"2dar1"}{2 values must be specified. First is for "year", second is for "age".}
+#'                    \item{"2dar1"}{2 values must be specified. First is for "age", second is for "year".}
 #'                  }
 #'                }
 #'     \item{$N1_model}{Integer determining which way to model the initial numbers at age:
@@ -133,16 +133,16 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
   } else {
     NAA_re$cor <- 'iid'
   }
-
+  inv_trans_rho <- function(rho) log(r+1) - log(1-r) # 0.5 may be needed transformation on cpp side is unusual.
   if(is.null(NAA_re$cor_vals)) par$trans_NAA_rho <- c(0,0)
   else {
-    if(length(NAA_re$cor_vals) == 2) par$trans_NAA_rho <- wham:::gen.logit(NAA_re$cor_vals, -1, 1)
+    if(length(NAA_re$cor_vals) == 2) par$trans_NAA_rho <- inv_trans_rho(NAA_re$cor_vals)
     if(length(NAA_re$cor_vals) == 1) {
       if(NAA_re$cor == "ar1_a") {
-        par$trans_NAA_rho <- c(0, wham:::gen.logit(NAA_re$cor_vals, -1, 1))
+        par$trans_NAA_rho <- c(inv_trans_rho(NAA_re$cor_vals), 0)
       }
       if(NAA_re$cor == "ar1_y") {
-        par$trans_NAA_rho <- c(wham:::gen.logit(NAA_re$cor_vals, -1, 1), 0)
+        par$trans_NAA_rho <- c(0, inv_trans_rho(NAA_re$cor_vals))
       }
     }
     if(length(NAA_re$cor_vals) !%in% 1:2) stop(paste0("length of NAA_re$cor_vals is not consistent with other elements of NAA_re$cor."))
@@ -151,8 +151,8 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
   #NAA_rho map
   if(!is.null(NAA_re$cor)) {
     if(NAA_re$cor == "iid") map$trans_NAA_rho <- factor(c(NA,NA))
-    if(NAA_re$cor == "ar1_a") map$trans_NAA_rho <- factor(c(NA,1))
-    if(NAA_re$cor == "ar1_y") map$trans_NAA_rho <- factor(c(1,NA))
+    if(NAA_re$cor == "ar1_a") map$trans_NAA_rho <- factor(c(1,NA))
+    if(NAA_re$cor == "ar1_y") map$trans_NAA_rho <- factor(c(NA,1))
   } else map$trans_NAA_rho <- factor(c(NA,NA))
 
   par$log_NAA = matrix(10, data$n_years_model-1, data$n_ages)
