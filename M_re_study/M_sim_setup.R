@@ -5,7 +5,7 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(here)
-source(file.path(here(),"code", "set_NAA.R"))
+source(file.path(here(),"common_code", "set_NAA.R"))
 # create directory for analysis, e.g.
 
 
@@ -36,7 +36,7 @@ df.mods
 
 #make a list of input components that prepare_wham_input can use to generate an input for fit_wham
 #this will be the generic flatfish/groundfish life histor information
-source(file.path(here(),"code", "make_basic_info.R"))
+source(file.path(here(),"common_code", "make_basic_info.R"))
 groundfish_info = make_basic_info()
 
 selectivity = list(model = c(rep("logistic", groundfish_info$n_fleets),rep("logistic", groundfish_info$n_indices)),

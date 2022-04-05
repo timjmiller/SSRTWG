@@ -186,6 +186,13 @@ without changing ASAP file, specify M$initial_means.")
   input$data = data
   input$par = par
   input$map = map
+  
+  #may need to update these 
+	# projection data will always be modified by 'prepare_projection'
+	input = wham:::set_proj(input, proj.opts = NULL) #proj options are used later after model fit, right?
+
+	#set any parameters as random effects
+	input = wham:::set_random(input)
   return(input)
 
 }
