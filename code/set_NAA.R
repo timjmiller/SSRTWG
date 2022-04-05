@@ -68,6 +68,7 @@ set_NAA = function(input, NAA_re=NULL)
   data = input$data
   par = input$par
   map = input$map
+  map <- map[(!names(map) %in% c("mean_rec_pars", "log_NAA_sigma", "trans_NAA_rho","logR_proj", "log_NAA"))]
   if(is.null(input$asap3)) asap3 = NULL
   else asap3 = input$asap3
 
@@ -133,7 +134,7 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
   } else {
     NAA_re$cor <- 'iid'
   }
-  inv_trans_rho <- function(rho) log(r+1) - log(1-r) # 0.5 may be needed transformation on cpp side is unusual.
+  inv_trans_rho <- function(rho) 0.5 * log(rho+1) - log(1-rho) # 0.5 because needed transformation on cpp side is unusual.
   if(is.null(NAA_re$cor_vals)) par$trans_NAA_rho <- c(0,0)
   else {
     if(length(NAA_re$cor_vals) == 2) par$trans_NAA_rho <- inv_trans_rho(NAA_re$cor_vals)

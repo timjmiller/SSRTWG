@@ -89,7 +89,8 @@ for(m in 1:n.mods){
     }
     input = set_NAA(input, NAA_re)
 
-    om = fit_wham(input, do.fit = FALSE)
+    print(paste0("m: ", m))
+    om = fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
 
 
     #simulate data from operating model
@@ -105,7 +106,7 @@ for(m in 1:n.mods){
 }
 
 #save simulated data sets to google drive?
-saveRDS(sim_input
+saveRDS(sim_input, file.path(write.dir, "sim_data.RDS"))
 
 sim_fits = list()
 #for(m in 1:n.mods){
