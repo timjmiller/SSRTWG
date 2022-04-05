@@ -51,6 +51,10 @@ set_M = function(input, M)
   data = input$data
   par = input$par
   map = input$map
+
+  #clear any map definitions that may exist. necessary because some configurations may not define map elements.
+  map <- map[(!names(map) %in% c("log_b", "M_repars", "M_a","M_re"))]
+  
   data$n_M_a = data$n_ages
   data$M_model = 2
   data$use_b_prior = 0

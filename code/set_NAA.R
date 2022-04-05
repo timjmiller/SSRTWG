@@ -68,7 +68,10 @@ set_NAA = function(input, NAA_re=NULL)
   data = input$data
   par = input$par
   map = input$map
+  
+  #clear any map definitions that may exist. necessary because some configurations may not define map elements.
   map <- map[(!names(map) %in% c("mean_rec_pars", "log_NAA_sigma", "trans_NAA_rho","logR_proj", "log_NAA"))]
+  
   if(is.null(input$asap3)) asap3 = NULL
   else asap3 = input$asap3
 
