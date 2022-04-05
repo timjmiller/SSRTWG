@@ -1,7 +1,6 @@
 # devtools::load_all("~/work/wham/wham")
 # devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
 library(wham)
-library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(here)
@@ -118,9 +117,9 @@ for(m in 1:n.mods){
 
     #initial numbers at age
     NAA_re = list()
-    NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
     input = prepare_wham_input(basic_info = groundfish_info, selectivity = selectivity, M = M, NAA_re = NAA_re)
     
+    NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
     #whether RE on recruitment or on all NAA
     if(is.na(df.mods$NAA_sig[m])) {
       NAA_re$sigma = "rec" #random about mean
@@ -146,7 +145,7 @@ for(m in 1:n.mods){
     #put in data simulated from operating model
     em_input[[m]] = lapply(1:nsim, function(x) {
         input_i = input
-        input_i$data = sim_data[[m]][[x]] #put in simulated operating model data
+        input_i$data = sim_input[[m]][[x]]$data #put in simulated operating model data
         return(input_i)
     })
 }
@@ -154,13 +153,12 @@ for(m in 1:n.mods){
 saveRDS(em_input, file.path(write.dir, "em_input.RDS"))
 #em_input <- readRDS(file.path(write.dir, "em_input.RDS"))
 
-
-#sim_input <- readRDS(file.path(write.dir, "sim_data.RDS"))
-sim_fits = list()
+#NOT RUN YET
+#em_input <- readRDS(file.path(write.dir, "em_input.RDS"))
+em_fits = list()
 #for(m in 1:n.mods){ #just do the first scenario until we are ready to do all of them.
 for(m in 1){
-m = 1
-    sim_fits[[m]] = lapply(1:nsim, function(x){
+    em_fits[[m]] = lapply(1:nsim, function(x){
         cat(paste("model:",m, "fit:", x, "start \n"))
         out = fit_wham(em_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
         cat(paste("model:",m, "fit:", x, "done \n"))
