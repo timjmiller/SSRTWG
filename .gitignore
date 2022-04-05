@@ -6,4 +6,4 @@
 *.so
 *.o
 .Rproj.user
-*sim_data.RDS
+*.RDS
