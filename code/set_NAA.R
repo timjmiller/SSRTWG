@@ -68,7 +68,7 @@ set_NAA = function(input, NAA_re=NULL)
   data = input$data
   par = input$par
   map = input$map
-  asap3 = if(is.null(input$asap3)) asap3 = NULL
+  if(is.null(input$asap3)) asap3 = NULL
   else asap3 = input$asap3
 
   #set up initial NAA
@@ -145,7 +145,7 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
         par$trans_NAA_rho <- c(0, inv_trans_rho(NAA_re$cor_vals))
       }
     }
-    if(length(NAA_re$cor_vals) !%in% 1:2) stop(paste0("length of NAA_re$cor_vals is not consistent with other elements of NAA_re$cor."))
+    if(!length(NAA_re$cor_vals) %in% 1:2) stop(paste0("length of NAA_re$cor_vals is not consistent with other elements of NAA_re$cor."))
   }
 
   #NAA_rho map
@@ -203,5 +203,13 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
   input$data = data
   input$par = par
   input$map = map
+
+  #may need to update these 
+	# projection data will always be modified by 'prepare_projection'
+	input = wham:::set_proj(input, proj.opts = NULL) #proj options are used later after model fit, right?
+
+	#set any parameters as random effects
+	input = wham:::set_random(input)
+
   return(input)
 }
