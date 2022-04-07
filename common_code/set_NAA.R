@@ -213,6 +213,7 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
 	input = wham:::set_proj(input, proj.opts = NULL) #proj options are used later after model fit, right?
 
 	#set any parameters as random effects
+	input$random = NULL
 	input = wham:::set_random(input)
 
   return(input)

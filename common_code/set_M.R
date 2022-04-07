@@ -192,6 +192,7 @@ without changing ASAP file, specify M$initial_means.")
 	input = wham:::set_proj(input, proj.opts = NULL) #proj options are used later after model fit, right?
 
 	#set any parameters as random effects
+	input$random = NULL
 	input = wham:::set_random(input)
   return(input)
 
