@@ -47,7 +47,7 @@ M = list(initial_means = rep(0.2, length(groundfish_info$ages)))
 
 
 sim_input = list()
-# sim the 28 models!
+# sim the 324 models!
 for(m in 1:n.mods){
 
     #initial numbers at age
@@ -104,6 +104,7 @@ saveRDS(sim_input, file.path(write.dir, "om_sim_data.RDS"))
 
 
 #This will now generate a list of inputs to estimate models that match the operating model.
+#initial values are commented out to start at "generic" starting values for estimation.
 #this could be modified to estimate models that do not match the operating model.
 em_input = list()
 # sim the 90 models!
@@ -111,28 +112,36 @@ for(m in 1:n.mods){
 
     #initial numbers at age
     NAA_re = list(N1_pars = exp(10)*exp(-(0:(length(groundfish_info$ages)-1))*M$initial_means[1]))
+    NAA_re$recruit_pars = exp(10) #mean recruitment, if recruit model changes, need to change this
+    NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
+    NAA_re$sigma = "rec+1"
+    NAA_re$cor = "iid"
     input = prepare_wham_input(basic_info = groundfish_info, selectivity = selectivity, M = M, NAA_re = NAA_re)
     
-    NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
-    NAA_re$recruit_pars = exp(10) #mean recruitment, if recruit model changes, need to change this
+    ecov = list(label = "AR1_ecov")
+    ecov$mean = matrix(df.mods$Ecov_mean[m], input$data$n_years_model, 1)
+    ecov$logsigma = matrix(log(df.mods$obs_sig[m]), input$data$n_years_model, 1)
+    ecov$years = input$years
+    ecov$lag = 0
+    ecov$use_obs = matrix(TRUE, input$data$n_years_model, 1)
+    ecov$link_model = "linear"
+    ecov$process_model = "ar1"
+    #ecov$process_mean_vals = df.mods$Ecov_mean[m]
+    #ecov$process_sig_vals = df.mods$Ecov_sig[m]
+    #ecov$process_cor_vals = df.mods$Ecov_phi[m]
+    n_effects = 2+input$data$n_indices
+    #ecov$beta_vals = list(lapply(1:n_effects, function(x) matrix(df.mods$beta[m],1,input$data$n_ages)))
+    if(df.mods$Ecov_where[m] %in% c("recruit","M","q")) ecov$where = df.mods$Ecov_where[m]
+    if(df.mods$Ecov_where[m] == "recruit") ecov$how = 1 #not yet discussed by WG.
+    if(df.mods$Ecov_where[m] == "M1") {
+      ecov$where = "M"
+      ecov$ages = 1
+    }
+    if(df.mods$Ecov_where[m] == "q") {
+      ecov$indices = list(1) #on first index catchability.
+    }
     
-    #whether RE on recruitment or on all NAA
-    NAA_re$sigma = df.mods$NAA_re
-
-    #what type of correlation structure
-    if(!is.na(df.mods$ar1_a[m]) & !is.na(df.mods$ar1_y[m])) {
-        M$cor = "2dar1"
-    }
-    if(is.na(df.mods$ar1_a[m]) & !is.na(df.mods$ar1_y[m])) {
-        M$cor = "ar1_y"
-    }
-    if(!is.na(df.mods$ar1_a[m]) & is.na(df.mods$ar1_y[m])) {
-        M$cor = "ar1_a"
-    }
-    if(is.na(df.mods$ar1_a[m]) & is.na(df.mods$ar1_y[m])) {
-        M$cor = "iid"
-    }
-    input = set_M(input, M)
+    input = set_ecov(input, ecov)
     
     #put in data simulated from operating model
     em_input[[m]] = lapply(1:nsim, function(x) {

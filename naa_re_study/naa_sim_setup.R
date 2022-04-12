@@ -110,6 +110,7 @@ saveRDS(sim_input, file.path(write.dir, "om_sim_data.RDS"))
 #sim_input <- readRDS(file.path(write.dir, "om_sim_data.RDS"))
 
 #This will now generate a list of inputs to estimate models that match the operating model.
+#initial values are ommitted to start at "generic" starting values for estimation.
 #this could be modified to estimate models that do not match the operating model.
 em_input = list()
 # sim the 90 models!
