@@ -82,3 +82,11 @@ for(m in 1:2){
   })
 }
 saveRDS(em_fits, file.path(write.dir, "em_fits.RDS"))
+
+# hmmm, something did not work, getting same results from original and modified catch
+mohns_rho(em_fits[[1]][[4]])
+mohns_rho(em_fits[[2]][[4]])
+
+em_fits[[1]][[5]]$report()$SSB
+em_fits[[2]][[5]]$report()$SSB
+
