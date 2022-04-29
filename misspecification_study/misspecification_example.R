@@ -54,7 +54,7 @@ sim_input[[1]] = lapply(1:nsim, function(x) {
 })
 # sim_input[[2]] has catch data modification
 set.seed(8675309) #use same seed for all operating models?
-agg_catch_multiplier <- create_agg_catch_multiplier(input)
+agg_catch_multiplier <- create_agg_catch_multiplier(input, multiplier=1)
 sim_input[[2]] = lapply(1:nsim, function(x) {
   input_i = input
   sim = om$simulate(complete=TRUE)
