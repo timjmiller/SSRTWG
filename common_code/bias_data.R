@@ -5,7 +5,7 @@
 bias_data <- function(data, multiply_agg_catch_flag=FALSE, agg_catch_multiplier=1.0){
   if(multiply_agg_catch_flag == TRUE){
     data$agg_catch <-  data$agg_catch * agg_catch_multiplier
-    data$obsvec[data$keep_C+1] <-  data$agg_catch
+    data$obsvec[data$keep_C+1] <-  log(data$agg_catch)
   }
   return(data)
 }

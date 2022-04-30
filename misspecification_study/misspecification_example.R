@@ -17,7 +17,7 @@ if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
 setwd(write.dir)
 
 # how many simulations
-nsim <- 10
+nsim <- 1
 
 # create input
 groundfish_info <- make_basic_info()
@@ -30,6 +30,15 @@ M_om = list(initial_means = rep(0.2, length(groundfish_info$ages)))
 
 NAA_re_om = list(
   N1_pars = exp(10)*exp(-(0:(length(groundfish_info$ages)-1))*M_om$initial_means[1]),
+
+gf_selectivity = list(
+  model = c(rep("logistic", groundfish_info$n_fleets),rep("logistic", groundfish_info$n_indices)),
+  initial_pars = rep(list(c(5,1)), groundfish_info$n_fleets + groundfish_info$n_indices)) #fleet, index
+
+gf_M = list(initial_means = rep(0.2, length(groundfish_info$ages)))
+
+gf_NAA_re = list(
+  N1_pars = exp(10)*exp(-(0:(length(groundfish_info$ages)-1))*gf_M$initial_means[1]),
   sigma = "rec", #random about mean
   cor="iid", #random effects are independent
   use_steepness = 0,
@@ -38,6 +47,7 @@ NAA_re_om = list(
 )
 
 input <- prepare_wham_input(basic_info = groundfish_info, NAA_re = NAA_re_om, selectivity = selectivity_om, M = M_om)
+input <- prepare_wham_input(basic_info = groundfish_info, selectivity = gf_selectivity, NAA_re = gf_NAA_re, M= gf_M)
 
 # run starter input
 om <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
@@ -69,6 +79,7 @@ sim_input[[1]] = lapply(1:nsim, function(x) {
 
 # sim_input[[2]] has catch data modification
 set.seed(8675309) #use same seed for all operating models?
+agg_catch_multiplier <- create_agg_catch_multiplier(input, multiplier=1)
 sim_input[[2]] = lapply(1:nsim, function(x) {
   input_i = em_input #changed to not estimate recruits as RE
   sim = om$simulate(complete=TRUE)
@@ -127,6 +138,9 @@ out2 = fit_wham(sim_input[[2]][[1]], do.osa = FALSE, do.retro = FALSE)
 mohns_rho(em_fits[[1]][[4]])
 mohns_rho(em_fits[[2]][[4]])
 
-em_fits[[1]][[5]]$report()$SSB
-em_fits[[2]][[5]]$report()$SSB
+mohns_rho(em_fits[[1]][[1]])
+mohns_rho(em_fits[[2]][[1]])
+
+em_fits[[1]][[1]]$report()$SSB
+em_fits[[2]][[1]]$report()$SSB
 
