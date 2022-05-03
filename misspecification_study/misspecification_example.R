@@ -102,7 +102,7 @@ for (i in 1:nsim){
 data.check
 #test fitting of one data set
 #look at ratio of osbvec agg_catches
-exp(sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1]-sim_input[[1]][[1]]$data$obsvec[sim_input[[1]][[1]]$data$keep_C+1])  
+exp(sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1]-sim_input[[1]][[1]]$data$obsvec[sim_input[[1]][[1]]$data$keep_C+1])
 #out = fit_wham(sim_input[[1]][[1]], do.osa = FALSE, do.retro = FALSE)
 #out2 = fit_wham(sim_input[[2]][[1]], do.osa = FALSE, do.retro = FALSE)
 #cbind(out$years, out$rep$SSB, out2$rep$SSB) # getting different results, so working
@@ -110,8 +110,13 @@ exp(sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1]-sim_input
 
 # run the models
 em_fits = list()
+library(snowfall)
+sfInit(parallel=TRUE, cpus=parallel::detectCores()-1)
+sfExportAll()
 for(m in 1:2){
-  em_fits[[m]] = lapply(1:nsim, function(x){
+  sfExport('m')
+  em_fits[[m]] = sfLapply(1:nsim, function(x){
+    library(wham)
     cat(paste("model:",m, "fit:", x, "start \n"))
     out = fit_wham(sim_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
     cat(paste("model:",m, "fit:", x, "done \n"))
