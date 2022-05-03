@@ -93,9 +93,16 @@ ggplot(df, aes(x=Year, y=agg_catch, color=Source)) +
   theme_bw()
 
 ####################################
+# confirm input data and exp(obsvec) the same
+data.check <- matrix(NA, nrow=nsim, ncol=2)
+for (i in 1:nsim){
+  data.check[i,1] <- all.equal(as.vector(sim_input[[1]][[i]]$data$agg_catch), exp(sim_input[[1]][[i]]$data$obsvec[sim_input[[1]][[i]]$data$keep_C+1]))
+  data.check[i,2] <- all.equal(as.vector(sim_input[[2]][[i]]$data$agg_catch), exp(sim_input[[2]][[i]]$data$obsvec[sim_input[[2]][[i]]$data$keep_C+1]))
+}
+data.check
 #test fitting of one data set
 #look at ratio of osbvec agg_catches
-exp(sim_input[[1]][[1]]$data$obsvec[sim_input[[1]][[1]]$data$keep_C+1]-sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1])  
+exp(sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1]-sim_input[[1]][[1]]$data$obsvec[sim_input[[1]][[1]]$data$keep_C+1])  
 #out = fit_wham(sim_input[[1]][[1]], do.osa = FALSE, do.retro = FALSE)
 #out2 = fit_wham(sim_input[[2]][[1]], do.osa = FALSE, do.retro = FALSE)
 #cbind(out$years, out$rep$SSB, out2$rep$SSB) # getting different results, so working
@@ -137,3 +144,12 @@ ggplot(df2, aes(x=Year, y=SSB, color=Source)) +
   facet_wrap(~Sim, ncol=2) +
   ylim(0, NA) +
   theme_bw()
+
+rhoSSB <- list()
+for (m in 1:2){
+  rhoSSB[[m]] <- lapply(1:nsim, function(x){
+    out <- mohns_rho(em_fits[[m]][[x]])[1]
+  return(out)
+  })
+}
+rhoSSB
