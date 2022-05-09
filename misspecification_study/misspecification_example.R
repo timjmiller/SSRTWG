@@ -158,3 +158,11 @@ for (m in 1:2){
   })
 }
 rhoSSB
+
+mycomp <- list()
+mycomp <- lapply(1:nsim, function(x){
+  out <- compare_wham_models(list(em_fits[[1]][[x]],em_fits[[2]][[x]]))
+  return(out)
+})
+mycomp[[1]]
+mycomp[[4]]
