@@ -79,7 +79,8 @@ agg_catch_multiplier <- create_agg_catch_multiplier(input, multiplier=0.25)
 sim_input[[2]] = lapply(1:nsim, function(x) {
   input_i = input
   sim = om$simulate(complete=TRUE)
-  sim <- bias_data(sim, multiply_agg_catch_flag=TRUE, agg_catch_multiplier=agg_catch_multiplier)
+  sim <- bias_data(sim, multiply_agg_catch_flag=TRUE,
+                   agg_catch_multiplier=agg_catch_multiplier)
   input_i$data = sim
   return(input_i)
 })
@@ -166,43 +167,50 @@ for(m in 1:5){
   })
 }
 saveRDS(em_fits, file.path(write.dir, "em_fits.RDS"))
-
+sfStop()
 
 # compare SSB time series
 df2 <- tibble(Source = character(),
               Year = integer(),
               Sim = integer(),
               SSB = double())
-
 for(i in 1:nsim){
   thisdf1 <- tibble(Source = "orig",
                     Year = input$years,
                     Sim = i,
+                    pred_catch=em_fits[[1]][[i]]$report()$pred_catch,
                     SSB = em_fits[[1]][[i]]$report()$SSB)
   thisdf2 <- tibble(Source = "modified1",
                     Year = input$years,
                     Sim = i,
+                    pred_catch=em_fits[[2]][[i]]$report()$pred_catch,
                     SSB = em_fits[[2]][[i]]$report()$SSB)
   thisdf3 <- tibble(Source = "modified2",
                     Year = input$years,
                     Sim = i,
+                    pred_catch=em_fits[[3]][[i]]$report()$pred_catch,
                     SSB = em_fits[[3]][[i]]$report()$SSB)
   thisdf4 <- tibble(Source = "modified3",
                     Year = input$years,
                     Sim = i,
+                    pred_catch=em_fits[[4]][[i]]$report()$pred_catch,
                     SSB = em_fits[[4]][[i]]$report()$SSB)
   thisdf5 <- tibble(Source = "modified4",
                     Year = input$years,
                     Sim = i,
+                    pred_catch=em_fits[[5]][[i]]$report()$pred_catch,
                     SSB = em_fits[[5]][[i]]$report()$SSB)
   df2 <- rbind(df2, thisdf1, thisdf2, thisdf3, thisdf4, thisdf5)
 }
-ggplot(df2, aes(x=Year, y=SSB, color=Source)) +
+## Look at SSB and predicted catch to see how they do
+g <- pivot_longer(df2, cols=c("SSB", 'pred_catch')) %>%
+  ggplot(aes(x=Year, y=value, color=Source)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~Sim, ncol=2, scales = "free_y") +
+  facet_grid(name~Sim,  scales = "free_y") +
   ylim(0, NA) +
   theme_bw()
+g
 
 rhoSSB <- list()
 for (m in 1:4){
