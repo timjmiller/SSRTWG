@@ -155,7 +155,7 @@ exp(sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1]-sim_input
 em_fits = list()
 sfInit(parallel=TRUE, cpus=parallel::detectCores()-1)
 sfExportAll()
-for(m in 1:nsim){
+for(m in 1:5){
   sfExport('m')
   em_fits[[m]] = sfLapply(1:nsim, function(x){
     library(wham)
