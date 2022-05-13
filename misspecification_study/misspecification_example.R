@@ -77,7 +77,7 @@ sim_input[[1]] = lapply(1:nsim, function(x) {
 set.seed(8675309) #use same seed for all operating models?
 agg_catch_multiplier <- create_agg_catch_multiplier(input, multiplier=0.25)
 sim_input[[2]] = lapply(1:nsim, function(x) {
-  input_i = input 
+  input_i = input
   sim = om$simulate(complete=TRUE)
   sim <- bias_data(sim, multiply_agg_catch_flag=TRUE, agg_catch_multiplier=agg_catch_multiplier)
   input_i$data = sim
@@ -86,7 +86,7 @@ sim_input[[2]] = lapply(1:nsim, function(x) {
 
 # sim_input[[3]] has catch data modification with em2
 sim_input[[3]] = lapply(1:nsim, function(x) {
-  input_i = em_input2 
+  input_i = em_input2
   obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[2]][[x]]$data[obs_names]
   return(input_i)
@@ -94,7 +94,7 @@ sim_input[[3]] = lapply(1:nsim, function(x) {
 
 # sim_input[[4]] has catch data modification with em3
 sim_input[[4]] = lapply(1:nsim, function(x) {
-  input_i = em_input3 
+  input_i = em_input3
   obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[2]][[x]]$data[obs_names]
   return(input_i)
@@ -102,7 +102,7 @@ sim_input[[4]] = lapply(1:nsim, function(x) {
 
 # sim_input[[5]] has catch data modification with em4
 sim_input[[5]] = lapply(1:nsim, function(x) {
-  input_i = em_input4 
+  input_i = em_input4
   obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[2]][[x]]$data[obs_names]
   return(input_i)
@@ -155,7 +155,7 @@ exp(sim_input[[2]][[1]]$data$obsvec[sim_input[[2]][[1]]$data$keep_C+1]-sim_input
 em_fits = list()
 sfInit(parallel=TRUE, cpus=parallel::detectCores()-1)
 sfExportAll()
-for(m in 1:5){
+for(m in 1:nsim){
   sfExport('m')
   em_fits[[m]] = sfLapply(1:nsim, function(x){
     library(wham)
