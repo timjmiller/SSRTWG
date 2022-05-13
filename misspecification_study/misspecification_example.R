@@ -179,36 +179,41 @@ for(i in 1:nsim){
                     Year = input$years,
                     Sim = i,
                     pred_catch=em_fits[[1]][[i]]$report()$pred_catch,
+                    pred_log_indices=em_fits[[1]][[i]]$report()$pred_log_indices[,1],
                     SSB = em_fits[[1]][[i]]$report()$SSB)
   thisdf2 <- tibble(Source = "modified1",
                     Year = input$years,
                     Sim = i,
                     pred_catch=em_fits[[2]][[i]]$report()$pred_catch,
+                    pred_log_indices=em_fits[[2]][[i]]$report()$pred_log_indices[,1],
                     SSB = em_fits[[2]][[i]]$report()$SSB)
   thisdf3 <- tibble(Source = "modified2",
                     Year = input$years,
                     Sim = i,
                     pred_catch=em_fits[[3]][[i]]$report()$pred_catch,
+                    pred_log_indices=em_fits[[3]][[i]]$report()$pred_log_indices[,1],
                     SSB = em_fits[[3]][[i]]$report()$SSB)
   thisdf4 <- tibble(Source = "modified3",
                     Year = input$years,
                     Sim = i,
                     pred_catch=em_fits[[4]][[i]]$report()$pred_catch,
+                    pred_log_indices=em_fits[[4]][[i]]$report()$pred_log_indices[,1],
                     SSB = em_fits[[4]][[i]]$report()$SSB)
   thisdf5 <- tibble(Source = "modified4",
                     Year = input$years,
                     Sim = i,
                     pred_catch=em_fits[[5]][[i]]$report()$pred_catch,
+                    pred_log_indices=em_fits[[5]][[i]]$report()$pred_log_indices[,1],
                     SSB = em_fits[[5]][[i]]$report()$SSB)
   df2 <- rbind(df2, thisdf1, thisdf2, thisdf3, thisdf4, thisdf5)
 }
 ## Look at SSB and predicted catch to see how they do
-g <- pivot_longer(df2, cols=c("SSB", 'pred_catch')) %>%
+g <- pivot_longer(df2, cols=c("SSB", 'pred_catch', 'pred_log_indices')) %>%
   ggplot(aes(x=Year, y=value, color=Source)) +
   geom_point() +
   geom_line() +
   facet_grid(name~Sim,  scales = "free_y") +
-  ylim(0, NA) +
+ ##  ylim(0, NA) +
   theme_bw()
 g
 
