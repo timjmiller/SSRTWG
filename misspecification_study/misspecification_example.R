@@ -122,11 +122,12 @@ for(i in 1:nsim){
                     Year = input$years,
                     Sim = i,
                     agg_catch = sim_input[[2]][[i]]$data$agg_catch)
-  thisdf3 <- tibble(Source = "modified2",
-                    Year = input$years,
-                    Sim = i,
-                    agg_catch = sim_input[[3]][[i]]$data$agg_catch)
-  df <- rbind(df, thisdf1, thisdf2, thisdf3)
+  # thisdf3 <- tibble(Source = "modified2",
+  #                   Year = input$years,
+  #                   Sim = i,
+  #                   agg_catch = sim_input[[3]][[i]]$data$agg_catch)
+  #df <- rbind(df, thisdf1, thisdf2, thisdf3)
+  df <- rbind(df, thisdf1, thisdf2)
 }
 ggplot(df, aes(x=Year, y=agg_catch, color=Source)) +
   geom_point() +
