@@ -210,7 +210,7 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
 
   #may need to update these 
 	# projection data will always be modified by 'prepare_projection'
-	input = wham:::set_proj(input, proj.opts = NULL) #proj options are used later after model fit, right?
+	#input = wham:::set_proj(input, proj.opts = NULL) #proj options are used later after model fit, right?
 
 	#set any parameters as random effects
 	input$random = NULL
