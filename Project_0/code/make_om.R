@@ -1,10 +1,13 @@
-make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, brp_year = 1, eq_F_init = 0.3)
+make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, 
+  age_comp = "logistic-normal-miss0", brp_year = 1, 
+  eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1)
 {
 
   basic_info <- make_basic_info()
-  overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
+  #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
   
-  input <- prepare_wham_input(basic_info = basic_info, selectivity = selectivity, NAA_re = NAA_re, M= M)
+  input <- prepare_wham_input(basic_info = basic_info, selectivity = selectivity, NAA_re = NAA_re, M= M,
+    age_comp = age_comp)
   input$data$FXSPR_init[] = eq_F_init
   input$data$FMSY_init[] = eq_F_init
   #if you want to change the %Spawning Potential
@@ -34,7 +37,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, b
   #N1_state == "Fmsy"
   eq_F_N1 = exp(temp$rep$log_FMSY[brp_year]) # = F40
   if(N1_state == "overfished"){
-    eq_F_N1 = eq_F_N1 * overfishing_mult
+    eq_F_N1 = eq_F_N1 * max_mult_Fmsy
   }
   if(N1_state == "unfished"){
     eq_F_N1 = 0
@@ -59,7 +62,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, b
   input = set_NAA(input, NAA_re)
   
   #set F relative to Fmsy. This function is in get_FMSY.R
-  input = set_F_scenario(input, Fhist, Fmsy = Fmsy, max_mult = overfishing_mult, min_mult= 1)
-  om <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-  return(om)
+  input = set_F_scenario(input, Fhist, Fmsy = Fmsy, max_mult = max_mult_Fmsy, min_mult= min_mult_Fmsy)
+  if(om_input) return(input)
+  else return(fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE))
 }
