@@ -218,14 +218,16 @@ g <- pivot_longer(df2, cols=c("SSB", 'pred_catch', 'pred_log_indices')) %>%
   theme_bw()
 g
 
-rhoSSB <- list()
-for (m in 1:4){
-  rhoSSB[[m]] <- lapply(1:nsim, function(x){
+rhoSSB <- matrix(NA, nrow=nsim, ncol=5)
+colnames(rhoSSB) <- paste0("model", 1:5)
+for (m in 1:5){
+  thisrho <- lapply(1:nsim, function(x){
     out <- mohns_rho(em_fits[[m]][[x]])[1]
   return(out)
   })
+  rhoSSB[,m] <- unlist(thisrho)
 }
-unlist(rhoSSB)
+rhoSSB
 
 mycomp <- list()
 mycomp <- lapply(1:nsim, function(x){
