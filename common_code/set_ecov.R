@@ -440,8 +440,9 @@ set_ecov = function(input, ecov)
   if(!is.null(ecov$process_sig_vals)){
     for(i in 1:data$n_Ecov) par$Ecov_process_pars[2,i] = log(ecov$process_sig_vals[i])
   }
-  if(!is.null(ecov$process_sig_vals)){
-    for(i in 1:data$n_Ecov)  if(data$Ecov_model[i]==2) par$Ecov_process_pars[3,i] = log(ecov$process_sig_vals[i])
+  if(!is.null(ecov$process_cor_vals)){
+    inv_trans_rho <- function(rho) log(rho+1) - log(1-rho) # not same transformation as other re on cpp side.
+    for(i in 1:data$n_Ecov)  if(data$Ecov_model[i]==2) par$Ecov_process_pars[3,i] = inv_trans_rho(ecov$process_cor_vals[i])
   }
 
   par$Ecov_obs_logsigma <- par.Ecov.obs.logsigma

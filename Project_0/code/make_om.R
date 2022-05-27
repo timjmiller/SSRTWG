@@ -1,7 +1,6 @@
 make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, 
   age_comp = "logistic-normal-miss0", brp_year = 1, 
-  eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1)
-{
+  eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1, F_change_time = 0.5) {
 
   basic_info <- make_basic_info()
   #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
@@ -43,8 +42,8 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
     eq_F_N1 = 0
   }
   Jan1_NAA_per_recruit = wham:::get_SPR(F = eq_F_N1, M = temp$rep$MAA[brp_year,],
-    sel = temp$rep$selAA[[1]][brp_year,], mat= rep(1,gf_input$data$n_ages), 
-    waa = rep(1,gf_input$data$n_ages), fracyrssb = 0,at.age = TRUE)
+    sel = temp$rep$selAA[[1]][brp_year,], mat= rep(1,input$data$n_ages), 
+    waa = rep(1,input$data$n_ages), fracyrssb = 0,at.age = TRUE)
   Jan1_SSB_per_recruit = wham:::get_SPR(F = eq_F_N1, M = temp$rep$MAA[brp_year,], 
     sel = temp$rep$selAA[[1]][brp_year,], mat= input$data$mature[brp_year,], 
     waa = input$data$waa[input$data$waa_pointer_ssb,brp_year,], fracyrssb = input$data$fracyr_SSB[brp_year])
@@ -62,7 +61,8 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
   input = set_NAA(input, NAA_re)
   
   #set F relative to Fmsy. This function is in get_FMSY.R
-  input = set_F_scenario(input, Fhist, Fmsy = Fmsy, max_mult = max_mult_Fmsy, min_mult= min_mult_Fmsy)
+  input = set_F_scenario(input, Fhist, Fmsy = Fmsy, max_mult = max_mult_Fmsy, min_mult= min_mult_Fmsy,
+    change_time = F_change_time)
   if(om_input) return(input)
   else return(fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE))
 }

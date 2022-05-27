@@ -22,9 +22,9 @@ get_steepness = function(steepness_ini, input, NAA_re, F40, brp_year){
   return(out)
 }
 
-set_F_scenario = function(input, Fhist, Fmsy, max_mult = 1, min_mult = 1){
-    nby <- input$data$n_years_model
-    mid <- floor(nby/2)
+set_F_scenario = function(input, Fhist, Fmsy, max_mult = 1, min_mult = 1, change_time = 0.5){
+  nby <- input$data$n_years_model
+  year_change <- floor(nby * change_time)
   if(!Fhist %in% c("Fmsy","H-L","H")) {
     stop("Fhist must be 'Fmsy'','H-L'', or 'H'. Edit set_F_scenario to allow other options.")
   }
@@ -34,16 +34,24 @@ set_F_scenario = function(input, Fhist, Fmsy, max_mult = 1, min_mult = 1){
     input$par$log_F1[] = log(Fmsy)
     input$par$F_devs[] = 0
   }
-  if(Fhist == "H-L"){
-    cat("OM will have F changing abruptly in the middle of the model years.\n")
-    input$par$log_F1[] = log(max_mult * Fmsy)
-    input$par$F_devs[] = 0
-    input$par$F_devs[mid-1,] = log(max_mult) - log(min_mult)
-  }
   if(Fhist == "H"){
     cat("OM will have F= max_mult * Fmsy for all years.\n")
     input$par$log_F1[] = log(max_mult * Fmsy)
     input$par$F_devs[] = 0
+  }
+  if(Fhist == "H-L"){
+    cat("OM will have F decrease abruptly from max_mult x Fmsy to min_mult * Fmsy at ", change_time, 
+      " x n_model_years = ", year_change, ".\n")
+    input$par$log_F1[] = log(max_mult * Fmsy)
+    input$par$F_devs[] = 0
+    input$par$F_devs[year_change-1,] = log(min_mult) - log(max_mult)
+  }
+  if(Fhist == "L-H"){
+    cat("OM will have F increase abruptly from min_mult x Fmsy to max_mult * Fmsy at ", change_time, 
+      " x n_model_years = ", year_change, ".\n")
+    input$par$log_F1[] = log(min_mult * Fmsy)
+    input$par$F_devs[] = 0
+    input$par$F_devs[year_change-1,] = log(max_mult) - log(min_mult)
   }
   return(input)
 }
