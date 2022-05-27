@@ -50,6 +50,8 @@ for(this_om in 1:length(om_inputs)){
       # Deal with issues fitting EM to non-matching OM data
       # empty elements below can be used to summarize convergence information
       if(!'err' %in% names(fit) & class(fit) != "character"){
+        naa_om_results[[this_om]][[this_sim]][[this_em]]$wham_version <- fit$wham_version
+        naa_om_results[[this_om]][[this_sim]][[this_em]]$opt <- fit$opt
         naa_om_results[[this_om]][[this_sim]][[this_em]]$reps <- fit$rep
         naa_om_results[[this_om]][[this_sim]][[this_em]]$mohns_rho <- tryCatch(mohns_rho(fit),
           error = function(e) conditionMessage(e))

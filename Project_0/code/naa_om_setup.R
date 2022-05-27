@@ -18,7 +18,7 @@ setwd(write.dir)
 
 #number of simulations for each scenario
 #nsim = 1000
-nsim = 100
+#nsim = 100
 
 #Operating model factors
 #NAA sigmas for each scenario

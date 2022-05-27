@@ -26,12 +26,12 @@ gf_selectivity = list(
   initial_pars = rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
 
 #different from naa_om_setup.R
-#M set is not changing
+#M set up that can be changed for each EM
 #gf_M = list(initial_means = rep(0.2, length(gf_info$ages)))
 gf_M = list(initial_means = 0.2, model = "constant")
 
 #same as naa_om_setup.R
-#NAA_re set up that can be changed for each OM scenario
+#NAA_re set up that can be changed for each EM
 gf_NAA_re = list(
   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
   sigma = "rec", #random about mean
