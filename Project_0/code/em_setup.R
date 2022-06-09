@@ -15,6 +15,7 @@ re_config = c("rec","rec+1", "M_re", "sel_re", "q_re")
 
 #create data.frame defining estimation models data.fram
 df.ems <- expand.grid(SR_model = SR_model, M_est = M_est, re_config = re_config, stringsAsFactors = FALSE)
+saveRDS(df.ems, file.path(here(),"Project_0", "inputs", "df.ems.RDS"))
 
 #same as naa_om_setup.R
 gf_info = make_basic_info()
