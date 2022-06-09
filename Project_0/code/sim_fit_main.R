@@ -78,6 +78,7 @@ for(this_om in 1:length(om_inputs)){
             "SE_rep" = as.list(fit$sdrep, what = "Std", report = TRUE))
         }
       }
+      return(res)
     })
     # for(this_em in 1:length(em_mods)){ 
     #   #sfExport('this_em')
