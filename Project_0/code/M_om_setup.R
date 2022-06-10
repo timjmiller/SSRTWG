@@ -14,7 +14,7 @@ write.dir <- file.path(here(),"Project_0", "inputs")
 
 #if(!exists("write.dir")) write.dir = getwd()
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
-setwd(write.dir)
+#setwd(write.dir)
 
 #number of simulations for each scenario
 #nsim = 1000
@@ -22,13 +22,16 @@ setwd(write.dir)
 
 #Operating model factors
 #NAA sigmas for each scenario
-R_sig <- c(0.5,1.5)
-NAA_sig <- c(NA,0.25,0.5)
+R_sig <- c(0.5)
 #F time series
+
+M_sig <- c(0.1,0.5)
+M_cor <- c(0, 0.9)
+
 Fhist = c("H-MSY","MSY")
 #how much observation error
 obs_error = c("L", "H")
-df.oms <- expand.grid(R_sig = R_sig, NAA_sig = NAA_sig, Fhist = Fhist, 
+df.M.oms <- expand.grid(R_sig = R_sig, M_sig = M_sig, M_cor = M_cor, Fhist = Fhist, 
   obs_error = obs_error, stringsAsFactors = FALSE)
 
 #logistic-normal age comp SDs for L/H observation error (both indices AND CATCH!!!????)
@@ -36,12 +39,12 @@ L_N_sigma = c(L = 0.3, H = 1.5)
 #(log) index SDs for L/H observation error 
 index_sigma = c(L = 0.1, H = 0.4)
 
-n.mods <- dim(df.oms)[1] #24 operating model scenarios
-df.oms$Model <- paste0("om_",1:n.mods)
-df.oms <- df.oms %>% select(Model, everything()) # moves Model to first col
+n.mods <- dim(df.M.oms)[1] #24 operating model scenarios
+df.M.oms$Model <- paste0("om_",1:n.mods)
+df.M.oms <- df.M.oms %>% select(Model, everything()) # moves Model to first col
 # look at model table
-df.oms
-saveRDS(df.oms, file.path(here(),"Project_0", "inputs", "df.oms.RDS"))
+df.M.oms
+saveRDS(df.M.oms, file.path(here(),"Project_0", "inputs", "df.M.oms.RDS"))
 
 
 gf_info = make_basic_info()
@@ -52,7 +55,12 @@ gf_selectivity = list(
   initial_pars = rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
 
 #M set is not changing
-gf_M = list(initial_means = rep(0.2, length(gf_info$ages)))
+gf_M = list(model = "constant", 
+  initial_means = 0.2,
+  re = "ar1_y",
+  sigma_vals = 0.1,
+  cor_vals = 0
+  )
 
 #NAA_re set up that can be changed for each OM scenario
 gf_NAA_re = list(
@@ -71,10 +79,6 @@ for(i in 1:NROW(df.oms)){
   print(paste0("row ", i))
   NAA_re = gf_NAA_re
   NAA_re$sigma_vals = df.oms$R_sig[i]
-  if(!is.na(df.oms$NAA_sig[i])) { #full random effects for NAA
-    NAA_re$sigma = "rec+1"
-    NAA_re$sigma_vals[2] = df.oms$NAA_sig[i]
-  }
   Fhist. = "Fmsy"
   max_mult = 2.5 # fishing at 2.5 x Fmsy
   min_mult = 1 # fishing at Fmsy

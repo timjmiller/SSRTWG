@@ -62,7 +62,7 @@ for(this_om in 1:n_oms){
           error = function(e) conditionMessage(e))
         fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc
                 error = function(e) conditionMessage(e))
-        if(class(fit$sdrep) == "sdreport"){
+        if(class(fit$sdrep) == "sdreport"){ 
           res$sdreps <- list(
             "Estimate_par" = as.list(fit$sdrep, what = "Est"),
             "SE_par" = as.list(fit$sdrep, what = "Std"),
@@ -71,8 +71,12 @@ for(this_om in 1:n_oms){
         }
       }
       naa_om_results[[this_om]][[this_sim]][[this_em]] = res
-    })
+      #saveRDS(naa_om_results[[this_om]][[this_sim]][[this_em]], file = file.path(here(),"results", 
+      #  paste0("naa_om_results_om", this_om, "_em", this_em, "_sim", this_sim, "_test.RDS"))) 
+    }
   }
 }
 
-saveRDS(naa_om_results, file = file.path(here(),"results", "naa_om_results_teset.RDS"))
+
+
+saveRDS(naa_om_results, file = file.path(here(),"results", "naa_om_results_test.RDS"))
