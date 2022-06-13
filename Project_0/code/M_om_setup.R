@@ -58,8 +58,8 @@ gf_selectivity = list(
 gf_M = list(model = "constant", 
   initial_means = 0.2,
   re = "ar1_y",
-  sigma_vals = 0.1,
-  cor_vals = 0
+  #sigma_vals = 0.1,
+  #cor_vals = 0
   )
 
 #NAA_re set up that can be changed for each OM scenario
@@ -75,16 +75,23 @@ gf_NAA_re = list(
 
 #make inputs for operating model (smaller objects to save, can recreate simulated data sets)
 om_inputs = list()
-for(i in 1:NROW(df.oms)){
+for(i in 1:NROW(df.M.oms)){
   print(paste0("row ", i))
   NAA_re = gf_NAA_re
-  NAA_re$sigma_vals = df.oms$R_sig[i]
+  NAA_re$sigma_vals = df.M.oms$R_sig[i]
+  
   Fhist. = "Fmsy"
   max_mult = 2.5 # fishing at 2.5 x Fmsy
   min_mult = 1 # fishing at Fmsy
+  
+  #M
+  M_i = gf_M
+  M_i$sigma_vals = df.M.mods$M_sig[i]
+  M_i$cor_vals = df.M.mods$M_cor[i]
+
   if(df.oms$Fhist[i] == "H-Fmsy") Fhist. = "H-L"
   om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, 
-    M = gf_M, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
+    M = M_i, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
   #turn off bias correction
   om_inputs[[i]] = set_simulation_options(om_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE, 

@@ -2,11 +2,23 @@ library(here)
 library(wham)
 #sim_fit_main.R
 
+
 #naa_oms
 
 om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 em_inputs = readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
+script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_script.R")
 
+#this file must be created on the server
+fname = "naa_om_sim_fit_test_commands.txt"
+write("#commands to run on server.", file = fname, append = FALSE)
+write("#create simulated data from an operating model and fit with an estimating model.", file = fname, append = TRUE)
+for(i in 1:length(om_inputs)) for(j in 1:length(em_inputs)){ 
+  write(paste0("Rscript --vanilla " script.full.path, " " , i, " ",  j, " 1 &"), file = fname, append = TRUE)
+}
+
+df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
 #######################################################
 #need to have matching assumptions about CVs for catch and indices, too
 obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
@@ -15,8 +27,10 @@ obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "
 
 #######################################################
 #Do we want to use the same (e.g. 1000) seeds for everything?
-set.seed(1234)
-seeds = sample(x = (-1e9):(1e9), size = 1000, replace = FALSE)
+#set.seed(1234)
+#seeds = sample(x = (-1e9):(1e9), size = 1000, replace = FALSE)
+#saveRDS(seeds, file.path(here(), "Project_0", "inputs","seeds.RDS"))
+seeds = readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
 #can change sims to 101:200, etc. to do subsets of simulations and stop < 1000 if time is an issue.
 sims = 1:100
 sims = 1
@@ -25,12 +39,13 @@ sims = 1
 naa_om_results = list()
 naa_om_truth = list()
 n_oms = length(om_inputs)
-n_oms = 1 #testing
-for(this_om in 1:n_oms){
+#n_oms = 1 #testing
+#for(this_om in 1:n_oms){
+for(this_om in 2:n_oms){
   naa_om_results[[this_om]] = list()
   naa_om_truth[[this_om]] = list()
   for(this_sim in sims){
-    print(paste0("OM: ", this_sim, " Sim: ", this_om))
+    print(paste0("OM: ", this_om, " Sim: ", this_sim))
     # Set seed
     om = fit_wham(om_inputs[[this_om]], do.fit = FALSE, MakeADFun.silent = TRUE)
     set.seed(seeds[this_sim])
@@ -41,14 +56,14 @@ for(this_om in 1:n_oms){
     naa_om_results[[this_om]][[this_sim]] = list()
     for(this_em in 1:length(em_inputs)){
       library(wham)
-      print(paste0("OM: ", this_sim, " Sim: ", this_om, " EM: ", this_em))
+      print(paste0("OM: ", this_om, " Sim: ", this_sim, " EM: ", this_em))
       res = list()      
       EM_input <- em_inputs[[this_em]] # Read in the EM 
       #put simulated data into the em input
       EM_input$data[obs_names] = sim_data[obs_names]
 
       #do fit withouth sdreport first
-      fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=T, do.proj=F, MakeADFun.silent=TRUE),
+      fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=T, do.proj=F, MakeADFun.silent=FALSE),
         error = function(e) conditionMessage(e))
 				
       # Deal with issues fitting EM to non-matching OM data
