@@ -7,14 +7,14 @@ library(wham)
 
 om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 em_inputs = readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
-script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_script.R")
+script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_test_script.R")
 
 #this file must be created on the server
-fname = "naa_om_sim_fit_test_commands.txt"
+fname = file.path(here(), "Project_0", "code", "naa_om_sim_fit_test_commands.txt")
 write("#commands to run on server.", file = fname, append = FALSE)
 write("#create simulated data from an operating model and fit with an estimating model.", file = fname, append = TRUE)
-for(i in 1:length(om_inputs)) for(j in 1:length(em_inputs)){ 
-  write(paste0("Rscript --vanilla " script.full.path, " " , i, " ",  j, " 1 &"), file = fname, append = TRUE)
+for(this_om in 1:length(om_inputs)) for(this_em in 1:length(em_inputs)){ 
+  write(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " 1 &"), file = fname, append = TRUE)
 }
 
 df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))

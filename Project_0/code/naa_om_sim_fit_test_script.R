@@ -47,18 +47,18 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   res$fit$wham_version <- fit$wham_version
   res$fit$TMB_version <- fit$TMB_version
   res$fit$opt <- fit$opt
-  res$fit$reps <- fit$rep
+  res$fit$rep <- fit$rep
   res$fit$mohns_rho <- tryCatch(mohns_rho(fit),
     error = function(e) conditionMessage(e))
-  res$fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc
+  fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc
           error = function(e) conditionMessage(e))
   if(class(fit$sdrep) == "sdreport"){ 
-    res$fit$sdreps <- list(
+    res$fit$sdrep <- list(
       "Estimate_par" = as.list(fit$sdrep, what = "Est"),
       "SE_par" = as.list(fit$sdrep, what = "Std"),
       "Estimate_rep" = as.list(fit$sdrep, what = "Est", report = TRUE),
       "SE_rep" = as.list(fit$sdrep, what = "Std", report = TRUE))
   }
 }
-saveRDS(res, file = file.path(here(),"results", 
+saveRDS(res, file = file.path(here(), "Project_0", "results", 
   paste0("naa_om_results_om_", this_om, "_em_", this_em, "_sim_", this_sim, "_test.RDS"))) 
