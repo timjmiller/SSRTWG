@@ -4,39 +4,39 @@ args = commandArgs(trailingOnly=TRUE)
 library(here)
 library(wham)
 
-this_om = as.integer(args[1])
-this_em = as.integer(args[2])
-this_sim = as.integer(args[3])
+this_om <- as.integer(args[1])
+this_em <- as.integer(args[2])
+this_sim <- as.integer(args[3])
 
-om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
-em_inputs = readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
-df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
-df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
+om_inputs <- readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+em_inputs <- readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
+df.ems <- readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
+df.oms <- readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
 #######################################################
 #need to have matching assumptions about CVs for catch and indices, too
-obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
+obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
   "Ecov_obs", "obs", "obsvec")
 #######################################################
 
 #######################################################
 #Do we want to use the same (e.g. 1000) seeds for everything?
-seeds = readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
+seeds <- readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
 #######################################################
 
 print(paste0("OM: ", this_om, " Sim: ", this_sim, " EM: ", this_em))
 
 # Set seed
-om = fit_wham(om_inputs[[this_om]], do.fit = FALSE, MakeADFun.silent = TRUE)
+om <- fit_wham(om_inputs[[this_om]], do.fit = FALSE, MakeADFun.silent = TRUE)
 set.seed(seeds[this_sim])
-sim_data = om$simulate(complete=TRUE)
-truth = sim_data
+sim_data <- om$simulate(complete=TRUE)
+truth <- sim_data
 #save the version for reproducibility
 truth$wham_version = om$wham_version
 EM_input <- em_inputs[[this_em]] # Read in the EM 
 #put simulated data into the em input
 EM_input$data[obs_names] = sim_data[obs_names]
-res = list(truth = truth)
-res$fit = list()
+res <- list(truth = truth)
+res$fit <- list()
 #do fit withouth sdreport first
 fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=T, do.proj=F, MakeADFun.silent=TRUE),
   error = function(e) conditionMessage(e))
@@ -60,5 +60,7 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
       "SE_rep" = as.list(fit$sdrep, what = "Std", report = TRUE))
   }
 }
-saveRDS(res, file = file.path(here(), "Project_0", "results", "naa_om",
-  paste0("naa_om_results_om_", this_om, "_em_", this_em, "_sim_", this_sim, "_test.RDS"))) 
+rds.fn = file.path(here(), "Project_0", "results", "naa_om", paste0("om_", this_om), paste0("sim_", this_sim, ".RDS"))
+res_store <- readRDS(rds.fn)
+res_store[[this_em]] <- res
+saveRDS(res_store, file = rds.fn)

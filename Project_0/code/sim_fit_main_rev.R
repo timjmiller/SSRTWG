@@ -1,30 +1,33 @@
 library(here)
 library(wham)
-#sim_fit_main.R
+#sim_fit_main_rev.R
 
 
 #naa_oms
 
-om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
-em_inputs = readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
-script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_test_script.R")
+#om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+#em_inputs = readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
+script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_script.R")
 
-#this file must be created on the server
-fname = file.path(here(), "Project_0", "code", "naa_om_sim_fit_test_commands.txt")
-write("#commands to run on server.", file = fname, append = FALSE)
-write("#create simulated data from an operating model and fit with an estimating model.", file = fname, append = TRUE)
-for(this_om in 1:length(om_inputs)) for(this_em in 1:length(em_inputs)){ 
-  write(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " 1 &"), file = fname, append = TRUE)
-}
+# #this file must be created on the server
+# fname = file.path(here(), "Project_0", "code", "naa_om_sim_fit_test_commands.txt")
+# write("#commands to run on server.", file = fname, append = FALSE)
+# write("#create simulated data from an operating model and fit with an estimating model.", file = fname, append = TRUE)
+# for(this_om in 1:length(om_inputs)) for(this_em in 1:length(em_inputs)){ 
+#   write(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " 1 &"), file = fname, append = TRUE)
+# }
 
 #all 1 sim fits done
 
 results.path = file.path(here(),"Project_0", "results", "naa_om")
 
-system(paste0("Rscript --vanilla ", script.full.path, " " , 3, " ",  12, " 1 \n"))
+#system(paste0("Rscript --vanilla ", script.full.path, " " , 3, " ",  12, " 1 \n"))
 
 df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
 df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
+om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+em_inputs = readRDS(file.path(here(),"Project_0","inputs", "em_inputs.RDS"))
+
 #######################################################
 #need to have matching assumptions about CVs for catch and indices, too
 obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
@@ -40,16 +43,42 @@ seeds = readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
 #can change sims to 101:200, etc. to do subsets of simulations and stop < 1000 if time is an issue.
 sims = 1:100
 sims = 1
+sims = 2:5
 #######################################################
 
-naa_om_results = list()
-naa_om_truth = list()
+#naa_om_results = list()
+#naa_om_truth = list()
 n_oms = length(om_inputs)
+script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_script.R")
 #n_oms = 1 #testing
 #for(this_om in 1:n_oms){
+library(snowfall) # used for parallel computing
+sfInit(parallel=TRUE, cpus=10)
+sfInit(parallel=TRUE, cpus=4)
+
+oms = 1:2
+sims = 1:2
+temp = expand.grid(om = oms, sim = sims)
+sfExportAll()
+sfLapply(1:NROW(temp), function(row_i){
+  this_om = temp$om[row_i]
+  this_sim = temp$sim[row_i]
+  write.dir <- file.path(here(),"Project_0", "results", "naa_om", paste0("om_", this_om))
+  dir.create(write.dir, recursive = T, showWarnings = FALSE)
+  rds.fn = file.path(write.dir, paste0("sim_", this_sim, ".RDS"))
+  saveRDS(list(), rds.fn) #make list file that can be populated with the em fits.
+  #om_script given sim
+  #om = fit_wham(om_inputs[[this_om]], do.fit = FALSE, MakeADFun.silent = TRUE)
+  #set.seed(seeds[this_sim])
+  #sim_data = om$simulate(complete=TRUE)
+  for(this_em in 1:length(em_inputs)){
+    system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
+  }
+}
+
+system(paste0("Rscript --vanilla ", script.full.path, " " , 3, " ",  12, " 1 \n"))
+
 for(this_om in 2:n_oms){
-  naa_om_results[[this_om]] = list()
-  naa_om_truth[[this_om]] = list()
   for(this_sim in sims){
     print(paste0("OM: ", this_om, " Sim: ", this_sim))
     # Set seed
