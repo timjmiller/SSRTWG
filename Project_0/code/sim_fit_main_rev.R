@@ -53,17 +53,20 @@ script.full.path = file.path(here(),"Project_0", "code", "naa_om_sim_fit_script.
 #n_oms = 1 #testing
 #for(this_om in 1:n_oms){
 library(snowfall) # used for parallel computing
-sfInit(parallel=TRUE, cpus=10)
-sfInit(parallel=TRUE, cpus=4)
+#number of cores
+parallel::detectCores()
+sfInit(parallel=TRUE, cpus=8)
+#sfInit(parallel=TRUE, cpus=4)
 
-oms = 1:2
-sims = 1:2
+oms = 1:n_oms
+#oms = 1:2
+#sims = 1:2
 temp = expand.grid(om = oms, sim = sims)
 sfExportAll()
 sfLapply(1:NROW(temp), function(row_i){
   this_om = temp$om[row_i]
   this_sim = temp$sim[row_i]
-  write.dir <- file.path(here(),"Project_0", "results", "naa_om", paste0("om_", this_om))
+  write.dir <- file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", this_om))
   dir.create(write.dir, recursive = T, showWarnings = FALSE)
   rds.fn = file.path(write.dir, paste0("sim_", this_sim, ".RDS"))
   saveRDS(list(), rds.fn) #make list file that can be populated with the em fits.
@@ -74,7 +77,7 @@ sfLapply(1:NROW(temp), function(row_i){
   for(this_em in 1:length(em_inputs)){
     system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
   }
-}
+})
 
 system(paste0("Rscript --vanilla ", script.full.path, " " , 3, " ",  12, " 1 \n"))
 
