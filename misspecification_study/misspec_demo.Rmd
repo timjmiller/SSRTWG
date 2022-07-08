@@ -17,7 +17,6 @@ library(ggplot2)
 
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "bias_data.R"))
-
 ```
 
 ## Overview
@@ -26,7 +25,7 @@ This demonstration explores a single realization of catch misspecification with 
 
 ## Building the data sets
 
-The process starts with creating an intial data set using the make_basic_info function and assigning values for selectivity, natural mortality, and recruitment. For this example, there is a single fleet and two indices all with logisitic selectivity, natural mortality is constant at 0.2 for all years and ages, there is no stock-recruitment relationship (recruitment varies as an identical and independent deviation about the mean). The prepare_wham_input function creates the correctly specified input formulation. 
+The process starts with creating an initial data set using the make_basic_info function and assigning values for selectivity, natural mortality, and recruitment. For this example, there is a single fleet and two indices all with logistic selectivity, natural mortality is constant at 0.2 for all years and ages, and there is no stock-recruitment relationship (recruitment varies as an identical and independent deviation about the mean). The prepare_wham_input function creates the correctly specified input formulation. 
 
 ```{r data}
 # only doing one simulation here, but keep structure for multiple sims for use later
@@ -68,7 +67,7 @@ Four estimation models are created using different levels of "state-spaceness" f
 
 ```{r makeem}
 # set up estimation models
-em_input1 <- input # self-test
+em_input1 <- input 
 
 gf_NAA_re2 <- gf_NAA_re
 gf_NAA_re2$cor <- "ar1_y"
@@ -84,7 +83,7 @@ gf_NAA_re4$sigma <- "rec+1"
 em_input4 <- prepare_wham_input(basic_info = groundfish_info, selectivity = gf_selectivity, NAA_re = gf_NAA_re4, M= gf_M)
 ```
 
-Simulated data are created under two conditions: correctly an incorrectly reported catch in the recent years of the assessment. The incorrectly reported catch uses the bias_data function. In this example, catch is under-reported, the catch provided to the wham model is only one third of the actual catch for the second half of the assessment time period. The four estimation models are then set up to be applied to the two sets of data, resulting in a total of 8 models. The first four models use the correct catch data while the last four models use the under-reported catch data.
+Simulated data are created under two conditions: correctly and incorrectly reported catch in the recent years of the assessment. The incorrectly reported catch uses the bias_data function. In this example, catch is under-reported, the catch provided to the wham model is only one third of the actual catch for the second half of the assessment time period. The four estimation models are then set up to be applied to the two sets of data, resulting in a total of 8 models. The first four sim_inputs use the correct catch data while the last four sim_inputs use the under-reported catch data.
 
 ```{r simdata}
 #simulate data from operating model
@@ -186,7 +185,7 @@ print(p1)
 
 ```
 
-Now run the eight models. This may take a few minutes. The Rmarkdown compilation checks to see if the file misspec_demo_fits.RDS is present in the misspecification_study directory. If it is, it simply reads that file. If it is not, then the model is run. So if you change any of the settings above, be sure to remove the RDS file before knitting the Rmarkdown script. 
+Now run the eight models. This may take a few minutes. The Rmarkdown compilation checks to see if the file misspec_demo_fits.RDS is present in the misspecification_study directory. If it is, it simply reads that file. If it is not, then the model is run. So if you change any of the settings above, be sure to remove the RDS file before knitting the Rmarkdown script. This RDS file is relatively large (~16 MB), so is not saved on the GitHub repo.
 
 ```{r runmodels}
 if(file.exists(file.path(here(), "misspecification_study", "misspec_demo_fits.RDS"))){
@@ -203,6 +202,7 @@ if(file.exists(file.path(here(), "misspecification_study", "misspec_demo_fits.RD
   saveRDS(em_fits, file.path(here(), "misspecification_study", "misspec_demo_fits.RDS"))
 }
 ```
+
 Start by making sure all the models converged. Model 4 (correct data with estimation model 4) did not converge. Kept in for now just for completeness, but this is a good reminder to make sure the model converges before digging into the results.
 
 ```{r converged}
@@ -228,7 +228,7 @@ print(correct_data_compare$g[[1]])
 print(correct_data_compare$g[[2]])
 ```
 
-The under-reported catch data (UR) found greater differences among the four models. Estimation model 4 (full state-spcae with 2dar1 correlations) was the preferred model based on AIC, with the other models >50 units worse. The Mohn's rho values for SSB and F for estimation model 4 were lower than all the values from the correct data, while the other three estimation models were all worse (absolute values >0.20). So according to both AIC and the retrospective diagnostic, estimation model 4 is highly preferred to the other three estimation models for the under-reported catch data. All four estimation models show a spike in F in year 2000, just before the catch under-reporting begins. The big difference is in the scale of the F, recruitment, and SSB point estimates, with estimation model 4 showing lower F and higher recruitment and SSB than the other three estimation models. The trends in F, recruitment, and SSB are similar though. The uncertainty of estimation model 4 is much higher than the other three models. It is not clear what is driving the large uncertainty in estimation model 4 (Tim - do you have any thoughts?). Looking at the fits for estimation model 4 (using plot_wham_output(mod=em_fits[[8]][[1]], out.type='html')), I was surprised by how well most things fit, with no obvious patterning in residuals or obvious misfits. The one bad diagnostic I saw was the conditional expected and posterior estimates of abundance at all ages where the line was above all the points for all years and ages. So there was one diagnostic that indicated that there is a model misfit. Note to self, need to figure out a good way to save the figures and bring them into this Rmarkdown so everyone can see them.
+The under-reported catch data (UR) found greater differences among the four models. Estimation model 4 (full state-spcae with 2dar1 correlations) was the preferred model based on AIC, with the other models >50 units worse. The Mohn's rho values for SSB and F for estimation model 4 were lower than all the values from the correct data, while the other three estimation models were all worse (absolute values >0.20). So according to both AIC and the retrospective diagnostic, estimation model 4 is highly preferred to the other three estimation models for the under-reported catch data. All four estimation models show a spike in F in year 2000, just before the catch under-reporting begins. The big difference is in the scale of the F, recruitment, and SSB point estimates, with estimation model 4 showing lower F and higher recruitment and SSB than the other three estimation models. The trends in F, recruitment, and SSB are similar though. The uncertainty of estimation model 4 is much higher than the other three models. It is not clear what is driving the large uncertainty in estimation model 4 (Tim - do you have any thoughts?). 
 
 ```{r comparemisspec}
 misspecified_data_compare <- compare_wham_models(list(UR_em1 = em_fits[[5]][[1]],
@@ -238,5 +238,18 @@ misspecified_data_compare <- compare_wham_models(list(UR_em1 = em_fits[[5]][[1]]
                                             
 print(misspecified_data_compare$g[[1]])
 print(misspecified_data_compare$g[[2]])
+```
+
+Looking at the fits to the under-reported data for estimation model 4 (using plot_wham_output(mod=em_fits[[8]][[1]], out.type='html')), I was surprised by how well most things fit, with no obvious patterning in residuals or obvious misfits. The one bad diagnostic I saw was the conditional expected and posterior estimates of abundance at all ages where the line was above all the points for all years and ages. So there was one diagnostic that indicated that there is a model misfit, but not anything that jumped out at me from the tabular data that could easily be grabbed when running lots of realizations. 
+
+```{r plotemfit8}
+# note could not get the following code to run within Rmarkdown (it produced the png files but not the pdf)
+# can either pull this code out and run in console, or else uncomment and knit then comment and knit again
+#em8.dir <- file.path(here(), "misspecification_study", "UR_em4")
+#if(!dir.exists(em8.dir)){
+#  dir.create(em8.dir)
+#}
+#plot_wham_output(mod=em_fits[[8]][[1]], dir.main=em8.dir)
+
 ```
 
