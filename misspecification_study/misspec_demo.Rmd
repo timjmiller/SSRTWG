@@ -71,16 +71,25 @@ em_input1 <- input
 
 gf_NAA_re2 <- gf_NAA_re
 gf_NAA_re2$cor <- "ar1_y"
-em_input2 <- prepare_wham_input(basic_info = groundfish_info, selectivity = gf_selectivity, NAA_re = gf_NAA_re2, M= gf_M)
+em_input2 <- prepare_wham_input(basic_info = groundfish_info, 
+                                selectivity = gf_selectivity, 
+                                NAA_re = gf_NAA_re2, 
+                                M= gf_M)
 
 gf_NAA_re3 <- gf_NAA_re
 gf_NAA_re3$sigma <- "rec+1"
-em_input3 <- prepare_wham_input(basic_info = groundfish_info, selectivity = gf_selectivity, NAA_re = gf_NAA_re3, M= gf_M)
+em_input3 <- prepare_wham_input(basic_info = groundfish_info, 
+                                selectivity = gf_selectivity, 
+                                NAA_re = gf_NAA_re3, 
+                                M= gf_M)
 
 gf_NAA_re4 <- gf_NAA_re
 gf_NAA_re4$cor <- "2dar1"
 gf_NAA_re4$sigma <- "rec+1"
-em_input4 <- prepare_wham_input(basic_info = groundfish_info, selectivity = gf_selectivity, NAA_re = gf_NAA_re4, M= gf_M)
+em_input4 <- prepare_wham_input(basic_info = groundfish_info, 
+                                selectivity = gf_selectivity, 
+                                NAA_re = gf_NAA_re4, 
+                                M= gf_M)
 ```
 
 Simulated data are created under two conditions: correctly and incorrectly reported catch in the recent years of the assessment. The incorrectly reported catch uses the bias_data function. In this example, catch is under-reported, the catch provided to the wham model is only one third of the actual catch for the second half of the assessment time period. The four estimation models are then set up to be applied to the two sets of data, resulting in a total of 8 models. The first four sim_inputs use the correct catch data while the last four sim_inputs use the under-reported catch data.
@@ -170,7 +179,9 @@ for (m in 1:8){
     out <- sim_input[[m]][[x]]$data$agg_catch
   return(out)
   })
-  thisaggc <- tibble(Model = m, Year = 1:sim_input[[m]][[1]]$data$n_years_model, AggCatch = unlist(aggcdat))
+  thisaggc <- tibble(Model = m, 
+                     Year = 1:sim_input[[m]][[1]]$data$n_years_model, 
+                     AggCatch = unlist(aggcdat))
   aggc <- rbind(aggc, thisaggc)
 }
 
@@ -195,7 +206,11 @@ if(file.exists(file.path(here(), "misspecification_study", "misspec_demo_fits.RD
   em_fits = list()
   for(m in 1:8){
     em_fits[[m]] = lapply(1:nsim, function(x){
-      out = fit_wham(sim_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
+      out = fit_wham(sim_input[[m]][[x]], 
+                     do.osa = FALSE,
+                     MakeADFun.silent = TRUE, 
+                     retro.silent = TRUE, 
+                     save.sdrep = FALSE)
       return(out)
     })
   }
@@ -253,3 +268,16 @@ Looking at the fits to the under-reported data for estimation model 4 (using plo
 
 ```
 
+The catch and index four panel plots all look good for UR_em4.
+
+![catch 4 panel](UR_em4/plots_png/diagnostics/Catch_4panel_fleet_1.png)
+
+![index 1 4 panel](UR_em4/plots_png/diagnostics/Index_4panel_1.png)
+
+![index 2 4 panel](UR_em4/plots_png/diagnostics/Index_4panel_2.png)
+
+The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals.
+
+![NAA age 1 4 panel](UR_em4/plots_png/diagnostics/NAA_4panel_1.png)
+![NAA age 8 4 panel](UR_em4/plots_png/diagnostics/NAA_4panel_8.png)
+![NAA residuals stacked barplot](UR_em4/plots_png/diagnostics/NAA_res_barplot_stacked.png)
