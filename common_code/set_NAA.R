@@ -137,7 +137,7 @@ This message will not appear if you set recruit_model = 2 (random about mean).")
   } else {
     NAA_re$cor <- 'iid'
   }
-  inv_trans_rho <- function(rho) 0.5 * log(rho+1) - log(1-rho) # 0.5 because needed transformation on cpp side is unusual.
+  inv_trans_rho <- function(rho, s = 2) (log(rho+1) - log(1-rho))/s # 0.5 because needed transformation on cpp side is unusual.
   if(is.null(NAA_re$cor_vals)) par$trans_NAA_rho <- c(0,0)
   else {
     if(length(NAA_re$cor_vals) == 2) par$trans_NAA_rho <- inv_trans_rho(NAA_re$cor_vals)

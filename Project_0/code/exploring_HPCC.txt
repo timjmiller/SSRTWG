@@ -1,0 +1,25 @@
+module avail //lists available modules
+
+//most recent version of gcc
+//module load gcc/11.2.0
+//module load R/4.1.4
+
+module load gcc/8.1.0
+module load R/4.0.4_gcc
+
+//how much disk space
+ df -h /home/tm94d
+
+//start R
+R
+#set up to use wham
+is
+devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
+
+.libPaths()
+
+install.packages("TMB", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
+install.packages("remotes", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
+.libPaths("~/Rlib/")
+remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
+remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="devel")
