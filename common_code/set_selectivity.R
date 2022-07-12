@@ -29,11 +29,11 @@
 #'                a vector of length # parameters in the block, i.e. \code{c(2,0.2)} for logistic or \code{c(0.5,0.5,0.5,1,1,0.5)} for
 #'                age-specific with 6 ages. Default is to set at middle of parameter range. This is 0.5 for age-specific and n.ages/2 
 #'                or logistic, double-logistic, and decreasing-logistic.}
-#'     \item{$fix_pars}{Alternative to \code{$map_pars} for specifying which selectivity parameters (fixed effects) to fix at initial values. 
+#'     \item{$fix_pars}{Alternative to \code{$map_pars} for specifying which selectivity parameters (only fixed effects) to fix at initial values. 
 #'                List of length = number of selectivity blocks. E.g. model with 3 age-specific blocks and 6 ages, 
 #'                \code{list(4:5, 4, 2:4))} will fix ages 4 and 5 in block 1, age 4 in block 2, and ages 2, 3, and 4 in block 3.
 #'                Use NULL to not fix any parameters for a block, e.g. list(NULL, 4, 2) does not fix any pars in block 1.}
-#'     \item{$map_pars}{Alternative to \code{$fix_pars} for specifying how to fix selectivity parameters (fixed effects), corresponds 
+#'     \item{$map_pars}{Alternative to \code{$fix_pars} for specifying how to fix selectivity parameters (only fixed effects), corresponds 
 #'                to \code{map$logit_selpars}. List of length = number of selectivity blocks, where each item is a 
 #'                vector of length = number of selectivity parameters (age-specific: n.ages, logistic: 2, 
 #'                double-logistic: 4). Use \code{NA} to fix a parameter and integers to estimate. Use the same integer
@@ -229,11 +229,17 @@ set_selectivity = function(input, selectivity)
     }
   }
   temp <- matrix(NA, data$n_selblocks, data$n_ages + 6)
-  if(!is.null(selectivity$fix_pars)){ # use fix_pars
+  # if(!is.null(selectivity$fix_pars)){ # use fix_pars
     temp[which(phase_selpars > 0)] = 1:sum(phase_selpars>0)
-  }
+  # }
   if(!is.null(selectivity$map_pars)){ # use map_pars directly
     for(b in 1:data$n_selblocks) temp[b, par_index[[data$selblock_models[b]]]] = selectivity$map_pars[[b]]
+  }
+  # if re='ar1' (by age) and age-specific sel, only estimate one mean shared across ages
+  for(b in 1:data$n_selblocks){ 
+    if(data$selblock_models_re[b] == 3 & data$selblock_models[b] == 1){
+      temp[b, par_index[[data$selblock_models[b]]]] = temp[b,1]
+    }
   }
   data$selpars_est <- matrix(0, data$n_selblocks, data$n_ages + 6)
   data$selpars_est[which(!is.na(temp))] = 1
