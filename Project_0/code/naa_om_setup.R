@@ -43,6 +43,13 @@ df.oms <- df.oms %>% select(Model, everything()) # moves Model to first col
 df.oms
 saveRDS(df.oms, file.path(here(),"Project_0", "inputs", "df.oms.RDS"))
 
+naa.sim.jobs = expand.grid(om = df.oms$Model, sim = 1:500)
+naa.sim.jobs$wham_commit = NA
+naa.sim.jobs$member = NA
+naa.sim.jobs$member[naa.sim.jobs$sim %in% 1:5] = "TJM"
+saveRDS(naa.sim.jobs, file.path(here(),"Project_0", "inputs", "naa.sim.jobs.RDS"))
+
+
 
 gf_info = make_basic_info()
 

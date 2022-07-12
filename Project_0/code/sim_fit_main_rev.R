@@ -39,7 +39,7 @@ obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "
 #set.seed(1234)
 #seeds = sample(x = (-1e9):(1e9), size = 1000, replace = FALSE)
 #saveRDS(seeds, file.path(here(), "Project_0", "inputs","seeds.RDS"))
-seeds = readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
+seeds = readRDS(file.path(here::here(), "Project_0", "inputs","seeds.RDS"))
 #can change sims to 101:200, etc. to do subsets of simulations and stop < 1000 if time is an issue.
 sims = 1:100
 sims = 1
