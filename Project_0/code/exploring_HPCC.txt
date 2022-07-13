@@ -1,3 +1,16 @@
+//8 cores 2Gigs per core, 1 host
+bsub -n 8 -q long -W 8:00 -R "rusage[mem=2000]" -R "span[hosts=1]" < bwa_script.sh
+
+//bsub -n 1000 -q long -W 300:00 -R "span[hosts=1]" < ~/SSRTWG/Project_0/code/naa_om_hpcc_script.sh
+bsub -q long -R
+#convert line endings
+dos2unix ~/.R/Makevars
+
+//interactive session with 4-hour runtime with 10G of memory (needed to install wham because of memory needs)
+bsub -q interactive -R rusage[mem=10000] -W 4:00 -Is /bin/bash
+
+
+
 module avail //lists available modules
 
 //most recent version of gcc
@@ -6,20 +19,24 @@ module avail //lists available modules
 
 module load gcc/8.1.0
 module load R/4.0.4_gcc
+module load libjpeg-turbo/2.0.2
 
 //how much disk space
  df -h /home/tm94d
 
-//start R
+//queues
+bqueues
+
+
+#start R
 R
-#set up to use wham
-is
-devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
 
 .libPaths()
 
 install.packages("TMB", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages("remotes", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
+install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 .libPaths("~/Rlib/")
-remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
-remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="devel")
+remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="97577f1")
+remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="97577f1")
+
