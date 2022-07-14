@@ -73,3 +73,38 @@ update_job_sheet_commits = function(sims, job.sheet){
   return(job.sheet)
 }
 
+run_hpcc_jobs = function(sims, n.cores = NULL){
+  script.full.path = file.path(here::here(),"Project_0", "code", "naa_om_sim_fit_script_hpcc.R")
+  results.path = file.path(here::here(),"Project_0", "results", "naa_om")
+  df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS"))
+  df.oms = readRDS(file.path(here::here(),"Project_0","inputs", "df.oms.RDS"))
+  om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+  em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS"))
+  #######################################################
+  #need to have matching assumptions about CVs for catch and indices, too
+  obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
+    "Ecov_obs", "obs", "obsvec")
+  #######################################################
+  seeds = readRDS(file.path(here::here(), "Project_0", "inputs","seeds.RDS"))
+  n_oms = length(om_inputs)
+  n_ems = length(em_inputs)
+  oms = 1:n_oms
+  ems = 1:n_ems
+  #library(snowfall) # used for parallel computing
+  parallel::detectCores()
+  if(is.null(n.cores)) n.cores = parallel::detectCores()/2
+  snowfall::sfInit(parallel=TRUE, cpus=n.cores)
+  temp = expand.grid(om = oms, sim = sims, em = ems)
+  snowfall::sfExportAll()
+  snowfall::sfLapply(1:NROW(temp), function(row_i){
+    this_om = temp$om[row_i]
+    this_sim = temp$sim[row_i]
+    this_em = temp$em[row_i]
+    #write.dir <- file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", this_om))
+    write.dir <- file.path(here::here(),"Project_0", "results", "naa_om")
+    dir.create(write.dir, recursive = T, showWarnings = FALSE)
+    rds.fn = file.path(write.dir, paste0("om", this_om, "_sim", this_sim, "_em", this_em, ".RDS"))
+    saveRDS(lapply(ems, function(x) NULL), rds.fn) #make list file that can be populated with the em fits.
+    system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
+  })
+}

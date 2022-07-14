@@ -30,7 +30,7 @@ for(i in 1:24) for(j in 1:5){
   substr(strsplit(temp[[1]]$fit$wham_version, "@", fixed = TRUE)[[1]][2], 1,7)
 }
 unique(job.sheet$wham_commit) #just 97577f1
-saveRDS(naa.sim.jobs, file.path(here(),"Project_0", "inputs", "naa.sim.jobs.RDS"))
+saveRDS(job.sheet, file.path(here(),"Project_0", "inputs", "naa.sim.jobs.RDS"))
 
 n_ems_complete = sapply(oms, function(x){
   sims = list.files(file.path(here::here(),"Project_0", "results", "naa_om", x))

@@ -9,6 +9,8 @@ dos2unix ~/.R/Makevars
 //interactive session with 4-hour runtime with 10G of memory (needed to install wham because of memory needs)
 bsub -q interactive -R rusage[mem=10000] -W 4:00 -Is /bin/bash
 
+//see what jobs you have running
+bjobs -u tm94d
 
 
 module avail //lists available modules
@@ -40,3 +42,12 @@ install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-
 remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="97577f1")
 remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="97577f1")
 
+//current approach for NAA_om sims on UMass hpcc. 
+//bash script (naa_om_hpcc_bash_x_x.sh) which includes necessary modules and Runs Rscript --vanilla Project_0\code\naa_om_hpcc_script.r start end n_cores
+//The bash script provides the start and end simulation numbers and the number of cores to use (3 arguments passed)
+//So at a minimum each job submission will do a minimum of 480 fits (20 ems x 24 oms x 1 sim)
+//naa_om_hpcc_script loads wham and snowfall and calls run_hpcc_jobs (in Project_0\code\sim_management.R)
+//run_hpcc_jobs will run separate calls of Rscript --vanilla naa_om_sim_fit_script.R for each om,em,sim and write uniquely named RDS files with any results.
+//The saved RDS file is a list with length = number of ems and the element corresponding to the em being fit is possibly filled with results.
+//All other list elements will be NULL as will the slot for the em if the model causes R to abort.
+//This approach could be extended by specifying oms and ems to fit in a text file that is read in.
