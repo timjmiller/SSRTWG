@@ -88,6 +88,7 @@ run_hpcc_jobs = function(this_sim, this_om, this_em){
   #######################################################
   write.dir <- file.path(here::here(),"Project_0", "results", "naa_om")
   dir.create(write.dir, recursive = T, showWarnings = FALSE)
+  ems = 1:length(em_inputs)
   rds.fn = file.path(write.dir, paste0("om", this_om, "_sim", this_sim, "_em", this_em, ".RDS"))
   saveRDS(lapply(ems, function(x) NULL), rds.fn) #make list file that can be populated with the em fits.
   system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
