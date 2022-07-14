@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
-do.sims = as.integer(args[1]):as.interger(args[2])
+do.sims = as.integer(args[1]):as.integer(args[2])
 ncores = as.integer(args[3])
 library(wham)
 library(snowfall)
