@@ -23,7 +23,7 @@ obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", 
 seeds <- readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
 #######################################################
 
-print(paste0("OM: ", this_om, " Sim: ", this_sim, " EM: ", this_em))
+cat(paste0("OM: ", this_om, " Sim: ", this_sim, " EM: ", this_em, "\n"))
 
 # Set seed
 om <- fit_wham(om_inputs[[this_om]], do.fit = FALSE, MakeADFun.silent = TRUE)

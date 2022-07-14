@@ -8,13 +8,14 @@ echo "CPU threads: $(grep -c processor /proc/cpuinfo)"
 grep 'cpu cores' /proc/cpuinfo | uniq
 
 cd ~/SSRTWG
-for sim in {7..7}
-do
-  for om in {1..1}
-  do
-    for em in {1..1}
-    do
-      Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_sim_fit_script_hpcc.R sim om em
-    done
-  done
-done
+Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_sim_fit_script_hpcc.R 7 1 1
+#for sim in {7..7}
+#do
+#  for om in {1..1}
+#  do
+#    for em in {1..1}
+#    do
+#      Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_sim_fit_script_hpcc.R sim om em
+#    done
+#  done
+#done
