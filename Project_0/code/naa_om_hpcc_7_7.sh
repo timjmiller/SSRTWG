@@ -4,5 +4,5 @@ module load gcc/8.1.0
 module load R/4.0.4_gcc
 module load libjpeg-turbo/2.0.2
 
-cd ~
-Rscript --vanilla naa_om_hpcc_script.R 7 7 480
+cd ~/SSRTWG
+Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R 7 7 480
