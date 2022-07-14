@@ -1,9 +1,9 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
 
+.libPaths("~/Rlib/")
 library(here)
 library(wham)
-.libPaths("~/Rlib/")
 
 this_om <- as.integer(args[1])
 this_em <- as.integer(args[2])
