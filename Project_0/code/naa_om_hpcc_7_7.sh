@@ -9,16 +9,16 @@ grep 'cpu cores' /proc/cpuinfo | uniq
 
 cd ~/SSRTWG
 #Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R 7 1 1
-for sim in 7
+for sim in {7..7}
 do
-  for om in 1
+  for om in {1..1}
   do
-   for em in 1
+   for em in {1..1}
    do
-     echo sim
-     echo om
-     echo em
-     Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R sim om em &
+     echo $sim
+     echo $om
+     echo $em
+     Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R $sim $om $em &
    done
  done
 done
