@@ -2,6 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 do.sims = as.integer(args[1]):as.integer(args[2])
 ncores = as.integer(args[3])
+.libPaths("~/Rlib/")
 library(wham)
 library(snowfall)
 source(file.path(here::here(), "Project_0","code", "sim_management.R")
