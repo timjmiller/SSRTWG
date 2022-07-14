@@ -1,0 +1,11 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
+do.sims = as.integer(args[1]):as.interger(args[2])
+ncores = as.integer(args[3])
+library(wham)
+library(snowfall)
+source(file.path(here::here(), "Project_0","code", "sim_management.R")
+verify_version()
+run_hpcc_jobs(sims = do.sims, n.cores = ncores)
+#job.sheet = checkout_jobs(sims = 6, member = "TJM")
+#job.sheet = update_job_sheet_commits(sims = 6, job.sheet= job.sheet)
