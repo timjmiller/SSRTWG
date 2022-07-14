@@ -14,7 +14,7 @@ do
   do
     for em in {1..1}
     do
-      Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_simf_fit_script_hpcc.R sim om em &
+      Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_sim_fit_script_hpcc.R sim om em
     done
   done
 done
