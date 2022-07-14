@@ -52,4 +52,4 @@ remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="97577f1")
 //All other list elements will be NULL as will the slot for the em if the model causes R to abort.
 //This approach could be extended by specifying oms and ems to fit in a text file that is read in.
 
-//bsub -n 485 -q long -W 48:00 -R "span[hosts=1]" < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+//bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
