@@ -15,6 +15,9 @@ do
   do
    for em in {1..1}
    do
+     echo sim
+     echo om
+     echo em
      Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R sim om em &
    done
  done
