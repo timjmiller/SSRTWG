@@ -30,3 +30,5 @@ do
    done
  done
 done
+
+echo "script is done"

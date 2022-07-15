@@ -22,6 +22,7 @@ module avail //lists available modules
 module load gcc/8.1.0
 module load R/4.0.4_gcc
 module load libjpeg-turbo/2.0.2
+module load openmpi/4.0.1
 
 //how much disk space
  df -h /home/tm94d
@@ -53,3 +54,16 @@ remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="97577f1")
 //This approach could be extended by specifying oms and ems to fit in a text file that is read in.
 
 //bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+//bsub -n 10 -q long -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+
+bsub -n 1 -q short -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7_short < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+
+bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 2 2 1 20"
+
+bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
+
+
+bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
+
+bash ~/SSRTWG/Project_0/code/naa_om_bsub.sh 7 7 3 3
+
