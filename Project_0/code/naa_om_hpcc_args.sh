@@ -5,23 +5,23 @@ module load R/4.0.4_gcc
 module load libjpeg-turbo/2.0.2
 module load openmpi/4.0.1
 
-# sim start = $1
-# sim end = $2
-# om start = $3
-# om end = $4
-# em start = $5
-# em end = $6
+simstart = $1
+simend = $2
+omstart = $3
+omend = $4
+emstart = $5
+emend = $6
 
 echo "CPU threads: $(grep -c processor /proc/cpuinfo)"
 grep 'cpu cores' /proc/cpuinfo | uniq
 
 cd ~/SSRTWG
 #Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R 7 1 1
-for sim in {$1..$2}
+for sim in {$simstart..$simend}
 do
-  for om in {$3..$4}
+  for om in {$omstart..$omend}
   do
-   for em in {$5..$6}
+   for em in {$emstart..$emend}
    do
      echo $sim
      echo $om
