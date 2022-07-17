@@ -43,27 +43,63 @@ install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-
 remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="97577f1")
 remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="97577f1")
 
-//current approach for NAA_om sims on UMass hpcc. 
-//bash script (naa_om_hpcc_bash_x_x.sh) which includes necessary modules and Runs Rscript --vanilla Project_0\code\naa_om_hpcc_script.r start end n_cores
-//The bash script provides the start and end simulation numbers and the number of cores to use (3 arguments passed)
-//So at a minimum each job submission will do a minimum of 480 fits (20 ems x 24 oms x 1 sim)
-//naa_om_hpcc_script loads wham and snowfall and calls run_hpcc_jobs (in Project_0\code\sim_management.R)
-//run_hpcc_jobs will run separate calls of Rscript --vanilla naa_om_sim_fit_script.R for each om,em,sim and write uniquely named RDS files with any results.
-//The saved RDS file is a list with length = number of ems and the element corresponding to the em being fit is possibly filled with results.
-//All other list elements will be NULL as will the slot for the em if the model causes R to abort.
-//This approach could be extended by specifying oms and ems to fit in a text file that is read in.
-
+//Just some initial explorations here
 //bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
 //bsub -n 10 -q long -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
 
-bsub -n 1 -q short -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7_short < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+//bsub -n 1 -q short -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7_short < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
 
-bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 2 2 1 20"
+//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 2 2 1 20"
 
-bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
+//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
 
+//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
 
-bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
+//how many files in the current directory
+ls | wc -l
 
-bash ~/SSRTWG/Project_0/code/naa_om_bsub.sh 7 7 3 3
+//in ~/logs, number of log files for jobs that completed successfully
+grep -rn --include=logfile.* -e "Success" | wc -l
+
+awk '!/Success/{ print FILENAME }'
+
+//current approach for NAA_om sims on UMass hpcc. 
+//bash script to submit seperate jobs to the cluster: naa_om_hpcc_bash_bsub.sh
+// This file takes arguments: first_sim last_sim first_om last_om
+// The script loops over the sims and oms to make each job submission looks like this:
+// bsub -n 20 -q short -W 2:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh $this_sim $this_sim $this_om $this_om 1 20"
+// last two arguments are the first and last estimating model (all 20 of them)
+// this will set up a job using 20 processors on the short queue with a 2 hour time limit, write report to a a logfile in ~/logs, use 5GB per process, all on 1 blade/node and run the bash script naa_om_hpcc_args.sh
+// The bash script statement  which includes necessary modules and for each job loops over the 20 estimating models and makes separate calls:
+// Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R $sim $om $em &
+// which will generate the simulated data from the appropriate operating model and fit the proper estimating model
+// and write results to a RDS file in  ~/SSRTWG/Project_0/results/naa_om
+// Users of the UMass HPCC are limited to a maximum of 10000 job submissions at a time, but they prefer it if you keep it around 1000
+// It seems like users are limited to 25 jobs running at a time on the short queue, but the jobs seem to usually take 10-15 minutes each so it should take over night to get through ~1000 jobs
+//The saved RDS file is a list with length = number of ems and the element corresponding to the em being fit is possibly filled with results.
+//All other list elements will be NULL as will the slot for the em if the model causes R to abort.
+
+//These are the real commands to run on the server
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 3 3
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 4 24
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 1 1
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 8 8 1 1
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 8 8 2 24
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 9 20 1 24
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 21 50 1 24
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 51 90 1 24
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 91 100 1 24
+//here sims 1-100 done in ~ 1 day.
+
+//count log files without "Success" in them (they didn't finish in the 2 hour limit)
+cd ~/logs
+grep -rn --include=logfile.* -L "Success" | wc -l
+
+//6 out of 2232 jobs didn't finish in time. Let's change the requested time limit to the max in naa_om_hpcc_bash_bsub.sh and rerun
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 61 61 14 14
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 28 28 14 14
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 18 18 14 14
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 10 10 1 1
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 9 9 10 10
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 61 61 20 20
 
