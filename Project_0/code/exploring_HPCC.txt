@@ -80,15 +80,16 @@ awk '!/Success/{ print FILENAME }'
 //All other list elements will be NULL as will the slot for the em if the model causes R to abort.
 
 //These are the real commands to run on the server
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 3 3
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 4 24
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 1 1
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 8 8 1 1
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 8 8 2 24
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 9 20 1 24
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 21 50 1 24
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 51 90 1 24
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 91 100 1 24
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 1 1 17 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 3 3 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 4 24 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 7 7 1 1 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 8 8 1 1 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 8 8 2 24 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 9 20 1 24 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 21 50 1 24 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 51 90 1 24 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 91 100 1 24 1 20
 //here sims 1-100 done in ~ 1 day.
 
 //count log files without "Success" in them (they didn't finish in the 2 hour limit)
@@ -96,10 +97,10 @@ cd ~/logs
 grep -rn --include=logfile.* -L "Success" | wc -l
 
 //6 out of 2232 jobs didn't finish in time. Let's change the requested time limit to the max in naa_om_hpcc_bash_bsub.sh and rerun
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 61 61 14 14
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 28 28 14 14
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 18 18 14 14
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 10 10 1 1
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 9 9 10 10
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 61 61 20 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 61 61 14 14 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 28 28 14 14 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 18 18 14 14 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 10 10 1 1 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 9 9 10 10 1 20
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 61 61 20 20 1 20
 
