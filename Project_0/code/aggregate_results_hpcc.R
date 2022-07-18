@@ -6,7 +6,7 @@ om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.
 em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS"))
 oms = 1:length(om_inputs)
 ems = 1:length(em_inputs)
-source(file.path(here::here(),"Project_0","code","sim_management.R")
+source(file.path(here::here(),"Project_0","code","sim_management.R"))
 
 aggregate_hpcc_results(sim = 7, oms = 1, ems = ems, res_dir = file.path(here::here(),"Project_0", "results", "naa_om"))
 

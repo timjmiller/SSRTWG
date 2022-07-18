@@ -81,8 +81,6 @@ for(i in 1:NROW(df.ems)){
   if(df.ems$re_config[i] == "M_re") {
     em_inputs[[i]]$map$M_repars = factor(c(1,NA,NA)) #still need to fix rho=0
   }
-  input$data$FXSPR_init[] = 0.3
-  input$data$FMSY_init[] = 0.3
 
   #turn off bias correction
   em_inputs[[i]] = set_simulation_options(em_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE, 
@@ -90,6 +88,8 @@ for(i in 1:NROW(df.ems)){
   #change Neff so scalar doesn't affect L-N SD
   em_inputs[[i]]$data$catch_Neff[] = 1
   em_inputs[[i]]$data$index_Neff[] = 1
+  em_inputs[[i]]$data$FXSPR_init[] = 0.3
+  em_inputs[[i]]$data$FMSY_init[] = 0.3
 }
 
 saveRDS(em_inputs, file.path(here(),"Project_0", "inputs", "em_inputs.RDS"))
