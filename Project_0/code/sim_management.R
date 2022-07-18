@@ -93,3 +93,18 @@ run_hpcc_jobs = function(this_sim, this_om, this_em){
   saveRDS(lapply(ems, function(x) NULL), rds.fn) #make list file that can be populated with the em fits.
   system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
 }
+
+aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here::here(),"Project_0", "results", "naa_om"))
+{
+  for(i in oms){
+    print(i)
+    write_dir = file.path(res_dir,paste0("om_",i))
+    print(write_dir)
+    dir.create(write_dir, recursive = T, showWarnings = FALSE)
+    sim_aggregated = lapply(ems, function(x){
+      em = readRDS(file.path(res_dir, paste0("om",i,"_sim", sim, "_em", x, ".RDS")))[[x]]
+      return(em)
+    })
+    saveRDS(sim_aggregated, file.path(write_dir, paste0("sim_", sim,".RDS")))
+  }
+}

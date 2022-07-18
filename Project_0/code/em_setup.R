@@ -76,7 +76,7 @@ for(i in 1:NROW(df.ems)){
     #NAA_re$sigma_vals[2] = df.oms$NAA_sig[i] #don't start at true values?
   }
   em_inputs[[i]] <- prepare_wham_input(basic_info = make_basic_info(), selectivity = selectivity, NAA_re = NAA_re, M= M,
-    age_comp = "logistic-normal-miss0")  
+    catchability = catchability, age_comp = "logistic-normal-miss0")  
   em_inputs[[i]] = set_M(em_inputs[[i]], M = M) #this set_M will change parameter values
   if(df.ems$re_config[i] == "M_re") {
     em_inputs[[i]]$map$M_repars = factor(c(1,NA,NA)) #still need to fix rho=0
