@@ -1,0 +1,279 @@
+---
+title: State-space age-structured assessment models provide reliable inferences(?)
+author: 
+  - Timothy J. Miller^1^
+date: ''
+fontsize: 12pt
+output:
+  pdf_document:
+    citation_package: natbib
+    fig_caption: yes
+    includes:
+      in_header:
+      - options.sty
+      - journalshortcuts.tex
+    keep_tex: yes
+    number_sections: yes
+  html_document:
+    df_print: paged
+  word_document: default
+header-includes:
+- \usepackage{xspace}
+- \usepackage{bm}
+- \usepackage{caption,graphics}
+- \usepackage{graphicx}
+- \usepackage{makecell}
+- \renewcommand\figurename{Fig.}
+- \captionsetup{labelsep=period, singlelinecheck=false}
+- \newcommand{\changesize}[1]{\fontsize{#1pt}{#1pt}\selectfont}
+- \renewcommand{\arraystretch}{1.5}
+- \renewcommand\theadfont{}
+csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
+biblio-style: cjfas2.bst
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
+knitr::opts_knit$set(root.dir = '../' )
+library(knitr)
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(png)
+library(forcats)
+```
+
+$^1$corresponding author: timothy.j.miller@noaa.gov, Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
+
+\pagebreak
+
+## Abstract {-}
+
+### Keywords {-}
+
+\pagebreak
+
+# Introduction  
+
+# Methods
+
+We completed a simulation study with 24 NAA re operating models, 16 M re operating models, X Sel re operating models and Y q re operating models. 
+We simulated N data sets for each operating model.
+For each simulated data from each operating model we fit a set of estimating models.
+
+Y estimating models fit to each 
+## Operating models
+
+common to all:   
+  ages, 
+  M
+  maturity
+  waa
+  observation error assumptions
+  2.5 Fmsy -> Fmsy after 20 years
+  Fmsy througout
+
+NAA_oms
+  process error assumtions
+  Fhistory description
+
+Population - 
+  Initial population, 
+  ages, 
+  M
+  maturity
+  waa
+
+Fishing history
+
+All operating models assumed one of two different fishing histories. One 
+Two alfishing histories are 
+Overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from Wiedenman et al. XXXX.
+
+All post-recruit productivity components are constant in the NAA and survey catchability process error operating models and we set stock-recruit parameters such that unfished recruitment = exp(10) and
+Fmsy = F40  (Miller and Brooks 2021). For M
+
+
+Initial population starts at equilibium population structure associated with F= x*Fmsy where x = 1 or 2.5.
+
+surveys, selectivity
+
+fleets, selectivity
+
+
+M_oms
+
+
+
+
+## Estimating models
+
+32 estimating models
+1-20 fit to each NAA RE operating model
+5-24 fit to each M RE operating model
+5-20,25-28 to each sel RE operating model
+5-20, 29-32 to each q RE operating model
+
+SR estimation or not
+
+M estimation or not
+
+NAA_re
+Random effects on Recruitment only or random effects on recruitment and transitions among older numbers at age.
+
+M_re
+Random effects on Recruitment only, M constant across age .
+
+sel_re
+Random effects on Recruitment only, fleet logistic selectivity RE model?
+
+q_re
+Random effects on Recruitment only, one survey catchability RE model?
+
+
+# Results
+
+Convergence performance
+
+AIC performance
+
+SR estimation? M estimation?
+
+Bias, Mean Square error
+
+  Certain basic parameters (stock-recruit pars, M, variance parameters)
+  SSB, F, R
+
+
+
+# Discussion
+
+# Acknowledgements {-}
+
+This work was funded by NOAA Fisheries Northeast Fisheries Science Center. 
+
+
+# CRediT authorship contribution statement {-}
+
+**Timothy J. Miller:** Conceptualization, Methodology, Writing - original draft, Formal analysis, Visualization.
+
+\pagebreak
+
+\bibliography{sweep-paper}
+<!-- \bibliography{sweep-paper}
+\bibliographystyle{/home/tmiller2/work/bibliographies/cjfas2}  -->
+
+<div id="refs"></div>
+
+\pagebreak
+<!-- 
+\begin{figure}
+\caption{Diagram of twin-trawl gear configuration. One of the two nets is rigged with a rockhopper sweep (8) and the other is rigged with a chain sweep (7) and for both a restrictor rope (5) is used to obtain consistent net spread. The other importand components are the side wires (1), middle wire (2), doors (3), the clump weight (4), and the acoustic mensuration system (6).  The side where the rockhopper and chainsweep gears gears were deployed varied throughout the experimental tows of each.}\label{twin_trawl_diagram}
+\begin{center}
+\includegraphics[width = \textwidth]{twin_trawl_diagram.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{The \textsl{F/V Karen Elizabeth} twin-trawl vessel rigged with rockhopper sweep gear on the right and chain sweep gear on the left.}\label{twin_trawl_photo}
+\begin{center}
+\includegraphics[width = \textwidth]{twin_trawl_photo_small.png}
+\end{center}
+\end{figure} -->
+
+
+<!--
+\begin{figure}
+\caption{Diagram of the standard Northeast Fisheries Science Center rockhopper sweep center and wing sections.}\label{rockhopper_schematic}
+\begin{center}
+\includegraphics[width = 0.7\textwidth]{rockhopper_schematic_1.pdf}
+\includegraphics[width = 0.7\textwidth]{rockhopper_schematic_2.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Diagram of the chain sweep designed maximize bottom contact and flatfish capture.}\label{chainsweep_schematic}
+\begin{center}
+\includegraphics[width = \textwidth]{chainsweep_schematic.pdf}
+\end{center}
+\end{figure}
+\clearpage
+  -->
+<!-- \begin{landscape}
+\begin{figure}
+\caption{Annual locations of stations where the F/V Karen Elizabeth conducted twin-trawl sets with the standard bottom trawl gear and the gear with a chain sweep instead of the rockhopper sweep.}\label{tow_locations}
+\begin{center}
+\includegraphics[width = \textwidth]{TwinTrawlLocationsAllYears.jpg}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\clearpage 
+
+\begin{figure}
+\caption{Relative efficiency  of gears using chain and rockhopper sweeps from the best performing model for each species (Table \ref{best_model_compare}). Blue and red denote results for day and night data, respectively, and thick and thin lines represent overall and paired-tow specific estimates of relative catch efficiency, respectively. There was no diel effect in the best model for American plaice. Points represent empirical estimates of relative efficiency for paired observation by length and paired tow. Polygons and dashed lines represent hessian-based and bootstrap-based 95\% confidence intervals, respectively.}\label{sp_rho_plot}
+\begin{center}
+\includegraphics[height = 0.8\textheight]{sp_rho_plot.pdf}
+\end{center}
+\end{figure}
+
+\clearpage 
+
+\begin{figure}
+\caption{Annual spring (blue) and fall (red) biomass estimates for each managed stock assuming 100\% efficiency for chain sweep gear with shaded polygons representing bootstrap-based 95\% confidence intervals. Relative catch efficiency at size estimates and bootstraps are from the best performing model for each species (Table \ref{best_model_compare}).}\label{stock_biomass_plot}
+\begin{center}
+\includegraphics[height = 0.8\textheight]{stock_biomass_plot.pdf}
+\end{center}
+\end{figure}
+
+\clearpage
+
+\begin{figure}
+\caption{Implied catch efficiency of annual spring (blue) and fall (red) bottom trawl survey biomass estimates for each managed stock assuming 100\% efficiency for chain sweep gear with shaded polygons representing bootstrap-based 95\% confidence intervals. Relative catch efficiency at size estimates and bootstraps are from the best performing model for each species (Table \ref{best_model_compare}).}\label{stock_biomass_efficiency_plot}
+\begin{center}
+\includegraphics[height = 0.8\textheight]{stock_biomass_efficiency_plot.pdf}
+\end{center}
+\end{figure} -->
+
+\clearpage
+
+<!-- \begin{table}
+\caption{Managed stocks associated with the species for which relative catch efficiency was estimated.}\label{stock_definition_table}
+{\input{stock_definition_table}}
+\end{table}
+
+\begin{landscape}
+\begin{table}
+\caption{Description of relative catch efficiency ($\rho$) and beta-binomial dispersion ($\phi$) parameterizations for binomial and beta-binomial models and number of marginal likelihood parameters ($n_p$) for the 13 base models from \citet{miller13} and fit to paired chain sweep and rockhoppersweep tow data for each species.}\label{base_model_description}
+{\input{base_model_description}}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}
+\caption{Number of paired tows where fish were captured and the number of fish captured and measured for lengths for each species in total and by day or night.}\label{data_table}
+{\changesize{10}\input{data_table}}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}\caption{Difference in AIC for each of the 13 models described in Table \ref{base_model_description} from the best model ($\bf 0$) by species.}\label{base_model_compare}
+{\input{base_model_compare}}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}\caption{Best performing models from Table \ref{base_model_compare} and extended models that include diel effects on relative catch efficiency for each species with the number of parameters for each model ($n_p$) and the differences in AIC ($\Delta$AIC) from the best of the three models ($\bf 0$) by species.}\label{best_model_compare}
+{\changesize{7}\input{best_model_compare}}
+\end{table}
+\end{landscape}
+
+\begin{table}
+\caption{Average of annual (2009-2019) ratios of coefficients of variation for calibrated and uncalibrated biomass indices for each stock by seasonal survey. Coefficients of variation are based on bootstrap resampling of paired tow observations, survey station data and associated length and weight observations. Annual indices for fall 2017 were not available for summer flounder, SNE-MA windowpane, and SNE-MA yellowtail flounder.}\label{stock_cv_ratios}
+{\input{stock_cv_ratios}}
+\end{table}
+
+\begin{table}
+\caption{Average correlation of annual (2009-2019) calibrated biomass indices for each stock by seasonal survey. Annual indices for fall 2017 were not available for SNE-MA windowpane and SNE-MA yellowtail flounder.}\label{stock_mean_cor}
+{\input{stock_mean_cor}}
+\end{table} -->

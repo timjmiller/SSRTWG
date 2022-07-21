@@ -1,5 +1,7 @@
 # devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
-library(wham)
+if(file.exists("c:/Users/timothy.j.miller")) {
+  library(wham, lib.loc = "c:/work/wham/old_packages/97577f1")
+} else library(wham) #make sure to use the right version of wham
 library(tidyr)
 library(dplyr)
 library(here)
@@ -12,9 +14,18 @@ source(file.path(here(), "Project_0", "code", "make_om.R"))
 
 write.dir <- file.path(here(),"Project_0", "inputs")
 
+naa_om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+# temp = sapply(naa_om_inputs, function(x) {
+#   temp = fit_wham(x, do.fit = FALSE, MakeADFun.silent = TRUE)
+#   return(temp$rep$log_SR_a)
+# })
+#SR parameters are the same for all naa_om models 
+temp = fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
+SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
+
 #if(!exists("write.dir")) write.dir = getwd()
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
-#setwd(write.dir)
+setwd(write.dir)
 
 #number of simulations for each scenario
 #nsim = 1000
@@ -57,7 +68,7 @@ gf_selectivity = list(
 #M set is not changing
 gf_M = list(model = "constant", 
   initial_means = 0.2,
-  re = "ar1_y",
+  re = "ar1_y"#, # This is needed to set up operating models with a single annual re, iid or ar1_y
   #sigma_vals = 0.1,
   #cor_vals = 0
   )
@@ -67,11 +78,10 @@ gf_NAA_re = list(
   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
   sigma = "rec", #random about mean
   cor="iid", #random effects are independent
-  use_steepness = 1,
+  use_steepness = 0,
   #recruit_model = 2, #random effects with a constant mean
   recruit_model = 3, #B-H
-  recruit_pars = c(0.75,exp(10))
-)
+  recruit_pars = SRab) #defined above from naa_om_inputs
 
 #make inputs for operating model (smaller objects to save, can recreate simulated data sets)
 om_inputs = list()
@@ -86,10 +96,10 @@ for(i in 1:NROW(df.M.oms)){
   
   #M
   M_i = gf_M
-  M_i$sigma_vals = df.M.mods$M_sig[i]
-  M_i$cor_vals = df.M.mods$M_cor[i]
+  M_i$sigma_vals = df.M.oms$M_sig[i]
+  M_i$cor_vals = df.M.oms$M_cor[i]
 
-  if(df.oms$Fhist[i] == "H-Fmsy") Fhist. = "H-L"
+  if(df.M.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
   om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, 
     M = M_i, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
@@ -97,34 +107,13 @@ for(i in 1:NROW(df.M.oms)){
   om_inputs[[i]] = set_simulation_options(om_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE, 
     bias_correct_pe = FALSE, bias_correct_oe = FALSE)
   #set L-N SD parameters for catch and index age comp
-  om_inputs[[i]]$par$catch_paa_pars[,1] = log(L_N_sigma[df.oms$obs_error[i]])
-  om_inputs[[i]]$par$index_paa_pars[,1] = log(L_N_sigma[df.oms$obs_error[i]])
+  om_inputs[[i]]$par$catch_paa_pars[,1] = log(L_N_sigma[df.M.oms$obs_error[i]])
+  om_inputs[[i]]$par$index_paa_pars[,1] = log(L_N_sigma[df.M.oms$obs_error[i]])
   om_inputs[[i]]$data$agg_catch_sigma[] = 0.1
-  om_inputs[[i]]$data$agg_index_sigma[] = index_sigma[df.oms$obs_error[i]]
+  om_inputs[[i]]$data$agg_index_sigma[] = index_sigma[df.M.oms$obs_error[i]]
   #change Neff so scalar doesn't affect L-N SD
   om_inputs[[i]]$data$catch_Neff[] = 1
   om_inputs[[i]]$data$index_Neff[] = 1
 }
 
-saveRDS(om_inputs, file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
-
-
-#check equilibrium
-om_msy = make_om(Fhist = "Fmsy", N1_state = "Fmsy", selectivity = gf_selectivity, 
-  M = gf_M, NAA_re = gf_NAA_re, brp_year = 1, eq_F_init = 0.3)
-
-input = om_msy#$input
-input$par$log_NAA_sigma[] = -100 #no process error
-temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-sim = temp$simulate(complete=TRUE)
-sim$NAA #NAA should stay the same throughout time series
-
-#start out overfished and overfishing the whole time series
-om_overfished = make_om(Fhist = "H", N1_state = "overfished", selectivity = gf_selectivity, 
-  M = gf_M, NAA_re = gf_NAA_re, brp_year = 1, eq_F_init = 0.3)
-input = om_overfished#$input
-input$par$log_NAA_sigma[] = -100 #no process error
-temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-sim = temp$simulate(complete=TRUE)
-sim$NAA #NAA should stay the same throughout time series
-
+saveRDS(om_inputs, file.path(here(),"Project_0","inputs", "M_om_inputs.RDS"))

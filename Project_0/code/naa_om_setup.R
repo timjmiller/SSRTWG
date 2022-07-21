@@ -1,5 +1,7 @@
 # devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
-library(wham)
+if(file.exists("c:/Users/timothy.j.miller")) {
+  library(wham, lib.loc = "c:/work/wham/old_packages/97577f1")
+} else library(wham) #make sure to use the right version of wham
 library(tidyr)
 library(dplyr)
 library(here)
@@ -85,7 +87,7 @@ for(i in 1:NROW(df.oms)){
   Fhist. = "Fmsy"
   max_mult = 2.5 # fishing at 2.5 x Fmsy
   min_mult = 1 # fishing at Fmsy
-  if(df.oms$Fhist[i] == "H-Fmsy") Fhist. = "H-L"
+  if(df.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
   om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, 
     M = gf_M, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)

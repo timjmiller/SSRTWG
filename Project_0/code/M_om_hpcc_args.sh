@@ -9,17 +9,16 @@ echo "CPU threads: $(grep -c processor /proc/cpuinfo)"
 grep 'cpu cores' /proc/cpuinfo | uniq
 
 cd ~/SSRTWG
-#Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R 7 1 1
-for ((sim= $1; sim <= $2; sim++)) # in {$simstart..$simend}
+for ((sim= $1; sim <= $2; sim++))
 do
-  for ((om= $3; om <= $4; om++)) #om in {$omstart..$omend}
+  for ((om= $3; om <= $4; om++))
   do
-   for ((em= $5; em <= $6; em++)) #em in {$emstart..$emend}
+   for ((em= $5; em <= $6; em++))
    do
      echo $sim
      echo $om
      echo $em
-     Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R $sim $om $em &
+     Rscript --vanilla ~/SSRTWG/Project_0/code/M_om_hpcc_script.R $sim $om $em &
    done
  done
 done

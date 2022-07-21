@@ -20,6 +20,8 @@ Other collaborators:
  - Greg Bopp (NEFSC)
  - Jon Deroba (NEFSC)
  - Charles Perretti (NEFSC)
+ - Emily Liljestrand (Michigan State)
+ - Cole Monnahan (AFSC)
 
 Peer-review: Fall 2023
 

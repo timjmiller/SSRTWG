@@ -28,7 +28,6 @@ checkout_jobs = function(sims, member = "TJM", write.job.sheet = FALSE){
 
 run_jobs = function(sims, n.cores = NULL){
   script.full.path = file.path(here::here(),"Project_0", "code", "naa_om_sim_fit_script.R")
-  results.path = file.path(here::here(),"Project_0", "results", "naa_om")
   df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS"))
   df.oms = readRDS(file.path(here::here(),"Project_0","inputs", "df.oms.RDS"))
   om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
@@ -75,7 +74,6 @@ update_job_sheet_commits = function(sims, job.sheet){
 
 run_hpcc_jobs = function(this_sim, this_om, this_em){
   script.full.path = file.path(here::here(),"Project_0", "code", "naa_om_sim_fit_script_hpcc.R")
-  results.path = file.path(here::here(),"Project_0", "results", "naa_om")
   df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS"))
   df.oms = readRDS(file.path(here::here(),"Project_0","inputs", "df.oms.RDS"))
   om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
@@ -107,4 +105,27 @@ aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here
     })
     saveRDS(sim_aggregated, file.path(write_dir, paste0("sim_", sim,".RDS")))
   }
+}
+
+#this should be usable for all the operating models now
+run_hpcc_jobs_rev = function(this_sim, this_om, this_em, 
+  script.full.path = file.path(here::here(),"Project_0", "code", "naa_om_sim_fit_script_hpcc.R"), 
+  df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS")), 
+  df.oms = readRDS(file.path(here::here(),"Project_0","inputs", "df.oms.RDS")), 
+  om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS")),
+  em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS")),
+  write.dir) #= file.path(here::here(),"Project_0", "results", "naa_om")
+{
+  seeds = readRDS(file.path(here::here(), "Project_0", "inputs","seeds.RDS"))
+  #######################################################
+  #need to have matching assumptions about CVs for catch and indices, too
+  obs_names = c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
+    "Ecov_obs", "obs", "obsvec")
+  #######################################################
+  if(is.null(write.dir)) stop("in run_hpcc_jobs_rev(), write.dir is not defined")
+  dir.create(write.dir, recursive = T, showWarnings = FALSE)
+  ems = 1:length(em_inputs)
+  rds.fn = file.path(write.dir, paste0("om", this_om, "_sim", this_sim, "_em", this_em, ".RDS"))
+  saveRDS(lapply(ems, function(x) NULL), rds.fn) #make list file that can be populated with the em fits.
+  system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
 }

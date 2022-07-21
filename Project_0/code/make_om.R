@@ -12,7 +12,12 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
   #if you want to change the %Spawning Potential
   #input$data$percentSPR = 35 #for example
   temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-  
+  #print(temp$rep$MAA)
+  #print(temp$rep$selAA[[1]])
+  print(exp(temp$rep$log_FXSPR))
+  print(exp(temp$rep$log_FMSY))
+#  stop()
+
   F40 = exp(temp$rep$log_FXSPR[brp_year])
   if(is.na(F40) || F40 < 1e-5 || F40 > 10) stop("search for F40 failed, try changing eq_F_init. \n")
   cat(paste0("F40 = ", round(F40,3), ".\n"))
@@ -22,16 +27,20 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
   
   #will get steepness such that Fmsy = F40
   #print(input$data$FMSY_init)
-  cat("Finding steepness such that Fmsy = F40.\n")
-  steepness = get_steepness(steepness_ini = 0.75, input = input, NAA_re = NAA_re, F40 = F40, 
-    brp_year = brp_year)
-  NAA_re$recruit_pars[1] = steepness$par
-  input = set_NAA(input, NAA_re)
-  #input$data$FMSY_init[] = F40
-  temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-  Fmsy = exp(temp$rep$log_FMSY[brp_year])
-  if(is.na(Fmsy) || Fmsy < 1e-5 || Fmsy > 10) stop("search for Fmsy failed, try changing eq_F_init. \n")
-  
+  if(temp$input$data$use_steepness==1){ 
+    cat("Finding steepness such that Fmsy = F40.\n")
+    steepness = get_steepness(steepness_ini = 0.75, input = input, NAA_re = NAA_re, F40 = F40, 
+      brp_year = brp_year)
+    NAA_re$recruit_pars[1] = steepness$par
+    input = set_NAA(input, NAA_re)
+    #input$data$FMSY_init[] = F40
+    temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
+    Fmsy = exp(temp$rep$log_FMSY[brp_year])
+    if(is.na(Fmsy) || Fmsy < 1e-5 || Fmsy > 10) stop("search for Fmsy failed, try changing eq_F_init. \n")
+  }
+  if(round(Fmsy,3) != round(F40,3)){
+    cat(paste0("NOTE: Fmsy (", round(Fmsy,3), ") is not equal to F40 (", round(F40,3), ")\n"))
+  }
   #set up initial numbers at age according to equilibrium conditions
   #N1_state == "Fmsy"
   eq_F_N1 = exp(temp$rep$log_FMSY[brp_year]) # = F40
