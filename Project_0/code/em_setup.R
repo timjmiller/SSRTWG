@@ -9,6 +9,15 @@ files_to_source = list.files(file.path(here(), "common_code"), full.names=TRUE, 
 sapply(files_to_source, source)
 source(file.path(here(), "Project_0", "code", "make_om.R"))
 
+naa_om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+# temp = sapply(naa_om_inputs, function(x) {
+#   temp = fit_wham(x, do.fit = FALSE, MakeADFun.silent = TRUE)
+#   return(temp$rep$log_SR_a)
+# })
+#SR parameters are the same for all naa_om models 
+temp = fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
+SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
+
 ###############Estimating model inputs
 #Estimating model factors
 SR_model = c(2,3)
@@ -42,7 +51,7 @@ gf_NAA_re = list(
   use_steepness = 0
   #recruit_model = 2, #random effects with a constant mean
   #recruit_model = 3#, #B-H
-  #recruit_pars = c(0.75,exp(10))
+  #recruit_pars = SRab
 )
 
 #make inputs for estimating model (smaller objects to save, can overwrinte data elements with simulated data)
@@ -52,7 +61,8 @@ for(i in 1:NROW(df.ems)){
   NAA_re = gf_NAA_re
   M = gf_M
   NAA_re$recruit_model = df.ems$SR_model[i] #set to estimate S-R or not
-  #if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
+  if(df.ems$SR_model[i] == 3) NAA_re$recruit_pars = SRab
+  if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
   #NAA_re$sigma_vals = df.oms$R_sig[i] #don't start at true values?
   if(df.ems$re_config[i] == "rec+1") { #full random effects for NAA
     NAA_re$sigma = "rec+1"
@@ -128,6 +138,8 @@ for(i in 21:NROW(df.ems)){
   NAA_re = gf_NAA_re
   M = gf_M
   NAA_re$recruit_model = df.ems$SR_model[i] #set to estimate S-R or not
+  if(df.ems$SR_model[i] == 3) NAA_re$recruit_pars = SRab
+  if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
   #if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
   #NAA_re$sigma_vals = df.oms$R_sig[i] #don't start at true values?
   if(df.ems$M_est[i]) { #estimate mean M
