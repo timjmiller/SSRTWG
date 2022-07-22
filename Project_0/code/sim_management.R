@@ -11,7 +11,7 @@ verify_version = function(){
     required_wham_version, ".\n", "Install the right version using \n",
     "devtools::install_github('timjmiller/wham', dependencies=TRUE, ref=", commit, ") \n"))
   } else{
-    cat(paste0("The right version (commit ",commit, ") of wham is loaded! \n")
+    cat(paste0("The right version (commit ",commit, ") of wham is loaded! \n"))
   }
 }
 #verify_version()
