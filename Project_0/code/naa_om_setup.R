@@ -1,6 +1,6 @@
 # devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
 if(file.exists("c:/Users/timothy.j.miller")) {
-  library(wham, lib.loc = "c:/work/wham/old_packages/97577f1")
+  library(wham, lib.loc = "c:/work/wham/old_packages/77bbd94")
 } else library(wham) #make sure to use the right version of wham
 library(tidyr)
 library(dplyr)

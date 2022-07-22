@@ -1,5 +1,6 @@
 verify_version = function(){
-  required_wham_version <-  "1.0.6 / Github (timjmiller/wham@97577f1)" 
+  commit = "77bbd94"
+  required_wham_version <-  paste0("1.0.6 / Github (timjmiller/wham@",commit) 
   required_commit = substr(strsplit(required_wham_version, "@", fixed = TRUE)[[1]][2], 1,7)
   ver <- sessioninfo::package_info() %>% as.data.frame %>% dplyr::filter(package=="wham") %>% dplyr::select(loadedversion, source) %>% unname
   wham_version <- paste0(ver, collapse=" / ")
@@ -8,9 +9,9 @@ verify_version = function(){
   if(wham_commit != required_commit) {
     stop(paste0("your wham version:", wham_version, "is not the required version:", 
     required_wham_version, ".\n", "Install the right version using \n",
-    "devtools::install_github('timjmiller/wham', dependencies=TRUE, ref='97577f1') \n"))
+    "devtools::install_github('timjmiller/wham', dependencies=TRUE, ref=", commit, ") \n"))
   } else{
-    cat("The right version (commit 97577f1) of wham is loaded! \n")
+    cat(paste0("The right version (commit ",commit, ") of wham is loaded! \n")
   }
 }
 #verify_version()

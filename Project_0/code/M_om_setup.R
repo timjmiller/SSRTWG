@@ -1,6 +1,6 @@
 # devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
 if(file.exists("c:/Users/timothy.j.miller")) {
-  library(wham, lib.loc = "c:/work/wham/old_packages/97577f1")
+  library(wham, lib.loc = "c:/work/wham/old_packages/77bbd94")
 } else library(wham) #make sure to use the right version of wham
 library(tidyr)
 library(dplyr)
@@ -66,8 +66,8 @@ gf_selectivity = list(
   initial_pars = rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
 
 #M set is not changing
-gf_M = list(model = "constant", 
-  initial_means = 0.2,
+gf_M = list(model = "age-specific", 
+  initial_means = rep(0.2, length(gf_info$ages)),
   re = "ar1_y"#, # This is needed to set up operating models with a single annual re, iid or ar1_y
   #sigma_vals = 0.1,
   #cor_vals = 0

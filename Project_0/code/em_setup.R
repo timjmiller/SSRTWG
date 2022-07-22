@@ -1,6 +1,6 @@
 # devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
 if(file.exists("c:/Users/timothy.j.miller")) {
-  library(wham, lib.loc = "c:/work/wham/old_packages/97577f1")
+  library(wham, lib.loc = "c:/work/wham/old_packages/77bbd94")
 } else library(wham) #make sure to use the right version of wham
 library(tidyr)
 library(dplyr)
@@ -31,7 +31,7 @@ gf_selectivity = list(
 #different from naa_om_setup.R
 #M set up that can be changed for each EM
 #gf_M = list(initial_means = rep(0.2, length(gf_info$ages)))
-gf_M = list(initial_means = 0.2, model = "constant")
+gf_M = list(initial_means = rep(0.2, length(gf_info$ages)), model = "age-specific")
 
 #same as naa_om_setup.R
 #NAA_re set up that can be changed for each EM
@@ -39,10 +39,10 @@ gf_NAA_re = list(
   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
   sigma = "rec", #random about mean
   cor="iid", #random effects are independent
-  use_steepness = 1,
+  use_steepness = 0
   #recruit_model = 2, #random effects with a constant mean
-  recruit_model = 3, #B-H
-  recruit_pars = c(0.75,exp(10))
+  #recruit_model = 3#, #B-H
+  #recruit_pars = c(0.75,exp(10))
 )
 
 #make inputs for estimating model (smaller objects to save, can overwrinte data elements with simulated data)
@@ -52,14 +52,14 @@ for(i in 1:NROW(df.ems)){
   NAA_re = gf_NAA_re
   M = gf_M
   NAA_re$recruit_model = df.ems$SR_model[i] #set to estimate S-R or not
-  if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
+  #if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
   #NAA_re$sigma_vals = df.oms$R_sig[i] #don't start at true values?
   if(df.ems$re_config[i] == "rec+1") { #full random effects for NAA
     NAA_re$sigma = "rec+1"
     #NAA_re$sigma_vals[2] = df.oms$NAA_sig[i] #don't start at true values?
   }
-  if(df.ems$M_est[i]) { #full random effects for NAA
-    M$est_ages = 1
+  if(df.ems$M_est[i]) { #estimate mean M
+    M$est_ages = 1:length(gf_info$ages)
     #NAA_re$sigma_vals[2] = df.oms$NAA_sig[i] #don't start at true values?
   }
 
@@ -80,9 +80,12 @@ for(i in 1:NROW(df.ems)){
   em_inputs[[i]] <- prepare_wham_input(basic_info = make_basic_info(), selectivity = selectivity, NAA_re = NAA_re, M= M,
     catchability = catchability, age_comp = "logistic-normal-miss0")  
   #have to do this after the input is made
-  em_inputs[[i]] = set_M(em_inputs[[i]], M = M) #this set_M will change parameter values
+  em_inputs[[i]] = set_M(em_inputs[[i]], M = M) #this set_M will change parameter values. needed for iid M_re
   if(df.ems$re_config[i] == "M_re") { 
     em_inputs[[i]]$map$M_repars = factor(c(1,NA,NA)) #still need to fix rho which is set to 0 above
+  }
+  if(df.ems$M_est[i]) { #estimate mean M constant across ages
+    em_inputs[[i]]$map$M_a = factor(rep(1,length(em_inputs[[i]]$par$M_a)))
   }
 
   #turn off bias correction
@@ -95,11 +98,11 @@ for(i in 1:NROW(df.ems)){
   em_inputs[[i]]$data$FMSY_init[] = 0.3
 }
 
-saveRDS(em_inputs, file.path(here(),"Project_0", "inputs", "em_inputs.RDS"))
+#saveRDS(em_inputs, file.path(here(),"Project_0", "inputs", "em_inputs.RDS"))
 
 #add a few more that are relevant to different operating models
-em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS"))
-df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS"))
+#em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS"))
+#df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS"))
 
 
 #df.ems = rbind(df.ems, cbind(SR_model = c(2:3,2:3), M_est = c(FALSE,FALSE,TRUE,TRUE), re_config = "rec+1"))
@@ -125,10 +128,10 @@ for(i in 21:NROW(df.ems)){
   NAA_re = gf_NAA_re
   M = gf_M
   NAA_re$recruit_model = df.ems$SR_model[i] #set to estimate S-R or not
-  if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
+  #if(df.ems$SR_model[i] == 2) NAA_re$recruit_pars = exp(10)
   #NAA_re$sigma_vals = df.oms$R_sig[i] #don't start at true values?
-  if(df.ems$M_est[i]) { #full random effects for NAA
-    M$est_ages = 1
+  if(df.ems$M_est[i]) { #estimate mean M
+    M$est_ages = 1:length(gf_info$ages)
     #NAA_re$sigma_vals[2] = df.oms$NAA_sig[i] #don't start at true values?
   }
 
@@ -146,6 +149,9 @@ for(i in 21:NROW(df.ems)){
   }
   em_inputs[[i]] <- prepare_wham_input(basic_info = make_basic_info(), selectivity = selectivity, NAA_re = NAA_re, M= M,
     catchability = catchability, age_comp = "logistic-normal-miss0")
+  if(df.ems$M_est[i]) { #estimate mean M
+    em_inputs[[i]]$map$M_a = factor(rep(1,length(em_inputs[[i]]$par$M_a)))
+  }
   #below isn't necessary for rows 21-32.
   #em_inputs[[i]] = set_M(em_inputs[[i]], M = M) #this set_M will change parameter values
   #if(df.ems$re_config[i] == "M_re") {
