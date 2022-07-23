@@ -116,6 +116,7 @@ M_oms
 
 SR estimation or not
 
+Make plot of S-R curve, Fmsy = F40
 Initial values for BH parameters are the true values.
 Initial values for mean R model = true R0.
 

@@ -16,10 +16,6 @@ source(file.path(here(), "Project_0", "code", "make_om.R"))
 write.dir <- file.path(here(),"Project_0", "inputs")
 
 naa_om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
-# temp = sapply(naa_om_inputs, function(x) {
-#   temp = fit_wham(x, do.fit = FALSE, MakeADFun.silent = TRUE)
-#   return(temp$rep$log_SR_a)
-# })
 #SR parameters are the same for all naa_om models 
 temp = fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
 SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))

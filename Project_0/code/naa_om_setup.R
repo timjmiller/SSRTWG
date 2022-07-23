@@ -8,6 +8,7 @@ library(here)
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
 source(file.path(here(), "common_code", "set_M.R"))
+source(file.path(here(), "common_code", "set_selectivity.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
@@ -17,10 +18,6 @@ write.dir <- file.path(here(),"Project_0", "inputs")
 #if(!exists("write.dir")) write.dir = getwd()
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
 setwd(write.dir)
-
-#number of simulations for each scenario
-#nsim = 1000
-#nsim = 100
 
 #Operating model factors
 #NAA sigmas for each scenario
