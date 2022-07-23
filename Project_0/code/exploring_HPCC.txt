@@ -40,8 +40,8 @@ install.packages("TMB", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages("remotes", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 .libPaths("~/Rlib/")
-remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="97577f1")
-remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="97577f1")
+remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
+remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="77bbd94")
 
 //Just some initial explorations here
 //bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
@@ -95,7 +95,7 @@ bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 4 4 17 17 1 20 20
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 6 6 12 12 1 20 20
 
 //Do M re operating model simulations
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 1 1 1 5 24 20
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 2 60 1 16 5 24 20
+//bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 1 1 1 5 24 20
+bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 60 1 16 5 24 20
 #here
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 61 100 1 16 5 24 20

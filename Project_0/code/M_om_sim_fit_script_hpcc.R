@@ -45,11 +45,12 @@ fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=T, do.proj=F, 
 # Deal with issues fitting EM to non-matching OM data
 # empty elements below can be used to summarize convergence information
 if(!'err' %in% names(fit) & class(fit) != "character"){
-  res$fit$wham_version <- fit$wham_version
-  res$fit$TMB_version <- fit$TMB_version
-  res$fit$opt <- fit$opt
-  res$fit$final_gradient <- fit$final_gradient
-  res$fit$rep <- fit$rep
+  res$fit <- fit[c("wham_version", "TMB_version", "opt", "final_gradient", "rep")]
+  # res$fit$wham_version <- fit$wham_version
+  # res$fit$TMB_version <- fit$TMB_version
+  # res$fit$opt <- fit$opt
+  # res$fit$final_gradient <- fit$final_gradient
+  # res$fit$rep <- fit$rep
   res$fit$mohns_rho <- tryCatch(mohns_rho(fit),
     error = function(e) conditionMessage(e))
   fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc

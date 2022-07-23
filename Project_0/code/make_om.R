@@ -68,7 +68,8 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
   }
   NAA_re$N1_pars = eq_R_N1 * Jan1_NAA_per_recruit
   input = set_NAA(input, NAA_re)
-  
+  input = set_selectivity(input, selectivity)
+  input = set_M(input, M) 
   #set F relative to Fmsy. This function is in get_FMSY.R
   input = set_F_scenario(input, Fhist, Fmsy = Fmsy, max_mult = max_mult_Fmsy, min_mult= min_mult_Fmsy,
     change_time = F_change_time)

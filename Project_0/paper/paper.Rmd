@@ -116,6 +116,9 @@ M_oms
 
 SR estimation or not
 
+Initial values for BH parameters are the true values.
+Initial values for mean R model = true R0.
+
 M estimation or not
 
 NAA_re

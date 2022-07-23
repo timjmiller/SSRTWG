@@ -8,6 +8,7 @@ library(here)
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
 source(file.path(here(), "common_code", "set_M.R"))
+source(file.path(here(), "common_code", "set_selectivity.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
@@ -55,7 +56,7 @@ df.M.oms$Model <- paste0("om_",1:n.mods)
 df.M.oms <- df.M.oms %>% select(Model, everything()) # moves Model to first col
 # look at model table
 df.M.oms
-saveRDS(df.M.oms, file.path(here(),"Project_0", "inputs", "df.M.oms.RDS"))
+#saveRDS(df.M.oms, file.path(here(),"Project_0", "inputs", "df.M.oms.RDS"))
 
 
 gf_info = make_basic_info()
