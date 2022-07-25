@@ -46,8 +46,8 @@
 #'     \item{$map_sigma}{Specify which SD parameters to fix for the random effect deviations. Must be a vector with length = number of blocks. 
 #'                Use \code{NA} to fix a parameter and integers to estimate. Use the same integer for multiple blocks to estimate a shared SD parameter.
 #'                Not used if \code{re = 'none'} for all blocks.}
-#'     \item{$initial_cor}{Initial correlation values to use for the random effect deviations. Must be a list with length = number of blocks. If \code{re = 'ar1'} or \code{ar1_y'},
-#'                must be a single value. If \code{re = '2dar1'}, must be a vector of length 2 (first is for "age", second is for "year"). 
+#'     \item{$initial_cor}{Initial correlation values to use for the random effect deviations. Must be a list with length = number of blocks. If \code{re = 'ar1'} or \code{ar1_y'}
+#'                for a block, list element must be a single value. If \code{re = '2dar1'} for a block, list element must be a vector of length 2 (first is for "age", second is for "year") for each block. 
 #'                Use natural scale, must be between -1 and 1. \code{par$sel_repars[,2:3]} will be estimated on a transform scale,  (2 / (1 + exp(-2x))) - 1. 
 #'                Not used if \code{re = 'none'} or \code{re = 'iid'} for all blocks.}
 #'     \item{$map_cor}{Specify which correlation parameters to fix for the random effect deviations. Must be a list with length = number of blocks. 
@@ -327,8 +327,8 @@ Can use selectivity$fix_pars."))
     par$sel_repars[,1] = log(selectivity$initial_sigma) # log scale
   }
   if(!is.null(selectivity$initial_cor)){
-    if(any(selectivity$initial_cor < -1)) stop('Correlation parameters controlling selectivity random effects must be between -1 and 1.')
-    if(any(selectivity$initial_cor > 1)) stop('Correlation parameters controlling selectivity random effects must be between -1 and 1.')
+    if(any(sapply(selectivity$initial_cor, function(x) any(x < -1)))) stop('Correlation parameters controlling selectivity random effects must be between -1 and 1.')
+    if(any(sapply(selectivity$initial_cor, function(x) any(x > 1)))) stop('Correlation parameters controlling selectivity random effects must be between -1 and 1.')
     for(b in 1:data$n_selblocks){
       if(data$selblock_models_re[b] == 3) par$sel_repars[b,2] <- trans(selectivity$initial_cor[[b]]) # if ar1 over ages, use specified initial
       if(data$selblock_models_re[b] == 4) par$sel_repars[b,3] <- trans(selectivity$initial_cor[[b]]) # if ar1 over years, use specified initial

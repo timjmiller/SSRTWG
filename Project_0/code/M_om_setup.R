@@ -12,6 +12,8 @@ source(file.path(here(), "common_code", "set_selectivity.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
+source(file.path(here(), "Project_0", "code", "sim_management.R"))
+verify_version()
 
 write.dir <- file.path(here(),"Project_0", "inputs")
 
@@ -93,7 +95,7 @@ for(i in 1:NROW(df.M.oms)){
   
   #M
   M_i = gf_M
-  M_i$sigma_vals = df.M.oms$M_sig[i]
+  M_i$sigma_vals = df.M.oms$M_sig[i] * sqrt(1-df.M.oms$M_cor[i]^2) #defining marginal variance, but wham estimates conditional var.
   M_i$cor_vals = df.M.oms$M_cor[i]
 
   if(df.M.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"

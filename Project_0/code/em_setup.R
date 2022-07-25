@@ -8,6 +8,8 @@ library(here)
 files_to_source = list.files(file.path(here(), "common_code"), full.names=TRUE, pattern = "*.R")
 sapply(files_to_source, source)
 source(file.path(here(), "Project_0", "code", "make_om.R"))
+source(file.path(here(), "Project_0", "code", "sim_management.R"))
+verify_version()
 
 naa_om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 # temp = sapply(naa_om_inputs, function(x) {
@@ -156,11 +158,14 @@ for(i in 21:NROW(df.ems)){
   }
   selectivity = gf_selectivity
   if(df.ems$re_config[i] == "sel_re") { #full random effects for NAA
-    selectivity$re = c(df.ems$sel_re_cor[i], "none", "none") #iid or ar1_y
+    selectivity$re = c("2dar1", "none", "none") #ar1_y on slope and a50 but independent
+    selectivity$initial_cor = list(c(0,0), 0, 0) #independent slope and a50, but perhaps correlation over time.
+    selectivity$map_cor = list(c(NA,1), NA, NA)
     #NAA_re$sigma_vals[2] = df.oms$NAA_sig[i] #don't start at true values?
   }
   em_inputs[[i]] <- prepare_wham_input(basic_info = make_basic_info(), selectivity = selectivity, NAA_re = NAA_re, M= M,
     catchability = catchability, age_comp = "logistic-normal-miss0")
+  em_inputs[[i]] <- set_selectivity(em_inputs[[i]], selectivity = selectivity)
   if(df.ems$M_est[i]) { #estimate mean M
     em_inputs[[i]]$map$M_a = factor(rep(1,length(em_inputs[[i]]$par$M_a)))
   }

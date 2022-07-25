@@ -1,7 +1,7 @@
 ---
 title: State-space age-structured assessment models provide reliable inferences(?)
 author: 
-  - Timothy J. Miller^1^
+  - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, 
 date: ''
 fontsize: 12pt
 output:
@@ -55,9 +55,21 @@ $^1$corresponding author: timothy.j.miller@noaa.gov, Northeast Fisheries Science
 
 # Introduction  
 
+Much is known about the reliabiltiy of state-space models that are linear or Gaussian, but applications in fisheris management are
+nonlinear and typically include multiple types of observations with varying distributional assumptions. We know relatively little about
+the statistical reliability of such models. Also, there is a wide range of potential random effects structures in assessment models
+and we  know little about the ability of information criteria to distinguish among such alternative structures. 
+
+But those studies focus primarily on Gaussain 
+Reliability of hidden process models
+
+
 # Methods
 
-We completed a simulation study with 24 NAA re operating models, 16 M re operating models, X Sel re operating models and Y q re operating models. 
+Used the WHAM package commit = XXXXXXX (Stock and Miller 2021, Miller and Stock 2020). This packages has also been used
+to configure operating and estimating models for closed loop simulations evaluating index-based asssessment methods (Legault et al. In press).
+
+We completed a simulation study with 24 NAA re operating models, 16 M re operating models, 16 Sel re operating models and 16 q re operating models. 
 We simulated N data sets for each operating model.
 For each simulated data from each operating model we fit a set of estimating models.
 
@@ -72,6 +84,8 @@ common to all:
   observation error assumptions
   2.5 Fmsy -> Fmsy after 20 years
   Fmsy througout
+
+marginal standard deviations for random effects are defined in tables of operating models.
 
 NAA_oms
   process error assumtions
@@ -137,6 +151,7 @@ Random effects on Recruitment only, one survey catchability RE model?
 
 # Results
 
+Do each of these by type of operating model (Naa, M, sel, q)
 Convergence performance
 
 AIC performance
@@ -151,6 +166,11 @@ Bias, Mean Square error
 
 
 # Discussion
+
+The estimating models assumed variances of aggregate catch and index observations was known. This approximation may be appropriate for indices
+where we have a reliable estimate of uncertainty based on the survey design (), but there may be better approaches for the aggregate
+catch such as an informed prior on the standard errors with realistic bounds.
+
 
 # Acknowledgements {-}
 
