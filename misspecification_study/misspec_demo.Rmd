@@ -17,6 +17,7 @@ library(ggplot2)
 
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "bias_data.R"))
+source(file.path(here(), "common_code", "fn_retro_par_estimates.R"))
 ```
 
 ## Overview
@@ -268,7 +269,7 @@ Looking at the fits to the under-reported data for estimation model 4 (using plo
 
 ```
 
-The catch and index four panel plots all look good for UR_em4.
+The catch and index four panel plots all look good for UR_em4. The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals.
 
 ![catch 4 panel](UR_em4/plots_png/diagnostics/Catch_4panel_fleet_1.png)
 
@@ -276,8 +277,28 @@ The catch and index four panel plots all look good for UR_em4.
 
 ![index 2 4 panel](UR_em4/plots_png/diagnostics/Index_4panel_2.png)
 
-The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals.
-
 ![NAA age 1 4 panel](UR_em4/plots_png/diagnostics/NAA_4panel_1.png)
+
 ![NAA age 8 4 panel](UR_em4/plots_png/diagnostics/NAA_4panel_8.png)
+
 ![NAA residuals stacked barplot](UR_em4/plots_png/diagnostics/NAA_res_barplot_stacked.png)
+
+Use Liz's plot.retro.pars function to examine the stability of parameter estimates across the retrospective peels. For now just look at under-reported catch case with estimation model 4 (UR_em4).
+
+```{r lizretro}
+# again had to run this in console because could not get it to knit
+#em8lr.dir <- file.path(here(), "misspecification_study", "UR_em4", "liz_retro_plots")
+#plot.retro.pars(m=em_fits[[8]][[1]], yr.plot.start=2005, od=em8lr.dir, save.name="UR_em4", 
+#  plot.f='png' )
+```
+
+None of the retrospective plots show a strong pattern. The unusual result of nearly all the NAA log_Deviations being below zero holds for all the peels.
+
+![fleet selectivity](UR_em4/liz_retro_plots/UR_em4._fleet.sel.full.plot.png)
+
+![index selectivity](UR_em4/liz_retro_plots/UR_em4._ind.sel.full.plot.png)
+
+![NAA log deviations](UR_em4/liz_retro_plots/UR_em4._naa.devs.full.plot.png)
+
+![Survey catchability](UR_em4/liz_retro_plots/UR_em4._q.full.plot.png)
+
