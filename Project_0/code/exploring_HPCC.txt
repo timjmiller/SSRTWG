@@ -79,10 +79,14 @@ ls | wc -l
 
 //These are the real commands to run on the server
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 1 40 1 24 1 20 20
-//here
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 41 80 1 24 1 20 20
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 81 100 1 24 1 20 20
 //here sims 1-100 done in ~ 1 day.
+//3 didn't finish lets do them on the large queue for a longer run time
+bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 68 68 20 20 1 20"
+bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 32 32 14 14 1 20"
+bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 46 46 9 9 1 20"
+
 
 //in ~/logs, number of log files for jobs that completed successfully
 grep -rn --include=logfile.* -e "Success" | wc -l
