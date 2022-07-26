@@ -1,4 +1,4 @@
-make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, 
+make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, catchability,
   age_comp = "logistic-normal-miss0", brp_year = 1, 
   eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1, F_change_time = 0.5) {
 
@@ -6,7 +6,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
   #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
   
   input <- prepare_wham_input(basic_info = basic_info, selectivity = selectivity, NAA_re = NAA_re, M= M,
-    age_comp = age_comp)
+    age_comp = age_comp, catchability = catchability)
   input$data$FXSPR_init[] = eq_F_init
   input$data$FMSY_init[] = eq_F_init
   #if you want to change the %Spawning Potential
@@ -68,6 +68,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re,
   }
   NAA_re$N1_pars = eq_R_N1 * Jan1_NAA_per_recruit
   input = set_NAA(input, NAA_re)
+  input = set_q(input, catchability)
   input = set_selectivity(input, selectivity)
   input = set_M(input, M) 
   #set F relative to Fmsy. This function is in get_FMSY.R
