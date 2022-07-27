@@ -211,7 +211,7 @@ if(file.exists(file.path(here(), "misspecification_study", "misspec_demo_fits.RD
                      do.osa = FALSE,
                      MakeADFun.silent = TRUE, 
                      retro.silent = TRUE, 
-                     save.sdrep = FALSE)
+                     save.sdrep = TRUE)
       return(out)
     })
   }
@@ -285,11 +285,11 @@ The catch and index four panel plots all look good for UR_em4. The problematic d
 
 Use Liz's plot.retro.pars function to examine the stability of parameter estimates across the retrospective peels. For now just look at under-reported catch case with estimation model 4 (UR_em4).
 
-```{r lizretro}
+```{r lizretro, eval = FALSE}
 # again had to run this in console because could not get it to knit
-#em8lr.dir <- file.path(here(), "misspecification_study", "UR_em4", "liz_retro_plots")
-#plot.retro.pars(m=em_fits[[8]][[1]], yr.plot.start=2005, od=em8lr.dir, save.name="UR_em4", 
-#  plot.f='png' )
+em8lr.dir <- file.path(here(), "misspecification_study", "UR_em4", "liz_retro_plots")
+plot.retro.pars(m=em_fits[[8]][[1]], yr.plot.start=2005, od=em8lr.dir, save.name="UR_em4", 
+  plot.f='png' )
 ```
 
 None of the retrospective plots show a strong pattern. The unusual result of nearly all the NAA log_Deviations being below zero holds for all the peels.

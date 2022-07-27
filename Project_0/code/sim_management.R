@@ -130,7 +130,7 @@ run_hpcc_jobs_rev = function(this_sim, this_om, this_em,
   system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
 }
 
-get_jobs_from_bad_logs = function(){
+get_failed_jobs = function(){
   bad_logs = system('grep -rn  --include=logfile.* -L "Success" ~/logs', intern = TRUE)
   linebefore = "# LSBATCH: User input"
   jobs = sapply(bad_logs, function(y){

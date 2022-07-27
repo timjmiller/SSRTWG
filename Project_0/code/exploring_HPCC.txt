@@ -61,6 +61,16 @@ bkill -J naa_om_sim
 //how many files in the current directory
 ls | wc -l
 
+//in ~/logs, number of log files for jobs that completed successfully
+grep -rn --include=logfile.* -e "Success" | wc -l
+
+//count log files without "Success" in them (they didn't finish in the 2 hour limit)
+cd ~/logs
+grep -rn --include=logfile.* -L "Success" | wc -l
+//remove those files
+grep -rn --include=logfile.* -L "Success" | xargs rm
+
+
 //current approach for NAA_om sims on UMass hpcc. 
 //bash script to submit seperate jobs to the cluster: naa_om_hpcc_bash_bsub.sh
 // This file takes arguments: first_sim last_sim first_om last_om
@@ -87,33 +97,24 @@ bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "
 bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 32 32 14 14 1 20"
 bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 46 46 9 9 1 20"
 
-
-//in ~/logs, number of log files for jobs that completed successfully
-grep -rn --include=logfile.* -e "Success" | wc -l
-
-//count log files without "Success" in them (they didn't finish in the 2 hour limit)
-cd ~/logs
-grep -rn --include=logfile.* -L "Success" | wc -l
-//remove those files
-grep -rn --include=logfile.* -L "Success" | xargs rm
-
-//jobs didn't finish in time. Let's change the requested time limit to the max in naa_om_hpcc_bash_bsub.sh and rerun
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 4 4 17 17 1 20 20
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 6 6 12 12 1 20 20
-
 //Do M re operating model simulations
 //bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 1 1 1 5 24 20
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 20 1 16 5 24 20
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 21 60 1 16 5 24 20
+bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 60 1 16 5 24 20
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 61 100 1 16 5 24 20
-//jobs didn't finish in time. Let's change the requested time limit to the max in naa_om_hpcc_bash_bsub.sh and rerun
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 35 35 15 15 5 24 20
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 78 78 14 14 5 24 20
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 37 37 13 13 5 24 20
-bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 6 6 1 1 5 24 20
-//Still didn't finish. Let's put it on the large queue for a longer run time
+//jobs didn't finish in time. Let's put it on the large queue for a longer run time
 bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 35 35 15 15 5 24"
 bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 78 78 14 14 5 24"
 bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 37 37 13 13 5 24" 20
 bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 6 6 1 1 5 24"
 
+//Do selectivity re operating model simulations
+bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 1 60 1 16 5 20 16
+bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 1 60 1 16 25 28 4
+bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 61 100 1 16 5 20 16
+bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 61 100 1 16 25 28 4
+
+//Do catchability re operating model simulations
+bash ~/SSRTWG/Project_0/code/q_om_hpcc_bsub.sh 1 60 1 16 5 20 16
+bash ~/SSRTWG/Project_0/code/q_om_hpcc_bsub.sh 1 60 1 16 29 32 4
+bash ~/SSRTWG/Project_0/code/q_om_hpcc_bsub.sh 61 100 1 16 5 20 16
+bash ~/SSRTWG/Project_0/code/q_om_hpcc_bsub.sh 61 100 1 16 29 32 4

@@ -55,7 +55,7 @@ df.q.oms$Model <- paste0("om_",1:n.mods)
 df.q.oms <- df.q.oms %>% select(Model, everything()) # moves Model to first col
 # look at model table
 df.q.oms
-#saveRDS(df.q.oms, file.path(here(),"Project_0", "inputs", "df.q.oms.RDS"))
+saveRDS(df.q.oms, file.path(here(),"Project_0", "inputs", "df.q.oms.RDS"))
 
 
 gf_info = make_basic_info()
