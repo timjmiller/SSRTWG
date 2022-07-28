@@ -197,9 +197,11 @@ print(p1)
 
 ```
 
+## Run the models
+
 Now run the eight models. This may take a few minutes. The Rmarkdown compilation checks to see if the file misspec_demo_fits.RDS is present in the misspecification_study directory. If it is, it simply reads that file. If it is not, then the model is run. So if you change any of the settings above, be sure to remove the RDS file before knitting the Rmarkdown script. This RDS file is relatively large (~16 MB), so is not saved on the GitHub repo.
 
-```{r runmodels}
+```{r runmodels, results='hide'}
 if(file.exists(file.path(here(), "misspecification_study", "misspec_demo_fits.RDS"))){
   em_fits <- readRDS(file.path(here(), "misspecification_study", "misspec_demo_fits.RDS"))
 } else {
@@ -208,7 +210,7 @@ if(file.exists(file.path(here(), "misspecification_study", "misspec_demo_fits.RD
   for(m in 1:8){
     em_fits[[m]] = lapply(1:nsim, function(x){
       out = fit_wham(sim_input[[m]][[x]], 
-                     do.osa = FALSE,
+                     do.osa = TRUE,
                      MakeADFun.silent = TRUE, 
                      retro.silent = TRUE, 
                      save.sdrep = TRUE)
@@ -232,6 +234,8 @@ check_convergence(em_fits[[7]][[1]])
 check_convergence(em_fits[[8]][[1]])
 ```
 
+## Correct data results
+
 We can see which model has the best fit using the compare_wham_models function for the two sets of data. Start with the correctly reported catch data (CD). We see all four estimation models (em) fit the data similarly for F, recruitment, and SSB, with similar CVs for each. Estimation model 2 (AR1 random walk in recruitment) was preferred over the other three estimation models, but the differences in AIC were not great (<5 units). Mohn's rho for SSB and F and were low for all four estimation models (absolute values < 0.6). 
 
 ```{r comparecorrect}
@@ -243,6 +247,9 @@ correct_data_compare <- compare_wham_models(list(CD_em1 = em_fits[[1]][[1]],
 print(correct_data_compare$g[[1]])
 print(correct_data_compare$g[[2]])
 ```
+
+
+## Under-reported catch data results
 
 The under-reported catch data (UR) found greater differences among the four models. Estimation model 4 (full state-spcae with 2dar1 correlations) was the preferred model based on AIC, with the other models >50 units worse. The Mohn's rho values for SSB and F for estimation model 4 were lower than all the values from the correct data, while the other three estimation models were all worse (absolute values >0.20). So according to both AIC and the retrospective diagnostic, estimation model 4 is highly preferred to the other three estimation models for the under-reported catch data. All four estimation models show a spike in F in year 2000, just before the catch under-reporting begins. The big difference is in the scale of the F, recruitment, and SSB point estimates, with estimation model 4 showing lower F and higher recruitment and SSB than the other three estimation models. The trends in F, recruitment, and SSB are similar though. The uncertainty of estimation model 4 is much higher than the other three models. It is not clear what is driving the large uncertainty in estimation model 4 (Tim - do you have any thoughts?). 
 
@@ -259,46 +266,87 @@ print(misspecified_data_compare$g[[2]])
 Looking at the fits to the under-reported data for estimation model 4 (using plot_wham_output(mod=em_fits[[8]][[1]], out.type='html')), I was surprised by how well most things fit, with no obvious patterning in residuals or obvious misfits. The one bad diagnostic I saw was the conditional expected and posterior estimates of abundance at all ages where the line was above all the points for all years and ages. So there was one diagnostic that indicated that there is a model misfit, but not anything that jumped out at me from the tabular data that could easily be grabbed when running lots of realizations. 
 
 ```{r plotemfit8}
-# note could not get the following code to run within Rmarkdown (it produced the png files but not the pdf)
-# can either pull this code out and run in console, or else uncomment and knit then comment and knit again
-#em8.dir <- file.path(here(), "misspecification_study", "UR_em4")
-#if(!dir.exists(em8.dir)){
-#  dir.create(em8.dir)
-#}
-#plot_wham_output(mod=em_fits[[8]][[1]], dir.main=em8.dir)
+# ran into errors plotting the one-step-ahead residuals for each model
+# ran the loop one model at a time to get output
+#
+# em_fits 1 and 5 gave error message
+# Error in mod$osa[c(dat$keep_Cpaa[i, yind, ] + 1), ] : 
+#   incorrect number of dimensions
+#
+# the other six em_fits gave error message
+# Infinite osa residuals for aggregate catch in fleet  1 , so using +/-10 for range of y axis 
+# Error in if (h > 0) max(1, ceiling(diff(range(x))/h)) else 1L : 
+#   missing value where TRUE/FALSE needed
+# In addition: Warning messages:
+# 1: In min(x) : no non-missing arguments to min; returning Inf
+# 2: In max(x) : no non-missing arguments to max; returning -Inf
 
+# can either pull this code out and run in console, or else uncomment and knit then comment and knit again
+# out.dir <- file.path(here(), "misspecification_study", "output")
+# if (!dir.exists(out.dir)){
+#   dir.create(out.dir)
+# }
+# mydir <- c(paste0("CC_em", 1:4), paste0("UR_em", 1:4))
+# for (i in 1:8){
+#   em.dir <- file.path(here(), "misspecification_study", "output", mydir[i])
+#   if(!dir.exists(em.dir)){
+#     dir.create(em.dir)
+#   }
+#   plot_wham_output(mod=em_fits[[i]][[1]], dir.main=em.dir)
+# }
 ```
 
 The catch and index four panel plots all look good for UR_em4. The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals.
 
-![catch 4 panel](UR_em4/plots_png/diagnostics/Catch_4panel_fleet_1.png)
+![UR_em4 catch 4 panel](output/UR_em4/plots_png/diagnostics/Catch_4panel_fleet_1.png)
 
-![index 1 4 panel](UR_em4/plots_png/diagnostics/Index_4panel_1.png)
+![UR_em4 index 1 4 panel](output/UR_em4/plots_png/diagnostics/Index_4panel_1.png)
 
-![index 2 4 panel](UR_em4/plots_png/diagnostics/Index_4panel_2.png)
+![UR_em4 index 2 4 panel](output/UR_em4/plots_png/diagnostics/Index_4panel_2.png)
 
-![NAA age 1 4 panel](UR_em4/plots_png/diagnostics/NAA_4panel_1.png)
+![UR_em4 NAA age 1 4 panel](output/UR_em4/plots_png/diagnostics/NAA_4panel_1.png)
 
-![NAA age 8 4 panel](UR_em4/plots_png/diagnostics/NAA_4panel_8.png)
+![UR_em4 NAA age 8 4 panel](output/UR_em4/plots_png/diagnostics/NAA_4panel_8.png)
 
-![NAA residuals stacked barplot](UR_em4/plots_png/diagnostics/NAA_res_barplot_stacked.png)
+![UR_em4 NAA residuals stacked barplot](output/UR_em4/plots_png/diagnostics/NAA_res_barplot_stacked.png)
 
 Use Liz's plot.retro.pars function to examine the stability of parameter estimates across the retrospective peels. For now just look at under-reported catch case with estimation model 4 (UR_em4).
 
 ```{r lizretro, eval = FALSE}
 # again had to run this in console because could not get it to knit
-em8lr.dir <- file.path(here(), "misspecification_study", "UR_em4", "liz_retro_plots")
-plot.retro.pars(m=em_fits[[8]][[1]], yr.plot.start=2005, od=em8lr.dir, save.name="UR_em4", 
-  plot.f='png' )
+# for (i in 1:8){
+#   emlr.dir <- file.path(here(), "misspecification_study", "output", mydir[i], "liz_retro_plots")
+#   if(!dir.exists(emlr.dir)){
+#     dir.create(emlr.dir)
+#   }
+#   plot.retro.pars(m=em_fits[[i]][[1]], yr.plot.start=2005, od=emlr.dir, save.name=mydir[i], 
+#                   plot.f='png' )
+# }
 ```
 
 None of the retrospective plots show a strong pattern. The unusual result of nearly all the NAA log_Deviations being below zero holds for all the peels.
 
-![fleet selectivity](UR_em4/liz_retro_plots/UR_em4._fleet.sel.full.plot.png)
+![UR_em4 fleet selectivity](output/UR_em4/liz_retro_plots/UR_em4._fleet.sel.full.plot.png)
 
-![index selectivity](UR_em4/liz_retro_plots/UR_em4._ind.sel.full.plot.png)
+![UR_em4 index selectivity](output/UR_em4/liz_retro_plots/UR_em4._ind.sel.full.plot.png)
 
-![NAA log deviations](UR_em4/liz_retro_plots/UR_em4._naa.devs.full.plot.png)
+![UR_em4 NAA log deviations](output/UR_em4/liz_retro_plots/UR_em4._naa.devs.full.plot.png)
 
-![Survey catchability](UR_em4/liz_retro_plots/UR_em4._q.full.plot.png)
+![UR_em4 Survey catchability](output/UR_em4/liz_retro_plots/UR_em4._q.full.plot.png)
+
+Interestingly, for estimation model 3, both the fits and the NAA log deviations showed a strong pattern of positive then negative or else negative then positive residuals over time.
+
+
+![UR_em3 catch 4 panel](output/UR_em3/plots_png/diagnostics/Catch_4panel_fleet_1.png)
+
+![UR_em3 index 1 4 panel](output/UR_em3/plots_png/diagnostics/Index_4panel_1.png)
+
+
+![UR_em3 index 2 4 panel](output/UR_em3/plots_png/diagnostics/Index_4panel_2.png)
+
+
+![UR_em3 NAA age 8 4 panel](output/UR_em3/plots_png/diagnostics/NAA_4panel_8.png)
+
+
+![UR_em3 NAA residuals stacked barplot](output/UR_em3/plots_png/diagnostics/NAA_res_barplot_stacked.png)
 
