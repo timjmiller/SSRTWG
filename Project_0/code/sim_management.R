@@ -95,7 +95,7 @@ run_hpcc_jobs = function(this_sim, this_om, this_em){
 aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here::here(),"Project_0", "results", "naa_om"))
 {
   for(i in oms){
-    print(i)
+    print(paste0("om: ", i, ", sim: ", sim))
     write_dir = file.path(res_dir,paste0("om_",i))
     print(write_dir)
     dir.create(write_dir, recursive = T, showWarnings = FALSE)

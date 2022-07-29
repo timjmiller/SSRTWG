@@ -5,19 +5,6 @@ oms = grep("^om", oms, value = TRUE) #begins with "om"
 df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
 df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
 
-for(i in 1:length(oms)){
-  sim1 = lapply(1:20, function(x){
-    em = try(readRDS(file.path(here(),"Project_0", "results", "naa_om", paste0("naa_om_results_om_",i,"_em_", x, "_sim_1_test.RDS"))))
-    if(is.character(em)) em = NULL
-    return(em)
-  })
-  saveRDS(sim1, file.path(here(),"Project_0", "results", "naa_om", paste0("om_",i), "sim_1.RDS"))
-}
-#om1_sim1 = readRDS(file.path(here(),"Project_0", "results", "naa_om", "om_1", "sim_1.RDS"))
-substr(strsplit(om1_sim1[[1]]$fit$wham_version, "@", fixed = TRUE)[[1]][2], 1,7)
-
-om1_sim2 =readRDS(file.path(here::here(),"Project_0", "results", "naa_om", "om_1", "sim_2.RDS"))
-substr(strsplit(om1_sim2[[1]]$fit$wham_version, "@", fixed = TRUE)[[1]][2], 1,7)
 
 job.sheet = readRDS(file.path(here::here(),"Project_0", "inputs", "naa.sim.jobs.RDS"))
 job.sheet$member[job.sheet$sim %in% 1:5] = "TJM"
@@ -56,9 +43,9 @@ n_ems_null = sapply(oms, function(x){
 n_ems_null = n_ems_null[,match(df.oms$Model,colnames(n_ems_null))]
 
 apply(n_ems_null,1,sum)
-cbind(df.oms, n_null = n_ems_null[8,match(df.oms$Model,colnames(n_ems_null))])
+cbind(df.oms, n_null = n_ems_null[11,match(df.oms$Model,colnames(n_ems_null))])
 
-cbind(df.ems, n_null = apply(n_ems_null,1,sum))
+cbind(df.ems[1:20,], n_null = apply(n_ems_null,1,sum))
 
 cbind(df.oms, n_null = n_ems_null[8,match(df.oms$Model,colnames(n_ems_null))])
 
@@ -77,10 +64,60 @@ n_ems_sdrep = sapply(oms, function(x){
   return(apply(em_out,1,sum, na.rm = TRUE))
 })
 n_ems_sdrep = n_ems_sdrep[,match(df.oms$Model,colnames(n_ems_sdrep))]
-save(n_ems_sdrep, n_ems_null, 
-  file =  file.path(here(),"Project_0", "results", "prelim_res.RData"))
 
-load(file.path(here(),"Project_0", "results", "prelim_res.RData"))
+sims = list.files(file.path(here(),"Project_0", "results", "naa_om", oms[1]))
+em_ranks = sapply(sims, function(y){
+    ems = readRDS(file.path(here(),"Project_0", "results", "naa_om", oms[1], y))
+    aic = rep(NA, 20)
+    if(length(ems)) for(i in 1:length(ems)) if(length(ems[[i]]$fit)>0){
+    print(y)
+    print(i)
+    print(length(ems))
+    print(names(ems[[i]]))
+    print(names(ems[[i]]$fit))
+    print(ems[[1]]$fit$par["log_NAA_sigma"][2])
+    print(ems[[1]]$fit$par["log_NAA_sigma"][2])
+      aic[i] = 2*(ems[[i]]$fit$opt$obj + length(ems[[i]]$fit$opt$par))
+    }
+    print(aic)
+    return(aic)
+})
+
+em_bounds = sapply(sims, function(y){
+    ems = readRDS(file.path(here(),"Project_0", "results", "naa_om", oms[1], y))
+    bounds = rep(NA, 20)
+    if(length(ems)) for(i in 1:length(ems)) if(length(ems[[i]]$fit)>0){
+    print(y)
+    print(i)
+      ind = names(ems[[i]]$fit$opt$par) %in% c("M_repars","log_NAA_sigma", "sel_repars","q_repars")
+      if(any(ind)) bounds[i] = any(ems[[i]]$fit$opt$par[which(ind)] < -5)
+    }
+    return(bounds)
+})
+apply(em_bounds, 1, sum,na.rm = T)
+temp = readRDS(file.path(here(),"Project_0", "results", "naa_om", oms[1], "sim_1.RDS"))
+sapply(temp, function(x) x$fit$opt$obj)
+temp[[9]]$fit$opt$par
+temp = em_ranks[use.df.ems$M_est,]
+temp[,1]
+temp[order(temp[,1]),1]
+temp = apply(temp,2,order)
+use.df.ems[use.df.ems$M_est,]
+apply(temp,1,function(x) mean(x==1))
+temp = em_ranks[1:2,]
+temp = apply(temp,2,order)
+apply(temp,1,function(x) mean(x==1))
+
+temp = em_ranks[3:4,]
+temp = apply(temp,2,order)
+apply(temp,1,function(x) mean(x==1))
+temp  = readRDS(file.path(here(),"Project_0", "results", "naa_om", oms[1], "sim_23.RDS"))
+sapply(temp, function(x) length(x$fit))
+sapply(temp, function(x) is.character(x$fit))
+save(n_ems_sdrep, n_ems_null, 
+  file =  file.path(here(),"Project_0", "results", "naa_om_prelim_res.RData"))
+
+load(file.path(here(),"Project_0", "results", "naa_om_prelim_res.RData"))
 
 all_ems_sdrep = n_ems_sdrep/4
 

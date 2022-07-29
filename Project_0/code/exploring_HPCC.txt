@@ -30,16 +30,24 @@ module load openmpi/4.0.1
 //queues
 bqueues
 
-
-#start R
+//initiate an interactive R session
+bsub -q interactive -R rusage[mem=10000] -W 4:00 -Is /bin/bash
+module load gcc/8.1.0
+module load R/4.0.4_gcc
+module load libjpeg-turbo/2.0.2
+cd ~/SSRTWG
 R
+.libPaths("~/Rlib/")
+library(wham)
+library(here)
+/////////////////////////////
 
 .libPaths()
 
+.libPaths("~/Rlib/")
 install.packages("TMB", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages("remotes", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-project.org')
-.libPaths("~/Rlib/")
 remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
 remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="77bbd94")
 
@@ -96,21 +104,29 @@ bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 81 100 1 24 1 20 20
 bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 68 68 20 20 1 20"
 bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 32 32 14 14 1 20"
 bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 46 46 9 9 1 20"
+bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 93 93 2 2 1 20"
+
+//delete aggregated files after they are copied over
+//first see what directories
+find -maxdepth 1 -type d -name "om_*" 
+//then delete them
+find -maxdepth 1 -type d -name "om_*" -exec rm -r {} \;
 
 //Do M re operating model simulations
 //bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 1 1 1 5 24 20
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 60 1 16 5 24 20
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 61 100 1 16 5 24 20
 //jobs didn't finish in time. Let's put it on the large queue for a longer run time
-bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 35 35 15 15 5 24"
-bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 78 78 14 14 5 24"
-bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 37 37 13 13 5 24" 20
-bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 6 6 1 1 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 96 96 1 1 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 98 98 16 16 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 6 6 10 10 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 10 10 4 4 5 24"
 
 //Do selectivity re operating model simulations
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 1 60 1 16 5 20 16
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 1 60 1 16 25 28 4
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 61 100 1 16 5 20 16
+#here
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 61 100 1 16 25 28 4
 
 //Do catchability re operating model simulations
