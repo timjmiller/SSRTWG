@@ -126,8 +126,17 @@ bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 1 60 1 16 5 20 16
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 1 60 1 16 25 28 4
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 61 100 1 16 5 20 16
-#here
 bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_bsub.sh 61 100 1 16 25 28 4
+//here
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 65 65 5 5 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 61 61 15 15 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 62 62 2 2 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 61 61 13 13 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 65 65 9 9 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 55 55 13 13 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 57 57 2 2 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 22 22 14 14 5 20"
+bsub -n 16 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/Sel_om_hpcc_args.sh 7 7 10 10 25 28"
 
 //Do catchability re operating model simulations
 bash ~/SSRTWG/Project_0/code/q_om_hpcc_bsub.sh 1 60 1 16 5 20 16

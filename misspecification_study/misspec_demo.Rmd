@@ -100,19 +100,20 @@ Simulated data are created under two conditions: correctly and incorrectly repor
 #all RE and data are simulated
 sim_input <- list()
 
+obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
+
 # sim_input[[1]] has no data modification and em1
 set.seed(14159265) #use same seed for all operating models
 sim_input[[1]] = lapply(1:nsim, function(x) {
   input_i = em_input1
   sim = om$simulate(complete=TRUE)
-  input_i$data = sim
+  input_i$data[obs_names] = sim[obs_names]
   return(input_i)
 })
 
 # sim_input[[2]] uses the correct data and em2
 sim_input[[2]] = lapply(1:nsim, function(x) {
   input_i = em_input2
-  obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[1]][[x]]$data[obs_names]
   return(input_i)
 })
@@ -120,7 +121,6 @@ sim_input[[2]] = lapply(1:nsim, function(x) {
 # sim_input[[3]] uses the correct data and em3
 sim_input[[3]] = lapply(1:nsim, function(x) {
   input_i = em_input3
-  obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[1]][[x]]$data[obs_names]
   return(input_i)
 })
@@ -128,7 +128,6 @@ sim_input[[3]] = lapply(1:nsim, function(x) {
 # sim_input[[4]] uses the correct data and em4
 sim_input[[4]] = lapply(1:nsim, function(x) {
   input_i = em_input4
-  obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[1]][[x]]$data[obs_names]
   return(input_i)
 })
@@ -149,7 +148,6 @@ sim_input[[5]] = lapply(1:nsim, function(x) {
 # sim_input[[6]] has under-reported catch and em2
 sim_input[[6]] = lapply(1:nsim, function(x) {
   input_i = em_input2
-  obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[5]][[x]]$data[obs_names]
   return(input_i)
 })
@@ -157,7 +155,6 @@ sim_input[[6]] = lapply(1:nsim, function(x) {
 # sim_input[[7]] has under-reported catch and em3
 sim_input[[7]] = lapply(1:nsim, function(x) {
   input_i = em_input3
-  obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[5]][[x]]$data[obs_names]
   return(input_i)
 })
@@ -165,7 +162,6 @@ sim_input[[7]] = lapply(1:nsim, function(x) {
 # sim_input[[8]] has under-reported catch and em4
 sim_input[[8]] = lapply(1:nsim, function(x) {
   input_i = em_input4
-  obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
   input_i$data[obs_names] = sim_input[[5]][[x]]$data[obs_names]
   return(input_i)
 })
@@ -265,7 +261,7 @@ print(misspecified_data_compare$g[[2]])
 
 Looking at the fits to the under-reported data for estimation model 4 (using plot_wham_output(mod=em_fits[[8]][[1]], out.type='html')), I was surprised by how well most things fit, with no obvious patterning in residuals or obvious misfits. The one bad diagnostic I saw was the conditional expected and posterior estimates of abundance at all ages where the line was above all the points for all years and ages. So there was one diagnostic that indicated that there is a model misfit, but not anything that jumped out at me from the tabular data that could easily be grabbed when running lots of realizations. 
 
-```{r plotemfit8}
+```{r plotemfit8, eval = FALSE}
 # ran into errors plotting the one-step-ahead residuals for each model
 # ran the loop one model at a time to get output
 #
@@ -282,18 +278,18 @@ Looking at the fits to the under-reported data for estimation model 4 (using plo
 # 2: In max(x) : no non-missing arguments to max; returning -Inf
 
 # can either pull this code out and run in console, or else uncomment and knit then comment and knit again
-# out.dir <- file.path(here(), "misspecification_study", "output")
-# if (!dir.exists(out.dir)){
-#   dir.create(out.dir)
-# }
-# mydir <- c(paste0("CC_em", 1:4), paste0("UR_em", 1:4))
-# for (i in 1:8){
-#   em.dir <- file.path(here(), "misspecification_study", "output", mydir[i])
-#   if(!dir.exists(em.dir)){
-#     dir.create(em.dir)
-#   }
-#   plot_wham_output(mod=em_fits[[i]][[1]], dir.main=em.dir)
-# }
+out.dir <- file.path(here(), "misspecification_study", "output")
+if (!dir.exists(out.dir)){
+  dir.create(out.dir)
+}
+mydir <- c(paste0("CC_em", 1:4), paste0("UR_em", 1:4))
+for (i in 1:8){
+  em.dir <- file.path(here(), "misspecification_study", "output", mydir[i])
+  if(!dir.exists(em.dir)){
+    dir.create(em.dir)
+  }
+  plot_wham_output(mod=em_fits[[i]][[1]], dir.main=em.dir)
+}
 ```
 
 The catch and index four panel plots all look good for UR_em4. The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals.

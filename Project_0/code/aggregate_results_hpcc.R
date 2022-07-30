@@ -29,7 +29,20 @@ aggregate_hpcc_results(sim = 1, oms = 1, ems = 5:24, res_dir = file.path(here::h
 sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = 1, ems = 5:24, res_dir = file.path(here::here(),"Project_0", "results", "M_om")))
 sapply(2:16, function(y) sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = y, ems = 5:24, res_dir = file.path(here::here(),"Project_0", "results", "M_om"))))
 
-sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = 1, ems = ems, res_dir = file.path(here::here(),"Project_0", "results", "naa_om"))
+
+#Sel operating models
+df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.Sel.oms.RDS"))
+om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "Sel_om_inputs.RDS"))
+em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS"))
+oms = 1:length(om_inputs)
+ems = 1:length(em_inputs)
+ems = c(5:20,25:28)
+aggregate_hpcc_results(sim = 1, oms = 1, ems = ems, res_dir = file.path(here::here(),"Project_0", "results", "Sel_om"))
+sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = 1, ems = ems, res_dir = file.path(here::here(),"Project_0", "results", "Sel_om")))
+sapply(2:16, function(y) sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = y, ems = ems, res_dir = file.path(here::here(),"Project_0", "results", "Sel_om"))))
+
+
 
 x = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", "om_1", "sim_7.RDS"))
 x = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", "om_1", "sim_1.RDS"))
