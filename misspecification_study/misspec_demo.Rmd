@@ -292,7 +292,7 @@ for (i in 1:8){
 }
 ```
 
-The catch and index four panel plots all look good for UR_em4. The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals.
+The catch and index four panel plots all look good for UR_em4. The problematic diagnostic is the NAA 4 panel plots, show below for ages 1 and 8 as well as the stacked barplot of residuals. Also, none of the one-step-ahead residual plots are currenlty working. Tim is looking into this, could be a non-trivial fix is required.
 
 ![UR_em4 catch 4 panel](output/UR_em4/plots_png/diagnostics/Catch_4panel_fleet_1.png)
 
@@ -305,6 +305,8 @@ The catch and index four panel plots all look good for UR_em4. The problematic d
 ![UR_em4 NAA age 8 4 panel](output/UR_em4/plots_png/diagnostics/NAA_4panel_8.png)
 
 ![UR_em4 NAA residuals stacked barplot](output/UR_em4/plots_png/diagnostics/NAA_res_barplot_stacked.png)
+
+![UR_em4 osa residuals for fleet](output/UR_em4/plots_png/diagnostics/Catch_age_comp_osa_resids_fleet_1.png)
 
 Use Liz's plot.retro.pars function to examine the stability of parameter estimates across the retrospective peels. For now just look at under-reported catch case with estimation model 4 (UR_em4).
 
