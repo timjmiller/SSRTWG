@@ -100,7 +100,7 @@ Simulated data are created under two conditions: correctly and incorrectly repor
 #all RE and data are simulated
 sim_input <- list()
 
-obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec")
+obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec", "agesvec")
 
 # sim_input[[1]] has no data modification and em1
 set.seed(14159265) #use same seed for all operating models
@@ -108,6 +108,7 @@ sim_input[[1]] = lapply(1:nsim, function(x) {
   input_i = em_input1
   sim = om$simulate(complete=TRUE)
   input_i$data[obs_names] = sim[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -115,6 +116,7 @@ sim_input[[1]] = lapply(1:nsim, function(x) {
 sim_input[[2]] = lapply(1:nsim, function(x) {
   input_i = em_input2
   input_i$data[obs_names] = sim_input[[1]][[x]]$data[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -122,6 +124,7 @@ sim_input[[2]] = lapply(1:nsim, function(x) {
 sim_input[[3]] = lapply(1:nsim, function(x) {
   input_i = em_input3
   input_i$data[obs_names] = sim_input[[1]][[x]]$data[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -129,6 +132,7 @@ sim_input[[3]] = lapply(1:nsim, function(x) {
 sim_input[[4]] = lapply(1:nsim, function(x) {
   input_i = em_input4
   input_i$data[obs_names] = sim_input[[1]][[x]]$data[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -141,7 +145,8 @@ sim_input[[5]] = lapply(1:nsim, function(x) {
   sim = om$simulate(complete=TRUE)
   sim <- bias_data(sim, multiply_agg_catch_flag=TRUE,
                    agg_catch_multiplier=agg_catch_multiplier)
-  input_i$data = sim
+  input_i$data[obs_names] = sim[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -149,6 +154,7 @@ sim_input[[5]] = lapply(1:nsim, function(x) {
 sim_input[[6]] = lapply(1:nsim, function(x) {
   input_i = em_input2
   input_i$data[obs_names] = sim_input[[5]][[x]]$data[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -156,6 +162,7 @@ sim_input[[6]] = lapply(1:nsim, function(x) {
 sim_input[[7]] = lapply(1:nsim, function(x) {
   input_i = em_input3
   input_i$data[obs_names] = sim_input[[5]][[x]]$data[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 
@@ -163,6 +170,7 @@ sim_input[[7]] = lapply(1:nsim, function(x) {
 sim_input[[8]] = lapply(1:nsim, function(x) {
   input_i = em_input4
   input_i$data[obs_names] = sim_input[[5]][[x]]$data[obs_names]
+  input_i$data$obs$val = input_i$data$obsvec
   return(input_i)
 })
 ```
