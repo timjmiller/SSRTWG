@@ -243,13 +243,21 @@ check_convergence(em_fits[[8]][[1]])
 We can see which model has the best fit using the compare_wham_models function for the two sets of data. Start with the correctly reported catch data (CD). We see all four estimation models (em) fit the data similarly for F, recruitment, and SSB, with similar CVs for each. Estimation model 2 (AR1 random walk in recruitment) was preferred over the other three estimation models, but the differences in AIC were not great (<5 units). Mohn's rho for SSB and F and were low for all four estimation models (absolute values < 0.6). 
 
 ```{r comparecorrect}
-correct_data_compare <- compare_wham_models(list(CD_em1 = em_fits[[1]][[1]],
-                                                 CD_em2 = em_fits[[2]][[1]],
-                                                 CD_em3 = em_fits[[3]][[1]],
-                                                 CD_em4 = em_fits[[4]][[1]]))
-
-print(correct_data_compare$g[[1]])
-print(correct_data_compare$g[[2]])
+# don't know why this code is not working anymore
+# correct_data_compare <- compare_wham_models(list(CD_em1 = em_fits[[1]][[1]],
+#                                                  CD_em2 = em_fits[[2]][[1]],
+#                                                  CD_em3 = em_fits[[3]][[1]],
+#                                                  CD_em4 = em_fits[[4]][[1]]))
+# 
+# print(correct_data_compare$g[[1]])
+# print(correct_data_compare$g[[2]])
+#        dAIC    AIC  rho_R rho_SSB rho_Fbar
+# CD_em2  0.0 5008.4 0.2629 -0.0418   0.0573
+# CD_em1  2.4 5010.8 0.3136 -0.0285   0.0416
+# CD_em4  3.9 5012.3 0.2772 -0.0340   0.0506
+# CD_em3  4.4 5012.8 0.3136 -0.0285   0.0416
+# Error in if (is.na(rel.f.vals[x]) | any(diag(log.rel.ssb.rel.F.cov[[x]]) <  : 
+#   missing value where TRUE/FALSE needed
 ```
 
 
