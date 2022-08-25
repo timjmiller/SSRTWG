@@ -6,7 +6,7 @@ library(dplyr)
 library(here)
 source(file.path(here(),"common_code", "set_Ecov.R"))
 
-write.dir <- file.path(here(),"Ecov_study", "results") # create directory for analysis, e.g.
+write.dir <- file.path(here(),"Ecov_study", "recruitment", "results") # create directory for analysis, e.g.
 
 if(!exists("write.dir")) write.dir = getwd()  #if we don't specify above, set as current wd
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)  #if the write.dir directory doesn't exist, create it
@@ -29,6 +29,7 @@ n.mods        <- dim(df.mods)[1] #108 scenarios
 df.mods$Model <- paste0("m_",1:n.mods)
 df.mods       <- df.mods %>% select(Model, everything()) # moves Model to first col
 df.mods       <- cbind(Recruitment = 2, NAA_re = "rec+1", df.mods) #recruit model not yet discussed by WG.
+df.mods$nsim  <- rep(nsim,nrow(df.mods))
 
 saveRDS(df.mods,file.path(write.dir, "om_sim_inputs_GLB_recruitment.RDS"))
 

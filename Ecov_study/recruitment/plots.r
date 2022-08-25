@@ -2,22 +2,20 @@
 #################################################
 ##--LOAD OMs, EMs, FITS--########################
 #################################################
-dir <- "~/dropbox/Working/state_space_assessments/SSRTWG/Ecov_study/results"
+dir <- file.path(here(),"Ecov_study","recruitment","results")
   
 sim_input <- readRDS(file.path(dir, "om_sim_data_GLB_recruitment.RDS"))
 em_input  <- readRDS(file.path(dir, "em_input_GLB_recruitment.RDS"))
 em_fits   <- readRDS(file.path(dir, "em_fits_GLB_recruitment.RDS"))
 df.mods   <- readRDS(file.path(dir, "om_sim_inputs_GLB_recruitment.RDS"))
+n.mods    <- df.mods$nsim
 
 yrs <- em_fits[[1]][[1]]$years
 
 
-##--EXAMPLE PLOTS--############################
+##--EXAMPLE PLOTS OF TRUE VS SIMULATED ECOV REs--############################
 j <- 10
 i <- 1
-
-sim <- sim_input[[j]][[i]]$data$Ecov_re
-est <- em_fits[[j]][[i]]$parList$Ecov_re
 
 plot(-999,xlim=range(yrs), ylim=c(-1,1))
 for(i in 1:2){
@@ -27,10 +25,6 @@ for(i in 1:2){
   lines(yrs,  sim, lty=i)
   lines(yrs,est,col='red', lty=i)
 }
-
-lines(yrs,  sim)
-lines(yrs,est,col='red')
-
 
 
 ##_-PLOT SIMULATED AND ESTIMATION ECOV REs--##############################
@@ -52,6 +46,7 @@ dev.off()
 
 ##--check which models did not converge--#########################
 lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$convergence)))
+lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$is_sdrep)))
 
 
 ##--PLOT ESTIMATED BETAS WITH SIMULATED VALUE--_####################
@@ -60,14 +55,15 @@ obs.sigs <- unique(df.mods$obs_sig)
 p <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
 
 pdf('beta_ecov_hists.pdf',height=4)
-par(mfrow=c(3,2))
+par(mfrow=c(3,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
 for(i in 1:length(betas)){
   for(j in 1:length(obs.sigs)){
     whic <- which(df.mods$beta == betas[i] & df.mods$obs_sig == obs.sigs[j])
     #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
     hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[p,1]))),
-              main=paste0("obs_sig=",obs.sigs[j],"  beta=",beta[i]))
-    abline(v=betas[i])
+              main=paste0("obs_sig=",obs.sigs[j],"  beta=",betas[i]),xlab='')
+    abline(v=betas[i],lwd=2,col='red')
+    mtext(outer=TRUE,'beta',side=1)
   }
 }
 dev.off()
@@ -77,14 +73,15 @@ betas    <- unique(df.mods$beta)
 ecov_sigs <- unique(df.mods$Ecov_sig)
 obs.sigs  <- unique(df.mods$obs_sig)
 p <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
 for(i in 1:length(ecov_sigs)){
   for(j in 1:length(obs.sigs)){
     whic <- which(df.mods$Ecov_sig == ecov_sigs[i] & df.mods$obs_sig == obs.sigs[j])
     #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
     hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[p,1]))),
          main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='')
-    abline(v=betas[i],lwd=2)
+    abline(v=betas[i],lwd=2,col='red')
+    mtext(outer=TRUE,'beta',side=1)
   }
 }
 
