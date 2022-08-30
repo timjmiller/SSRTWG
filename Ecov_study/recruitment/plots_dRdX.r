@@ -12,7 +12,7 @@ limiting     <- function(SSB,X,a,b,c) SSB/(b+a*SSB*exp(c*X))
 masking      <- function(SSB,X,a,b,c) SSB/(b*exp(c*X)+a*SSB)
 controlling  <- function(SSB,X,a,b,c) (SSB/(b+a*SSB))*exp(c*X)
 
-dlimiting_dx     <- function(SSB,X,a,b,c) (SSB^2*a*c*exp(c*X))/(b+a*SSB*exp(c*X))^2
+dlimiting_dx     <- function(SSB,X,a,b,c) -((SSB^2)*a*c*exp(c*X))/(b+a*SSB*exp(c*X))^2
 dmasking_dx      <- function(SSB,X,a,b,c) -(SSB*b*c*exp(c*X))/(b*exp(c*X)+a*SSB)^2
 dcontrolling_dx  <- function(SSB,X,a,b,c) (SSB*c*exp(c*X))/(a*SSB+b)
 

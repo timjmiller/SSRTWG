@@ -49,41 +49,48 @@ lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence
 lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$is_sdrep)))
 
 
-##--PLOT ESTIMATED BETAS WITH SIMULATED VALUE--_####################
-betas    <- unique(df.mods$beta)
-obs.sigs <- unique(df.mods$obs_sig)
-p <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
-
-pdf('beta_ecov_hists.pdf',height=4)
-par(mfrow=c(3,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
-for(i in 1:length(betas)){
-  for(j in 1:length(obs.sigs)){
-    whic <- which(df.mods$beta == betas[i] & df.mods$obs_sig == obs.sigs[j])
-    #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
-    hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[p,1]))),
-              main=paste0("obs_sig=",obs.sigs[j],"  beta=",betas[i]),xlab='')
-    abline(v=betas[i],lwd=2,col='red')
-    mtext(outer=TRUE,'beta',side=1)
-  }
-}
-dev.off()
-
-
+##--PLOT BETAS WITH TRIE VALUE--#############################
 betas    <- unique(df.mods$beta)
 ecov_sigs <- unique(df.mods$Ecov_sig)
 obs.sigs  <- unique(df.mods$obs_sig)
-p <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
-par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
-for(i in 1:length(ecov_sigs)){
-  for(j in 1:length(obs.sigs)){
-    whic <- which(df.mods$Ecov_sig == ecov_sigs[i] & df.mods$obs_sig == obs.sigs[j])
-    #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
-    hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[p,1]))),
-         main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='')
-    abline(v=betas[i],lwd=2,col='red')
-    mtext(outer=TRUE,'beta',side=1)
+l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
+pdf('beta_ecov_hists_obs_sig_ecov_sig_beta.pdf',height=10,width=10)
+par(mfrow=c(4,3),mar=c(2,3,2,2),oma=c(2,2,2,2))
+for(p in 1:length(betas)){
+  for(i in 1:length(ecov_sigs)){
+    for(j in 1:length(obs.sigs)){
+      whic <- which(df.mods$Ecov_sig==ecov_sigs[i] & df.mods$obs_sig==obs.sigs[j] & df.mods$beta==betas[p])
+      #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
+      hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[l,1]))),
+           main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(-10,10),breaks=10000)
+      abline(v=betas[i],lwd=2,col='red')
+    }
   }
 }
+mtext(outer=TRUE,'beta',side=1)
+dev.off()
+
+
+
+ecov_sigs <- unique(df.mods$Ecov_sig)
+obs.sigs  <- unique(df.mods$obs_sig)
+l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
+pdf('beta_ecov_hists_obs_sig_ecov_sig_across_beta.pdf',height=7,width=7)
+par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
+  for(i in 1:length(ecov_sigs)){
+    for(j in 1:length(obs.sigs)){
+      whic <- which(df.mods$Ecov_sig==ecov_sigs[i] & df.mods$obs_sig==obs.sigs[j])
+      #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
+      hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[l,1]))),
+           main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(-20,20),breaks=10000)
+      #abline(v=betas[i],lwd=2,col='red')
+    }
+  }
+
+mtext(outer=TRUE,'beta',side=1)
+dev.off()
+
+
 
 
 ##--INDIVIDUAL BETA ESTIMATES--#######
