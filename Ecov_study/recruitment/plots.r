@@ -10,9 +10,17 @@ em_input  <- readRDS(file.path(dir, "em_input_GLB_recruitment.RDS"))
 em_fits   <- readRDS(file.path(dir, "em_fits_GLB_recruitment.RDS"))
 df.mods   <- readRDS(file.path(dir, "om_sim_inputs_GLB_recruitment.RDS"))
 n.mods    <- df.mods$nsim
+nsim      <- n.mods[1]
 
 yrs <- em_fits[[1]][[1]]$years
 
+##--check which models did not converge--#########################
+lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$convergence)))
+lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$is_sdrep)))
+
+#############################################################################
+## ECOV ANALYSIS ############################################################
+#############################################################################
 
 ##--EXAMPLE PLOTS OF TRUE VS SIMULATED ECOV REs--############################
 j <- 10
@@ -26,7 +34,6 @@ for(i in 1:2){
   lines(yrs,  sim, lty=i)
   lines(yrs,est,col='red', lty=i)
 }
-
 
 ##_-PLOT SIMULATED AND ESTIMATION ECOV REs--##############################
 pdf('ecov_re_diff.pdf',width=9)
@@ -44,55 +51,44 @@ for(j in c(1,8,16,20)){
 dev.off()
 
 
+#############################################################################
+## BETA ANALYSIS ############################################################
+#############################################################################
 
-##--check which models did not converge--#########################
-lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$convergence)))
-lapply(1:n.mods, function(y) unlist(lapply(1:nsim, function(x) check_convergence(em_fits[[y]][[x]],ret=TRUE)$is_sdrep)))
-
-
-##--PLOT BETAS WITH TRIE VALUE--#############################
+##--PLOT BETAS WITH TRUE VALUE ACROSS OBS_SIG, ECOV_SIG, BETA--#############################
 betas    <- unique(df.mods$beta)
 ecov_sigs <- unique(df.mods$Ecov_sig)
 obs.sigs  <- unique(df.mods$obs_sig)
 l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
+
+design <- expand.grid(obs.sigs,ecov_sigs,betas)
+
 pdf('beta_ecov_hists_obs_sig_ecov_sig_beta.pdf',height=10,width=10)
 par(mfrow=c(4,3),mar=c(2,3,2,2),oma=c(2,2,2,2))
-for(p in 1:length(betas)){
-  for(i in 1:length(ecov_sigs)){
-    for(j in 1:length(obs.sigs)){
-      whic <- which(df.mods$Ecov_sig==ecov_sigs[i] & df.mods$obs_sig==obs.sigs[j] & df.mods$beta==betas[p])
-      #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
-      hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[l,1]))),
+for(i in 1:nrow(design)){
+    whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1] & df.mods$beta==design[i,3])
+    hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[l,1]))),
            main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(-10,10),breaks=10000)
-      abline(v=betas[i],lwd=2,col='red')
-    }
-  }
+    abline(v=betas[i],lwd=2,col='red')
 }
 mtext(outer=TRUE,'beta',side=1)
 dev.off()
 
-
-
+##--PLOT BETAS WITH TRUE VALUE ACROSS OBS_SIG, ECOV_SIG, COLLAPSE BETA--#############################
 ecov_sigs <- unique(df.mods$Ecov_sig)
 obs.sigs  <- unique(df.mods$obs_sig)
 l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
+design <- expand.grid(obs.sigs,ecov_sigs)
+
 pdf('beta_ecov_hists_obs_sig_ecov_sig_across_beta.pdf',height=7,width=7)
 par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
-  for(i in 1:length(ecov_sigs)){
-    for(j in 1:length(obs.sigs)){
-      whic <- which(df.mods$Ecov_sig==ecov_sigs[i] & df.mods$obs_sig==obs.sigs[j])
-      #hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$parList$Ecov_beta[1,1,1,1]))),
-      hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[l,1]))),
+for(i in 1:nrow(design)){
+    whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1])
+    hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) em_fits[[y]][[x]]$sdrep[l,1]))),
            main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(-20,20),breaks=10000)
-      #abline(v=betas[i],lwd=2,col='red')
-    }
-  }
-
+}
 mtext(outer=TRUE,'beta',side=1)
 dev.off()
-
-
-
 
 ##--INDIVIDUAL BETA ESTIMATES--#######
 j <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
@@ -117,6 +113,78 @@ for(p in 1:n.mods){
 }
 dev.off()
 
+###############################################################################
+## RECRUITMENT ################################################################
+###############################################################################
+betas    <- unique(df.mods$beta)
+ecov_sigs <- unique(df.mods$Ecov_sig)
+obs.sigs  <- unique(df.mods$obs_sig)
+l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
+design <- expand.grid(obs.sigs,ecov_sigs,betas)
+
+par(mfrow=c(3,4),mar=c(2,3,2,2),oma=c(2,2,2,2))
+for(i in 1:nrow(design)){
+  whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1] & df.mods$beta==design[i,3])
+  hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) cor(exp(em_fits[[y]][[x]]$parList$log_NAA[,1]),
+                                                                      exp(em_fits[[y]][[x]]$env$data$log_NAA[,1]))))),
+       main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(0,1),breaks=15)
+}
+mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
+
+
+ecov_sigs <- unique(df.mods$Ecov_sig)
+obs.sigs  <- unique(df.mods$obs_sig)
+l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
+design <- expand.grid(obs.sigs,ecov_sigs)
+
+par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
+for(i in 1:nrow(design)){
+  whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1])
+  hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) cor(exp(em_fits[[y]][[x]]$parList$log_NAA[,1]),
+                                                                      exp(em_fits[[y]][[x]]$env$data$log_NAA[,1]))))),
+       main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(-1,1),breaks=20)
+}
+mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
+
+
+
+
+###############################################################################
+## SSB ########################################################################
+###############################################################################
+betas    <- unique(df.mods$beta)
+ecov_sigs <- unique(df.mods$Ecov_sig)
+obs.sigs  <- unique(df.mods$obs_sig)
+design <- expand.grid(obs.sigs,ecov_sigs,betas)
+
+par(mfrow=c(3,4),mar=c(2,3,2,2),oma=c(2,2,2,2))
+for(i in 1:nrow(design)){
+  whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1] & df.mods$beta==design[i,3])
+  hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x){ 
+    Waa <- em_fits[[y]][[x]]$env$data$waa[1,2:40,] * exp(em_fits[[y]][[x]]$parList$log_NAA) * em_fits[[y]][[x]]$env$data$mature[2:40,]
+    return(cor(rowSums(Waa), sim_input[[y]][[x]]$data$SSB[-1]))
+  } ))),
+       xlab='', xlim=c(0.9,1),breaks=10, cex=0.1,main='')
+  mtext(paste0("obs_sig=",design[i,1],"  Ecov_sig=",design[i,2],"  beta=",design[i,3]),cex=0.4)
+}
+mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
+
+
+ecov_sigs <- unique(df.mods$Ecov_sig)
+obs.sigs  <- unique(df.mods$obs_sig)
+design <- expand.grid(obs.sigs,ecov_sigs)
+
+par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
+for(i in 1:nrow(design)){
+  whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1])
+  hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x){ 
+    Waa <- em_fits[[y]][[x]]$env$data$waa[1,2:40,] * exp(em_fits[[y]][[x]]$parList$log_NAA) * em_fits[[y]][[x]]$env$data$mature[2:40,]
+    return(cor(rowSums(Waa), sim_input[[y]][[x]]$data$SSB[-1]))
+  } ))),
+  xlab='', xlim=c(0.9,1),breaks=10, cex=0.1,main='')
+  mtext(paste0("obs_sig=",design[i,1],"  Ecov_sig=",design[i,2],"  beta=",design[i,3]),cex=0.4)
+}
+mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
 
 
 
