@@ -122,14 +122,19 @@ obs.sigs  <- unique(df.mods$obs_sig)
 l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
 design <- expand.grid(obs.sigs,ecov_sigs,betas)
 
+pdf('results/correlation_beta_ecovsig_obssig.pdf',height=7, width=9)
 par(mfrow=c(3,4),mar=c(2,3,2,2),oma=c(2,2,2,2))
 for(i in 1:nrow(design)){
   whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1] & df.mods$beta==design[i,3])
   hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) cor(exp(em_fits[[y]][[x]]$parList$log_NAA[,1]),
                                                                       exp(em_fits[[y]][[x]]$env$data$log_NAA[,1]))))),
-       main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(0,1),breaks=15)
+       main='', xlab='', xlim=c(0,1),breaks=15)
+  mtext(paste0('ecov_sig=',df.mods[i,4],'  ecov_phi=',df.mods[i,5],'  beta=',df.mods[i,7],'  obs_sig=',df.mods[i,9]),side=3,cex=0.5)
+  
 }
 mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
+dev.off()
+
 
 
 ecov_sigs <- unique(df.mods$Ecov_sig)
@@ -137,15 +142,17 @@ obs.sigs  <- unique(df.mods$obs_sig)
 l <- which(row.names(em_fits[[1]][[1]]$sdrep)=="Ecov_beta")
 design <- expand.grid(obs.sigs,ecov_sigs)
 
+pdf('results/correlation_ecovsig_obssig.pdf',height=5, width=6)
 par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
 for(i in 1:nrow(design)){
   whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1])
   hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) cor(exp(em_fits[[y]][[x]]$parList$log_NAA[,1]),
                                                                       exp(em_fits[[y]][[x]]$env$data$log_NAA[,1]))))),
-       main=paste0("obs_sig=",obs.sigs[j],"  Ecov_sig=",ecov_sigs[i]), xlab='', xlim=c(-1,1),breaks=20)
+       main='', xlab='', xlim=c(-1,1),breaks=20)
+  mtext(paste0('ecov_sig=',df.mods[i,4],'  ecov_phi=',df.mods[i,5],'  obs_sig=',df.mods[i,9]),side=3,cex=0.5)
 }
-mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
-
+mtext(outer=TRUE,'Correlation Coefficient',side=1)
+dev.off()
 
 
 
@@ -157,6 +164,7 @@ ecov_sigs <- unique(df.mods$Ecov_sig)
 obs.sigs  <- unique(df.mods$obs_sig)
 design <- expand.grid(obs.sigs,ecov_sigs,betas)
 
+pdf('results/ssb_correlation_ecovsig_beta_obssig.pdf',height=7, width=9)
 par(mfrow=c(3,4),mar=c(2,3,2,2),oma=c(2,2,2,2))
 for(i in 1:nrow(design)){
   whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1] & df.mods$beta==design[i,3])
@@ -165,15 +173,18 @@ for(i in 1:nrow(design)){
     return(cor(rowSums(Waa), sim_input[[y]][[x]]$data$SSB[-1]))
   } ))),
        xlab='', xlim=c(0.9,1),breaks=10, cex=0.1,main='')
-  mtext(paste0("obs_sig=",design[i,1],"  Ecov_sig=",design[i,2],"  beta=",design[i,3]),cex=0.4)
+  mtext(paste0("obs_sig=",design[i,1],"  Ecov_sig=",design[i,2],"  beta=",design[i,3]),cex=0.5)
 }
 mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
+dev.off()
+
 
 
 ecov_sigs <- unique(df.mods$Ecov_sig)
 obs.sigs  <- unique(df.mods$obs_sig)
 design <- expand.grid(obs.sigs,ecov_sigs)
 
+pdf('results/ssb_correlation_ecovsig_obssig.pdf',height=5, width=6)
 par(mfrow=c(2,2),mar=c(2,3,2,2),oma=c(2,2,2,2))
 for(i in 1:nrow(design)){
   whic <- which(df.mods$Ecov_sig==design[i,2] & df.mods$obs_sig==design[i,1])
@@ -181,11 +192,11 @@ for(i in 1:nrow(design)){
     Waa <- em_fits[[y]][[x]]$env$data$waa[1,2:40,] * exp(em_fits[[y]][[x]]$parList$log_NAA) * em_fits[[y]][[x]]$env$data$mature[2:40,]
     return(cor(rowSums(Waa), sim_input[[y]][[x]]$data$SSB[-1]))
   } ))),
-  xlab='', xlim=c(0.9,1),breaks=10, cex=0.1,main='')
-  mtext(paste0("obs_sig=",design[i,1],"  Ecov_sig=",design[i,2],"  beta=",design[i,3]),cex=0.4)
+  xlab='', xlim=c(0.9,1),breaks=40, cex=0.1,main='')
+  mtext(paste0("obs_sig=",design[i,1],"  Ecov_sig=",design[i,2]),cex=0.6)
 }
 mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
-
+dev.off()
 
 
 
