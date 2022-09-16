@@ -129,10 +129,11 @@ for(i in 1:nrow(design)){
   hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) cor(exp(em_fits[[y]][[x]]$parList$log_NAA[,1]),
                                                                       exp(em_fits[[y]][[x]]$env$data$log_NAA[,1]))))),
        main='', xlab='', xlim=c(0,1),breaks=15)
-  mtext(paste0('ecov_sig=',df.mods[i,4],'  ecov_phi=',df.mods[i,5],'  beta=',df.mods[i,7],'  obs_sig=',df.mods[i,9]),side=3,cex=0.5)
+  mtext(paste0('ecov_sig=',design[i,2],'  beta=',design[i,3],'  obs_sig=',design[i,1]),side=3,cex=0.5)
   
 }
 mtext(outer=TRUE,'Correlation Coefficient',side=1,line=0.5)
+mtext(outer=TRUE,'Recruitment',side=3)
 dev.off()
 
 
@@ -149,9 +150,10 @@ for(i in 1:nrow(design)){
   hist(unlist(lapply(whic, function(y) lapply(1:nsim, function(x) cor(exp(em_fits[[y]][[x]]$parList$log_NAA[,1]),
                                                                       exp(em_fits[[y]][[x]]$env$data$log_NAA[,1]))))),
        main='', xlab='', xlim=c(-1,1),breaks=20)
-  mtext(paste0('ecov_sig=',df.mods[i,4],'  ecov_phi=',df.mods[i,5],'  obs_sig=',df.mods[i,9]),side=3,cex=0.5)
+  mtext(paste0('ecov_sig=',design[i,2],'  obs_sig=',design[i,1]),side=3,cex=0.7)
 }
 mtext(outer=TRUE,'Correlation Coefficient',side=1)
+mtext(outer=TRUE,'Recruitment',side=3)
 dev.off()
 
 
