@@ -116,7 +116,7 @@ fleets, selectivity
 
 
 M_oms
-
+NOTE: inv_trans_rho function in set_M.R is mis-defined. Will affect correlation parameters assigned in operating models?
 
 
 

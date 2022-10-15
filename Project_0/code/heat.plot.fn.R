@@ -32,24 +32,24 @@ heat.plot.fn = function (mat, ylabs, xlabs, main.title = "N sdreps", shape.size 
     title(main.title, outer = TRUE, line = 1)
     par(origpar)
 }
-use.df.ems = df.ems[1:20,]
-ynames = paste0(
-  c("MR","SR")[match(use.df.ems$SR_model, c(2,3))],
-  "_", c("ME","MF")[match(use.df.ems$M_est,c(TRUE,FALSE))],
-  "_", use.df.ems$re_config)
-xnames = paste0(
-  c("HM","MSY")[match(df.oms$Fhist, c("H-MSY","MSY"))],
-  "_", c("RsigL","RsigH")[match(df.oms$R_sig,c(0.5,1.5))],
-  "_", c("Nsig0", "NsigL", "NsigH")[match(df.oms$NAA_sig, c(NA,0.25,0.5))], 
-  "_", c("OEL", "OEH")[match(df.oms$obs_error, c("L","H"))])
+# use.df.ems = df.ems[1:20,]
+# ynames = paste0(
+#   c("MR","SR")[match(use.df.ems$SR_model, c(2,3))],
+#   "_", c("ME","MF")[match(use.df.ems$M_est,c(TRUE,FALSE))],
+#   "_", use.df.ems$re_config)
+# xnames = paste0(
+#   c("HM","MSY")[match(df.oms$Fhist, c("H-MSY","MSY"))],
+#   "_", c("RsigL","RsigH")[match(df.oms$R_sig,c(0.5,1.5))],
+#   "_", c("Nsig0", "NsigL", "NsigH")[match(df.oms$NAA_sig, c(NA,0.25,0.5))], 
+#   "_", c("OEL", "OEH")[match(df.oms$obs_error, c("L","H"))])
 
-png(file.path(here::here(), "Project_0", "results", "naa_om_n_sdrep.png"), 
-  width = 10*144, height = 10*144, res = 144, pointsize = 12)
-heat.plot.fn(n_ems_sdrep, xlabs = xnames, ylabs = ynames, palette = "viridis")
-dev.off()
-#source("c:/work/SSRTWG/SSRTWG/Project_0/code/bubble_plot.R")
+# png(file.path(here::here(), "Project_0", "results", "naa_om_n_sdrep.png"), 
+#   width = 10*144, height = 10*144, res = 144, pointsize = 12)
+# heat.plot.fn(n_ems_sdrep, xlabs = xnames, ylabs = ynames, palette = "viridis")
+# dev.off()
+# #source("c:/work/SSRTWG/SSRTWG/Project_0/code/bubble_plot.R")
 
-png(file.path(here::here(), "Project_0", "results", "naa_om_n_fit.png"), 
-  width = 10*144, height = 10*144, res = 144, pointsize = 12)
-heat.plot.fn(100 - n_ems_null, xlabs = xnames, ylabs = ynames, main.title = "N fits", palette = "viridis")
-dev.off()
+# png(file.path(here::here(), "Project_0", "results", "naa_om_n_fit.png"), 
+#   width = 10*144, height = 10*144, res = 144, pointsize = 12)
+# heat.plot.fn(100 - n_ems_null, xlabs = xnames, ylabs = ynames, main.title = "N fits", palette = "viridis")
+# dev.off()
