@@ -10,5 +10,5 @@
 !Project_0/inputs/*.RDS
 Project_0/hpcc_bash
 misspecification_study/output
-code
+/code/
 Ecov_study/recruitment/results
