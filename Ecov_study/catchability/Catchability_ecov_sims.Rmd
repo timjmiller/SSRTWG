@@ -1,0 +1,255 @@
+---
+title: "Catchability_ecov_sims"
+output: html_document
+date: "2022-11-14"
+---
+# Function definitions
+Functions based on simulation testing vignette: https://github.com/timjmiller/wham/blob/devel/vignettes/ex10_simulation.Rmd
+
+## Generate simulated OM data
+```{r}
+#' @param OM A fitted WHAM model to use as the operating model, no default.
+#' 
+#' @return A simulated OM dataset, may be used to overwrite input$data either entirely or in part in simulations
+
+simOM <- function(OM=NULL){
+        input <- OM$input
+        dataOM = OM$simulate(complete=TRUE) # Overwrite input with simulated data & return
+        return(dataOM)
+}
+```
+
+## Fit specified EMs to simulated OM data and store results
+```{r}
+#' @param nsim A number specifying how many simulations to run, default = 1.
+#' @param OM A fitted WHAM model to use as an operating model, no default.
+#' @param inputEMlist A list of WHAM input data objects for all estimation models, no default.
+#' @param outdir A filename specifying the directory where time-stamped results should be stored, if NULL (default) then the results are not saved as RData,
+#' 
+#' @return A nested list with names and results corresponding to the operating models and all estimation models. For each model results contains a sub-list with items for each simulation's results stored as sub-sub lists (because WHAM results are stored as a list). If outdir != NULL then results are saved as RData and returned as an object from the function.
+
+simTestWHAM <- function(nsim = 1,
+                        OM = NULL,
+                        inputEMlist = NULL,
+                        outdir = NULL){
+        # Simulation set-up
+        obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec") # Data overwritten by OM
+        namesEM <- lapply(inputEMlist, FUN = function(inputEMlist){inputEMlist$model_name}) %>% unlist() # EM model names
+
+        # Storage set-up
+        results <- NULL #!!!!! Still need to work on setting this up
+        storeEM <- lapply(namesEM, FUN = assign, value = list())
+        names(storeEM) <- namesEM
+        
+        # Generate OM data for all simulations
+        sim_inputs <- replicate(nsim, simOM(OM), simplify = FALSE)
+
+        for(isim in 1:nsim){ # Loop over simulations
+                for(iEM in 1:length(inputEMlist)){ # Loop over estimation models
+                        # Pull EM initial input from list
+                        inputEM <- inputEMlist[[iEM]] 
+                        
+                        # Update EM input with OM simulated data
+                        inputEM$data[obs_names] = sim_inputs[[isim]][obs_names]
+                        
+                        # Fit WHAM model to updated EM input and save results
+                        resultEM <- fit_wham(inputEM, do.osa = FALSE, do.retro = FALSE, MakeADFun.silent = TRUE) #!!!! Figure out how to store
+                        
+                        # Store model-specific results for given isim here (append EM results to storage list for that EM)
+                        storeEM[which(namesEM == namesEM[iEM])][[1]] <- append(storeEM[which(namesEM == namesEM[iEM])], list(resultEM))
+                       
+                } # End loop over EM
+        } # End loop over nsims
+        
+        # Store all results
+        results$OM <- sim_inputs
+        names(results) <- OM$model_name # Name OM column based on model_name
+        results <- append(results, storeEM) # Should add named EM results to the final resuts object
+        
+        # Save time-stamped results as RData if output directory provided as argument
+        timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+        if(is.null(outdir)==FALSE){
+                save(results, file = paste(outdir, paste0("simWHAM_", nsim, "_nsim_", OM$model_name, "_OM_", timeStamp, ".RData"), sep="/"))
+        }
+        
+        return(results) # Always return results as an object
+}
+```
+
+### Visual describing results structure
+WHAM results objects only displayed for OM simulation 1, similar structure for other simulations and for estimation models.
+```{r}
+library(DiagrammeR)
+        
+grViz("
+
+digraph boxes_and_circles{
+## Add node statements
+# Define shape
+node[shape = box]
+OM[label = 'OM \n results$OM']
+sim1[label = 'Simulation 1 results \n results$OM[[1]]']
+sim2[label = 'Simulation 1 results \n results$OM[[2]]']
+sim3[label = 'Simulation 1 results \n results$OM[[3]]']
+
+EM1[label = 'EM1 \n results$EM1']
+sim1_1[label = 'Simulation 1 results \n results$EM1[[1]]']
+sim1_2[label = 'Simulation 1 results \n results$EM1[[1]]']
+sim1_3[label = 'Simulation 1 results \n results$EM1[[1]]']
+EM2[label = 'EM2 \n results$EM2']
+sim2_1[label = 'Simulation 1 results \n results$EM2[[1]]']
+sim2_2[label = 'Simulation 1 results \n results$EM2[[1]]']
+sim2_3[label = 'Simulation 1 results \n results$EM2[[1]]']
+ageslab[label = 'ages.lab']
+
+# Add edge statements to connect nodes
+edge[] # optional arrowhead options
+# Connect nodes (may be labeled - appears on line)
+results -> OM; OM -> sim1; OM -> sim2; OM -> sim3;
+results -> EM1; EM1 -> sim1_1; EM1 -> sim1_2; EM1 -> sim1_3;
+results -> EM2; EM2 -> sim2_1; EM2 -> sim2_2; EM2 -> sim2_3;
+sim1 -> par;  
+sim1 -> fn;
+sim1 -> gr;
+sim1 -> he;
+sim1 -> hessian;
+sim1 -> method;
+sim1 -> retape;
+sim1 -> env;
+sim1 -> report;
+sim1 -> simulate;
+sim1 -> years;
+sim1 -> years_full;
+sim1 -> ageslab;
+sim1 -> model_name;
+sim1 -> input;
+sim1 -> wham_version;
+sim1 -> opt;
+sim1 -> date;
+sim1 -> dir;
+sim1 -> rep;
+sim1 -> TMB_version;
+sim1 -> parList;
+sim1 -> final_gradient;
+sim1 -> is_sdrep;
+sim1 -> na_sdrep;
+sim1 -> runtime;
+sim1 -> sdrep; 
+
+# Add graph statement
+graph[nodesep = 0.1, rankdir = LR] # set distance between nodes # for left-right orientation use , rankdir = LR
+
+}   
+")
+
+```
+
+## Post-process results
+```{r}
+#' @param filenames A vector of strings (including .Rda extensions) indicating what Rdata results files to read in and post process
+#' 
+#' @return
+
+postprocess_simTestWHAM <- function(filenames = NULL){
+        # Set up storage for processed results
+        
+        # Loop over files
+        for(ifile in 1:length(filenames)){
+                # Read in Rdata object
+                fileDat <- readRDS(filenames[ifile])
+                
+                nsim <- # Based on length of results in given filename
+                        
+                # Loop over simulations in each file
+                for(isim in 1:nsim){
+                        # Calculate performance metrics here & add to storage
+                }
+                
+        } # End loop over filenames
+}
+```
+
+# Specifics for environmentally-linked catchability WHAM runs
+## Define Operating Models (OMs)
+All OMs should have catchability linked to an environmental covariate but may differ in 
+- Uncertainty around this relationship #!!!!!!!!
+- Sign of this relationship (+/-) #!!!!!!!!
+
+Set up input and fit OM1
+```{r}
+inputOM1 <- prepare_wham_input(model_name = "OM1") #!!!!!!!!!!!!
+OM1 <- fit_wham(inputOM1, do.osa = FALSE, do.retro = FALSE, MakeADFun.silent = TRUE)
+```
+
+## Define Estimation Models (EMs)
+Correctly specified link between catchability and the environment
+```{r}
+EMq_env <- prepare_wham_input(model_name = "EMq_env")
+```
+
+Catchability random effect and a link between catchability and the environment
+```{r}
+EMq_rand_env <- prepare_wham_input(model_name = "EMq_rand_env")
+```
+
+Only a catchability random effect, fit to environmental model without link
+```{r}
+EMq_rand <- prepare_wham_input(model_name ="EMq_rand")
+```
+
+No catchability considerations (i.e. status quo), fit to environmental model without link !!!! how does this work if you feed in the ecov_beta?
+```{r}
+EMq <- prepare_wham_input(model_name = "EMq")
+```
+
+
+## Simulation testing 
+```{r}
+simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_rand, EMq)) # Update once OM/EM specifics finalized!!!!
+
+
+```
+
+## Post-process simulation results
+```{r}
+postprocess_simTestWHAM(filenames = c("filename1.Rds", "filename2.Rds", "ect.Rds")) # !!! Update once completed runs
+```
+
+!!!! post-process based on storage & how sims run
+- could run sims based varying isim
+- could also loop over OM but this could be computationally expensive
+- I recommend labeling runs with OM and EM names (and setting these up with informative) so it is easy to pull out results & compare based on model setup
+  - pull from mod$model_name to help aggregate data
+
+
+proposed function with:
+- fitted OM model object
+- list of EM inputs
+
+### Result formatted as list of lists, save as rdata object in specified directory with timestamp in name
+run1_11_14_22.Rda<-result
+ - EM1 
+ - EM2 
+ - EM3
+ - EM4
+ - OM result
+
+# Other things to consider
+- Other EMs can be developed (e.g. with alternative ecov process assumptions) but should be given DIFFERENT model_names to help with post-processing
+
+# Short script for function testing purposes only!!!
+```{r}
+library(wham)
+# For testing function
+testdata <- read_asap3_dat(paste("/Users/amandahart/Research/Plaice_Methods_Development", "data", "PlaiceWHAM-2019_revised_NEFSC-LW-WAA_splitNEFSC-BigUnit_fixSeason.DAT", sep="/")) # this can be swapped out for any ASAP file you have to set up a WHAM model for debugging
+testinput <- prepare_wham_input(testdata)
+testWHAM <- fit_wham(testinput, MakeADFun.silent = TRUE, do.osa = FALSE, do.retro=FALSE)
+
+OM <- testWHAM
+testinput1 <- prepare_wham_input(testdata, model_name = "test1")
+testinput2 <- prepare_wham_input(testdata, model_name="test2")
+testinput3 <- prepare_wham_input(testdata, model_name="test3")
+inputEMlist <- list(testinput1, testinput2, testinput3)
+
+test <- simTestWHAM(nsim = 2, OM = OM, inputEMlist = inputEMlist)
+```
