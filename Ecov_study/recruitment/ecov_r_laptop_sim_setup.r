@@ -12,23 +12,28 @@ if(!exists("write.dir")) write.dir = getwd()  #if we don't specify above, set as
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)  #if the write.dir directory doesn't exist, create it
 setwd(write.dir)
 
-nsim = 10 #number of simulations for each scenario
+nsim = 100 #number of simulations for each scenario
 
 ################################################################
 ##--EXPERIMENTAL FACTORS--######################################
 ################################################################
 Ecov_where <- c("recruit")
 Ecov_mean  <- 0
-Ecov_sig   <- c(0.1, 0.5) #units?
-ar1_y      <- c(0.5,0.95)
-beta       <- c(0,0.3,0.7) #units?
+Ecov_sig   <- c(0.1,0.5) #units?
+ar1_y      <- c(0,0.95)
+beta       <- c(0.3,1.0) #units?
 obs_sig    <- c(1e-5,0.25) #units?
 
-df.mods       <- expand.grid(Ecov_sig=Ecov_sig, Ecov_phi=ar1_y, Ecov_mean = Ecov_mean, beta = beta, Ecov_where = Ecov_where, obs_sig = obs_sig)
+df.mods       <- expand.grid(Ecov_sig=Ecov_sig, 
+                             Ecov_phi = ar1_y, 
+                             Ecov_mean = Ecov_mean, 
+                             beta = beta, 
+                             Ecov_where = Ecov_where, 
+                             obs_sig = obs_sig)
 n.mods        <- dim(df.mods)[1] #108 scenarios
 df.mods$Model <- paste0("m_",1:n.mods)
 df.mods       <- df.mods %>% select(Model, everything()) # moves Model to first col
-df.mods       <- cbind(Recruitment = 2, NAA_re = "rec+1", df.mods) #recruit model not yet discussed by WG.
+df.mods       <- cbind(Recruitment=3, NAA_re="rec+1", df.mods) #recruit model not yet discussed by WG.
 df.mods$nsim  <- rep(nsim,nrow(df.mods))
 
 saveRDS(df.mods,file.path(write.dir, "om_sim_inputs_GLB_recruitment.RDS"))
@@ -115,7 +120,7 @@ for(m in 1:n.mods){
     ecov$use_obs = matrix(TRUE, input$data$n_years_model, 1)
     ecov$link_model = "linear"
     ecov$process_model = "ar1"
-    #ecov$process_mean_vals = df.mods$Ecov_mean[m]   #GLB: why are these commented out? For estimation?
+    ecov$process_mean_vals = df.mods$Ecov_mean[m]   #GLB: why are these commented out? For estimation?
     #ecov$process_sig_vals = df.mods$Ecov_sig[m]
     #ecov$process_cor_vals = df.mods$Ecov_phi[m]
     n_effects = 2+input$data$n_indices
