@@ -4,7 +4,7 @@ library(wham)
 library(tidyr)
 library(dplyr)
 library(here)
-source(file.path(here(),"common_code", "set_Ecov.R"))
+source(file.path(here(),"common_code", "set_ecov.R"))
 
 write.dir <- file.path(here(),"Ecov_study", "recruitment", "results") # create directory for analysis, e.g.
 

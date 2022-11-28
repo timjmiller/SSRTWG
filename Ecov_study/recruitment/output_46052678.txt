@@ -1,0 +1,610 @@
+Executing R script
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 1"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 2"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 3"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 4"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 5"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 6"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 7"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 8"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 9"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 10"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 11"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 12"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 13"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 14"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 15"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "m: 16"
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+[1] "number of selblocks, 3, is being determined by input$data$selblock_pointer_fleets and input$data$selblock_pointer_indices. Those should be 1,...,max(pointers)."
+Please check that the environmental covariates have been loaded and interpreted correctly.
+
+      Model years: 1982 to 2021
+      Ecov years: 1982 to 2021
+
+    Ecov 1: AR1_ecov
+          Controlling (linear) effect on: recruitment
+
+          Model years:
+        1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 
+1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 
+2014 2015 2016 2017 2018 2019 2020 2021
+Lag: 0
+        Ex: AR1_ecov in 1982 affects recruitment in 1982
+            AR1_ecov in 2021 affects recruitment in 2021
+
+        
+model: 1 fit: 1 start 
+model: 1 fit: 1 done 
+model: 1 fit: 2 start 
+model: 1 fit: 2 done 
+model: 1 fit: 3 start 
+model: 1 fit: 3 done 
+model: 1 fit: 4 start 
+model: 1 fit: 4 done 
+model: 1 fit: 5 start 
+model: 1 fit: 5 done 
+model: 1 fit: 6 start 
+model: 1 fit: 6 done 
+model: 1 fit: 7 start 
+model: 1 fit: 7 done 
+model: 1 fit: 8 start 
+model: 1 fit: 8 done 
+model: 1 fit: 9 start 
