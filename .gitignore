@@ -12,3 +12,5 @@ Project_0/hpcc_bash
 misspecification_study/output
 /code/
 Ecov_study/recruitment/results
+Ecov_study/recruitment/output*
+Ecov_study/recruitment/error*
