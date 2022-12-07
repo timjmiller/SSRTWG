@@ -25,6 +25,135 @@ naa_outer_res = sapply(1:NROW(df.oms), function(y){
 saveRDS(naa_outer_res, file = file.path(here(),"Project_0","results", "NAA_om_aic_results.RDS"))
 
 
+all_naa_aic = lapply(1:NROW(df.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_naa_aic, file = file.path(here(),"Project_0","results", "all_naa_aic_results.RDS"))
+
+x = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", 1), paste0("sim_",1,".RDS")))
+x = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", 1), paste0("sim_",27,".RDS")))
+
+all_naa_relssb = lapply(1:NROW(df.oms), function(y){
+  res = lapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    relSSB = sapply(sim,function(y) {
+      out <- rep(NA, 40)
+      if(length(y)) if(length(y$fit)) out = y$fit$rep$SSB/y$truth$SSB
+      return(out)
+    })
+    return(relSSB)
+  })
+  return(res)
+})
+saveRDS(all_naa_relssb, file = here("Project_0","results", "all_naa_relssb_results.RDS"))
+
+
+all_naa_aic <- readRDS(file = file.path(here(),"Project_0","results", "all_naa_aic_results.RDS"))
+aic_fn <- function(all, est_ind, om_ind = NULL){
+  if(!is.null(om_ind)) all <- all[om_ind]
+  out <- sapply(all, function(res){
+    tmp = apply(res[est_ind,],2, function(x) {
+      if(any(!is.na(x))) {
+        return(x == min(x,na.rm=T))
+      } else return(rep(NA, length(x)))
+    })
+    return(apply(tmp,1,sum,na.rm=T))
+  })  
+  return(out)
+}
+
+temp <- df.ems[1:20,]
+use.df.ems <- df.ems[1:20,]
+ynames = paste0(
+  c("MR","SR")[match(use.df.ems$SR_model, c(2,3))],
+  "-", c("ME","MF")[match(use.df.ems$M_est,c(TRUE,FALSE))],
+  "-", use.df.ems$re_config)
+library(Hmisc)
+
+#EM: estimate SR, M fixed
+SR_Mfixed = which(use.df.ems$SR_model ==3 & use.df.ems$M_est == FALSE)
+naa_em_SR_Mfixed <- t(aic_fn(all_naa_aic, SR_Mfixed))
+out <- cbind(df.oms[-1], naa_em_SR_Mfixed)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "NAA", "M", "Sel", "q") 
+x = latex(out, file = here("Project_0","paper","naa_om_em_SR_MF_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+#EM: estimate SR, M estimated
+SR_Mest = which(use.df.ems$SR_model ==3 & use.df.ems$M_est == TRUE)
+naa_em_SR_Mest <- t(aic_fn(all_naa_aic, SR_Mest))
+out <- cbind(df.oms[-1], naa_em_SR_Mest)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "NAA", "M", "Sel", "q") 
+x = latex(out, file = here("Project_0","paper","naa_om_em_SR_ME_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+#EM: No SR, M fixed
+R_Mfixed = which(use.df.ems$SR_model ==2 & use.df.ems$M_est == FALSE)
+naa_em_R_Mfixed <- t(aic_fn(all_naa_aic, R_Mfixed))
+out <- cbind(df.oms[-1], naa_em_R_Mfixed)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "NAA", "M", "Sel", "q") 
+x = latex(out, file = here("Project_0","paper","naa_om_em_R_MF_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+#EM: No SR, M estimated
+R_Mest = which(use.df.ems$SR_model ==2 & use.df.ems$M_est == TRUE)
+naa_em_R_Mest <- t(aic_fn(all_naa_aic, R_Mest))
+out <- cbind(df.oms[-1], naa_em_R_Mest)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "NAA", "M", "Sel", "q") 
+x = latex(out, file = here("Project_0","paper","naa_om_em_R_ME_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+
+use.df.ems[SR_Mest,]
+
+
+#OM: just rec re, EM: Assume R only, Estimating R and SR, M fixed
+om_ind <- which(is.na(df.oms$NAA_sig))
+SR_rec_Mfixed = which(use.df.ems$re_config == "rec" & use.df.ems$M_est == FALSE)
+temp <- t(aic_fn(all_naa_aic, SR_rec_Mfixed, om_ind = om_ind))
+out <- cbind(df.oms[om_ind,-1], temp)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
+x = latex(out, file = here("Project_0","paper","rec_om_em_R_SR_MF_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+#OM: just rec re, EM: Assume R only, Estimating R and SR, M estimated
+om_ind <- which(is.na(df.oms$NAA_sig))
+SR_rec_Mest = which(use.df.ems$re_config == "rec" & use.df.ems$M_est == TRUE)
+temp <- t(aic_fn(all_naa_aic, SR_rec_Mest, om_ind = om_ind))
+out <- cbind(df.oms[om_ind,-1], temp)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
+x = latex(out, file = here("Project_0","paper","rec_om_em_R_SR_ME_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+#OM: NAA re, EM: Assume R only, Estimating R and SR, M fixed
+om_ind <- which(!is.na(df.oms$NAA_sig))
+SR_rec_Mfixed = which(use.df.ems$re_config == "rec+1" & use.df.ems$M_est == FALSE)
+temp <- t(aic_fn(all_naa_aic, SR_rec_Mfixed, om_ind = om_ind))
+out <- cbind(df.oms[om_ind,-1], temp)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
+x = latex(out, file = here("Project_0","paper","naa_om_em_R_SR_MF_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+#OM: NAA re, EM: Assume R only, Estimating R and SR, M estimated
+om_ind <- which(!is.na(df.oms$NAA_sig))
+SR_rec_Mest = which(use.df.ems$re_config == "rec+1" & use.df.ems$M_est == TRUE)
+temp <- t(aic_fn(all_naa_aic, SR_rec_Mest, om_ind = om_ind))
+out <- cbind(df.oms[om_ind,-1], temp)
+colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
+x = latex(out, file = here("Project_0","paper","naa_om_em_R_SR_ME_aic_table.tex"), 
+  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
+
+
 
 #M oms: ems = 5-24
 df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.M.oms.RDS"))
@@ -103,6 +232,7 @@ for(i in c("rec","rec+1","M_re","sel_re","q_re")){
   rec_aic_row[i] = sum(naa_outer_res[which(temp$re_config==i),which(is.na(df.oms$NAA_sig))])
 }
 
+
 recplus1_aic_row = rep(NA, length(em_cats))
 names(recplus1_aic_row) = em_cats
 temp = df.ems[1:20,]
@@ -145,9 +275,8 @@ names(q_aic_row)[1] = "rec"
 
 aic_table = rbind(rec_aic_row, recplus1_aic_row, M_aic_row, sel_aic_row, q_aic_row)
 saveRDS(aic_table, file = file.path(here(),"Project_0","results", "aic_table_coarse.RDS"))
+#aic_table <- readRDS(file.path(here(),"Project_0","results", "aic_table_coarse.RDS"))
 aic_table = aic_table/apply(aic_table,1,sum, na.rm = T)
-x = latex(out, file = paste0(parentdir, "/paper/base_model_description.tex"), 
-  table.env = FALSE, col.just = c("l","l","l","r","p{0.5\\textwidth}"), rowname = NULL)
 
 
 df.ems = readRDS(file.path(here::here(),"Project_0","inputs", "df.ems.RDS"))
@@ -163,6 +292,84 @@ xnames = paste0(
   "_", c("Nsig0", "NsigL", "NsigH")[match(df.oms$NAA_sig, c(NA,0.25,0.5))], 
   "_", c("OEL", "OEH")[match(df.oms$obs_error, c("L","H"))])
 
+
+all_naa_om_relssb <- readRDS(file = here("Project_0","results", "all_naa_relssb_results.RDS"))
+median_relbias_ssb <- lapply(all_naa_om_relssb, function(x){
+  sapply(1:20, function(y) {
+    relssb_omx_emy <- sapply(1:100, function(z) {
+      #print(length(x))
+      #print(dim(x[[z]]))
+      #print(c(y,z))
+      return(x[[z]][,y])
+    })
+    return(apply(relssb_omx_emy,1,median, na.rm = TRUE))
+  })
+})
+
+relbias_fn <- function(median_relbias, em_ind, yrange = c(-1,2)){
+
+  line.labs = c("rec", "rec+1", "M", "sel", "q")
+  xvals <- 1:40
+  par(mfrow = c(4,6), oma = c(4,4,3,3), mar = c(1,1,1,1))
+  for(om_ind in 1:24){
+    yvals <- median_relbias[[om_ind]][,em_ind]-1
+    ncolors = length(em_ind)
+    colors.unique = hcl.colors(ncolors, palette = "viridis")
+    plot(range(xvals), range(yvals), xlim = range(xvals), ylim = yrange, 
+      xlab = "", ylab = "", type = "n", axes = FALSE)
+    if(om_ind < 19) axis(1, labels = FALSE)
+    else axis(1)
+    if(om_ind %in% c(1,7,13,19)) axis(2)#, cex.axis = 0.75, las = 1)
+    else axis(2, labels = FALSE)
+    if(om_ind == 1) legend("topright", bty = "none", col = colors.unique, lty = 1, legend = line.labs)
+    ulabs <- c("rec0.5", "rec1.5","rec0.5N0.25","rec1.5N0.25","rec0.5N0.5","rec1.5N0.5")
+    rlabs <- c("F: H-MSY, OE Low","F: MSY, OE Low", "F: H-MSY, OE Hi","F: MSY, OE Hi")
+    if(om_ind %in% 1:6) mtext(text = ulabs[om_ind], side = 3, line = 1)
+    if(om_ind %in% c(6,12,18,24)) mtext(text = rlabs[om_ind/6], side = 4, line = 1)
+    box()
+    ind <- integer()
+    for (j in 1:NCOL(yvals)) {
+      #vals = as.integer(z[j,])+1
+      lines(xvals, yvals[,j], col = colors.unique[j], bg = colors.unique[j])
+      if(all(yvals[,j] < yrange[1] || yvals[,j] > yrange[2]))
+      ind <- c(ind, j)
+    }
+    if(length(ind)) {
+      print(ind)
+      legend("bottomright", legend = paste0(line.labs[ind], " out"))
+    }
+  }
+}
+
+em_ind <- which(use.df.ems$SR_model == 2 & use.df.ems$M_est == FALSE)
+use.df.ems[em_ind,]
+png(file.path(here::here(), "Project_0", "paper", "naa_om_R_MF_relbias_ssb.png"), 
+  width = 10*144, height = 8*144, res = 144, pointsize = 12)
+relbias_fn(median_relbias_ssb, em_ind)
+dev.off()
+
+em_ind <- which(use.df.ems$SR_model == 2 & use.df.ems$M_est == TRUE)
+use.df.ems[em_ind,]
+png(file.path(here::here(), "Project_0", "paper", "naa_om_R_ME_relbias_ssb.png"), 
+  width = 10*144, height = 8*144, res = 144, pointsize = 12)
+relbias_fn(median_relbias_ssb, em_ind)
+dev.off()
+
+em_ind <- which(use.df.ems$SR_model == 3 & use.df.ems$M_est == FALSE)
+use.df.ems[em_ind,]
+png(file.path(here::here(), "Project_0", "paper", "naa_om_SR_MF_relbias_ssb.png"), 
+  width = 10*144, height = 8*144, res = 144, pointsize = 12)
+relbias_fn(median_relbias_ssb, em_ind)
+dev.off()
+
+em_ind <- which(use.df.ems$SR_model == 3 & use.df.ems$M_est == TRUE)
+use.df.ems[em_ind,]
+png(file.path(here::here(), "Project_0", "paper", "naa_om_SR_ME_relbias_ssb.png"), 
+  width = 10*144, height = 8*144, res = 144, pointsize = 12)
+relbias_fn(median_relbias_ssb, em_ind)
+dev.off()
+
+terminal_year_median_relbias_ssb <- sapply(median_relbias_ssb, function(x) x[40,])
 
 naa_ems_aic = readRDS(file = file.path(here::here(),"Project_0","results", "NAA_om_aic_results.RDS"))
 source(file.path(here::here(),"Project_0","code", "heat.plot.fn.R"))

@@ -87,9 +87,11 @@ common to all:
 
 marginal standard deviations for random effects are defined in tables of operating models.
 
+
+
+
 NAA_oms
   process error assumtions
-  Fhistory description
 
 Population - 
   Initial population, 
@@ -99,13 +101,17 @@ Population -
   waa
 
 Fishing history
+All operating models assumed one of two different fishing histories. 
+One : Fishing mortality is equal to Fmsy for the whole 40 year period.
+Two : Fishing mortality is 2.5 times Fmsy for the first 20 years then changes to Fmsy for the last 20 years.
 
-All operating models assumed one of two different fishing histories. One 
-Two alfishing histories are 
-Overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from Wiedenman et al. XXXX.
+Overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from Wiedenman et al. (20XX). Legault et al. (2023) also used similar approaches to defining fishing mortality histories for operating models.
 
-All post-recruit productivity components are constant in the NAA and survey catchability process error operating models and we set stock-recruit parameters such that unfished recruitment = exp(10) and
-Fmsy = F40  (Miller and Brooks 2021). For M
+We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components are constant in the NAA and survey catchability process error operating models. Therefore steepness and unfished recruitment are also constant over the time period for those operating models (Miller and Brooks 2021). We specified unfished recruitment = $e^10$ and $F_{\text{MSY}} = F_{40}$ equated to a steepness of 0.68 and a and b parameters X and X? 
+
+For operating models with time-varying random effects for M, steepness is not constant, but we used the same alpha and beta parameters as other operating models this equates to a steepness and R0 at the mean of the time series process for M.
+
+For operating models with time-varying random effects for fishery selectivity, Fmsy is also not constant however we use the same Fhistory as other operating models which corresposds to Fmsy at the mean selectivity parameters.
 
 
 Initial population starts at equilibium population structure associated with F= x*Fmsy where x = 1 or 2.5.
@@ -148,6 +154,7 @@ Random effects on Recruitment only, fleet logistic selectivity RE model?
 q_re
 Random effects on Recruitment only, one survey catchability RE model?
 
+Simulations were all carried out on the University of Massachussetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit XXXXX).
 
 # Results
 
@@ -163,6 +170,94 @@ Bias, Mean Square error
   Certain basic parameters (stock-recruit pars, M, variance parameters)
   SSB, F, R
 
+\clearpage 
+## Numbers at age operating models
+
+### Estimating models include alternative random effects options: NAA, M, sel, q
+\clearpage 
+
+
+\begin{table}
+\caption{NAA operating models, estimating models all assume a B-H stock recruit relationship and M is fixed at the true value.}
+{\input{naa_om_em_SR_MF_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{NAA operating models, estimating models all assume a B-H stock recruit relationship and M is estimated.}
+{\input{naa_om_em_SR_ME_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{NAA operating models, estimating models all estimate a mean recruitment and M is fixed at the true value.}
+{\input{naa_om_em_R_MF_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{NAA operating models, estimating models all estimate a mean recruitment and M estimated.}
+{\input{naa_om_em_R_MF_aic_table}}
+\end{table}
+\clearpage 
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of for SSB for estimating models that estimate mean recruitment and M is fixed at the true value.}\label{naa_om_em_R_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_R_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of for SSB for estimating models that estimate mean recruitment and M is estimated.}\label{naa_om_em_R_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_R_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of for SSB for estimating models that estimates a BH stock-recruitment function and M is fixed at the true value.}\label{naa_om_em_SR_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_SR_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of for SSB for estimating models that estimates a BH stock-recruitment function and M is estimated.}\label{naa_om_em_SR_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_SR_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+### Estimating models include NAA random effects and estimation assumes mean R or BH SR
+\clearpage
+
+\begin{table}
+\caption{Operating models and estimation models all assume RE on recruitment only, estimating models assume mean recruitment or a B-H stock recruit relationship and M is fixed at the true value.}
+{\input{rec_om_em_R_SR_MF_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{Operating models and estimation models all assume RE on recruitment only, estimating models assume mean recruitment or a B-H stock recruit relationship and M is estimated.}
+{\input{rec_om_em_R_SR_ME_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{Operating models and estimation models all assume RE on all abundances at age, estimating models assume mean recruitment or a B-H stock recruit relationship and M is fixed at the true value.}
+{\input{naa_om_em_R_SR_MF_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{Operating models and estimation models all assume RE on all abundances at age, estimating models assume mean recruitment or a B-H stock recruit relationship and M is estimated.}
+{\input{naa_om_em_R_SR_ME_aic_table}}
+\end{table}
+\clearpage 
 
 
 # Discussion
@@ -176,11 +271,12 @@ catch such as an informed prior on the standard errors with realistic bounds.
 
 This work was funded by NOAA Fisheries Northeast Fisheries Science Center. 
 
-
+<!--
 # CRediT authorship contribution statement {-}
 
 **Timothy J. Miller:** Conceptualization, Methodology, Writing - original draft, Formal analysis, Visualization.
-
+ -->
+ 
 \pagebreak
 
 \bibliography{sweep-paper}
@@ -260,6 +356,9 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \end{figure} -->
 
 \clearpage
+
+
+
 
 <!-- \begin{table}
 \caption{Managed stocks associated with the species for which relative catch efficiency was estimated.}\label{stock_definition_table}
