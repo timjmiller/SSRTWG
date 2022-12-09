@@ -203,54 +203,69 @@ Street, Woods Hole, MA 02543 USA\\
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-Much is known about the reliabiltiy of state-space models that are
-linear or Gaussian, but applications in fisheris management are
-nonlinear and typically include multiple types of observations with
-varying distributional assumptions. We know relatively little about the
-statistical reliability of such models. Also, there is a wide range of
-potential random effects structures in assessment models and we know
-little about the ability of information criteria to distinguish among
-such alternative structures.
+Application of state-space models in fisheries stock assessment and
+management has expanded dramatically within ICES, Canada and the
+Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}.
 
-But those studies focus primarily on Gaussain Reliability of hidden
+Much is known about the reliability of state-space models that are
+linear or Gaussian \citep{aeberhardetal18}, but applications in
+fisheries management are nonlinear and typically include multiple types
+of observations with varying distributional assumptions. We know
+relatively little about the statistical reliability of such models.
+Also, there is a wide range of potential random effects structures in
+assessment models and we know little about the ability of information
+criteria to distinguish among such alternative structures.
+
+But those studies focus primarily on Gaussian Reliability of hidden
 process models
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
 
-Used the WHAM package commit = XXXXXXX (Stock and Miller 2021, Miller
+Used the WHAM package \citep[][commit 77bbd94]{stockmiller21} (Miller
 and Stock 2020). This packages has also been used to configure operating
 and estimating models for closed loop simulations evaluating index-based
-asssessment methods (Legault et al.~In press).
+assessment methods \citep{legaultetalinpress}.
 
-We completed a simulation study with 24 NAA re operating models, 16 M re
-operating models, 16 Sel re operating models and 16 q re operating
-models. We simulated N data sets for each operating model. For each
-simulated data from each operating model we fit a set of estimating
-models.
+We completed a simulation study with a number of operating models that
+can be categorized based on where random effects are assumed: abundance
+at age, natural mortality, fleet selectivity, or index catchability. For
+each operating model assumptions about variance of process errors and
+observations are required and the values we used were based on a review
+of the range of estimates from recent applications of WHAM in management
+of stocks of haddock, butterfish, and American plaice in the NE US.
 
-Y estimating models fit to each \#\# Operating models
+We simulated 100 data sets for each operating model. For each simulated
+data from each operating model we fit a set of estimating models.
+
+Y estimating models fit to each
+
+\hypertarget{operating-models}{%
+\subsection{Operating models}\label{operating-models}}
 
 common to all:\\
-ages, M maturity waa observation error assumptions 2.5 Fmsy
--\textgreater{} Fmsy after 20 years Fmsy througout
+ages = 1 to 10+, M maturity
 
 marginal standard deviations for random effects are defined in tables of
 operating models.
 
-NAA\_oms process error assumtions
+\hypertarget{population}{%
+\subsubsection{Population}\label{population}}
 
-Population - Initial population, ages, M maturity waa
+There are 10 age classes: ages 1 to 10+.
 
-Fishing history All operating models assumed one of two different
-fishing histories. One : Fishing mortality is equal to Fmsy for the
-whole 40 year period. Two : Fishing mortality is 2.5 times Fmsy for the
-first 20 years then changes to Fmsy for the last 20 years.
+Spawning was assumed to occur 1/4 of the way through the year.
 
-Overfishing assumptions is based on average estimates of overfishing for
-NE groundfish stocks from Wiedenman et al.~(20XX). Legault et al.~(2023)
-also used similar approaches to defining fishing mortality histories for
-operating models.
+Natural mortality rate was assumed 0.2 when it was constant and the mean
+of the time series process for operating models with M random effects.
+maturity a50 = 2.89, slope = 0.88
+
+Weight at age was generated with a LVB growth \[
+L_a = L_{\infty}\left(1 - e^{-k(a - t_0)}\right)
+\] where \(t_0 = 0\), \(L_\infty = 85\), and \(k = 0.3\), and a L-W
+relationship such that \[
+W_a = \theta_1 L_a^{\theta_2}
+\] where \(\theta_1 = e^{-12.1}\) and \(\theta_2 = 3.2\).
 
 We assumed a Beverton-Holt stock recruit function with constant
 pre-recruit mortality parameters for all operating models. All
@@ -258,35 +273,109 @@ post-recruit productivity components are constant in the NAA and survey
 catchability process error operating models. Therefore steepness and
 unfished recruitment are also constant over the time period for those
 operating models (Miller and Brooks 2021). We specified unfished
-recruitment = \(e^10\) and \(F_{\text{MSY}} = F_{40}\) equated to a
-steepness of 0.68 and a and b parameters X and X?
+recruitment = \(R_0 = e^{10}\) and \(F_{\text{MSY}} = F_{40} = 0.348\)
+equated to a steepness of 0.69 and \(\alpha=0.60\) and
+\(\beta = 2.4 \times 10^{-5}\) for the \[
+N_{1,y} = \frac{\alpha \text{SSB}_{y-1}}{1 + \beta \text{SSB}_{y-1}} 
+\] Beverton-Holt parameterization.
+
+The magnitude of the overfishing assumptions is based on average
+estimates of overfishing for NE groundfish stocks from Wiedenmann et
+al.~(20XX). Legault et al.~(2023) also used similar approaches to
+defining fishing mortality histories for operating models.
+
+Initial population was configured at the equilibrium distribution
+fishing at either \(F = 2.5\times F_{\text{MSY}}\) or
+\(F = F_{\text{MSY}}\) for the two alternative fishing histories. That
+is for a deterministic model, the age composition would not change over
+time when the fishing mortality was constant at the respective level.
 
 For operating models with time-varying random effects for M, steepness
 is not constant, but we used the same alpha and beta parameters as other
 operating models this equates to a steepness and R0 at the mean of the
-time series process for M.
+time series process for M. For operating models with time-varying random
+effects for fishery selectivity, Fmsy is also not constant however we
+use the same F history as other operating models which corresponds to
+Fmsy at the mean selectivity parameters.
 
-For operating models with time-varying random effects for fishery
-selectivity, Fmsy is also not constant however we use the same Fhistory
-as other operating models which corresposds to Fmsy at the mean
-selectivity parameters.
+\hypertarget{fleets}{%
+\subsubsection{Fleets}\label{fleets}}
 
-Initial population starts at equilibium population structure associated
-with F= x*Fmsy where x = 1 or 2.5.
+We assumed a single fleet operating year round for catch observations
+with logistic selectivity for the fleet with \(a_{50} = 5\) and slope =
+1. This selectivity is was used to define \(F_{\text{MSY}}\) for the
+Beverton-Holt stock recruitment parameters above. We assumed a
+logistic-normal distribution for the age-composition observations for
+the fleet.
 
-surveys, selectivity
+\hypertarget{fishing-histories}{%
+\subsubsection{Fishing histories}\label{fishing-histories}}
 
-fleets, selectivity
+All operating models assumed one of two different fishing histories. One
+: Fishing mortality is equal to Fmsy (0.348) for the whole 40 year
+period. Two : Fishing mortality is 2.5 times Fmsy for the first 20 years
+then changes to Fmsy for the last 20 years.
 
-M\_oms NOTE: inv\_trans\_rho function in set\_M.R is mis-defined. Will
-affect correlation parameters assigned in operating models?
+\hypertarget{indices}{%
+\subsubsection{Indices}\label{indices}}
+
+Two time series of surveys are assumed and observed in numbers rather
+than biomass for the entire 40 year period with one occurring in the
+spring (0.25 way through the year) and one in the fall (0.75 way through
+the year). Actually we have it currently configured that both occur 0.5
+way through the year. Catchability of both surveys are assumed to be
+0.1. We assumed logistic selectivity for both indices with
+\(a_{50} = 5\) and slope = 1. We assumed a logistic-normal distribution
+for the age-composition observations.
+
+\hypertarget{observation-uncertainty}{%
+\subsubsection{Observation Uncertainty}\label{observation-uncertainty}}
+
+Standard deviation for log-aggregate catch was 0.1. There were two
+levels of observation error variance for indices and age composition for
+both indices and fleet catch. A low uncertainty specification assumed
+standard deviation of both series of log-aggregate index observations
+was 0.1 and the standard deviation of the logistic-normal for age
+composition observations was 0.3 In the high uncertainty specification
+the standard deviation for log-aggregate indices was 0.4 and that for
+the age composition observations was 1.5.
+
+\hypertarget{operating-models-with-random-effects-on-numbers-at-age}{%
+\subsubsection{Operating models with random effects on numbers at
+age}\label{operating-models-with-random-effects-on-numbers-at-age}}
+
+24 operating models, 16 Sel re operating models and 16 q re operating
+models. Table of process error assumptions
+
+\hypertarget{operating-models-with-random-effects-on-natural-mortality}{%
+\subsubsection{Operating models with random effects on natural
+mortality}\label{operating-models-with-random-effects-on-natural-mortality}}
+
+16 operating models Table of process error assumptions
+
+NOTE: inv\_trans\_rho function in set\_M.R is mis-defined. Will affect
+correlation parameters assigned in operating models?
+
+\hypertarget{operating-models-with-random-effects-on-fleet-selectivity}{%
+\subsubsection{Operating models with random effects on fleet
+selectivity}\label{operating-models-with-random-effects-on-fleet-selectivity}}
+
+16 operating models Table of process error assumptions
+
+\hypertarget{operating-models-with-random-effects-on-index-catchability}{%
+\subsubsection{Operating models with random effects on index
+catchability}\label{operating-models-with-random-effects-on-index-catchability}}
+
+16 operating models Table of process error assumptions
 
 \hypertarget{estimating-models}{%
 \subsection{Estimating models}\label{estimating-models}}
 
-32 estimating models 1-20 fit to each NAA RE operating model 5-24 fit to
-each M RE operating model 5-20,25-28 to each sel RE operating model
-5-20, 29-32 to each q RE operating model
+32 estimating models Table of estimating models
+
+1-20 fit to each NAA RE operating model 5-24 fit to each M RE operating
+model 5-20,25-28 to each sel RE operating model 5-20, 29-32 to each q RE
+operating model
 
 SR estimation or not
 
@@ -444,7 +533,7 @@ Center.
 
 \pagebreak
 
-\bibliography{sweep-paper}
+\bibliography{paper}
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{0}{0}
