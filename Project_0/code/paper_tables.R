@@ -58,6 +58,53 @@ all_naa_relssb = lapply(1:NROW(df.oms), function(y){
 })
 saveRDS(all_naa_relssb, file = here("Project_0","results", "all_naa_relssb_results.RDS"))
 
+df.M.oms = readRDS(file.path(here(),"Project_0","inputs", "df.M.oms.RDS"))
+
+all_M_om_relssb = lapply(1:NROW(df.M.oms), function(y){
+  res = lapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "M_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    relSSB = sapply(sim,function(y) {
+      out <- rep(NA, 40)
+      if(length(y)) if(length(y$fit)) out = y$fit$rep$SSB/y$truth$SSB
+      return(out)
+    })
+    return(relSSB)
+  })
+  return(res)
+})
+saveRDS(all_M_om_relssb, file = here("Project_0","results", "all_M_om_relssb_results.RDS"))
+
+
+all_naa_relR = lapply(1:NROW(df.oms), function(y){
+  res = lapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    relSSB = sapply(sim,function(y) {
+      out <- rep(NA, 40)
+      if(length(y)) if(length(y$fit)) out = y$fit$rep$NAA[,1]/y$truth$NAA[,1]
+      return(out)
+    })
+    return(relSSB)
+  })
+  return(res)
+})
+saveRDS(all_naa_relR, file = here("Project_0","results", "all_naa_relR_results.RDS"))
+
+all_naa_relF = lapply(1:NROW(df.oms), function(y){
+  res = lapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    relSSB = sapply(sim,function(y) {
+      out <- rep(NA, 40)
+      if(length(y)) if(length(y$fit)) out = y$fit$rep$F[,1]/y$truth$F[,1]
+      return(out)
+    })
+    return(relSSB)
+  })
+  return(res)
+})
+saveRDS(all_naa_relF, file = here("Project_0","results", "all_naa_relF_results.RDS"))
 
 all_naa_aic <- readRDS(file = file.path(here(),"Project_0","results", "all_naa_aic_results.RDS"))
 aic_fn <- function(all, est_ind, om_ind = NULL){
@@ -306,6 +353,45 @@ median_relbias_ssb <- lapply(all_naa_om_relssb, function(x){
   })
 })
 
+all_naa_om_relF <- readRDS(file = here("Project_0","results", "all_naa_relF_results.RDS"))
+median_relbias_F <- lapply(all_naa_om_relF, function(x){
+  sapply(1:20, function(y) {
+    rel_omx_emy <- sapply(1:100, function(z) {
+      #print(length(x))
+      #print(dim(x[[z]]))
+      #print(c(y,z))
+      return(x[[z]][,y])
+    })
+    return(apply(rel_omx_emy,1,median, na.rm = TRUE))
+  })
+})
+
+all_naa_om_relR <- readRDS(file = here("Project_0","results", "all_naa_relR_results.RDS"))
+median_relbias_R <- lapply(all_naa_om_relR, function(x){
+  sapply(1:20, function(y) {
+    rel_omx_emy <- sapply(1:100, function(z) {
+      #print(length(x))
+      #print(dim(x[[z]]))
+      #print(c(y,z))
+      return(x[[z]][,y])
+    })
+    return(apply(rel_omx_emy,1,median, na.rm = TRUE))
+  })
+})
+
+all_M_om_relssb <- readRDS(file = here("Project_0","results", "all_M_om_relssb_results.RDS"))
+M_om_median_relbias_ssb <- lapply(all_M_om_relssb, function(x){
+  sapply(1:20, function(y) {
+    relssb_omx_emy <- sapply(1:100, function(z) {
+      #print(length(x))
+      #print(dim(x[[z]]))
+      #print(c(y,z))
+      return(x[[z]][,y])
+    })
+    return(apply(relssb_omx_emy,1,median, na.rm = TRUE))
+  })
+})
+
 relbias_fn <- function(median_relbias, em_ind, yrange = c(-1,2)){
 
   line.labs = c("rec", "rec+1", "M", "sel", "q")
@@ -347,6 +433,9 @@ png(file.path(here::here(), "Project_0", "paper", "naa_om_R_MF_relbias_ssb.png")
   width = 10*144, height = 8*144, res = 144, pointsize = 12)
 relbias_fn(median_relbias_ssb, em_ind)
 dev.off()
+
+relbias_fn(median_relbias_F, em_ind)
+relbias_fn(median_relbias_R, em_ind)
 
 em_ind <- which(use.df.ems$SR_model == 2 & use.df.ems$M_est == TRUE)
 use.df.ems[em_ind,]
