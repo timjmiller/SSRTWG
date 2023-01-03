@@ -1,5 +1,5 @@
 ---
-title: State-space age-structured assessment models provide reliable inferences(?)
+title: How reliable are inferences from state-space age-structured assessment models?
 author: 
   - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, 
 date: ''
@@ -59,8 +59,8 @@ Application of state-space models in fisheries stock assessment and management h
 
 Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. We know relatively little about the statistical reliability of such models. Also, there is a wide range of potential random effects structures in assessment models and we  know little about the ability of information criteria to distinguish among such alternative structures. 
 
-But those studies focus primarily on Gaussian 
-Reliability of hidden process models
+But those studies focus primarily on Gaussian linear models.
+review literature on reliability of hidden/latent process models. Primarily in other fields.
 
 
 # Methods
