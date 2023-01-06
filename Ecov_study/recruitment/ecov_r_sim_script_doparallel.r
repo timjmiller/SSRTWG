@@ -5,13 +5,13 @@ library(tidyr)
 library(dplyr)
 library(here)
 library(doParallel)
-x <- detectCores()
+x <- detectCores()      
 registerDoParallel(x-1) #leave one core for other tasks
-writeLines(paste(x), "cores_detected.txt")   
+writeLines(paste(x), "cores_detected.txt") #print how many cores were used   
 
-source(file.path(here(),"common_code", "set_ecov.R"))
+source(file.path(here(),"common_code", "set_ecov.R")) #load set_ecov.r function
 
-write.dir <- file.path(here(),"Ecov_study", "recruitment", "results") # create directory for analysis, e.g.
+write.dir <- file.path(here(),"Ecov_study", "recruitment", "results") # create directory for analysis
 
 if(!exists("write.dir")) write.dir = getwd()  #if we don't specify above, set as current wd
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)  #if the write.dir directory doesn't exist, create it
@@ -22,9 +22,9 @@ nsim = 25 #number of simulations for each scenario
 ################################################################
 ##--EXPERIMENTAL FACTORS--######################################
 ################################################################
-Ecov_where <- c("recruit")
-Ecov_mean  <- 0
-Ecov_sig   <- c(0.1,0.5) #units?
+Ecov_where <- c("recruit")  
+Ecov_mean  <- 0            # mean of environmental process
+Ecov_sig   <- c(0.1,0.5)   
 ar1_y      <- c(0,0.95)
 beta       <- c(0.3,1.0) #units?
 obs_sig    <- c(1e-5,0.25) #units?
@@ -35,11 +35,11 @@ df.mods       <- expand.grid(Ecov_sig=Ecov_sig,
                              beta = beta, 
                              Ecov_where = Ecov_where, 
                              obs_sig = obs_sig)
-n.mods        <- dim(df.mods)[1] #108 scenarios
+n.mods        <- dim(df.mods)[1]
 df.mods$Model <- paste0("m_",1:n.mods)
 df.mods       <- df.mods %>% select(Model, everything()) # moves Model to first col
-df.mods       <- cbind(Recruitment=3, NAA_re="rec+1", df.mods) #recruit model not yet discussed by WG.
-df.mods$nsim  <- rep(nsim,nrow(df.mods))
+df.mods       <- cbind(Recruitment=3, NAA_re="rec+1", df.mods) #recruit model codes: 1=RW, 2=random about mean, 3=BH, 4=Ricker; 'rec+1' is full state space model
+df.mods$nsim  <- rep(nsim,nrow(df.mods)) #number of simulations per 
 
 saveRDS(df.mods,file.path(write.dir, "om_sim_inputs_GLB_recruitment_doparallel.RDS"))
 
