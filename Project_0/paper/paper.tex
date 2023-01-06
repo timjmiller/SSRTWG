@@ -37,7 +37,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={State-space age-structured assessment models provide reliable inferences(?)},
+  pdftitle={How reliable are inferences from state-space age-structured assessment models?},
   pdfauthor={Timothy J. Miller1, Britten, Brooks, Fay, Legault, Stock,},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -174,8 +174,8 @@
 \usepackage[]{natbib}
 \bibliographystyle{cjfas2.bst}
 
-\title{State-space age-structured assessment models provide reliable
-inferences(?)}
+\title{How reliable are inferences from state-space age-structured
+assessment models?}
 \author{Timothy J. Miller\textsuperscript{1}, Britten, Brooks, Fay,
 Legault, Stock,}
 \date{}
@@ -216,8 +216,9 @@ Also, there is a wide range of potential random effects structures in
 assessment models and we know little about the ability of information
 criteria to distinguish among such alternative structures.
 
-But those studies focus primarily on Gaussian Reliability of hidden
-process models
+But those studies focus primarily on Gaussian linear models. review
+literature on reliability of hidden/latent process models. Primarily in
+other fields.
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
@@ -511,6 +512,27 @@ SR}\label{estimating-models-include-naa-random-effects-and-estimation-assumes-me
 \begin{table}
 \caption{Operating models and estimation models all assume RE on all abundances at age, estimating models assume mean recruitment or a B-H stock recruit relationship and M is estimated.}
 {\input{naa_om_em_R_SR_ME_aic_table}}
+\end{table}
+\clearpage
+
+\begin{figure}
+\caption{Predicted probability of AIC being better for BH model.}\label{glm_res_NAA_re}
+\begin{center}
+\includegraphics[width = \textwidth]{pred_SR_best_NAA_oms.png}
+\end{center}
+\end{figure}
+
+\hypertarget{m-operating-models}{%
+\subsection{M operating models}\label{m-operating-models}}
+
+\hypertarget{estimating-models-include-naa-random-effects-and-estimation-assumes-mean-r-or-bh-sr-1}{%
+\subsubsection{Estimating models include NAA random effects and
+estimation assumes mean R or BH
+SR}\label{estimating-models-include-naa-random-effects-and-estimation-assumes-mean-r-or-bh-sr-1}}
+
+\begin{table}
+\caption{M random effects operating models.}
+{\input{M_om_em_R_BH_aic_table}}
 \end{table}
 \clearpage
 
