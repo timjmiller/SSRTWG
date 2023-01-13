@@ -58,7 +58,6 @@ all_naa_relssb = lapply(1:NROW(df.oms), function(y){
 })
 saveRDS(all_naa_relssb, file = here("Project_0","results", "all_naa_relssb_results.RDS"))
 
-df.M.oms = readRDS(file.path(here(),"Project_0","inputs", "df.M.oms.RDS"))
 
 all_M_om_relssb = lapply(1:NROW(df.M.oms), function(y){
   res = lapply(1:100, function(x){
@@ -164,41 +163,6 @@ x = latex(out, file = here("Project_0","paper","naa_om_em_R_ME_aic_table.tex"),
 use.df.ems[SR_Mest,]
 
 
-#OM: just rec re, EM: Assume R only, Estimating R and SR, M fixed
-om_ind <- which(is.na(df.oms$NAA_sig))
-SR_rec_Mfixed = which(use.df.ems$re_config == "rec" & use.df.ems$M_est == FALSE)
-temp <- t(aic_fn(all_naa_aic, SR_rec_Mfixed, om_ind = om_ind))
-out <- cbind(df.oms[om_ind,-1], temp)
-colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
-x = latex(out, file = here("Project_0","paper","rec_om_em_R_SR_MF_aic_table.tex"), 
-  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
-
-#OM: just rec re, EM: Assume R only, Estimating R and SR, M estimated
-om_ind <- which(is.na(df.oms$NAA_sig))
-SR_rec_Mest = which(use.df.ems$re_config == "rec" & use.df.ems$M_est == TRUE)
-temp <- t(aic_fn(all_naa_aic, SR_rec_Mest, om_ind = om_ind))
-out <- cbind(df.oms[om_ind,-1], temp)
-colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
-x = latex(out, file = here("Project_0","paper","rec_om_em_R_SR_ME_aic_table.tex"), 
-  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
-
-#OM: NAA re, EM: Assume R only, Estimating R and SR, M fixed
-om_ind <- which(!is.na(df.oms$NAA_sig))
-SR_rec_Mfixed = which(use.df.ems$re_config == "rec+1" & use.df.ems$M_est == FALSE)
-temp <- t(aic_fn(all_naa_aic, SR_rec_Mfixed, om_ind = om_ind))
-out <- cbind(df.oms[om_ind,-1], temp)
-colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
-x = latex(out, file = here("Project_0","paper","naa_om_em_R_SR_MF_aic_table.tex"), 
-  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
-
-#OM: NAA re, EM: Assume R only, Estimating R and SR, M estimated
-om_ind <- which(!is.na(df.oms$NAA_sig))
-SR_rec_Mest = which(use.df.ems$re_config == "rec+1" & use.df.ems$M_est == TRUE)
-temp <- t(aic_fn(all_naa_aic, SR_rec_Mest, om_ind = om_ind))
-out <- cbind(df.oms[om_ind,-1], temp)
-colnames(out) <- c("$\\sigma_R$", "$\\sigma_N$", "F-history", "Obs Error", "R only", "BH") 
-x = latex(out, file = here("Project_0","paper","naa_om_em_R_SR_ME_aic_table.tex"), 
-  table.env = FALSE, col.just = rep("r", dim(out)[2]), rowname = NULL)
 
 
 
@@ -245,6 +209,54 @@ Sel_outer_res = sapply(1:NROW(df.oms), function(y){
   return(apply(tmp,1,sum,na.rm=T))
 })
 saveRDS(Sel_outer_res, file = file.path(here(),"Project_0","results", "Sel_om_aic_results.RDS"))
+
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.M.oms.RDS"))
+all_M_aic = lapply(1:NROW(df.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "M_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_M_aic, file = file.path(here(),"Project_0","results", "all_M_aic_results.RDS"))
+
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.Sel.oms.RDS"))
+all_sel_aic = lapply(1:NROW(df.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "sel_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_sel_aic, file = file.path(here(),"Project_0","results", "all_sel_aic_results.RDS"))
+
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.q.oms.RDS"))
+all_q_aic = lapply(1:NROW(df.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("sim_",x,".RDS"))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "q_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_q_aic, file = file.path(here(),"Project_0","results", "all_q_aic_results.RDS"))
 
 
 #q oms: ems = 5-20, 29-32

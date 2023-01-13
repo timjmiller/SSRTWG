@@ -269,6 +269,7 @@ Bias, Mean Square error
 \end{landscape}
 
 
+
 ### Estimating models include NAA random effects and estimation assumes mean R or BH SR
 \clearpage
 
@@ -290,6 +291,23 @@ Bias, Mean Square error
 \begin{table}
 \caption{Operating models and estimation models all assume RE on all abundances at age, estimating models assume mean recruitment or a B-H stock recruit relationship and M is estimated.}
 {\input{naa_om_em_R_SR_ME_aic_table}}
+\end{table}
+\clearpage 
+
+\begin{figure}
+\caption{Predicted probability of AIC being better for BH model.}\label{glm_res_NAA_re}
+\begin{center}
+\includegraphics[width = \textwidth]{pred_SR_best_NAA_oms.png}
+\end{center}
+\end{figure}
+
+## M operating models
+
+### Estimating models include NAA random effects and estimation assumes mean R or BH SR
+
+\begin{table}
+\caption{M random effects operating models.}
+{\input{M_om_em_R_BH_aic_table}}
 \end{table}
 \clearpage 
 
