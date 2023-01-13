@@ -9,7 +9,10 @@ x <- detectCores()
 registerDoParallel(x-1) #leave one core for other tasks
 writeLines(paste(x), "cores_detected.txt") #print how many cores were used   
 
+source(file.path(here(),"common_code", "make_basic_info.R"))
 source(file.path(here(),"common_code", "set_ecov.R")) #load set_ecov.r function
+source(file.path(here(),"common_code", "get_FMSY.R")) #load set_ecov.r function
+source(file.path(here(), "Project_0", "code", "make_om.R"))
 
 write.dir <- file.path(here(),"Ecov_study", "recruitment", "results") # create directory for analysis
 
@@ -20,21 +23,42 @@ setwd(write.dir)
 nsim = 25 #number of simulations for each scenario
 
 ################################################################
+##--FUNCTIONS--#################################################
+################################################################
+#Function to modify inputs
+mod_input <- function(input,NAA_re,ecov,df.mods,m){
+  NAA_re$sigma_vals[2] = df.mods$NAA_sig[m]  #only makes sense with 'rec+1'?
+  
+  #modify ecov  
+  ecov$logsigma          <- matrix(log(df.mods$obs_sig[m]), length(gf_info$years), 1)
+  ecov$process_mean_vals <- df.mods$Ecov_mean[m]
+  ecov$process_sig_vals  <- df.mods$Ecov_sig[m]
+  ecov$process_cor_vals  <- df.mods$Ecov_phi[m]
+  ecov$beta_vals         <- list(lapply(1:ecov$n_effects, function(x) matrix(df.mods$beta[m],1,input0$data$n_ages)))
+  return(set_ecov(input,ecov))  
+}
+
+get_FXSPR <- function(input,NAA_re,brp_year=1){
+  temp <- fit_wham(input0,do.fit=FALSE,MakeADFun.silent=FALSE)
+  return(exp(temp$rep$log_FXSPR[brp_year]))
+}
+################################################################
 ##--EXPERIMENTAL FACTORS--######################################
 ################################################################
-Ecov_where <- c("recruit")  
-Ecov_mean  <- 0            # mean of environmental process
-Ecov_sig   <- c(0.1,0.5)   
+Ecov_sig   <- c(0.1,0.5)     
 ar1_y      <- c(0,0.95)
-beta       <- c(0.3,1.0) #units?
-obs_sig    <- c(1e-5,0.25) #units?
+beta       <- c(0.3,1.0) 
+obs_sig    <- c(1e-5,0.25) 
+NAA_sig    <- c(1e-5,0.25)
+R_sig      <- 
+#F_hist     <- c("Fmsy","H")
+#NEED: 1) obs error on NAA; 2) process error on NAA; F history
 
 df.mods       <- expand.grid(Ecov_sig=Ecov_sig, 
                              Ecov_phi = ar1_y, 
-                             Ecov_mean = Ecov_mean, 
                              beta = beta, 
-                             Ecov_where = Ecov_where, 
-                             obs_sig = obs_sig)
+                             obs_sig = obs_sig,
+                             NAA_sig = NAA_sig)
 n.mods        <- dim(df.mods)[1]
 df.mods$Model <- paste0("m_",1:n.mods)
 df.mods       <- df.mods %>% select(Model, everything()) # moves Model to first col
@@ -43,113 +67,75 @@ df.mods$nsim  <- rep(nsim,nrow(df.mods)) #number of simulations per
 
 saveRDS(df.mods,file.path(write.dir, "om_sim_inputs_GLB_recruitment_doparallel.RDS"))
 
+##################################################################
+##--BASIC SETTINGS--#####################################F#########
+##################################################################
+gf_info <- make_basic_info()
 
+#Define selectivity; not changing
+selectivity <- list(model       =c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
+                    initial_pars=rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
 
-#make a list of input components that prepare_wham_input can use to generate an input for fit_wham
-#this will be the generic flatfish/groundfish life histor information
-source(file.path(here(),"common_code", "make_basic_info.R"))
-groundfish_info <- make_basic_info()
+#Define M; not changing
+M <- list(initial_means=rep(0.2, length(gf_info$ages)))
 
-selectivity <- list(model       =c(rep("logistic", groundfish_info$n_fleets),rep("logistic", groundfish_info$n_indices)),
-                    initial_pars=rep(list(c(5,1)), groundfish_info$n_fleets + groundfish_info$n_indices)) #fleet, index
+#Define NAA re to be modified
+NAA_re <- list(
+  N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*M$initial_means[1]),
+  sigma = "rec", #random about mean
+  cor="iid", #random effects are independent
+  #use_steepness = 1, #GLB: also don't need for BH?
+  recruit_model = 2, #random effects with a constant mean
+  recruit_pars <- exp(10)
+  #recruit_model = 3, #B-H
+  #recruit_pars = c(0.75,exp(10)) #GLB: this is for BH?
+)
 
-M <- list(initial_means=rep(0.2, length(groundfish_info$ages)))
+#Define ecov to be modified within loop
+ecov <- list(label = "AR1_ecov",
+  years = gf_info$years,
+  lag = 0,
+  use_obs = matrix(TRUE, length(gf_info$years), 1),
+  link_model = "linear", 
+  process_model = "ar1",
+  mean = matrix(0, length(gf_info$years), 1),
+  process_mean_values = 0,
+  #n_effects = 2+input$data$n_indices, #GLB: what does this do?
+  n_effects = 3,
+  where = "recruit",
+  how = 1) 
 
+input0 <- prepare_wham_input(basic_info = groundfish_info, selectivity = selectivity, M = M, NAA_re = NAA_re, age_comp="logistic-normal-miss0")
 
 ################################################################
 ##--SIMULATIONS--###############################################
 ################################################################
-sim_input = list()
+sim_input = em_input <-list()
 for(m in 1:n.mods){
-  NAA_re               <- list(N1_pars = exp(10)*exp(-(0:(length(groundfish_info$ages)-1))*M$initial_means[1]))     #initial numbers at age
-  NAA_re$recruit_pars  <- exp(10) #mean recruitment, if recruit model changes, need to change this
-  NAA_re$recruit_model <- df.mods$Recruitment[m] #random effects with a constant mean
-  NAA_re$sigma         <- "rec+1"
-  NAA_re$cor           <- "iid"
-  input                <- prepare_wham_input(basic_info = groundfish_info, selectivity = selectivity, M = M, NAA_re = NAA_re)
-  
-  ##--DEFINE ECOV PROCESS--###############################
-  ecov = list(label = "AR1_ecov")
-  ecov$mean = matrix(df.mods$Ecov_mean[m], input$data$n_years_model, 1)
-  ecov$logsigma = matrix(log(df.mods$obs_sig[m]), input$data$n_years_model, 1)
-  ecov$years = input$years
-  ecov$lag = 0
-  ecov$use_obs = matrix(TRUE, input$data$n_years_model, 1)
-  ecov$link_model = "linear"  #GLB: this is always true, can it come outside the loop?
-  ecov$process_model = "ar1"  
-  ecov$process_mean_vals = df.mods$Ecov_mean[m]
-  ecov$process_sig_vals = df.mods$Ecov_sig[m]
-  ecov$process_cor_vals = df.mods$Ecov_phi[m]
-  n_effects = 2+input$data$n_indices
-  ecov$beta_vals = list(lapply(1:n_effects, function(x) matrix(df.mods$beta[m],1,input$data$n_ages)))
-  ecov$where = df.mods$Ecov_where[m]
-  ecov$how = 1 #not yet discussed by WG.
-  
-  input = set_ecov(input, ecov)
+  input = mod_input(input0,NAA_re,ecov,df.mods,m)
   
   ##--SIMULATE WITH WHAM--######################
   print(paste0("m: ", m))
   om = fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE) 
-  set.seed(8675309) #use same seed for all operating models?
+  #set.seed(8675309) #use same seed for all operating models?
   sim_input[[m]] = lapply(1:nsim, function(x) {      #all RE and data are simulated
     input_i = input
     sim = om$simulate(complete=TRUE)
     input_i$data = sim
     return(input_i)
   })
-  
-}
-saveRDS(sim_input, file.path(write.dir, "om_sim_data_GLB_recruitment_doparallel.RDS"))
-
-
-#####################################################
-##--SETUP ESTIMATING MODELS--########################
-#####################################################
-#This will now generate a list of inputs to estimate models that match the operating model.
-#initial values are commented out to start at "generic" starting values for estimation.
-#this could be modified to estimate models that do not match the operating model.
-em_input = list()
-for(m in 1:n.mods){
-  ##-initial numbers at age--######################
-  NAA_re = list(N1_pars = exp(10)*exp(-(0:(length(groundfish_info$ages)-1))*M$initial_means[1]))
-  NAA_re$recruit_pars = exp(10) #mean recruitment, if recruit model changes, need to change this
-  NAA_re$recruit_model = df.mods$Recruitment[m] #random effects with a constant mean
-  NAA_re$sigma = "rec+1"
-  NAA_re$cor = "iid"
-  input = prepare_wham_input(basic_info = groundfish_info, selectivity = selectivity, M = M, NAA_re = NAA_re)
-  
-  
-  ecov = list(label = "AR1_ecov")
-  ecov$mean = matrix(df.mods$Ecov_mean[m], input$data$n_years_model, 1)
-  ecov$logsigma = matrix(log(df.mods$obs_sig[m]), input$data$n_years_model, 1)
-  ecov$years = input$years
-  ecov$lag = 0
-  ecov$use_obs = matrix(TRUE, input$data$n_years_model, 1)
-  ecov$link_model = "linear"
-  ecov$process_model = "ar1"
-  ecov$process_mean_vals = df.mods$Ecov_mean[m]   #GLB: why are these commented out? For estimation?
-  #ecov$process_sig_vals = df.mods$Ecov_sig[m]
-  #ecov$process_cor_vals = df.mods$Ecov_phi[m]
-  n_effects = 2+input$data$n_indices
-  #ecov$beta_vals = list(lapply(1:n_effects, function(x) matrix(df.mods$beta[m],1,input$data$n_ages)))
-  ecov$where = "recruit"
-  ecov$how = 1 #not yet discussed by WG.
-  
-  input = set_ecov(input, ecov)
-  
   em_input[[m]] = lapply(1:nsim, function(x) {     #put in data simulated from operating model
     input_i = input
     input_i$data = sim_input[[m]][[x]]$data #put in simulated operating model data
     return(input_i)
   })
 }
-saveRDS(em_input, file.path(write.dir, "em_input_GLB_recruitment_doparallel.RDS"))
-
+saveRDS(sim_input, file.path(write.dir, "om_sim_data_GLB_recruitment_doparallel.RDS"))
+saveRDS(em_input,  file.path(write.dir, "em_input_GLB_recruitment_doparallel.RDS"))
 
 ########################################################
 ##--FIT MODELS--########################################
 ########################################################
-
 em_fits <- foreach(m=1:n.mods) %dopar% {
   lapply(1:nsim, function(x){
     cat(paste("model:",m, "fit:", x, "start \n"))
