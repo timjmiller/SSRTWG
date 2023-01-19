@@ -20,7 +20,7 @@ if(!exists("write.dir")) write.dir = getwd()  #if we don't specify above, set as
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)  #if the write.dir directory doesn't exist, create it
 setwd(write.dir)
 
-nsim = 25 #number of simulations for each scenario
+nsim = 2 #number of simulations for each scenario
 
 ################################################################
 ##--FUNCTIONS--#################################################
@@ -50,7 +50,7 @@ ar1_y      <- c(0,0.95)
 beta       <- c(0.3,1.0) 
 obs_sig    <- c(1e-5,0.25) 
 NAA_sig    <- c(1e-5,0.25)
-R_sig      <- 
+#R_sig      <- 
 #F_hist     <- c("Fmsy","H")
 #NEED: 1) obs error on NAA; 2) process error on NAA; F history
 
@@ -105,7 +105,7 @@ ecov <- list(label = "AR1_ecov",
   where = "recruit",
   how = 1) 
 
-input0 <- prepare_wham_input(basic_info = groundfish_info, selectivity = selectivity, M = M, NAA_re = NAA_re, age_comp="logistic-normal-miss0")
+input0 <- prepare_wham_input(basic_info = gf_info, selectivity = selectivity, M = M, NAA_re = NAA_re, age_comp="logistic-normal-miss0")
 
 ################################################################
 ##--SIMULATIONS--###############################################
