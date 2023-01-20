@@ -1,5 +1,16 @@
 library(rpart)
 library(rpart.plot)
+library(wham)
+
+##--Read data--###############
+
+dir <- "~/dropbox/working/state_space_assessments/cluster/results/"
+dir <- "~/dropbox/working/state_space_assessments/SSRTWG/Ecov_study/recruitment/results/"
+em_fits <- readRDS(file.path(dir,'em_fits_GLB_recruitment_doparallel.RDS'))
+df.mods <- readRDS(file.path(dir,'om_sim_inputs_GLB_recruitment_doparallel.RDS'))
+n.mods <- nrow(df.mods)
+nsim <- length(em_fits[[1]])
+
 
 temp <- list()
 for(m in 1:n.mods){
@@ -9,7 +20,8 @@ for(m in 1:n.mods){
     ssb_est <- em_fits[[m]][[x]]$report()$SSB
     
     r_sim <- em_fits[[m]][[x]]$input$data$NAA[,1]
-    r_est <- em_fits[[m]][[x]]$report()$NAA[,1]
+    #r_est <- em_fits[[m]][[x]]$report()$NAA[,1]
+    r_est <- exp(em_fits[[m]][[x]]$parList$log_NAA[,1])
     
     F_sim <- em_fits[[m]][[x]]$input$data$F
     F_est <- em_fits[[m]][[x]]$report()$F
