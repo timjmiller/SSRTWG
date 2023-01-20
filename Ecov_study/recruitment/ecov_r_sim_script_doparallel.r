@@ -7,7 +7,7 @@ library(here)
 library(doParallel)
 x <- detectCores()      
 registerDoParallel(x-1) #leave one core for other tasks
-writeLines(paste(x), "cores_detected.txt") #print how many cores were used   
+#writeLines(paste(x), "cores_detected.txt") #print how many cores were used   
 
 source(file.path(here(),"common_code", "make_basic_info.R"))
 source(file.path(here(),"common_code", "set_ecov.R")) #load set_ecov.r function
@@ -20,7 +20,7 @@ if(!exists("write.dir")) write.dir = getwd()  #if we don't specify above, set as
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)  #if the write.dir directory doesn't exist, create it
 setwd(write.dir)
 
-nsim <- 25 #number of simulations for each scenario
+nsim = 2 #number of simulations for each scenario
 
 ################################################################
 ##--FUNCTIONS--#################################################
@@ -81,12 +81,12 @@ M <- list(initial_means=rep(0.2, length(gf_info$ages)))
 
 #Define NAA re to be modified
 NAA_re <- list(
-  N1_pars <- exp(10)*exp(-(0:(length(gf_info$ages)-1))*M$initial_means[1]),
-  sigma   <- "rec", #random about mean
-  cor     <- "iid", #random effects are independent
+  N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*M$initial_means[1]),
+  sigma = "rec", #random about mean
+  cor="iid", #random effects are independent
   #use_steepness = 1, #GLB: also don't need for BH?
-  recruit_model <- 2, #random effects with a constant mean
-  recruit_pars  <- exp(10)
+  recruit_model = 2, #random effects with a constant mean
+  recruit_pars <- exp(10)
   #recruit_model = 3, #B-H
   #recruit_pars = c(0.75,exp(10)) #GLB: this is for BH?
 )
@@ -139,8 +139,8 @@ saveRDS(em_input,  file.path(write.dir, "em_input_GLB_recruitment_doparallel.RDS
 em_fits <- foreach(m=1:n.mods) %dopar% {
   lapply(1:nsim, function(x){
     cat(paste("model:",m, "fit:", x, "start \n"))
-    out     <- fit_wham(em_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
-    out$rep <- out$report() 
+    out = fit_wham(em_input[[m]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
+    out$rep <- out$report()
     cat(paste("model:",m, "fit:", x, "done \n"))
     return(out)
   })
