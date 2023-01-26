@@ -20,7 +20,7 @@ if(!exists("write.dir")) write.dir = getwd()  #if we don't specify above, set as
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)  #if the write.dir directory doesn't exist, create it
 setwd(write.dir)
 
-nsim = 25 #number of simulations for each scenario
+nsim = 100 #number of simulations for each scenario
 
 ################################################################
 ##--FUNCTIONS--#################################################
