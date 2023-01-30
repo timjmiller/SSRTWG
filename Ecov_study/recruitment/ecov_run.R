@@ -1,4 +1,4 @@
-args <- commandArgs(trailingOnly=TRUE)
+args <- as.numeric(commandArgs(trailingOnly=TRUE))
 
 library(wham)
 library(here)
