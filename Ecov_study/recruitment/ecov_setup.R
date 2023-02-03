@@ -82,7 +82,7 @@ M <- list(initial_means=rep(0.2, length(gf_info$ages)))
 #Define NAA re to be modified
 NAA_re <- list(
   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*M$initial_means[1]),
-  sigma = "rec", #random about mean
+  sigma = "rec", 
   cor="iid", #random effects are independent
   #use_steepness = 1, #GLB: also don't need for BH?
   recruit_model = 2, #random effects with a constant mean
