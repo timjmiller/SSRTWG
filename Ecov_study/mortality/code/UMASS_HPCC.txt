@@ -1,0 +1,126 @@
+//8 cores 2Gigs per core, 1 host
+bsub -n 8 -q long -W 8:00 -R "rusage[mem=2000]" -R "span[hosts=1]" < bwa_script.sh
+
+//bsub -n 1000 -q long -W 300:00 -R "span[hosts=1]" < ~/SSRTWG/Project_0/code/naa_om_hpcc_script.sh
+bsub -q long -R
+#convert line endings
+dos2unix ~/.R/Makevars
+
+//interactive session with 4-hour runtime with 10G of memory (needed to install wham because of memory needs)
+bsub -q interactive -R rusage[mem=10000] -W 4:00 -Is /bin/bash
+
+//see what jobs you have running
+bjobs -u tm94d
+
+
+module avail //lists available modules
+
+//most recent version of gcc
+//module load gcc/11.2.0
+//module load R/4.1.4
+
+module load gcc/8.1.0
+module load R/4.0.4_gcc
+module load libjpeg-turbo/2.0.2
+module load openmpi/4.0.1
+
+//how much disk space
+ df -h /home/tm94d
+
+//queues
+bqueues
+
+//initiate an interactive R session
+bsub -q interactive -R rusage[mem=10000] -W 4:00 -Is /bin/bash
+module load gcc/8.1.0
+module load R/4.0.4_gcc
+module load libjpeg-turbo/2.0.2
+cd ~/SSRTWG
+R
+.libPaths("~/Rlib/")
+library(wham)
+library(here)
+/////////////////////////////
+
+.libPaths()
+
+.libPaths("~/Rlib/")
+install.packages("TMB", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
+install.packages("remotes", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
+install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-project.org')
+remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
+remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="77bbd94")
+
+//Just some initial explorations here
+//bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+//bsub -n 10 -q long -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+
+//bsub -n 1 -q short -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7_short < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
+
+//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 2 2 1 20"
+
+//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
+
+//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
+
+//kill all jobs with job name
+bkill -J naa_om_sim
+
+//how many files in the current directory
+ls | wc -l
+
+//in ~/logs, number of log files for jobs that completed successfully
+grep -rn --include=logfile.* -e "Success" | wc -l
+
+//count log files without "Success" in them (they didn't finish in the 2 hour limit)
+cd ~/logs
+grep -rn --include=logfile.* -L "Success" | wc -l
+//remove those files
+grep -rn --include=logfile.* -L "Success" | xargs rm
+
+
+//current approach for sims on UMass hpcc. 
+//bash script to submit seperate jobs to the cluster: naa_om_hpcc_bash_bsub.sh
+// This file takes arguments: first_sim last_sim first_om last_om
+// The script loops over the sims and oms to make each job submission looks like this:
+// bsub -n $7 -q short -W 2:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh $this_sim $this_sim $this_om $this_om $5 $6"
+// $7 is the number of cores (usually 20) last two arguments are the first and last estimating model (e.g. 1 20 for the first 20)
+// this will set up a job using $7 processors on the short queue with a 2 hour time limit, write report to a a logfile in ~/logs, use 5GB per process, all on 1 blade/node and run the bash script naa_om_hpcc_args.sh
+// The bash script statement  which includes necessary modules and for each job loops over the 20 estimating models and makes separate calls:
+// Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R $sim $om $em &
+// which will generate the simulated data from the appropriate operating model and fit the proper estimating model
+// and write results to a RDS file in  ~/SSRTWG/Project_0/results/naa_om
+// Users of the UMass HPCC are limited to a maximum 512 processors and maximum of 10000 job submissions at a time, but they prefer it if you keep it around 1000
+// Jobs with 20 cores and 20 estimating models seem to usually take 10-15 minutes each so it should take about 0.5 days to get through ~1000 jobs
+//The saved RDS file is a list with length = number of ems and the element corresponding to the em being fit is possibly filled with results.
+//All other list elements will be NULL as will the slot for the em if the model causes R to abort.
+
+
+//delete results we have moved over to make room
+cd ~/SSRTWG/Project_0/results/naa_om
+find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
+cd ~/SSRTWG/Project_0/results/M_om
+find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
+cd ~/SSRTWG/Project_0/results/q_om
+find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
+cd ~/SSRTWG/Project_0/results/Sel_om
+find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
+
+//Do M Ecov operating model simulations
+//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 1 288 1 6 6
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 160 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 161 288 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 1 160 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 161 288 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 1 160 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 161 288 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 1 160 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 161 288 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 81 100 1 160 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 81 100 161 288 1 6 20
+//jobs didn't finish in time. Let's put it on the large queue for a longer run time
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 96 96 1 1 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 98 98 16 16 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 6 6 10 10 5 24"
+bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 10 10 4 4 5 24"
+

@@ -113,6 +113,8 @@ Beverton-Holt parameterization.
 
 The magnitude of the overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from Wiedenmann et al. (20XX). Legault et al. (2023) also used similar approaches to defining fishing mortality histories for operating models.
 
+Currenlty, initial population is configured at the equilibrium distribution fishing at $F = 2.5\times F_{\text{MSY}}$.
+
 Initial population was configured at the equilibrium distribution fishing at either $F = 2.5\times F_{\text{MSY}}$ or $F = F_{\text{MSY}}$ for the two alternative fishing histories. That is for a deterministic model, the age composition would not change over time when the fishing mortality was constant at the respective level. 
 
 
@@ -148,10 +150,14 @@ Table of process error assumptions
 
 NOTE: inv_trans_rho function in set_M.R is mis-defined. Will affect correlation parameters assigned in operating models?
 
+Steepness and BRPs are not constant when M is time-varying (Miller and Brooks 2021). We uses the a/b parameters for the B-H defined for Fmsy = F40 at the mean M = 0.2 as defined above. 
+
 ### Operating models with random effects on fleet selectivity
 
 16 operating models
 Table of process error assumptions
+
+BRPs are not constant when fleet selectivity is time-varying. We uses the a/b parameters for the B-H defined for Fmsy = F40 at the mean of the time series model for selectivity which is the same as the constant selectivity defined above. 
 
 ### Operating models with random effects on index catchability
 
