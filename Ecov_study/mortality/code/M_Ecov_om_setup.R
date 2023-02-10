@@ -14,7 +14,7 @@ source(file.path(here(), "common_code", "set_selectivity.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Ecov_study", "mortality", "code", "make_om.R"))
-source(file.path(here(), "Project_0", "code", "sim_management.R"))
+source(file.path(here(), "Ecov_study", "mortality", "code", "sim_management.R"))
 verify_version()
 
 write.dir <- file.path(here(),"Ecov_study", "mortality", "inputs")
@@ -59,7 +59,7 @@ L_N_sigma = c(L = 0.3, H = 1.5)
 #(log) index SDs for L/H observation error 
 index_sigma = c(L = 0.1, H = 0.4)
 
-n.mods <- dim(df.oms)[1] #384 operating model scenarios
+n.mods <- dim(df.oms)[1] #288 operating model scenarios
 df.oms$Model <- paste0("om_",1:n.mods)
 df.oms <- df.oms %>% select(Model, everything()) # moves Model to first col
 # look at model table

@@ -1,7 +1,7 @@
 ---
-title: How reliable are inferences from state-space age-structured assessment models?
+title: Factors affecting reliablity of state-space age-structured assessment models
 author: 
-  - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, 
+  - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, et al.
 date: ''
 fontsize: 12pt
 output:
@@ -62,10 +62,11 @@ Much is known about the reliability of state-space models that are linear or Gau
 But those studies focus primarily on Gaussian linear models.
 review literature on reliability of hidden/latent process models. Primarily in other fields.
 
+Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, sources of process error (M, NAA, q, sel), and fishing history. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error (M, NAA< q, sel), whether a stock-recruit model was estimated, and whether M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
 
 # Methods
 
-Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetalinpress}.
+Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetalinpress} and is used for management of haddock, butterfish, plaice, bluefish in the Northeast US.
 
 We completed a simulation study with a number of operating models that can be categorized based on where random effects are assumed: abundance at age, natural mortality, fleet selectivity, or index catchability. For each operating model assumptions about variance of process errors and observations are required and the values we used were based on a review of the range of estimates from recent applications of WHAM in management of stocks of haddock, butterfish, and American plaice in the NE US.
 

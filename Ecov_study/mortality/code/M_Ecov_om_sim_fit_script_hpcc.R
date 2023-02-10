@@ -37,6 +37,8 @@ truth$wham_version = om$wham_version
 EM_input <- em_inputs[[this_em]] # Read in the EM 
 #put simulated data into the em input
 EM_input$data[obs_names] = sim_data[obs_names]
+#not estimating observation error in Ecov
+EM_input$par$Ecov_obs_logsigma <- om_inputs[[this_om]]$par$Ecov_obs_logsigma
 res <- list(truth = truth)
 res$fit <- list()
 #do fit withouth sdreport first
