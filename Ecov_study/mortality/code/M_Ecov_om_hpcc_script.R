@@ -15,5 +15,5 @@ run_hpcc_jobs_rev(this_sim = sim, this_om = om, this_em = em,
   df.oms = readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "df.oms.RDS")), 
   om_inputs = readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "om_inputs.RDS")),
   em_inputs = readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "em_inputs.RDS")),
-  write.dir = file.path(here::here(),"Project_0", "results", "q_om")
+  write.dir = file.path(here::here(),"Ecov_study", "mortality", "results")
 )
