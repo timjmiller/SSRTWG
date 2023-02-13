@@ -15,8 +15,6 @@ verify_version = function(commit = "77bbd94"){
 }
 #verify_version()
 
-
-
 aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here::here(),"Project_0", "results", "naa_om"))
 {
   for(i in oms){
@@ -31,7 +29,6 @@ aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here
     saveRDS(sim_aggregated, file.path(write_dir, paste0("sim_", sim,".RDS")))
   }
 }
-
 
 get_failed_jobs = function(){
   bad_logs = system('grep -rn  --include=logfile.* -L "Success" ~/logs', intern = TRUE)

@@ -107,8 +107,8 @@ cd ~/SSRTWG/Project_0/results/Sel_om
 find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
 
 //Do M Ecov operating model simulations
-//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 1 288 1 6 6
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 160 1 6 20
+//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 1 288 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 160 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 161 288 1 6 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 1 160 1 6 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 161 288 1 6 20

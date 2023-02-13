@@ -14,3 +14,5 @@ misspecification_study/output
 Ecov_study/recruitment/results
 Ecov_study/recruitment/output*
 Ecov_study/recruitment/error*
+Ecov_study/mortality/untracked
+!Ecov_study/mortality/inputs/*.RDS
