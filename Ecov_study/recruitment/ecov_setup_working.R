@@ -27,8 +27,9 @@ setwd(write.dir)
 
 naa_om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 #SR parameters are the same for all naa_om models 
-temp = fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
-SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
+#temp = fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
+#SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
+SRab <- c(5.955694e-01, 2.404283e-05)
 
 nsim = 100 #number of simulations for each scenario
 
