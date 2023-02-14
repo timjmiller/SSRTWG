@@ -24,7 +24,7 @@ seeds <- readRDS(file.path(here::here(), "Ecov_study", "mortality", "inputs","se
 #######################################################
 
 cat(paste0("OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
-write.dir <- file.path(here::here(),"Ecov_study", "mortality", "results", paste0("om_", omj))
+write.dir <- file.path(here::here(),"Ecov_study", "mortality", "results", paste0("om", omj))
 dir.create(write.dir, recursive = T, showWarnings = FALSE)
 #script.full.path <- file.path(here::here(), "Ecov_study", "mortality", "code", "M_Ecov_om_sim_fit_script_hpcc.R") 
 #system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
