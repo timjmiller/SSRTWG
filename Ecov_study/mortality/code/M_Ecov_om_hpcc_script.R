@@ -2,7 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 simi = as.integer(args[1])
 omj = as.integer(args[2])
-em = as.integer(args[3])
+emk = as.integer(args[3])
 .libPaths("~/Rlib/")
 library(wham)
 source(file.path(here::here(), "Ecov_study", "mortality", "code", "sim_management.R"))
@@ -32,10 +32,9 @@ dir.create(write.dir, recursive = T, showWarnings = FALSE)
 # Set seed
 om <- fit_wham(om_inputs[[omj]], do.fit = FALSE, MakeADFun.silent = TRUE)
 #seeds are different for each om
-cat(omj)
-cat(simi)
-cat(length(seeds))
-cat
+#cat(omj)
+#cat(simi)
+#cat(length(seeds))
 set.seed(seeds[[omj]][simi])
 sim_data <- om$simulate(complete=TRUE)
 truth <- sim_data
