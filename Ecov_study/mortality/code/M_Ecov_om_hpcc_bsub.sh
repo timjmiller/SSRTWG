@@ -13,7 +13,7 @@ do
   for ((thisem= $5; thisem <= $6; thisem++)) #om in {$omstart..$omend}
   do
     echo $this_om
-    bsub -n $7 -q short -W 4:00 -o ~/logs/sims_$1_to_$2_om_$thisom_em_$thisem.log -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_ecov_om_sim "bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_args.sh $1 $2 $thisom $thisom $thisem $thisem"
+    bsub -n $7 -q short -W 4:00 -o ~/logs/sims_${1}_to_${2}_om_${thisom}_em_${thisem}.log -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_ecov_om_sim "bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_args.sh $1 $2 $thisom $thisom $thisem $thisem"
   done
 done
 echo "script is done"
