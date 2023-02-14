@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
-sim = as.integer(args[1])
-om = as.integer(args[2])
+simi = as.integer(args[1])
+omj = as.integer(args[2])
 em = as.integer(args[3])
 .libPaths("~/Rlib/")
 library(wham)
@@ -23,25 +23,29 @@ obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", 
 seeds <- readRDS(file.path(here::here(), "Ecov_study", "mortality", "inputs","seeds.RDS"))
 #######################################################
 
-cat(paste0("OM: ", om, " Sim: ", sim, " EM: ", em, "\n"))
-write.dir <- file.path(here::here(),"Ecov_study", "mortality", "results", paste0("om_", om))
+cat(paste0("OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
+write.dir <- file.path(here::here(),"Ecov_study", "mortality", "results", paste0("om_", omj))
 dir.create(write.dir, recursive = T, showWarnings = FALSE)
 #script.full.path <- file.path(here::here(), "Ecov_study", "mortality", "code", "M_Ecov_om_sim_fit_script_hpcc.R") 
 #system(paste0("Rscript --vanilla ", script.full.path, " " , this_om, " ",  this_em, " ", this_sim, " \n"))
 
 # Set seed
-om <- fit_wham(om_inputs[[om]], do.fit = FALSE, MakeADFun.silent = TRUE)
+om <- fit_wham(om_inputs[[omj]], do.fit = FALSE, MakeADFun.silent = TRUE)
 #seeds are different for each om
-set.seed(seeds[[om]][sim])
+cat(omj)
+cat(simi)
+cat(length(seeds))
+cat
+set.seed(seeds[[omj]][simi])
 sim_data <- om$simulate(complete=TRUE)
 truth <- sim_data
 #save the version for reproducibility
 truth$wham_version = om$wham_version
-EM_input <- em_inputs[[em]] # Read in the EM 
+EM_input <- em_inputs[[emk]] # Read in the EM 
 #put simulated data into the em input
 EM_input$data[obs_names] = sim_data[obs_names]
 #not estimating observation error in Ecov
-EM_input$par$Ecov_obs_logsigma <- om_inputs[[om]]$par$Ecov_obs_logsigma
+EM_input$par$Ecov_obs_logsigma <- om_inputs[[omj]]$par$Ecov_obs_logsigma
 res <- list(truth = truth)
 res$fit <- list()
 #do fit withouth sdreport first
@@ -65,7 +69,7 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   }
 }
 #Ecov_study/mortality/results/om_x/simy_em_z.RDS
-rds.fn = file.path(here::here(), "Ecov_study", "mortality", "results", paste0("om", om), paste0("sim", sim, "_em", em, ".RDS"))
+rds.fn = file.path(here::here(), "Ecov_study", "mortality", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
 #res_store <- readRDS(rds.fn)
 #res_store[[this_em]] <- res
 saveRDS(res, file = rds.fn)
