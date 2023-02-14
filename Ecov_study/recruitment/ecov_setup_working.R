@@ -191,7 +191,8 @@ for(i in (n.mods+1):(2*n.mods)){
     return(input_i)
   })
 }
-  
-saveRDS(em_input,  file.path(write.dir, "em_input.RDS"))
 
+for(i in 1:length(em_input)){
+  saveRDS(em_input[[i]],  file.path(write.dir, paste0("em_input_",i,".RDS")))
+}
 
