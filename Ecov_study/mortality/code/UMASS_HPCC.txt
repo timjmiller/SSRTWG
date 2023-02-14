@@ -24,6 +24,8 @@ module load R/4.0.4_gcc
 module load libjpeg-turbo/2.0.2
 module load openmpi/4.0.1
 
+module load git/2.9.5
+
 //how much disk space
  df -h /home/tm94d
 
@@ -52,7 +54,12 @@ remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
 remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="77bbd94")
 /////////////////////////////
 
+//Testing, testing in R
+Rscript --vanilla ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_script.R 1 1 1 &
 
+//Testing, testing first level bash
+
+bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_Ecov_test "bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_args.sh 1 20 1 1 1 1"
 
 //Just some initial explorations here
 //bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
@@ -110,7 +117,7 @@ cd ~/SSRTWG/Project_0/results/Sel_om
 find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
 
 //Do M Ecov operating model simulations
-//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 1 288 1 12 12
+//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 1 1 1 2 12 1
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 84 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 85 168 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 169 252 1 12 20

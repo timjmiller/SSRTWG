@@ -44,7 +44,7 @@ EM_input <- em_inputs[[emk]] # Read in the EM
 #put simulated data into the em input
 EM_input$data[obs_names] = sim_data[obs_names]
 #not estimating observation error in Ecov
-EM_input$par$Ecov_obs_logsigma <- om_inputs[[omj]]$par$Ecov_obs_logsigma
+EM_input$par$Ecov_obs_logsigma[] <- om_inputs[[omj]]$par$Ecov_obs_logsigma
 res <- list(truth = truth)
 res$fit <- list()
 #do fit withouth sdreport first
