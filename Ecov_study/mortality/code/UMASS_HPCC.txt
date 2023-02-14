@@ -42,14 +42,17 @@ library(wham)
 library(here)
 /////////////////////////////
 
+///To install packages
 .libPaths()
-
 .libPaths("~/Rlib/")
 install.packages("TMB", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages("remotes", lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 install.packages(c("here","snowfall"), lib = "~/Rlib/", repos='http://cran.us.r-project.org')
 remotes::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
 remotes::install_github("timjmiller/wham", dependencies=FALSE, ref="77bbd94")
+/////////////////////////////
+
+
 
 //Just some initial explorations here
 //bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh

@@ -8,10 +8,10 @@ library(wham)
 source(file.path(here::here(), "Ecov_study", "mortality", "code", "sim_management.R"))
 verify_version()
 
-om_inputs <- readRDS(file.path(here(),"Ecov_study", "mortality", "inputs", "om_inputs.RDS"))
-em_inputs <- readRDS(file.path(here(),"Ecov_study", "mortality", "inputs", "em_inputs.RDS"))
-df.ems <- readRDS(file.path(here(),"Ecov_study", "mortality", "inputs", "df.ems.RDS"))
-df.oms <- readRDS(file.path(here(),"Ecov_study", "mortality", "inputs", "df.oms.RDS"))
+om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "om_inputs.RDS"))
+em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "em_inputs.RDS"))
+df.ems <- readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "df.ems.RDS"))
+df.oms <- readRDS(file.path(here::here(),"Ecov_study", "mortality", "inputs", "df.oms.RDS"))
 #######################################################
 #need to have matching assumptions about CVs for catch and indices, too
 obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
@@ -20,7 +20,7 @@ obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", 
 
 #######################################################
 #I don't think we want to use the same (e.g. 1000) seeds for everything.
-seeds <- readRDS(file.path(here(), "Ecov_study", "mortality", "inputs","seeds.RDS"))
+seeds <- readRDS(file.path(here::here(), "Ecov_study", "mortality", "inputs","seeds.RDS"))
 #######################################################
 
 cat(paste0("OM: ", om, " Sim: ", sim, " EM: ", em, "\n"))
@@ -65,7 +65,7 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   }
 }
 #Ecov_study/mortality/results/om_x/simy_em_z.RDS
-rds.fn = file.path(here(), "Ecov_study", "mortality", "results", paste0("om", om), paste0("sim", sim, "_em", em, ".RDS"))
+rds.fn = file.path(here::here(), "Ecov_study", "mortality", "results", paste0("om", om), paste0("sim", sim, "_em", em, ".RDS"))
 #res_store <- readRDS(rds.fn)
 #res_store[[this_em]] <- res
 saveRDS(res, file = rds.fn)
