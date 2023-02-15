@@ -84,7 +84,10 @@ grep -rn --include=logfile.* -e "Success" | wc -l
 
 //count log files without "Success" in them (they didn't finish in the 2 hour limit)
 cd ~/logs
-grep -rn --include=logfile.* -L "Success" | wc -l
+grep -rn --include=*.log -L "Success" | wc -l
+cd ~/SSRTWG/Ecov_study/mortality/results/om25
+find -name *em12*.log
+
 //remove those files
 grep -rn --include=logfile.* -L "Success" | xargs rm
 
@@ -117,20 +120,29 @@ cd ~/SSRTWG/Project_0/results/Sel_om
 find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
 
 //Do M Ecov operating model simulations
-//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 1 1 1 2 12 1
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 84 1 12 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 85 168 1 12 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 169 252 1 12 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 253 288 1 12 20
+//bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 2 2 1 1 2 12 1
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 20 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 21 100 1 12 20
+#done
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 101 180 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 181 260 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 260 288 1 12 20
 
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 1 160 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 161 288 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 1 160 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 161 288 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 1 160 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 161 288 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 81 100 1 160 1 6 20
-bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 81 100 161 288 1 6 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 1 80 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 81 160 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 161 240 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 241 288 1 12 20
+
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 1 80 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 81 160 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 161 240 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 41 60 241 288 1 12 20
+
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 1 80 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 81 160 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 161 240 1 12 20
+bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 61 80 241 288 1 12 20
+
 //jobs didn't finish in time. Let's put it on the large queue for a longer run time
 bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 96 96 1 1 5 24"
 bsub -n 20 -q large -W 24:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_om_sim "bash ~/SSRTWG/Project_0/code/M_om_hpcc_args.sh 98 98 16 16 5 24"

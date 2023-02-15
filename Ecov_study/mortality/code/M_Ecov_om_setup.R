@@ -64,7 +64,7 @@ df.oms$Model <- paste0("om_",1:n.mods)
 df.oms <- df.oms %>% select(Model, everything()) # moves Model to first col
 # look at model table
 df.oms
-#saveRDS(df.oms, file.path(here(),"Project_0", "inputs", "df.oms.RDS"))
+#saveRDS(df.oms, file.path(here(),"Ecov_study", "mortality", "inputs", "df.oms.RDS"))
 
 
 gf_info = make_basic_info()

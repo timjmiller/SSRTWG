@@ -23,7 +23,7 @@ obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", 
 seeds <- readRDS(file.path(here::here(), "Ecov_study", "mortality", "inputs","seeds.RDS"))
 #######################################################
 
-cat(paste0("OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
+cat(paste0("START OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
 write.dir <- file.path(here::here(),"Ecov_study", "mortality", "results", paste0("om", omj))
 dir.create(write.dir, recursive = T, showWarnings = FALSE)
 #script.full.path <- file.path(here::here(), "Ecov_study", "mortality", "code", "M_Ecov_om_sim_fit_script_hpcc.R") 
@@ -72,3 +72,4 @@ rds.fn = file.path(here::here(), "Ecov_study", "mortality", "results", paste0("o
 #res_store <- readRDS(rds.fn)
 #res_store[[this_em]] <- res
 saveRDS(res, file = rds.fn)
+cat(paste0("END OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
