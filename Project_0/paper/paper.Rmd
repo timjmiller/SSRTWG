@@ -1,7 +1,7 @@
 ---
-title: How reliable are inferences from state-space age-structured assessment models?
+title: Factors affecting reliablity of state-space age-structured assessment models
 author: 
-  - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, 
+  - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, et al.
 date: ''
 fontsize: 12pt
 output:
@@ -62,10 +62,11 @@ Much is known about the reliability of state-space models that are linear or Gau
 But those studies focus primarily on Gaussian linear models.
 review literature on reliability of hidden/latent process models. Primarily in other fields.
 
+Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, sources of process error (M, NAA, q, sel), and fishing history. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error (M, NAA< q, sel), whether a stock-recruit model was estimated, and whether M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
 
 # Methods
 
-Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetalinpress}.
+Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetalinpress} and is used for management of haddock, butterfish, plaice, bluefish in the Northeast US.
 
 We completed a simulation study with a number of operating models that can be categorized based on where random effects are assumed: abundance at age, natural mortality, fleet selectivity, or index catchability. For each operating model assumptions about variance of process errors and observations are required and the values we used were based on a review of the range of estimates from recent applications of WHAM in management of stocks of haddock, butterfish, and American plaice in the NE US.
 
@@ -113,6 +114,8 @@ Beverton-Holt parameterization.
 
 The magnitude of the overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from Wiedenmann et al. (20XX). Legault et al. (2023) also used similar approaches to defining fishing mortality histories for operating models.
 
+Currenlty, initial population is configured at the equilibrium distribution fishing at $F = 2.5\times F_{\text{MSY}}$.
+
 Initial population was configured at the equilibrium distribution fishing at either $F = 2.5\times F_{\text{MSY}}$ or $F = F_{\text{MSY}}$ for the two alternative fishing histories. That is for a deterministic model, the age composition would not change over time when the fishing mortality was constant at the respective level. 
 
 
@@ -148,10 +151,14 @@ Table of process error assumptions
 
 NOTE: inv_trans_rho function in set_M.R is mis-defined. Will affect correlation parameters assigned in operating models?
 
+Steepness and BRPs are not constant when M is time-varying (Miller and Brooks 2021). We uses the a/b parameters for the B-H defined for Fmsy = F40 at the mean M = 0.2 as defined above. 
+
 ### Operating models with random effects on fleet selectivity
 
 16 operating models
 Table of process error assumptions
+
+BRPs are not constant when fleet selectivity is time-varying. We uses the a/b parameters for the B-H defined for Fmsy = F40 at the mean of the time series model for selectivity which is the same as the constant selectivity defined above. 
 
 ### Operating models with random effects on index catchability
 
