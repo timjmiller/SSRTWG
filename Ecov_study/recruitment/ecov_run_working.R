@@ -2,9 +2,9 @@ args <- as.numeric(commandArgs(trailingOnly=TRUE))
 
 library(wham)
 library(here)
-library(doParallel)
-ncores <- detectCores()      
-registerDoParallel(ncores-1) #leave one core for other tasks
+#library(doParallel)
+#ncores <- detectCores()      
+#registerDoParallel(ncores-1) #leave one core for other tasks
 
 write.dir <- file.path(here(),"Ecov_study", "recruitment", "results") # create directory for analysis
 nsim = 100 #number of simulations for each scenario
@@ -24,3 +24,13 @@ em_fits <- foreach(x = 1:nsim) %dopar% {
     return(out)
 }
 saveRDS(em_fits, file.path(write.dir, paste0("em_fits_m_",args[1],".RDS")))
+
+#for(x in 1:nsim){
+#  cat(paste("model:",args[1], "fit:", x, "start \n"))
+#  #out = fit_wham(em_input[[args[1]]][[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
+#  out = fit_wham(em_input[[x]], do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE, save.sdrep = FALSE)
+#  out$rep <- out$report()
+#  cat(paste("model:",args[1],"fit:", x, "done \n"))
+#  em_fits[[x]] <- out
+#}
+#saveRDS(em_fits, file.path(write.dir, paste0("em_fits_m_",args[1],".RDS")))
