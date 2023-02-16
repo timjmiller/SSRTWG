@@ -31,7 +31,7 @@ aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here
 }
 
 get_failed_jobs = function(){
-  bad_logs = system('grep -rn  --include=*.log -L "Success" ~/logs/short', intern = TRUE)
+  bad_logs = system('grep -rn  --include=*.log -L "Success" ~/logs', intern = TRUE)
   fn <- sapply(strsplit(bad_logs, "/"), function(x) x[5])
   om <- as.integer(sapply(strsplit(fn, "_"), function(x) x[which(x == "om")+1]))
   em <- sapply(strsplit(fn, "_"), function(x) x[length(x)])
@@ -57,7 +57,7 @@ make_redo_failed_jobs_file <- function(failed_jobs, fn = paste0("~/SSRTWG/Ecov_s
     om <- bad_jobs[i,"om"]
     em <- bad_jobs[i,"em"]
     for(j in 1:length(sims)){
-      cat(paste0('bsub -n 1 -q large -W 24:00 -o ~/logs/sim_', sims[j], '_om_', om, '_em_', em, 
+      cat(paste0('bsub -n 1 -q long -W 24:00 -o ~/logs/sim_', sims[j], '_om_', om, '_em_', em, 
         '.log -R "rusage[mem=5000]" -R "span[hosts=1]" -J ', sims[j], '_', om, "_", em, 
         " bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_args.sh ", sims[j], " " , sims[j], " ", om, " ", om, " ", em, " ", em, "\n"), file = fn, append = TRUE)
     }

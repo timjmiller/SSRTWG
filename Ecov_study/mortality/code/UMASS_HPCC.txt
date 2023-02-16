@@ -61,20 +61,9 @@ Rscript --vanilla ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_script.R 1 1
 
 bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J M_Ecov_test "bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_args.sh 1 20 1 1 1 1"
 
-//Just some initial explorations here
-//bsub -n 485 -q long -W 48:00 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
-//bsub -n 10 -q long -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7 < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
 
-//bsub -n 1 -q short -W 0:15 -R "rusage[mem=5000]" -J naa_om_sim_7_short < ~/SSRTWG/Project_0/code/naa_om_hpcc_7_7.sh
-
-//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 2 2 1 20"
-
-//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
-
-//bsub -n 20 -q short -W 2:00 -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 7 7 3 3 1 20"
-
-//kill all jobs with job name
-bkill -J naa_om_sim
+//kill all jobs with job name "naa_om_sim"
+//bkill -J naa_om_sim
 
 //how many files in the current directory
 ls | wc -l
@@ -85,24 +74,27 @@ grep -rn --include=logfile.* -e "Success" | wc -l
 //count log files without "Success" in them (they didn't finish in the 2 hour limit)
 cd ~/logs
 grep -rn --include=*.log -L "Success" | wc -l
+
+grep -rn --include=*.log -L "Success" ~/logs | wc -l
+
 cd ~/SSRTWG/Ecov_study/mortality/results/om25
-find -name *em12*.log
+find -name *em12*.RDS
 
 //remove those files
 grep -rn --include=logfile.* -L "Success" | xargs rm
 
 
-//current approach for sims on UMass hpcc. 
-//bash script to submit seperate jobs to the cluster: naa_om_hpcc_bash_bsub.sh
-// This file takes arguments: first_sim last_sim first_om last_om
-// The script loops over the sims and oms to make each job submission looks like this:
-// bsub -n $7 -q short -W 2:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_om_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh $this_sim $this_sim $this_om $this_om $5 $6"
-// $7 is the number of cores (usually 20) last two arguments are the first and last estimating model (e.g. 1 20 for the first 20)
-// this will set up a job using $7 processors on the short queue with a 2 hour time limit, write report to a a logfile in ~/logs, use 5GB per process, all on 1 blade/node and run the bash script naa_om_hpcc_args.sh
+//Approach for Ecov-M sims on UMass hpcc. 
+// bash script to submit seperate jobs to the cluster: M_Ecov_om_hpcc_bsub.sh
+// This file takes arguments: first_sim last_sim first_om last_om first_em last_em ncores
+// The script loops over the oms and ems and runs first_sim:last_sim sims in each job submission like this:
+// bsub -n ncores -q short -W 4:00 -o ~/logs/unique_log_name.log -R "rusage[mem=5000]" -R "span[hosts=1]" -J unique_job_label "bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_args.sh firstsim lastsim this_om this_om this_em this_em"
+// the number of cores (ncores, usually 20) should match the number of sims (defined by first two arguments) (e.g. 1 20 for the first 20)
+// this will set up a job using ncores processors on the short queue with a 4 hour time limit, write report to a a logfile in ~/logs, use 5GB per process, all on 1 blade/node and run the bash script M_Ecov_om_hpcc_args.sh
 // The bash script statement  which includes necessary modules and for each job loops over the 20 estimating models and makes separate calls:
-// Rscript --vanilla ~/SSRTWG/Project_0/code/naa_om_hpcc_script.R $sim $om $em &
+// Rscript --vanilla ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_script.R $sim $om $em &
 // which will generate the simulated data from the appropriate operating model and fit the proper estimating model
-// and write results to a RDS file in  ~/SSRTWG/Project_0/results/naa_om
+// and write results to a RDS file in  ~/SSRTWG/Ecov_study/mortality/results/om_*/
 // Users of the UMass HPCC are limited to a maximum 512 processors and maximum of 10000 job submissions at a time, but they prefer it if you keep it around 1000
 // Jobs with 20 cores and 20 estimating models seem to usually take 10-15 minutes each so it should take about 0.5 days to get through ~1000 jobs
 //The saved RDS file is a list with length = number of ems and the element corresponding to the em being fit is possibly filled with results.
@@ -123,9 +115,9 @@ find -maxdepth 1 -name "*.RDS" -exec rm -r {} \;
 //bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 2 2 1 1 2 12 1
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 20 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 21 100 1 12 20
-#done
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 101 180 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 181 260 1 12 20
+#done
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 260 288 1 12 20
 
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 1 80 1 12 20
