@@ -1,0 +1,170 @@
+---
+title: "Setup_OMs"
+output: html_document
+date: "2023-02-14"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+Generic OM & EM settings that are the same as project 0:
+
+-   Cod-like life history
+
+-   B-H stock-recruit (for now)
+
+-   1 fleet
+
+-   2 indices (spring and fall)
+
+-   Logistic selectivity for the fleet and all indices
+
+-   Initial M estimate = 0.2
+
+-   Logistic normal age composition for fleet and all indices
+
+Project-specific OM settings that are not variable:
+
+-   Ecov ar1 process on catchability for both surveys (spring & fall)
+    with mean = 0
+
+-   
+
+OM settings that are variable:
+
+-   Ecov standard deviation = 0.1 or 0.5
+
+-   Ecov process correlation = 0 or 0.5
+
+-   Ecov process observation standard deviation = 0.1 or 0.5
+
+-   Ecov effect on q = 0, 0.25, or 0.5 !!! I think this is the beta
+    parameter but should confirm
+
+-   Fishing history = F_MSY for 40 year history OR fish 2.5\*F_MSY for
+    20 years than fish at F_MSY for remaining 20
+
+-   
+
+EM settings that are variable:
+
+-   Ecov season correctly specified = BOTH (spring & fall correct), ONE
+    (only one season correct), NONE (effect on q not included when it
+    should be)
+
+-   Ecov link/random effect setting = NoEnv, NoEnvRand, WithEnvRand,
+    WithEnv
+
+-   
+
+```{r}
+##### OM
+# Ecov process & effect magnitude set up
+Ecov_process_sig <- c(0.1, 0.5)
+Ecov_process_cor <- c(0, 0.5)
+Ecov_process_obs_sig <- c(0.1, 0.5)
+Ecov_effect <- c(0, 0.25, 0.5) # beta
+
+# Fishing history
+F_hist <- c("H-MSY", "MSY") # High-then MSY vs. MSY for entire history
+
+# Observation error
+ageComp_sig <- c(0.3, 1.5) # Fleet and index age comp treated with same error
+logIndex_sig <- c(0.1, 0.4)
+
+# Factorial combinations
+OMsetup <- expand.grid(Eco_process_sig = Ecov_process_sig, Ecov_process_cor = Ecov_process_cor, Ecov_process_obs_sig = Ecov_process_obs_sig, Ecov_effect = Ecov_effect, F_hist = F_hist, ageComp_sig = ageComp_sig, logIndex_sig = logIndex_sig)
+OMsetup
+
+# Catchability set up
+q_Ecov <- c("includeEcov", "excludeEcov") # May want to include these as a sensitivity run to compare what happens if OM has no ecov effect but EM assumes there is one (ecov process setup won't matter since fitting to data without effect specified in model)
+
+##### OM sensitivity runs
+# Factorial combinations when on ecov effect in OM
+expand.grid(q_Ecov = q_Ecov, F_hist = F_hist, ageComp_sig = ageComp_sig, logIndex_sig = logIndex_sig) # probably do a subset, we have to decide what subset
+
+
+##### EM
+# EM factorial settings
+miss_season <- c("BOTH", "ONE", "NONE") # Number of seasons with correctly specified effect, assumes 2 survey indices (spring & fall)
+miss_q <- c("NoEnv", "NoEnvRand", "WithEnvRand", "WithEnv") # Catchability setup for EM
+expand.grid(miss_season = miss_season, miss_q = miss_q)
+```
+
+-   maybe don't vary obs/process NAA since we are testing ability to
+    recover catchability effect, could do sensitivity run with survival
+    random effects and pick one of these settings
+
+# set up generic OM
+
+```{r}
+library(wham)
+# Get generic groundfish life history info
+source(file.path(here::here(),"common_code", "make_basic_info.R"))
+groundfish_info <- make_basic_info()
+
+# Change timing for spring (0.25) and fall (0.75) indices
+groundfish_info$fracyr_indices[,1] <- 0.25
+groundfish_info$fracyr_indices[,2] <- 0.75
+
+# Assume logistic selectivity for the fleet and all indices
+sel_list <- list(model = c(rep("logistic", groundfish_info$n_fleets),rep("logistic", groundfish_info$n_indices)),
+                   initial_pars = lapply(1:(groundfish_info$n_fleets + groundfish_info$n_indices), function(x) c(5,1)),
+                 n_selblocks = (groundfish_info$n_fleets + groundfish_info$n_indices))
+
+# Starting mean M estimate at 0.2, estimate constant M for all ages/years
+M <-  list(initial_means = rep(0.2, length(groundfish_info$ages)))
+
+genericInput <- prepare_wham_input(basic_info = groundfish_info, 
+                                   selectivity = sel_list, 
+                                   M = M)
+
+# genericFit <- fit_wham(genericInput, MakeADFun.silent = TRUE, do.retro = FALSE, do.osa = FALSE)
+
+```
+
+# Use common_code set_ecov function to adjust based on OM settings above
+
+This chunk of code uses common code functions & internal WHAM functions
+to manipulate an OM input object to initialize the OM rather than doing
+all setup when creating the input as is typically the procedure when
+fitting operational WHAM models.
+
+```{r}
+source(file.path(here::here(),"common_code", "set_ecov.R"))
+
+# Loop over OMsetup to initialize OMs
+for(iom in 1:nrow(OMsetup)){
+  # Pull generic input settings
+  input <- genericInput
+  
+  # Ecov setup
+    Ecov <- list(label = "Ecov",
+                 lag = 0, 
+                 where = "q", # Where/how/indices settings need to change if we do sensitivity runs
+                 how = 1,
+                 indices = c(1,2),
+                 process_model = "ar1", 
+                 process_mean_vals = rep(0,length(groundfish_info$years)), # End generic inputs for ecov
+                 process_sig_vals = rep(OMsetup$Eco_process_sig[iom]),
+                 process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
+                 beta_vals = list(rep(list(matrix(rep(OMsetup$Ecov_effect[iom], length(groundfish_info$ages)), nrow = 1)), 4)), #!!! Why 4 rows?
+                 logsigma = as.matrix(rep(OMsetup$Ecov_process_obs_sig[iom], length(groundfish_info$years))))
+    
+  input <- set_ecov(input = input, ecov = Ecov)
+  
+  
+  # 
+  # Fishing history
+F_hist <- c("H-MSY", "MSY") # High-then MSY vs. MSY for entire history
+
+# Observation error
+ageComp_sig <- c(0.3, 1.5) # Fleet and index age comp treated with same error
+logIndex_sig <- c(0.1, 0.4)
+
+}
+
+
+
+
+```
