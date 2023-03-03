@@ -1,4 +1,5 @@
 library(here)
+library(ggplot2)
 df.ems = readRDS(file.path(here(),"Ecov_study","mortality","inputs", "df.ems.RDS"))
 
 
@@ -83,7 +84,7 @@ all_res[facs] <- lapply(all_res[facs], factor)
 
 plt <- ggplot(all_res, aes(x = Ecov_obs_sig:Fhist, y = emp_p, fill = Ecov_re_sig:Ecov_re_cor)) + 
     geom_col(position = "dodge") + facet_grid(NAA_M_re ~ Ecov_effect:obs_error, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Z(bias)") + ggtitle("Ecov effect size:Observation Error") +
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect)") + ggtitle("Ecov effect size:Observation Error") +
     theme(plot.title = element_text(hjust = 0.5)) + xlab("Ecov observation SD: Fishing History") + labs(fill = "Ecov SD:Ecov Cor")
 
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_fixed.png"), plt)
@@ -118,7 +119,7 @@ all_res[facs] <- lapply(all_res[facs], factor)
 
 plt <- ggplot(all_res, aes(x = Ecov_obs_sig:Fhist, y = emp_p, fill = Ecov_re_sig:Ecov_re_cor)) + 
     geom_col(position = "dodge") + facet_grid(NAA_M_re ~ Ecov_effect:obs_error, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Z(bias)") + ggtitle("Ecov effect size:Observation Error") +
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect)") + ggtitle("Ecov effect size:Observation Error") +
     theme(plot.title = element_text(hjust = 0.5)) + xlab("Ecov observation SD: Fishing History") + labs(fill = "Ecov SD:Ecov Cor")
 
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_estimated.png"), plt)
