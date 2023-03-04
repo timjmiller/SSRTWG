@@ -59,3 +59,12 @@ Two : Fishing mortality is 2.5 times $F_{\text{MSY}}$ for the first 20 years the
 ### Observation Uncertainty 
 
 Standard deviation for log-aggregate catch was 0.1. There were two levels of observation error variance for indices and age composition for both indices and fleet catch. A low uncertainty specification assumed standard deviation of both series of log-aggregate index observations was 0.1 and the standard deviation of the logistic-normal for age composition observations was 0.3 In the high uncertainty specification the standard deviation for log-aggregate indices was 0.4 and that for the age composition observations was 1.5. For all estimating models, standard deviation for log-aggregate observations was assumed known whereas that for the logitic-normal age composition observations was estimated.
+
+
+# Questions to investigate
+
+What affects ability to determine whether covariate effects on M exist?
+What affects ability to detect covariate effect on M when they exist?
+Under what scenarios are effect estimates biased?
+How biased are assessment output (SSB, F, R, BRPs, status) when effects are ignored?
+Does estimating effects when they are not there impact bias and uncertainty of assessment output?

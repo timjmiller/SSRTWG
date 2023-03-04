@@ -39,6 +39,7 @@ module load R/4.0.4_gcc
 module load libjpeg-turbo/2.0.2
 cd ~/SSRTWG
 R
+#this adds this path to the list of library paths
 .libPaths("~/Rlib/")
 library(wham)
 library(here)
@@ -117,8 +118,8 @@ bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 1 20 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 21 100 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 101 180 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 181 260 1 12 20
-#done
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 1 20 260 288 1 12 20
+#done
 
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 1 80 1 12 20
 bash ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_bsub.sh 21 40 81 160 1 12 20
