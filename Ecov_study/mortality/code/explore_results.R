@@ -45,14 +45,12 @@ for(i in 1:3) {
   colnames(Mfixed_rec) <- c("effect_est", "effect_0")
   res <- cbind(df.oms[om_ind,], Mfixed_rec)
   temp <- t(sapply(1:NROW(res), function(x) {
-    print(x)
     if(res$Ecov_effect[x] == 0) out <- c(res$effect_0[x], res$effect_est[x])
     if(res$Ecov_effect[x] > 0) out <- c(res$effect_est[x], res$effect_0[x])
     return(out)
   }))
   colnames(temp) <- c("right","wrong")
   res <- cbind(res,temp)
-  print(head(res))
   if(i == 1) {
     all_res <- res
   } else {
@@ -60,6 +58,13 @@ for(i in 1:3) {
   }
 }
 all_res$emp_p <- all_res$right/(all_res$right + all_res$wrong)
+all_res$ci_lo <- sapply(1:NROW(all_res), function(x) {
+  binom.test(all_res$right[x], all_res$right[x] + all_res$wrong[x], p = all_res$emp_p[x])$conf.int[1]
+})
+all_res$ci_hi <- sapply(1:NROW(all_res), function(x) {
+  binom.test(all_res$right[x], all_res$right[x] + all_res$wrong[x], p = all_res$emp_p[x])$conf.int[2]
+})
+
 
 # mod <- glm(cbind(right,wrong) ~  factor(NAA_M_re), data = all_res, family = binomial)
 # glm(cbind(right,wrong) ~ factor(NAA_M_re)*factor(Ecov_effect), data = all_res, family = binomial)
@@ -79,16 +84,38 @@ all_res$emp_p <- all_res$right/(all_res$right + all_res$wrong)
 #     geom_col(position = "dodge") + facet_grid(NAA_M_re ~ factor(Ecov_effect):factor(obs_error), labeller = label_both)
 # plt
 
-facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","Ecov_effect", "obs_error", "NAA_M_re")
+#facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","Ecov_effect", "obs_error", "NAA_M_re")
+facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor", "obs_error", "NAA_M_re")
 all_res[facs] <- lapply(all_res[facs], factor)
+all_res_mod <- all_res %>%
+  mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
+    "0.1" = "Ecov obs SD = 0.1",
+    "0.5" = "Ecov obs SD = 0.5"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(obs_error = recode(obs_error,
+    "L" = "Low obs error (indices, age comp)",
+    "H" = "High obs error (indices, age comp)"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(NAA_M_re = recode(NAA_M_re,
+    "rec" = "R",
+    "rec+1" = "NAA",
+    "rec+M" = "R + M"
+  ))
 
-plt <- ggplot(all_res, aes(x = Ecov_obs_sig:Fhist, y = emp_p, fill = Ecov_re_sig:Ecov_re_cor)) + 
-    geom_col(position = "dodge") + facet_grid(NAA_M_re ~ Ecov_effect:obs_error, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect)") + ggtitle("Ecov effect size:Observation Error") +
-    theme(plot.title = element_text(hjust = 0.5)) + xlab("Ecov observation SD: Fishing History") + labs(fill = "Ecov SD:Ecov Cor")
+plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = emp_p, colour = Ecov_re_sig:Ecov_re_cor)) + 
+    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+    facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect assumption)") + xlab("Ecov effect size") +
+    ggtitle("EM: M = 0.2") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi), width = .05, position = position_dodge(0.1)) + 
+    geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red")
+plt
+
 
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_fixed.png"), plt)
-remove(all_res)
+remove(all_res, all_res_mod)
 
 for(i in 1:3) {
   re_mod <- c("rec", "rec+1", "rec+M")[i]
@@ -99,14 +126,12 @@ for(i in 1:3) {
   colnames(Mfixed_rec) <- c("effect_est", "effect_0")
   res <- cbind(df.oms[om_ind,], Mfixed_rec)
   temp <- t(sapply(1:NROW(res), function(x) {
-    print(x)
     if(res$Ecov_effect[x] == 0) out <- c(res$effect_0[x], res$effect_est[x])
     if(res$Ecov_effect[x] > 0) out <- c(res$effect_est[x], res$effect_0[x])
     return(out)
   }))
   colnames(temp) <- c("right","wrong")
   res <- cbind(res,temp)
-  print(head(res))
   if(i == 1) {
     all_res <- res
   } else {
@@ -114,16 +139,44 @@ for(i in 1:3) {
   }
 }
 all_res$emp_p <- all_res$right/(all_res$right + all_res$wrong)
-facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","Ecov_effect", "obs_error", "NAA_M_re")
+facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","obs_error", "NAA_M_re")
 all_res[facs] <- lapply(all_res[facs], factor)
+all_res$emp_p <- all_res$right/(all_res$right + all_res$wrong)
+all_res$ci_lo <- sapply(1:NROW(all_res), function(x) {
+  binom.test(all_res$right[x], all_res$right[x] + all_res$wrong[x], p = all_res$emp_p[x])$conf.int[1]
+})
+all_res$ci_hi <- sapply(1:NROW(all_res), function(x) {
+  binom.test(all_res$right[x], all_res$right[x] + all_res$wrong[x], p = all_res$emp_p[x])$conf.int[2]
+})
 
-plt <- ggplot(all_res, aes(x = Ecov_obs_sig:Fhist, y = emp_p, fill = Ecov_re_sig:Ecov_re_cor)) + 
-    geom_col(position = "dodge") + facet_grid(NAA_M_re ~ Ecov_effect:obs_error, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect)") + ggtitle("Ecov effect size:Observation Error") +
-    theme(plot.title = element_text(hjust = 0.5)) + xlab("Ecov observation SD: Fishing History") + labs(fill = "Ecov SD:Ecov Cor")
+all_res_mod <- all_res %>%
+  mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
+    "0.1" = "Ecov obs SD = 0.1",
+    "0.5" = "Ecov obs SD = 0.5"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(obs_error = recode(obs_error,
+    "L" = "Low obs error (indices, age comp)",
+    "H" = "High obs error (indices, age comp)"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(NAA_M_re = recode(NAA_M_re,
+    "rec" = "R",
+    "rec+1" = "NAA",
+    "rec+M" = "R + M"
+  ))
+
+plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = emp_p, colour = Ecov_re_sig:Ecov_re_cor)) + 
+    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+    facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect assumption)") + xlab("Ecov effect size") +
+    ggtitle("EM: M estimated") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi), width = .05, position = position_dodge(0.1)) + 
+    geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red")
+plt
 
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_estimated.png"), plt)
-remove(all_res)
+remove(all_res, all_res_mod)
 #bias of ecov beta
 all_beta_bias = lapply(1:NROW(df.oms), function(y){
   res = sapply(1:20, function(x) {
@@ -149,11 +202,11 @@ for(i in 1:3) {
   res <- t(sapply(all_beta_bias[om_ind], function(x) {
     x <- x[em_ind, ,drop = F]
     out <- c(apply(x,1,mean,na.rm=T), apply(x,1,sd, na.rm=T)/sqrt(apply(x, 1, function(y) sum(!is.na(y)))))
+    out <- c(out, out[1] + qt(0.025, apply(x, 1, function(y) sum(!is.na(y)))) * out[2])
+    out <- c(out, out[1] + qt(0.975, apply(x, 1, function(y) sum(!is.na(y)))) * out[2])
     return(out)
   }))
-  colnames(res) <- c("bias_est", "bias_se")
-  print(names(res))
-  print(head(res))
+  colnames(res) <- c("bias_est", "bias_se", "bias_ci_lo", "bias_ci_hi")
   res <- cbind.data.frame(df.oms[om_ind,], res)
   print(head(res))
   if(i == 1) {
@@ -162,17 +215,37 @@ for(i in 1:3) {
     all_res <- rbind.data.frame(all_res, res)
   }
 }
-all_res$bias_z = all_res$bias_est/all_res$bias_se
-facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","Ecov_effect", "obs_error", "NAA_M_re")
+#all_res$bias_z = all_res$bias_est/all_res$bias_se
+facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor", "obs_error", "NAA_M_re")
 all_res[facs] <- lapply(all_res[facs], factor)
-plt <- ggplot(all_res, aes(x = Ecov_obs_sig:Fhist, y = bias_z, fill = Ecov_re_sig:Ecov_re_cor)) + 
-    geom_col(position = "dodge") + facet_grid(NAA_M_re ~ Ecov_effect:obs_error, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(-2.5, 2.5)) + ylab("Z(bias)") + ggtitle("Ecov effect size:Observation Error") +
-    theme(plot.title = element_text(hjust = 0.5)) + xlab("Ecov observation SD: Fishing History") + labs(fill = "Ecov SD:Ecov Cor")
+all_res_mod <- all_res %>%
+  mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
+    "0.1" = "Ecov obs SD = 0.1",
+    "0.5" = "Ecov obs SD = 0.5"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(obs_error = recode(obs_error,
+    "L" = "Low obs error (indices, age comp)",
+    "H" = "High obs error (indices, age comp)"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(NAA_M_re = recode(NAA_M_re,
+    "rec" = "R",
+    "rec+1" = "NAA",
+    "rec+M" = "R + M"
+  ))
+
+plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = bias_est, colour = Ecov_re_sig:Ecov_re_cor)) + 
+    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+    facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(-5, 5)) + ylab("Bias of Ecov effect (beta)") + xlab("Ecov effect size") +
+    ggtitle("EM: M fixed") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    geom_errorbar(aes(ymin = bias_ci_lo, ymax = bias_ci_hi), width = .05, position = position_dodge(0.1)) + 
+    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "red")
 plt
 
 ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_M_fixed.png"), plt)
-remove(all_res)
+remove(all_res, all_res_mod)
 
 for(i in 1:3) {
   re_mod <- c("rec", "rec+1", "rec+M")[i]
@@ -183,32 +256,47 @@ for(i in 1:3) {
   res <- t(sapply(all_beta_bias[om_ind], function(x) {
     x <- x[em_ind, ,drop = F]
     out <- c(apply(x,1,mean,na.rm=T), apply(x,1,sd, na.rm=T)/sqrt(apply(x, 1, function(y) sum(!is.na(y)))))
+    out <- c(out, out[1] + qt(0.025, apply(x, 1, function(y) sum(!is.na(y)))) * out[2])
+    out <- c(out, out[1] + qt(0.975, apply(x, 1, function(y) sum(!is.na(y)))) * out[2])
     return(out)
   }))
-  colnames(res) <- c("bias_est", "bias_se")
-  print(names(res))
-  print(head(res))
+  colnames(res) <- c("bias_est", "bias_se", "bias_ci_lo", "bias_ci_hi")
   res <- cbind.data.frame(df.oms[om_ind,], res)
-  print(head(res))
   if(i == 1) {
     all_res <- res
   } else {
     all_res <- rbind.data.frame(all_res, res)
   }
 }
-all_res$bias_z = all_res$bias_est/all_res$bias_se
-# all_res_mod <- all_res %>%
-#   mutate(drv = recode(drv,
-#     "4" = "4^{wd}",
-#     "f" = "- Front %.% e^{pi * i}",
-#     "r" = "4^{wd} - Front"
-#   ))
-facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","Ecov_effect", "obs_error", "NAA_M_re")
+#all_res$bias_z = all_res$bias_est/all_res$bias_se
+facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor", "obs_error", "NAA_M_re")
 all_res[facs] <- lapply(all_res[facs], factor)
-plt <- ggplot(all_res, aes(x = Ecov_obs_sig:Fhist, y = bias_z, fill = Ecov_re_sig:Ecov_re_cor)) + 
-    geom_col(position = "dodge") + facet_grid(NAA_M_re ~ Ecov_effect:obs_error, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(-2.5, 2.5)) + ylab("Z(bias)") + ggtitle("Ecov effect size:Observation Error") +
-    theme(plot.title = element_text(hjust = 0.5)) + xlab("Ecov observation SD: Fishing History") + labs(fill = "Ecov SD:Ecov Cor")
+all_res_mod <- all_res %>%
+  mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
+    "0.1" = "Ecov obs SD = 0.1",
+    "0.5" = "Ecov obs SD = 0.5"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(obs_error = recode(obs_error,
+    "L" = "Low obs error (indices, age comp)",
+    "H" = "High obs error (indices, age comp)"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(NAA_M_re = recode(NAA_M_re,
+    "rec" = "R",
+    "rec+1" = "NAA",
+    "rec+M" = "R + M"
+  ))
+
+plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = bias_est, colour = Ecov_re_sig:Ecov_re_cor)) + 
+    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+    facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(-5, 5)) + ylab("Bias of Ecov effect (beta)") + xlab("Ecov effect size") +
+    ggtitle("EM: M fixed") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    geom_errorbar(aes(ymin = bias_ci_lo, ymax = bias_ci_hi), width = .05, position = position_dodge(0.1)) + 
+    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "red")
+plt
+
 ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_M_estimated.png"), plt)
 
 #temp = try(readRDS(file.path(here::here(),"Ecov_study","mortality", "results", paste0("om", 1), paste0("sim", 1, "_em", 1, ".RDS"))), silent = TRUE)
