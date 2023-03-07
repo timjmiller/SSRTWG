@@ -1,8 +1,9 @@
 make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
                     selectivity = NULL, M = NULL, NAA_re = NULL,
-                    catchability = NULL, growth=NULL, LW=NULL,
+                    catchability = NULL, growth, LW,
                     ecov = NULL, age_comp = "logistic-normal-miss0",
-                    len_comp='multinomial', brp_year = 1,
+                    len_comp='multinomial',
+                    brp_year = 1,
                     eq_F_init = 0.3, om_input = TRUE,
                     max_mult_Fmsy = 2.5, min_mult_Fmsy = 1,
                     F_change_time = 0.5) {
@@ -10,9 +11,24 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
   basic_info <- make_basic_info()
   basic_info$fracyr_indices[,1] = 0.25
   basic_info$fracyr_indices[,2] = 0.75
+
+  ny <- length(basic_info$years)
+  na <- 10
+  basic_info$lengths <- seq(1,100, by=2)
+  nlbins <- length(basic_info$lengths)
+  basic_info$n_lengths <- nlbins
+  ## Turn on marginal lengths comps for survey two and turn off the
+  ## age comps
+  basic_info$use_index_paa <- cbind(rep(1,ny), rep(0,ny))
+  basic_info$index_pal <- array(data=1/nlbins, dim=c(2,40, nlbins))
+  basic_info$use_index_pal <- cbind(rep(0,ny), rep(1,ny))
+  ## for now assuming multinomial N=100
+  basic_info$index_NeffL <- cbind(rep(1,ny), rep(100,ny))
+
   #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
   input <-
-    prepare_wham_input(basic_info = basic_info, growth=growth, LW=LW,
+    prepare_wham_input(basic_info = basic_info, growth=growth,
+                       LW=LW, len_comp=len_comp,
                        selectivity = selectivity, NAA_re = NAA_re, M= M, ecov = ecov,
                        age_comp = age_comp, catchability = catchability)
   input$data$FXSPR_init[] = eq_F_init
@@ -76,7 +92,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
   }
   NAA_re$N1_pars = eq_R_N1 * Jan1_NAA_per_recruit
   input = set_NAA(input, NAA_re)
-  input = set_ecov(input, ecov)
+ ## input = set_ecov(input, ecov)
   input = set_q(input, catchability)
   ## what is this doing and why do I need it?
   ##  input = set_selectivity(input, selectivity)

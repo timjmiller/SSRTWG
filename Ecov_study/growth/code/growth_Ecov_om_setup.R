@@ -22,6 +22,7 @@ source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Ecov_study", "growth", "code", "make_om.R"))
 source(file.path(here(), "Ecov_study", "growth", "code", "sim_management.R"))
+source("make_om.R")
 
 ## verify_version()
 
@@ -64,8 +65,6 @@ NAA_M_re <- c("rec","rec+1", "rec+M")
 df.oms <- expand.grid(NAA_M_re = NAA_M_re,
   Ecov_obs_sig=Ecov_obs_sig, Ecov_re_sig=Ecov_re_sig, Ecov_re_cor=Ecov_re_cor, Ecov_effect = Ecov_effect,
   Fhist = Fhist, obs_error = obs_error, stringsAsFactors = FALSE)
-
-df.oms <- df.oms[1,]
 #logistic-normal age comp SDs for L/H observation error (both indices AND CATCH!!!????)
 L_N_sigma = c(L = 0.3, H = 1.5)
 #(log) index SDs for L/H observation error
@@ -80,17 +79,11 @@ saveRDS(df.oms, file.path(here(),"Ecov_study", "growth", "inputs", "df.oms.RDS")
 
 
 gf_info = make_basic_info()
-
-
-
 #selectivity is not changing
 gf_selectivity = list(
   ## model = c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
   model = c("logistic", "logistic", "len-logistic"),
-  initial_pars = list(c(5,1), c(5,1), c(20,1)))
-
-
-
+  initial_pars = list(c(5,1), c(5,1), c(65,4)))
 #M set is not changing
 gf_M = list(model = "age-specific",
   initial_means = rep(0.2, length(gf_info$ages))#,
@@ -98,7 +91,6 @@ gf_M = list(model = "age-specific",
   #sigma_vals = 0.1,
   #cor_vals = 0
   )
-
 #NAA_re set up that can be changed for each OM scenario
 gf_NAA_re = list(
   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
@@ -108,7 +100,6 @@ gf_NAA_re = list(
   #recruit_model = 2, #random effects with a constant mean
   recruit_model = 3, #B-H
   recruit_pars = SRab) #defined above from naa_om_inputs
-
 gf_ecov <- list(
   label = "Ecov",
   process_model = "ar1",
@@ -116,7 +107,9 @@ gf_ecov <- list(
   mean = cbind(rep(0, length(gf_info$years))),
   year = gf_info$years,
   use_obs = cbind(rep(1, length(gf_info$years))),
-  process_mean_vals = 0
+  process_mean_vals = 0,
+  where = list('growth'),
+  where_subindex = 3 # on L1
 )
 
 ### ------------------------------------------------------------
@@ -135,7 +128,6 @@ a_LW <- exp(-12.1)
 b_LW <- 3.2
 L <- Linf*(1-exp(-k*(1:10 - t0)))
 W <- a_LW*L^b_LW
-plot(1:10, L, ylim=(c(0,Linf)))
 L[1] ## length at reference age (1)
 CV <- .1
 ## growth CVs at age 1 and 10
@@ -148,13 +140,14 @@ gf_LW <- list(init_vals=c(a_LW, b_LW))
 ## end of growth changes
 ### --------------------------------------------------
 
-beta_vals <- list(rep(list(matrix(0,1,length(gf_info$ages))), 4))
+beta_vals <- list(rep(list(matrix(0,1,length(gf_info$ages))), 8))
 # base_om = make_om(Fhist = "Fmsy", N1_state = "overfished", selectivity = gf_selectivity,
 #     M = gf_M, NAA_re = gf_NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3,
 #     om_input = TRUE, max_mult_Fmsy = 1, min_mult_Fmsy = 1)
 
 #make inputs for operating model (smaller objects to save, can recreate simulated data sets)
 om_inputs = list()
+df.oms <- df.oms[269,]
 for(i in 1:NROW(df.oms)){
   print(paste0("row ", i))
   NAA_re = gf_NAA_re
@@ -184,9 +177,9 @@ for(i in 1:NROW(df.oms)){
     ecov_i$where = "none"
   } else {
     ecov_i$how = 1
-    ecov_i$where = "M"
+    ecov_i$where = "growth"
     beta_vals_i = beta_vals
-    beta_vals_i[[1]][[2]][] <- df.oms$Ecov_effect[i]
+    beta_vals_i[[1]][[5]][] <- df.oms$Ecov_effect[i]
     ecov_i$beta_vals = beta_vals_i
   }
   Fhist. = "Fmsy"
@@ -197,6 +190,7 @@ for(i in 1:NROW(df.oms)){
   om_inputs[[i]] <-
     make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity,
             M = M_i, NAA_re = NAA_re, ecov = ecov_i,
+            growth=gf_growth, LW=gf_LW,
             age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3,
             om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
   #turn off bias correction
@@ -214,40 +208,84 @@ for(i in 1:NROW(df.oms)){
 
 ### test the new growth stuff
 x <- om_inputs[[1]]
-x$data$lengths <- seq(1,100, by=2)
-nlbins <- length(x$data$lengths)
-x$data$n_lengths <- nlbins
-x$data$growth_est
-x$data$growth_model
-x$data$index_pal <- array(data=1/nlbins, dim=c(2,40, nlbins))
-x$data$index_NeffL[,2] <- 1 # dummy value to be updated later??
+test <- fit_wham(input=x, do.fit=FALSE)
 
-## left off here, crashes due to index error
-## test <- fit_wham(input=x, do.fit=FALSE)
+par(mfrow=c(2,3), mar=c(3,3,3,.5), mgp=c(1.5,.5,0))
+plot(x$data$lengths, test$rep$selAL[[3]][1,], type='b',
+     xlab='length', ylab='selex')
+## derived selex at age
+selL <- test$rep$selAL[[3]][1,]
+phi <- test$rep$phi_mat[1,,]
+selA <- as.numeric(selL %*% phi)
+plot(1:10, selA/max(selA), ylim=c(0,1), xlab='age', ylab='selex', type='b')
+legend('topleft', legend=c('survey 1',
+                           'survey 2 derived age selex'),
+       col=2:1, lty=1)
+lines(1:10, test$rep$selAL[[2]][1,], col=2, type='b')
+plot(1:10, L, type='l', xlab='age', ylab='length')
+lines(1:10, test$rep$LAA[1,], type='l', col=2)
+legend('bottomright', legend=c('default', 'growth'), lty=1, col=1:2)
+## matplot(cbind(test$rep$pred_waa[5,1,],W))
+sim <- test$simulate(complete=TRUE)
+plot(1:50, sim$index_pal[2,1,], type='l', xlab='length',
+     ylab='proportion')
+lines(test$rep$pred_index_pal[1,2,], type='b', col=2)
+legend('topleft', legend=c('expected', 'simulated'), lty=1, col=2:1)
+plot(1:10, test$rep$pred_waa[5,1,], type='b', col=2, xlab='age', ylab='weight')
+lines(1:10, W, type='b')
+legend('topleft', legend=c('default', 'growth'), lty=1, col=1:2)
 
-plot(lbins, test$rep$selAL[[3]][1,])
+## test that time-varying growth works
+x <- om_inputs[[1]]
+x$data$Ecov_model
+x$data$Ecov_where
+x$data$Ecov_where_subindex
+x$data$n_Ecov
+x$par$Ecov_beta <- x$par$Ecov_beta+1
+test <- fit_wham(input=x, do.fit=FALSE)
+g <- reshape2::melt(test$rep$LAA) %>%
+  setNames(c('year', 'age', 'length')) %>%
+  mutate(year=year+1981, cohort=year-age) %>%
+  filter(cohort>1981) %>%
+  ggplot(aes(age, length, color=factor(cohort))) + geom_line()
+g
+
+g <- reshape2::melt(test$rep$pred_waa[5,,]) %>%
+  setNames(c('year', 'age', 'weight')) %>%
+  mutate(year=year+1981, cohort=year-age) %>%
+  filter(cohort>1981) %>%
+  ggplot(aes(year, weight, color=factor(age))) + geom_line()
+g
+
+g <- reshape2::melt(test$rep$pred_waa[5,,]) %>%
+  setNames(c('year', 'age', 'weight')) %>%
+  mutate(year=year+1981, cohort=year-age) %>%
+  group_by(age) %>% mutate(delta_weight=weight-mean(weight)) %>%
+  ggplot(aes(year, age, size=abs(delta_weight), color=delta_weight>0)) + geom_point()
+g
+x <- test$rep$Ecov_x[,1]
+y <- log(test$rep$LAA[,1])
+plot(x,y)
 
 
-#start out at MSY and continue
-om_msy = make_om(Fhist = "Fmsy", N1_state = "overfished", selectivity = gf_selectivity,
-  M = gf_M, NAA_re = NAA_re, brp_year = 1, eq_F_init = 0.3, max_mult_Fmsy = 1)
-input = om_msy#$input
-input$par$log_NAA_sigma[] = -100 #no process error
-temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-sim = temp$simulate(complete=TRUE)
-sim$NAA #NAA should stay the same throughout time series
-
-#start out overfished and continue for 20 years
-om_msy = make_om(Fhist = "H-L", N1_state = "overfished", selectivity = gf_selectivity,
-  M = gf_M, NAA_re = NAA_re, brp_year = 1, eq_F_init = 0.3, max_mult_Fmsy = 2.5)
-input = om_msy#$input
-input$par$log_NAA_sigma[] = -100 #no process error
-temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
-sim = temp$simulate(complete=TRUE)
-sim$NAA #NAA should stay the same throughout time series
+## ##start out at MSY and continue
+## om_msy = make_om(Fhist = "Fmsy", N1_state = "overfished", selectivity = gf_selectivity,
+##   M = gf_M, NAA_re = NAA_re, brp_year = 1, eq_F_init = 0.3, max_mult_Fmsy = 1)
+## input = om_msy#$input
+## input$par$log_NAA_sigma[] = -100 #no process error
+## temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
+## sim = temp$simulate(complete=TRUE)
+## sim$NAA #NAA should stay the same throughout time series
+## #start out overfished and continue for 20 years
+## om_msy = make_om(Fhist = "H-L", N1_state = "overfished", selectivity = gf_selectivity,
+##   M = gf_M, NAA_re = NAA_re, brp_year = 1, eq_F_init = 0.3, max_mult_Fmsy = 2.5)
+## input = om_msy#$input
+## input$par$log_NAA_sigma[] = -100 #no process error
+## temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
+## sim = temp$simulate(complete=TRUE)
+## sim$NAA #NAA should stay the same throughout time series
 
 saveRDS(om_inputs, file.path(here(), "Ecov_study", "growth", "inputs", "om_inputs.RDS"))
-
 
 #I don't think we want to use the same (e.g. 1000) seeds for everything.
 set.seed(8675309)
