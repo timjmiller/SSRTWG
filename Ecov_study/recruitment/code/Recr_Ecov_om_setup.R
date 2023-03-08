@@ -49,8 +49,8 @@ if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
 
 #Operating model factors
 #NAA sigmas for each scenario
-R_sig <- c( 0.5)  #c(0.02, 0.5)  #c(0.5, 1.0)
-NAA_re_cor <- c(0.2)  #c(0, 0.5) 
+R_sig <- c(0.02, 0.5)  #c( 0.5)  #c(0.02, 0.5)  #c(0.5, 1.0)
+NAA_re_cor <- c(0, 0.5)   #c(0.2)  #c(0, 0.5) 
 NAA_re_sig <- c(0.2)
 
 #F time series
@@ -59,7 +59,7 @@ M_sig <- 0  #0.3
 M_cor <- 0
 
 Ecov_obs_sig <- c(0.02, 0.5)  #c(0.1, 0.5)
-Ecov_re_sig <- c(0.3)  #c(0.1,0.5)
+Ecov_re_sig <- c(0.6)  #c(0.1,0.5)
 Ecov_re_cor <- c( 0.5 ,0)
 Ecov_effect <- c(0, 0.5, 3)  #c(0, 1.0, 1.5)  #c(0, 0.25, 0.5)
 Ecov_how <- c(0,1,2,4)
@@ -136,7 +136,7 @@ beta_vals <- list(rep(list(matrix(0,1,length(gf_info$ages))), 4))
 #make inputs for operating model (smaller objects to save, can recreate simulated data sets)
 om_inputs = list()
 #for(i in 1:NROW(df.oms)){
-for(i in 1:24){
+for(i in 1:32){
 #for(i in 197:204){
   print(paste0("row ", i))
   #NAA_re = gf_NAA_re
@@ -208,9 +208,14 @@ for(i in 1:24){
 }
 
 #####  save om_inputs ====
-if (do.write==TRUE)  saveRDS(om_inputs, file.path(here(), "Ecov_study", "recruitment", "inputs", "om_inputs.RDS"))
-if (do.write==TRUE)  saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment", "inputs", "df.oms.RDS"))
-if (do.write==TRUE)  write.csv(df.oms, file.path(here(), "Ecov_study", "recruitment", "inputs", "df.oms.csv"), row.names = FALSE)
+save.dir <-  file.path(here(), "Ecov_study", "recruitment", "inputs32")
+if (dir.exists(save.dir)==FALSE) dir.create(save.dir)
+# if (do.write==TRUE)  saveRDS(om_inputs, file.path(here(), "Ecov_study", "recruitment", "inputs32", "om_inputs.RDS"))
+# if (do.write==TRUE)  saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment", "inputs32", "df.oms.RDS"))
+# if (do.write==TRUE)  write.csv(df.oms, file.path(here(), "Ecov_study", "recruitment", "inputs32", "df.oms.csv"), row.names = FALSE)
+if (do.write==TRUE)  saveRDS(om_inputs, file.path(save.dir, "om_inputs.RDS"))
+if (do.write==TRUE)  saveRDS(df.oms, file.path(save.dir, "df.oms.RDS"))
+if (do.write==TRUE)  write.csv(df.oms, file.path(save.dir, "df.oms.csv"), row.names = FALSE)
 
 
 #start out at MSY and continue
