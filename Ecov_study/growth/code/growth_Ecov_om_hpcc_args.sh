@@ -18,7 +18,7 @@ do
      echo $sim
      echo $om
      echo $em
-     Rscript --vanilla ~/SSRTWG/Ecov_study/mortality/code/M_Ecov_om_hpcc_script.R $sim $om $em &
+     Rscript --vanilla ~/SSRTWG/Ecov_study/growth/code/M_Ecov_om_hpcc_script.R $sim $om $em &
    done
  done
 done

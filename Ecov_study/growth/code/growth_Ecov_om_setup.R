@@ -54,14 +54,14 @@ NAA_sig <- c(0.3)
 #F time series
 M_sig <- 0.3
 M_cor <- 0
-Ecov_obs_sig <- c(0.1, 0.5)
-Ecov_re_sig <- c(0.1,0.5)
-Ecov_re_cor <- c(0, 0.5)
-Ecov_effect <- c(0, 0.25, 0.5)
-Fhist = c("H-MSY","MSY")
+Ecov_obs_sig <- c(0.1, 0.5)[1]
+Ecov_re_sig <- c(0.1,0.5)[1]
+Ecov_re_cor <- c(0, 0.5)[1]
+Ecov_effect <- c(0, 0.25, 0.5)[-2]
+Fhist = c("H-MSY","MSY")[2]
 #how much observation error
-obs_error = c("L", "H")
-NAA_M_re <- c("rec","rec+1", "rec+M")
+obs_error = c("L", "H")[1]
+NAA_M_re <- c("rec","rec+1", "rec+M")[1]
 df.oms <- expand.grid(NAA_M_re = NAA_M_re,
   Ecov_obs_sig=Ecov_obs_sig, Ecov_re_sig=Ecov_re_sig, Ecov_re_cor=Ecov_re_cor, Ecov_effect = Ecov_effect,
   Fhist = Fhist, obs_error = obs_error, stringsAsFactors = FALSE)
@@ -147,7 +147,6 @@ beta_vals <- list(rep(list(matrix(0,1,length(gf_info$ages))), 8))
 
 #make inputs for operating model (smaller objects to save, can recreate simulated data sets)
 om_inputs = list()
-df.oms <- df.oms[269,]
 for(i in 1:NROW(df.oms)){
   print(paste0("row ", i))
   NAA_re = gf_NAA_re
@@ -164,9 +163,9 @@ for(i in 1:NROW(df.oms)){
   if(df.oms$NAA_M_re[i] == "rec+M"){
     NAA_re$sigma = "rec"
     NAA_re$sigma_vals = R_sig
-    M_i$re = "ar1_y"
-    M_i$sigma_vals = M_sig * sqrt(1-M_cor^2) #defining marginal variance, but wham estimates conditional var.
-    M_i$cor_vals = M_cor
+    ## M_i$re = "ar1_y"
+    ## M_i$sigma_vals = M_sig * sqrt(1-M_cor^2) #defining marginal variance, but wham estimates conditional var.
+    ## M_i$cor_vals = M_cor
   }
   ecov_i = gf_ecov
   ecov_i$logsigma = cbind(rep(log(df.oms$Ecov_obs_sig[i]), length(ecov_i$year)))
