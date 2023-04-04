@@ -6,7 +6,13 @@ library(tidyr)
 library(dplyr)
 library(here)
 files_to_source = list.files(file.path(here(), "common_code"), full.names=TRUE, pattern = "*.R")
-sapply(files_to_source, source)
+source(file.path(here(), "common_code", "make_basic_info.R"))
+source(file.path(here(), "common_code", "set_NAA.R"))
+source(file.path(here(), "common_code", "set_M.R"))
+source(file.path(here(), "common_code", "set_selectivity.R"))
+source(file.path(here(), "common_code", "set_q.R"))
+source(file.path(here(), "common_code", "set_simulation_options.R"))
+source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
 source(file.path(here(), "Project_0", "code", "sim_management.R"))
 verify_version()
@@ -32,6 +38,8 @@ saveRDS(df.ems, file.path(here(),"Project_0", "inputs", "df.ems.RDS"))
 
 #same as naa_om_setup.R
 gf_info = make_basic_info()
+gf_info$fracyr_indices[,1] = 0.25
+gf_info$fracyr_indices[,2] = 0.75
 
 #same as naa_om_setup.R
 #selectivity is not changing
@@ -99,6 +107,8 @@ for(i in 1:NROW(df.ems)){
   if(df.ems$M_est[i]) { #estimate mean M constant across ages
     em_inputs[[i]]$map$M_a = factor(rep(1,length(em_inputs[[i]]$par$M_a)))
   }
+  em_inputs[[i]]$data$fracyr_indices[,1] = 0.25
+  em_inputs[[i]]$data$fracyr_indices[,2] = 0.75
 
   #turn off bias correction
   em_inputs[[i]] = set_simulation_options(em_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE, 

@@ -95,6 +95,8 @@ grep -rn --include=logfile.* -L "Success" | xargs rm
 //The saved RDS file is a list with length = number of ems and the element corresponding to the em being fit is possibly filled with results.
 //All other list elements will be NULL as will the slot for the em if the model causes R to abort.
 
+//test
+bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 1 1 1 1 1 20 20
 //These are the real commands to run on the server
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 1 40 1 24 1 20 20
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 41 80 1 24 1 20 20
