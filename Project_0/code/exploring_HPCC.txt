@@ -1,3 +1,5 @@
+ssh ghpcc06.umassrc.org -l tm94d
+
 //8 cores 2Gigs per core, 1 host
 bsub -n 8 -q long -W 8:00 -R "rusage[mem=2000]" -R "span[hosts=1]" < bwa_script.sh
 
