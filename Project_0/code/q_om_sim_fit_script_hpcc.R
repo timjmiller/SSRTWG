@@ -21,14 +21,14 @@ obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", 
 
 #######################################################
 #Do we want to use the same (e.g. 1000) seeds for everything?
-seeds <- readRDS(file.path(here(), "Project_0", "inputs","seeds.RDS"))
+seeds <- readRDS(file.path(here(), "Project_0", "inputs","q_seeds.RDS"))
 #######################################################
 
 cat(paste0("OM: ", this_om, " Sim: ", this_sim, " EM: ", this_em, "\n"))
 
 # Set seed
 om <- fit_wham(om_inputs[[this_om]], do.fit = FALSE, MakeADFun.silent = TRUE)
-set.seed(seeds[this_sim])
+set.seed(seeds[[this_om]][this_sim])
 sim_data <- om$simulate(complete=TRUE)
 truth <- sim_data
 #save the version for reproducibility

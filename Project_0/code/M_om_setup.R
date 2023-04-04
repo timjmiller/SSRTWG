@@ -9,6 +9,7 @@ source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
 source(file.path(here(), "common_code", "set_M.R"))
 source(file.path(here(), "common_code", "set_selectivity.R"))
+source(file.path(here(), "common_code", "set_q.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
@@ -90,7 +91,9 @@ for(i in 1:NROW(df.M.oms)){
   NAA_re$sigma_vals = df.M.oms$R_sig[i]
   
   Fhist. = "Fmsy"
+  if(df.M.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
   max_mult = 2.5 # fishing at 2.5 x Fmsy
+  if(Fhist. == "Fmsy") max_mult = 1
   min_mult = 1 # fishing at Fmsy
   
   #M
@@ -98,8 +101,7 @@ for(i in 1:NROW(df.M.oms)){
   M_i$sigma_vals = df.M.oms$M_sig[i] * sqrt(1-df.M.oms$M_cor[i]^2) #defining marginal variance, but wham estimates conditional var.
   M_i$cor_vals = df.M.oms$M_cor[i]
 
-  if(df.M.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
-  om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, 
+  om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, catchability = NULL,
     M = M_i, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
   #turn off bias correction

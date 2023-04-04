@@ -87,7 +87,9 @@ for(i in 1:NROW(df.q.oms)){
   NAA_re$sigma_vals = df.q.oms$R_sig[i]
   
   Fhist. = "Fmsy"
+  if(df.q.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
   max_mult = 2.5 # fishing at 2.5 x Fmsy
+  if(Fhist. == "Fmsy") max_mult = 1
   min_mult = 1 # fishing at Fmsy
   
   #catchability
@@ -95,7 +97,6 @@ for(i in 1:NROW(df.q.oms)){
     sigma_vals = rep(df.q.oms$q_sig[i] * sqrt(1-df.q.oms$q_cor[i]^2), 2),
     cor_vals = rep(df.q.oms$q_cor[i], 2))
   
-  if(df.q.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
   om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, 
     M = gf_M, catchability = q_i, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)

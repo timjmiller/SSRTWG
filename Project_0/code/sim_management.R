@@ -114,6 +114,7 @@ run_hpcc_jobs_rev = function(this_sim, this_om, this_em,
   df.oms = readRDS(file.path(here::here(),"Project_0","inputs", "df.oms.RDS")), 
   om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS")),
   em_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "em_inputs.RDS")),
+  seeds = readRDS(file.path(here::here(), "Project_0", "inputs","naa_seeds.RDS")),
   write.dir) #= file.path(here::here(),"Project_0", "results", "naa_om")
 {
   seeds = readRDS(file.path(here::here(), "Project_0", "inputs","seeds.RDS"))

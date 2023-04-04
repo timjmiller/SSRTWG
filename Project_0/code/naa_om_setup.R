@@ -9,6 +9,7 @@ source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
 source(file.path(here(), "common_code", "set_M.R"))
 source(file.path(here(), "common_code", "set_selectivity.R"))
+source(file.path(here(), "common_code", "set_q.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
@@ -44,11 +45,11 @@ df.oms <- df.oms %>% select(Model, everything()) # moves Model to first col
 df.oms
 saveRDS(df.oms, file.path(here(),"Project_0", "inputs", "df.oms.RDS"))
 
-naa.sim.jobs = expand.grid(om = df.oms$Model, sim = 1:500)
-naa.sim.jobs$wham_commit = NA
-naa.sim.jobs$member = NA
-naa.sim.jobs$member[naa.sim.jobs$sim %in% 1:5] = "TJM"
-saveRDS(naa.sim.jobs, file.path(here(),"Project_0", "inputs", "naa.sim.jobs.RDS"))
+# naa.sim.jobs = expand.grid(om = df.oms$Model, sim = 1:500)
+# naa.sim.jobs$wham_commit = NA
+# naa.sim.jobs$member = NA
+# naa.sim.jobs$member[naa.sim.jobs$sim %in% 1:5] = "TJM"
+# saveRDS(naa.sim.jobs, file.path(here(),"Project_0", "inputs", "naa.sim.jobs.RDS"))
 
 
 
@@ -84,10 +85,12 @@ for(i in 1:NROW(df.oms)){
     NAA_re$sigma_vals[2] = df.oms$NAA_sig[i]
   }
   Fhist. = "Fmsy"
-  max_mult = 2.5 # fishing at 2.5 x Fmsy
-  min_mult = 1 # fishing at Fmsy
   if(df.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
-  om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, 
+  max_mult = 2.5 # fishing at 2.5 x Fmsy
+  if(Fhist. == "Fmsy") max_mult = 1
+  min_mult = 1 # fishing at Fmsy
+  
+  om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = gf_selectivity, catchability = NULL,
     M = gf_M, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
   #turn off bias correction
@@ -124,4 +127,3 @@ input$par$log_NAA_sigma[] = -100 #no process error
 temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
 sim = temp$simulate(complete=TRUE)
 sim$NAA #NAA should stay the same throughout time series
-

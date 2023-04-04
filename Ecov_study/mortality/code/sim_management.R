@@ -15,20 +15,27 @@ verify_version = function(commit = "77bbd94"){
 }
 #verify_version()
 
-aggregate_hpcc_results = function(sim, oms, ems = 1:20, res_dir = file.path(here::here(),"Project_0", "results", "naa_om"))
-{
-  for(i in oms){
-    print(paste0("om: ", i, ", sim: ", sim))
-    write_dir = file.path(res_dir,paste0("om_",i))
-    print(write_dir)
-    dir.create(write_dir, recursive = T, showWarnings = FALSE)
-    sim_aggregated = lapply(ems, function(x){
-      em = readRDS(file.path(res_dir, paste0("om",i,"_sim", sim, "_em", x, ".RDS")))[[x]]
-      return(em)
-    })
-    saveRDS(sim_aggregated, file.path(write_dir, paste0("sim_", sim,".RDS")))
+aggregate_hpcc_results = function(sims, oms, ems = 1:12, res_dir = file.path(here::here(),"Ecov_study", "mortality", "results")) {
+  write_dir <- file.path(res_dir, "aggregated_results")
+  dir.create(write_dir, recursive = T, showWarnings = FALSE)
+  for(i in oms) {
+    read_dir <- file.path(res_dir,paste0("om",i))
+    # print(read_dir)
+    for(j in ems){
+      print(paste0("om: ", i, ", em: ", j))
+      aggregated_sims <- list()
+      for(k in sims){
+        aggregated_sims[[k]] <- NULL
+        fn <- file.path(read_dir, paste0("sim",k,"_em",j,".RDS"))
+        # print(fn)
+        # print(file.exists(fn))
+        if(file.exists(fn)) aggregated_sims[[k]] <- readRDS(fn)
+      }
+      saveRDS(aggregated_sims, file.path(write_dir, paste0("om_", i, "_em_", j,".RDS")))
+    }
   }
 }
+#aggregate_hpcc_results(sims = 1:20, oms = 1:288, ems = 1:12)
 
 get_failed_jobs = function(){
   bad_logs = system('grep -rn  --include=*.log -L "Success" ~/logs', intern = TRUE)
@@ -63,3 +70,5 @@ make_redo_failed_jobs_file <- function(failed_jobs, fn = paste0("~/SSRTWG/Ecov_s
     }
   }
 }
+#x <- get_failed_jobs()
+#make_redo_failed_jobs_file(x)

@@ -9,6 +9,7 @@ source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
 source(file.path(here(), "common_code", "set_M.R"))
 source(file.path(here(), "common_code", "set_selectivity.R"))
+source(file.path(here(), "common_code", "set_q.R"))
 source(file.path(here(), "common_code", "set_simulation_options.R"))
 source(file.path(here(), "common_code", "get_FMSY.R"))
 source(file.path(here(), "Project_0", "code", "make_om.R"))
@@ -87,7 +88,9 @@ for(i in 1:NROW(df.Sel.oms)){
   NAA_re$sigma_vals = df.Sel.oms$R_sig[i]
   
   Fhist. = "Fmsy"
+  if(df.Sel.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
   max_mult = 2.5 # fishing at 2.5 x Fmsy
+  if(Fhist. == "Fmsy") max_mult = 1
   min_mult = 1 # fishing at Fmsy
   
   #M
@@ -98,8 +101,7 @@ for(i in 1:NROW(df.Sel.oms)){
   #Sel_i$map_sigma = c(1,NA,NA) #doesn't matter for operating models
   #Sel_i$map_cor = list(1, NA, NA)
 
-  if(df.Sel.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
-  om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = Sel_i, 
+  om_inputs[[i]] = make_om(Fhist = Fhist., N1_state = "overfished", selectivity = Sel_i, catchability = NULL,
     M = gf_M, NAA_re = NAA_re, age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3, 
     om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
   #temp = fit_wham(om_inputs[[1]], do.fit = F)

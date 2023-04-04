@@ -3,6 +3,8 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, c
   eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1, F_change_time = 0.5) {
 
   basic_info <- make_basic_info()
+  basic_info$fracyr_indices[,1] = 0.25
+  basic_info$fracyr_indices[,2] = 0.75
   #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
   
   input <- prepare_wham_input(basic_info = basic_info, selectivity = selectivity, NAA_re = NAA_re, M= M,
