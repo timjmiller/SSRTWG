@@ -13,6 +13,7 @@ bsub -q interactive -R rusage[mem=10000] -W 4:00 -Is /bin/bash
 
 //see what jobs you have running
 bjobs -u tm94d
+bjobs -u tm94d | wc -l
 
 
 module avail //lists available modules
@@ -72,13 +73,13 @@ bkill -J naa_om_sim
 ls | wc -l
 
 //in ~/logs, number of log files for jobs that completed successfully
-grep -rn --include=logfile.* -e "Success" | wc -l
+grep -rn --include=*.log -e "Success" ~/logs | wc -l
 
 //count log files without "Success" in them (they didn't finish in the 2 hour limit)
 cd ~/logs
-grep -rn --include=logfile.* -L "Success" | wc -l
+grep -rn --include=*.log -L "Success" ~/logs | wc -l
 //remove those files
-grep -rn --include=logfile.* -L "Success" | xargs rm
+grep -rn --include=*.log -L "Success" | xargs rm
 
 
 //current approach for NAA_om sims on UMass hpcc. 
@@ -98,11 +99,12 @@ grep -rn --include=logfile.* -L "Success" | xargs rm
 //All other list elements will be NULL as will the slot for the em if the model causes R to abort.
 
 //test
-bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 1 1 1 1 1 20 20
+//bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 1 1 1 1 1 20 20
 //These are the real commands to run on the server
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 1 40 1 24 1 20 20
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 41 80 1 24 1 20 20
 bash ~/SSRTWG/Project_0/code/naa_om_hpcc_bsub.sh 81 100 1 24 1 20 20
+#done
 //here sims 1-100 done in ~ 1 day.
 //3 didn't finish lets do them on the large queue for a longer run time
 bsub -n 20 -q large -W 24:00 -o ~/logs/naa_logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J naa_sim "bash ~/SSRTWG/Project_0/code/naa_om_hpcc_args.sh 68 68 20 20 1 20"
@@ -118,6 +120,8 @@ find -maxdepth 1 -type d -name "om_*" -exec rm -r {} \;
 
 //Do M re operating model simulations
 //bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 1 1 1 5 24 20
+bkill -J M_om_sim
+
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 60 1 16 5 24 20
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 61 100 1 16 5 24 20
 //jobs didn't finish in time. Let's put it on the large queue for a longer run time

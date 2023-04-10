@@ -141,3 +141,54 @@ get_failed_jobs = function(){
   })
   return(jobs)
 }
+
+get_failed_jobs = function(om_type = "naa", ems = 1:20){
+  bad_logs <- system('grep -rn  --include=*.log -L "Success" ~/logs', intern = TRUE)
+  fn <- sapply(strsplit(bad_logs, "/"), function(x) x[5])
+  om <- as.integer(sapply(strsplit(fn, "_"), function(x) x[which(x == "om")+1]))
+  sim <- as.integer(sapply(strsplit(fn, "_"), function(x) x[which(x == "sim")+1]))
+  #em <- sapply(strsplit(fn, "_"), function(x) x[length(x)])
+  #em <- as.integer(unlist(strsplit(em, ".log")))
+  #first_em <- as.integer(sapply(strsplit(fn, "_"), function(x) x[which(x == "ems")+1]))
+  #last_em <- as.integer(sapply(strsplit(fn, "_"), function(x) x[which(x == "to")+1]))
+  em_files = lapply(1:length(om), function(i) system(paste0('find ~/SSRTWG/Project_0/results/', om_type, '_om -name "om', om[i], '_sim', sim[i], '*.RDS"'), intern = TRUE))
+  #ems_complete <- lapply(1:length(om), function(i) sort(as.integer(sapply(strsplit(ems_complete[[i]], "em"), function(x) strsplit(x[2], ".RDS")[[1]][1]))))
+  ems_complete <- lapply(em_files, function(i) sapply(i, function(j) {
+    print(j)
+    x <- readRDS(j)
+    em <- as.integer(strsplit(strsplit(j, "em")[[1]][2], ".RDS")[[1]][1])
+    print(em)
+    out <- NULL
+    print(length(x))
+    print(length(x[[em]]))
+    if(length(x[[em]])) out <- em
+    return(out)
+  }))
+  ems_redo <- lapply(1:length(ems_complete), function(i) setdiff(ems, ems_complete[[i]]))
+
+  return(list(bad_jobs= cbind(om = om, sim = sim), redo = ems_redo))
+}
+
+make_redo_failed_jobs_file <- function(failed_jobs, om_type = "naa", fn = paste0("~/SSRTWG/Project_0/code/redo_failed_jobs.txt")){
+
+  redo = failed_jobs$redo
+  bad_jobs <- failed_jobs$bad_jobs
+  if(file.exists(fn)) stop("the file to write commands to already exists \n \n")
+  cat("Redoing these failed jobs \n \n", file = fn, append = F)
+
+  for(i in 1:length(redo)){
+    ems <- redo[[i]]
+    print(ems)
+    om <- bad_jobs[i,"om"]
+    sim <- bad_jobs[i,"sim"]
+    for(j in 1:length(ems)){
+      cat(paste0('bsub -n 1 -q long -W 24:00 -o ~/logs/sim_', sim, '_om_', om, '_em_', ems[j], 
+        '.log -R "rusage[mem=5000]" -R "span[hosts=1]" -J ', sim, '_', om, "_", ems[j], 
+        " bash ~/SSRTWG/Project_0/code/", om_type, "_om_hpcc_args.sh ", sim, " " , sim, " ", om, " ", om, " ", ems[j], " ", ems[j], "\n"), file = fn, append = TRUE)
+    }
+  }
+}
+#x <- get_failed_jobs()
+#make_redo_failed_jobs_file(x)
+#x <- get_failed_jobs("M",5:24)
+#make_redo_failed_jobs_file(x, "M")

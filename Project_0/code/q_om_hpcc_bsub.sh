@@ -13,7 +13,8 @@ do
   for ((this_om= $3; this_om <= $4; this_om++)) #om in {$omstart..$omend}
   do
     echo $this_om
-    bsub -n $7 -q short -W 4:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J q_om_sim "bash ~/SSRTWG/Project_0/code/q_om_hpcc_args.sh $this_sim $this_sim $this_om $this_om $5 $6"
+    bsub -n $7 -q short -W 4:00 -o ~/logs/q_om_${this_om}_sim_${this_sim}_ems_${5}_to_${6}.log -R "rusage[mem=5000]" -R "span[hosts=1]" -J q_${5}_to_${6}_${this_om}_${this_sim} "bash ~/SSRTWG/Project_0/code/q_om_hpcc_args.sh $this_sim $this_sim $this_om $this_om $5 $6"
+    #bsub -n $7 -q short -W 4:00 -o ~/logs/logfile.%J -R "rusage[mem=5000]" -R "span[hosts=1]" -J q_om_sim "bash ~/SSRTWG/Project_0/code/q_om_hpcc_args.sh $this_sim $this_sim $this_om $this_om $5 $6"
   done
 done
 echo "script is done"

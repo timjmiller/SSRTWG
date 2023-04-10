@@ -5,7 +5,6 @@ if(file.exists("c:/Users/timothy.j.miller")) {
 library(tidyr)
 library(dplyr)
 library(here)
-files_to_source = list.files(file.path(here(), "common_code"), full.names=TRUE, pattern = "*.R")
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
 source(file.path(here(), "common_code", "set_M.R"))
@@ -183,6 +182,8 @@ for(i in 21:NROW(df.ems)){
   #em_inputs[[i]] = set_M(em_inputs[[i]], M = M) #this set_M will change parameter values
   #if(df.ems$re_config[i] == "M_re") {
   #}
+  em_inputs[[i]]$data$fracyr_indices[,1] = 0.25
+  em_inputs[[i]]$data$fracyr_indices[,2] = 0.75
 
   #turn off bias correction
   em_inputs[[i]] = set_simulation_options(em_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE, 

@@ -8,7 +8,7 @@ df.oms = readRDS(file.path(here(),"Ecov_study","mortality","inputs", "df.oms.RDS
 
 aic_res = lapply(1:NROW(df.oms), function(y){
   print(y)
-  res = sapply(1:20, function(x){
+  res = sapply(1:100, function(x){
     aic <- sapply(1:NROW(df.ems), function(z) {
       fit = try(readRDS(file.path(here::here(),"Ecov_study","mortality", "results", paste0("om", y), paste0("sim", x, "_em", z, ".RDS"))), silent = TRUE)
       out <- NA
@@ -379,4 +379,10 @@ plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = bias_est, colour = Ecov_re_s
     geom_errorbar(aes(ymin = bias_ci_lo, ymax = bias_ci_hi), width = .05, position = position_dodge(0.1)) + 
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "red")
 plt
+
+which(df.ems$Ecov_est & df.ems$M_est & df.ems$re_config == "rec")
+temp <- subset(depletion_error, om == 3 & em == 1)
+temp <- subset(all_res, NAA_M_re == "rec+M" & Fhist == "H-MSY" & Ecov_obs_sig == 0.1 & obs_error == "H" & Ecov_effect == 0.25 & Ecov_re_sig == 0.5 & Ecov_re_cor == 0.5)
+
 #########################################################
+
