@@ -142,6 +142,3 @@ sapply(res[[13]]$fit$sdrep$SE_par, function(x) any(is.nan(x)))
 which(sapply(res[[4]]$fit$sdrep$SE_par, function(x) any(is.nan(x))))
 res[[13]]$fit$sdrep$SE_par$Ecov_process_pars
 res[[15]]$fit$sdrep$SE_par$Ecov_process_pars
-
-
-
