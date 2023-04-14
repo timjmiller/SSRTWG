@@ -23,12 +23,13 @@ aggregate_hpcc_results = function(sims, oms, ems = 1:12, res_dir = file.path(her
     # print(read_dir)
     for(j in ems){
       print(paste0("om: ", i, ", em: ", j))
-      aggregated_sims <- list()
+      aggregated_sims <- lapply(1:length(sims), function(x) NULL)
+      #print(length(sims))
       for(k in sims){
-        aggregated_sims[[k]] <- NULL
+        #print(k)
         fn <- file.path(read_dir, paste0("sim",k,"_em",j,".RDS"))
         # print(fn)
-        # print(file.exists(fn))
+        #print(file.exists(fn))
         if(file.exists(fn)) aggregated_sims[[k]] <- readRDS(fn)
       }
       saveRDS(aggregated_sims, file.path(write_dir, paste0("om_", i, "_em_", j,".RDS")))
