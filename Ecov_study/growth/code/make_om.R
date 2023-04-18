@@ -27,7 +27,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
 
   #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
   input <-
-    prepare_wham_input(basic_info = basic_info, growth=growth,
+    wham::prepare_wham_input(basic_info = basic_info, growth=growth,
                        LW=LW, len_comp=len_comp,
                        selectivity = selectivity, NAA_re = NAA_re, M= M, ecov = ecov,
                        age_comp = age_comp, catchability = catchability)
@@ -92,7 +92,8 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
   }
   NAA_re$N1_pars = eq_R_N1 * Jan1_NAA_per_recruit
   input = set_NAA(input, NAA_re)
- ## input = set_ecov(input, ecov)
+  ## input = set_ecov(input, ecov)
+  ## input$par$Ecov_pro -- set this manually
   input = set_q(input, catchability)
   ## what is this doing and why do I need it?
   ##  input = set_selectivity(input, selectivity)

@@ -77,8 +77,8 @@ fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=F, do.proj=F, 
 if(!'err' %in% names(fit) & class(fit) != "character"){
   res$model$optimized <- TRUE
   res$fit <- fit[c("wham_version", "TMB_version", "opt", "final_gradient", "rep")]
-  res$fit$mohns_rho <- tryCatch(mohns_rho(fit),
-                                error = function(e) conditionMessage(e))
+  ## res$fit$mohns_rho <- tryCatch(mohns_rho(fit),
+  ##                               error = function(e) conditionMessage(e))
   ## fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc
   ##         error = function(e) conditionMessage(e))
   ## if(class(fit$sdrep) == "sdreport"){
