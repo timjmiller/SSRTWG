@@ -56,9 +56,10 @@ NAA_sig <- c(0.3)
 M_sig <- 0.3
 M_cor <- 0
 Ecov_obs_sig <- c(0.1, 0.5)[1]
-Ecov_re_sig <- c(0.1,0.5)[1]
-Ecov_re_cor <- c(0, 0.5)[1]
-Ecov_effect <- c(0, 0.25, 0.5)[-2]
+Ecov_re_sig <- c(0.1,0.5)[1] # This parameter is not being specified correctly in the OM. Make sure you use the right scale
+# For example. 0 == (sigma = 1 internally)
+Ecov_re_cor <- c(0, 0.5)[1] # This parameter is not being specified correctly in the OM. Make sure you use the right scale 
+Ecov_effect <- c(0, 0.25, 0.5)[-2] # This parameter is not being specified correctly in the OM
 Fhist = c("H-MSY","MSY")[2]
 #how much observation error
 obs_error = c("L", "H")[1]
@@ -107,8 +108,9 @@ gf_ecov <- list(
   lag = 0,
   mean = cbind(rep(0, length(gf_info$years))),
   year = gf_info$years,
+  ages = list(1:10),
   use_obs = cbind(rep(1, length(gf_info$years))),
-  process_mean_vals = 0,
+  # process_mean_vals = 0, # what is this?
   where = list('growth'),
   where_subindex = 3 # on L1
 )
@@ -170,17 +172,17 @@ for(i in 1:NROW(df.oms)){
   }
   ecov_i = gf_ecov
   ecov_i$logsigma = cbind(rep(log(df.oms$Ecov_obs_sig[i]), length(ecov_i$year)))
-  ecov_i$process_sig_vals = df.oms$Ecov_re_sig[i]
-  ecov_i$process_cor_vals = df.oms$Ecov_re_cor[i]
+  # ecov_i$process_sig_vals = df.oms$Ecov_re_sig[i] # wrong way to do it
+  # ecov_i$process_cor_vals = df.oms$Ecov_re_cor[i] # wrong way to do it
   if(df.oms$Ecov_effect[i] < 1e-7){
     ecov_i$how = 0
     ecov_i$where = "none"
   } else {
     ecov_i$how = 1
     ecov_i$where = "growth"
-    beta_vals_i = beta_vals
-    beta_vals_i[[1]][[5]][] <- df.oms$Ecov_effect[i]
-    ecov_i$beta_vals = beta_vals_i
+    # beta_vals_i = beta_vals
+    # beta_vals_i[[1]][[5]][] <- df.oms$Ecov_effect[i]
+    # ecov_i$beta_vals = beta_vals_i # wrong way to do it
   }
   Fhist. = "Fmsy"
   if(df.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
@@ -192,7 +194,9 @@ for(i in 1:NROW(df.oms)){
             M = M_i, NAA_re = NAA_re, ecov = ecov_i,
             growth=gf_growth, LW=gf_LW,
             age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3,
-            om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult)
+            om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult,
+            df.oms = df.oms[i,]) # I added the dfOM here, there are some things that you are specifying but cannot be passed to the 
+            # parameter section using prepare_wham_input, so they will need to be modified in the make_om function. 
   #turn off bias correction
   om_inputs[[i]] = set_simulation_options(om_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE,
     bias_correct_pe = FALSE, bias_correct_oe = FALSE)
@@ -207,7 +211,7 @@ for(i in 1:NROW(df.oms)){
   ## this didn't get updated so do it manually here. THis
   ## shouldn't be necessary b/c internal to make_om it should get
   ## updated via set_ecov but that doesn't work right now
-  om_inputs[[i]]$par$Ecov_beta[5,1,1,] <- df.oms$Ecov_effect[i]
+  ## om_inputs[[i]]$par$Ecov_beta[5,1,1,] <- df.oms$Ecov_effect[i]
 }
 
 

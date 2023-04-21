@@ -6,7 +6,7 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
                     brp_year = 1,
                     eq_F_init = 0.3, om_input = TRUE,
                     max_mult_Fmsy = 2.5, min_mult_Fmsy = 1,
-                    F_change_time = 0.5) {
+                    F_change_time = 0.5, df.oms = NULL) {
 
   basic_info <- make_basic_info()
   basic_info$fracyr_indices[,1] = 0.25
@@ -33,6 +33,10 @@ make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy",
                        age_comp = age_comp, catchability = catchability)
   input$data$FXSPR_init[] = eq_F_init
   input$data$FMSY_init[] = eq_F_init
+  # You will need to add a conditional for the next two lines if you want to play with AR1 and RW, the indices will change:
+  input$par$Ecov_process_pars[2,] = df.oms$Ecov_re_sig # This is cond sd for the AR1 Ecov process. double check this
+  input$par$Ecov_process_pars[3,] = df.oms$Ecov_re_cor # This is phi for the AR1 Ecov process. double check this
+  input$par$Ecov_beta[5,1,1,] = df.oms$Ecov_effect # Effect. the index will vary if the number of fleets change
   #if you want to change the %Spawning Potential
   #input$data$percentSPR = 35 #for example
   temp <- fit_wham(input, do.fit = FALSE, MakeADFun.silent = TRUE)
