@@ -31,4 +31,3 @@ for(om in 1:2){
 }
 
 sfStop()
-
