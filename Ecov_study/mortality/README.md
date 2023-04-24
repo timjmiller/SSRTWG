@@ -24,6 +24,7 @@ $$W_a = \theta_1 L_a^{\theta_2}$$
 where $\theta_1 = e^{-12.1}$ and $\theta_2 = 3.2$.
 
 We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components other than natural mortality are constant in the operating models. For operating models with no M process errors and no environmental covariate effects M would also be constant. We specified stock-recruit parameters by equating Fmsy and F40 = 0.348 under the model where M is constant and unfished recruitment was assumed $R_0 = e^{10}$. This equates to a steepness of 0.69 and $\alpha=0.60$ and $\beta = 2.4 \times 10^{-5}$ for the Beverton-Holt parameterization
+
 $$N_{1,y} = \frac{\alpha \text{SSB}_{y-1}}{1 + \beta \text{SSB}_{y-1}}. $$
 
 
@@ -43,13 +44,13 @@ Two time series of surveys are assumed and observed in numbers rather than bioma
 
 ### Process errors in numbers at age and natural mortality
 
-We assumed one of three different configurations of process errors in numbers at age and/or natural mortality. In the first ("rec"), we assume iid deviation of log-recruitment from the stock-recruit function predicted log-recruitment with standard errors of 0.5. In the second ("rec+1") we assumed iid process errors in both recruitment (sd = 0.5) and transitions in log-abundance between years 
-$$ log N_{y,a} \sim \text{N} \left(\log {\hat N} , sd = 0.3\right). $$
-In the third configuration ("rec+M") we assumed iid process errors for recruitment (sd = 0.5) and iid annual process errors in log-natural mortality (sd = 0.3) constant at all ages.
+We assumed one of three different configurations of process errors in numbers at age and/or natural mortality. In the first ("R"), we assume iid deviation of log-recruitment from the stock-recruit function predicted log-recruitment with standard deviation of 0.5. In the second ("NAA") we assumed iid process errors in both recruitment (SD = 0.5) and transitions in log-abundance between years 
+$$ log N_{y,a} \sim \text{N} \left(\log {\hat N} , SD = 0.3\right). $$
+In the third configuration ("R+M") we assumed iid process errors for recruitment (SD = 0.5) and iid annual process errors in log-natural mortality (SD = 0.3) constant at all ages.
 
 ### Environmental covariates
 
-We assumed state-space models for covariates. The latent "true" covariate was assumed to arise as a first order autoregressive process with mean 0 and standard deviation of either 0.1 or 0.5. The correlation of the process was either 0 (iid) or 0.5. The error in the observations of this process have standard deviations of 0.1 or 0.5. Finally the linear effect on log-natural mortality was 0 (no effect), 0.25, or 0.5. All 24 combinations of these assumptions were used to defined operating models.
+We assumed state-space models for an environmental covariate. We assumed a first-order autoregressive process for the latent "true" covariate with mean 0 and standard deviation of either 0.1 or 0.5. The correlation of the process was either 0 (iid) or 0.5. The error in the observations of this process have standard deviations of 0.1 or 0.5. Finally the linear effect on log-natural mortality was 0 (no effect), 0.25, or 0.5. All 24 combinations of these assumptions were used to defined operating models.
 
 ### Fishing histories
 All operating models assumed one of two different fishing histories. 

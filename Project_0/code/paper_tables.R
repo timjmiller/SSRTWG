@@ -4,7 +4,7 @@ df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
 
 #NAA oms: ems = 1-20
 df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
-naa_outer_res = sapply(1:NROW(df.oms), function(y){
+naa_aic_res = sapply(1:NROW(df.oms), function(y){
   res = sapply(1:100, function(x){
     print(paste0("sim_",x,".RDS"))
     sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
@@ -25,9 +25,10 @@ naa_outer_res = sapply(1:NROW(df.oms), function(y){
 saveRDS(naa_outer_res, file = file.path(here(),"Project_0","results", "NAA_om_aic_results.RDS"))
 
 
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
 all_naa_aic = lapply(1:NROW(df.oms), function(y){
   res = sapply(1:100, function(x){
-    print(paste0("sim_",x,".RDS"))
+    print(paste0("om_", y, ", sim_",x))
     sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
     aic = 2*sapply(sim,function(y) {
       out = NA
@@ -40,12 +41,60 @@ all_naa_aic = lapply(1:NROW(df.oms), function(y){
 })
 saveRDS(all_naa_aic, file = file.path(here(),"Project_0","results", "all_naa_aic_results.RDS"))
 
+df.M.oms = readRDS(file.path(here(),"Project_0","inputs", "df.M.oms.RDS"))
+all_M_aic = lapply(1:NROW(df.M.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("om_", y, ", sim_",x))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "M_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_M_aic, file = file.path(here(),"Project_0","results", "all_M_aic_results.RDS"))
+
+df.Sel.oms = readRDS(file.path(here(),"Project_0","inputs", "df.Sel.oms.RDS"))
+all_Sel_aic = lapply(1:NROW(df.Sel.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("om_", y, ", sim_",x))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "Sel_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_Sel_aic, file = file.path(here(),"Project_0","results", "all_Sel_aic_results.RDS"))
+
+df.q.oms = readRDS(file.path(here(),"Project_0","inputs", "df.q.oms.RDS"))
+all_q_aic = lapply(1:NROW(df.q.oms), function(y){
+  res = sapply(1:100, function(x){
+    print(paste0("om_", y, ", sim_",x))
+    sim = readRDS(file.path(here::here(),"Project_0", "results", "q_om", paste0("om_", y), paste0("sim_",x,".RDS")))
+    aic = 2*sapply(sim,function(y) {
+      out = NA
+      if(length(y$fit)) out = y$fit$opt$obj + length(y$fit$opt$par)
+      return(out)
+    })
+    return(aic)
+  })
+  return(res)
+})
+saveRDS(all_q_aic, file = file.path(here(),"Project_0","results", "all_q_aic_results.RDS"))
+
 x = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", 1), paste0("sim_",1,".RDS")))
 x = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", 1), paste0("sim_",27,".RDS")))
 
 all_naa_relssb = lapply(1:NROW(df.oms), function(y){
   res = lapply(1:100, function(x){
-    print(paste0("sim_",x,".RDS"))
+    print(paste0("om_", y, ", sim_",x))
     sim = readRDS(file.path(here::here(),"Project_0", "results", "naa_om", paste0("om_", y), paste0("sim_",x,".RDS")))
     relSSB = sapply(sim,function(y) {
       out <- rep(NA, 40)
