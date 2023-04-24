@@ -1,12 +1,23 @@
+## Cole made this custom file to quickly look at results for
+## R&D. Note the script to run things has modified code w/ what
+## to return
+
 library(here)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 theme_set(theme_bw())
+get_maxgrad <- function(fit){
+  if(!fit$model$optimized){
+    return(NULL)
+  }
+  maxgrad <- max(abs(fit$fit$final_gradient))
+  return(maxgrad)
+}
 get_ts <- function(fits){
   ff <- function(fit){
     if(!fit$model$optimized){
-      print(fit$model)
+      print(fit$model[1,1:3])
       return(NULL)
     }
     ssb <- data.frame(par='SSB',
@@ -26,13 +37,20 @@ get_ts <- function(fits){
                     truth=fit$truth$F)
     ## if(fit$model$sdreport) f$se <- fit$sdrep$SE_rep$F
     ## this fails w/ cbind for some reason??
-    ts <- bind_rows(ssb,f, recruits) %>% bind_cols(fit$model) %>%
-      mutate(rel_error=(est-truth)/truth, abs_error=est-truth, sim=as.factor(im))
+    ecov <- data.frame(par='Ecov_out',
+                       year=1:40,
+                       ## take first one -- all the same
+                       est=fit$fit$rep$Ecov_out[,1,1],
+                       truth=fit$truth$Ecov_out[,1,1])
+
+    ts <- bind_rows(ssb,f, recruits, ecov) %>% bind_cols(fit$model) %>%
+      mutate(rel_error=(est-truth)/truth, abs_error=est-truth,
+      sim=as.factor(im), maxgrad=get_maxgrad(fit))
     return(ts)
   }
   lapply(fits, function(i) ff(i)) %>% bind_rows()
 }
-get_selex <- function(fit){
+get_selex <- function(fits){
   ff <- function(fit){
     if(!fit$model$optimized){
       print(fit$model)
@@ -51,12 +69,13 @@ get_selex <- function(fit){
                      est=fit$fit$rep$selAL[[3]][1,],
                      truth=fit$truth$selAL[[3]][1,])
     selex <- bind_rows(s1,s2,s3) %>% bind_cols(fit$model) %>%
-      mutate(rel_error=(est-truth)/truth, abs_error=est-truth, sim=as.factor(im))
+      mutate(rel_error=(est-truth)/truth, abs_error=est-truth,
+             sim=as.factor(im), maxgrad=get_maxgrad(fit))
     return(selex)
   }
   lapply(fits, function(i) ff(i)) %>% bind_rows()
 }
-get_waa <- function(fit){
+get_waa <- function(fits){
   ff <- function(fit){
     if(!fit$model$optimized){
       print(fit$model)
@@ -66,41 +85,47 @@ get_waa <- function(fit){
                       age=1:10,
                       est=fit$fit$rep$pred_waa[5,1,],
                       truth=fit$truth$pred_waa[5,1,]) %>% bind_cols(fit$model) %>%
-      mutate(rel_error=(est-truth)/truth, abs_error=est-truth, sim=as.factor(im))
+      mutate(rel_error=(est-truth)/truth, abs_error=est-truth,
+             sim=as.factor(im),  maxgrad=get_maxgrad(fit))
     return(waa)
   }
   lapply(fits, function(i) ff(i)) %>% bind_rows()
 }
-get_pars <- function(fit){
+get_pars <- function(fits){
   ff <- function(fit){
     if(!fit$model$optimized){
       print(fit$model)
       return(NULL)
     }
     pars <- merge(fit$ompars, fit$empars, by='par2') %>%
-      filter(grepl(x=par.y, "growth_a|SD_par|mean_rec_pars|logit_q|log_F1|log_N1_pars|logit_selpars|catch_paa_pars|index_paa_pars"))
+      filter(grepl(x=par.y, "Ecov|growth_a|SD_par|mean_rec_pars|logit_q|log_F1|log_N1_pars|logit_selpars|catch_paa_pars|index_paa_pars"))
     pars <- pars %>% select(par=par.x, par2, truth=value.x, est=value.y) %>%
       bind_cols(fit$model) %>%
-      mutate(rel_error=(est-truth)/truth, abs_error=est-truth, sim=as.factor(im))
+      mutate(rel_error=(est-truth)/truth, abs_error=est-truth,
+             sim=as.factor(im),  maxgrad=get_maxgrad(fit))
     return(pars)
   }
   lapply(fits, function(i) ff(i)) %>% bind_rows()
 }
-get_growth <- function(fit){
-  print(fit$model)
+get_growth <- function(fits){
   ff <- function(fit){
     if(!fit$model$optimized){
       print(fit$model)
       return(NULL)
     }
+    ## !!will need to update this if the growth estimation changes!!
     p1 <- data.frame(par=c('logk', 'logLinf'),
                      est=fit$fit$rep$growth_a[1:2,1],
                      truth=fit$truth$growth_a[1:2,1])
-    p2 <- data.frame(par=c('SD1', 'SD2'),
-                     est=fit$fit$rep$expSD,
-                     truth=fit$truth$expSD)
+    p2 <- data.frame(par=c('SDold'),
+                     est=fit$empars$value[fit$empars$par=='SDgrowth_par'],
+                     truth=fit$ompars$value[fit$ompars$par=='SDgrowth_par'][2])
+    ## p2 <- data.frame(par=c('SD1', 'SD2'),
+    ##                  est=fit$fit$rep$expSD,
+    ##                  truth=fit$truth$expSD)
     growth <- bind_rows(p1,p2) %>% bind_cols(fit$model) %>%
-      mutate(rel_error=(est-truth)/truth, abs_error=est-truth, sim=as.factor(im))
+      mutate(rel_error=(est-truth)/truth, abs_error=est-truth,
+      sim=as.factor(im),  maxgrad=get_maxgrad(fit))
     return(growth)
   }
   lapply(fits, function(i) ff(i)) %>% bind_rows()
@@ -110,24 +135,34 @@ get_growth <- function(fit){
 fits <- list.files('../results', pattern='RDS', recursive=1,
                       full.names=TRUE) %>%
   lapply(function(i) readRDS(i))
-
 ## check convergence stats
 models <- lapply(fits, function(x) x$model) %>% bind_rows
-table(models$optimized,models$em)
-table(models$sdreport,models$em)
+group_by(models, em, om) %>%
+  summarize(pct.converged=mean(optimized), n.converged=sum(optimized))
+## table(models$optimized,models$em, models$om)
+## table(models$sdreport,models$em)
 
 ## fit <- fits[[2]]
 
-ts <- get_ts(fits)
-ggplot(ts, aes(year, truth, group=sim, color=em_growth_est)) +
-  geom_line() + facet_wrap('par', scales='free')
-ggplot(ts, aes(year, rel_error, group=sim)) + geom_line(alpha=.5) +
-  geom_hline(yintercept=0, col=2, lwd=1) + facet_grid(par~em_growth_est)
+ts <- get_ts(fits) %>% filter(maxgrad<.1)
+ggplot(filter(ts,par=='SSB'), aes(year, truth, group=sim, color=factor(om_Ecov_effect))) +
+  geom_line() + facet_grid(om~em, scales='free') + labs(y='SSB truth')
+ggplot(filter(ts,par=='Ecov_out'), aes(year, truth, group=sim, color=factor(om_Ecov_effect))) +
+  geom_line() + facet_grid(om~em, scales='free') + labs(y='Ecov_out truth')
+ggplot(filter(ts,par=='Ecov_out'), aes(year, est, group=sim, color=factor(om_Ecov_effect))) +
+  geom_line() + facet_grid(om~em, scales='free') + labs(y='Ecov_out est')
+ggplot(filter(ts, par!='Ecov_out'), aes(year, rel_error, group=sim)) + geom_line(alpha=.5) +# ylim(-3,3)+
+  geom_hline(yintercept=0, col=2, lwd=1) +
+  facet_grid(par~om_Ecov_effect+em_Ecov_est, scales='free')
 
 pars <- get_pars(fits)
 ggplot(pars, aes(par2, rel_error)) + geom_violin() +
-  geom_hline(yintercept=0, col=2, lwd=1) +
-  facet_grid(em_growth_est~par, scales='free')
+  geom_hline(yintercept=0, col=2, lwd=1) + #ylim(-3,3)+
+  facet_grid(om_Ecov_effect+em_Ecov_est~par, scales='free')
+ecov <- filter(pars, grepl(x=par, pattern='Ecov'))
+ggplot(ecov, aes(par2, abs_error)) + geom_violin() +
+  geom_hline(yintercept=0, col=2, lwd=1) + #ylim(-3,3)+
+  facet_grid(om_Ecov_effect+em_Ecov_est~par, scales='free')
 
 ## test <- filter(ts, par=='SSB' & sim==1 & em==2)
 ## plot(test$year, test$truth)
@@ -135,10 +170,10 @@ ggplot(pars, aes(par2, rel_error)) + geom_violin() +
 
 
 selex <- get_selex(fits)
-ggplot(selex, aes(age, est, group=sim, color=em_growth_est)) +
-  geom_line() + facet_grid(par~em_growth_est)
+ggplot(selex, aes(age, est, group=sim)) +
+  geom_line() + facet_grid(par~em_Ecov_est+om_Ecov_effect)
 ggplot(selex, aes(age, abs_error, group=sim)) + geom_line(alpha=.5) +
-  geom_hline(yintercept=0, col=2, lwd=1) + facet_grid(par~em_growth_est)
+  geom_hline(yintercept=0, col=2, lwd=1) + facet_grid(par~em_Ecov_est+om_Ecov_effect)
 
 growth <- get_growth(fits)
 ggplot(growth, aes(par, abs_error)) + geom_violin() +
@@ -146,9 +181,13 @@ ggplot(growth, aes(par, abs_error)) + geom_violin() +
 ggplot(growth, aes(par, rel_error)) + geom_violin() +
   facet_grid(.~em_growth_est) + geom_hline(yintercept=0, col=2)
 
+
+## need to get this by year too
 waa <- get_waa(fits)
 ggplot(waa, aes(age, rel_error, group=sim)) + geom_line() +
-  facet_grid(.~em_growth_est) + geom_hline(yintercept=0, col=2)
+  facet_grid(par~em_Ecov_est+om_Ecov_effect)+
+  geom_hline(yintercept=0, col=2) + labs(y='rel_error WAA')
 ggplot(waa, aes(age, abs_error, group=sim)) + geom_line() +
-  facet_grid(.~em_growth_est) + geom_hline(yintercept=0, col=2)
+  facet_grid(par~em_Ecov_est+om_Ecov_effect)+
+  geom_hline(yintercept=0, col=2) + labs(y='abs_error WAA')
 

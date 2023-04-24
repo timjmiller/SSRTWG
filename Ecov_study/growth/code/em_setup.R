@@ -32,9 +32,9 @@ source(file.path(here(), "Ecov_study", "growth", "code", "sim_management.R"))
 ###############Estimating model inputs
 #Estimating model factors
 SR_model = c(2)
-growth_est = c(TRUE, FALSE)
+growth_est = c(TRUE, FALSE)[1]
 re_config = c("rec","rec+1", "rec+M")[1]
-Ecov_est = c(TRUE,FALSE)[2]
+Ecov_est = c(TRUE,FALSE)
 
 #create data.frame defining estimation models data.fram
 df.ems <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = Ecov_est, stringsAsFactors = FALSE)
@@ -72,15 +72,15 @@ gf_NAA_re = list(
   #recruit_pars = SRab
 )
 ## this is the same one from the OM, is this right??
-SRab <- c(5.955694e-01, 2.404283e-05)
-gf_NAA_re = list(
-  N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
-  sigma = "rec", #random about mean
-  cor="iid", #random effects are independent
-  use_steepness = 0,
-  #recruit_model = 2, #random effects with a constant mean
-  recruit_model = 3, #B-H
-  recruit_pars = SRab) #defined above from naa_om_inputs
+## SRab <- c(5.955694e-01, 2.404283e-05)
+## gf_NAA_re = list(
+##   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
+##   sigma = "rec", #random about mean
+##   cor="iid", #random effects are independent
+##   use_steepness = 0,
+##   #recruit_model = 2, #random effects with a constant mean
+##   recruit_model = 3, #B-H
+##   recruit_pars = SRab) #defined above from naa_om_inputs
 
 
 ## gf_ecov <- list(
@@ -181,7 +181,7 @@ for(i in 1:NROW(df.ems)){
                        len_comp='multinomial')
   #have to do this after the input is made
   #source("c:/work/wham_master/wham/R/set_ecov.R")
-  em_inputs[[i]] <- set_ecov(em_inputs[[i]], ecov = ecov_i)
+  ## em_inputs[[i]] <- set_ecov(em_inputs[[i]], ecov = ecov_i)
   em_inputs[[i]] = set_M(em_inputs[[i]], M = M_i) #this set_M will change parameter values. needed for iid M_re
   #let's estimate AR1 for all these models
   # if(df.ems$re_config[i] == "rec+M") {
@@ -195,9 +195,23 @@ for(i in 1:NROW(df.ems)){
   ## }
   ## seems like leaving where="none" shoudl map these off but doesn't..??
   if(!df.ems$Ecov_est[i]){
-    em_inputs[[i]]$random <- 'log_NAA'
+     ## for now turning off NAA random effects so it runs faster
+    em_inputs[[i]]$random <- NULL
+    ##  em_inputs[[i]]$random <- 'log_NAA'
     em_inputs[[i]]$map$Ecov_re <- factor(NA*em_inputs[[i]]$par$Ecov_re)
+    em_inputs[[i]]$par$Ecov_re <- 0*em_inputs[[i]]$par$Ecov_re
     em_inputs[[i]]$map$Ecov_process_pars <- factor(NA*em_inputs[[i]]$par$Ecov_process_pars)
+  } else {
+    ## estimate Ecov effect on L1 growth? for now using penalized
+    ## ML for speed
+    em_inputs[[i]]$random <- NULL#'Ecov_re'
+    ## pars are basically: mean, rho, sigma; need to map off
+    ## sigma for now
+    em_inputs[[i]]$map$Ecov_process_pars <- factor(c(1,2,NA))
+  }
+  ## can't really esitmate growth SD1 so map it off
+  if(df.ems$growth_est[i]) {
+    em_inputs[[i]]$map$SDgrowth_par <- factor(c(NA,1))
   }
 
   #turn off bias correction
@@ -211,17 +225,27 @@ for(i in 1:NROW(df.ems)){
   em_inputs[[i]]$data$FXSPR_init[] = 0.3
   em_inputs[[i]]$data$FMSY_init[] = 0.3
 
-  ## for testing turning off NAA random effects
-  em_inputs[[i]]$random <- NULL
   em_inputs[[i]]$map$log_NAA_sigma <- factor(NA*em_inputs[[i]]$par$log_NAA_sigma)
 }
 
-str(em_inputs[[1]]$map)
-em_inputs[[1]]$random
-str(em_inputs[[2]]$map)
-em_inputs[[2]]$random
 
-em_inputs[[1]]$data$waa_pointer_indices
+df.ems
+test1 <- fit_wham(em_inputs[[1]], do.fit=FALSE)
+test2 <- fit_wham(em_inputs[[2]], do.fit=FALSE)
+p1 <- test1$par %>% names %>% unique
+p2 <- test2$par %>% names %>% unique
+## extra pars estimated when Ecov turned on
+p1[which(! p1 %in% p2)]
+
+## beta set to zero for initial values
+em_inputs[[2]]$par$Ecov_beta %>% max
+em_inputs[[1]]$par$Ecov_beta %>% max
+em_inputs[[1]]$map$Ecov_beta ## all ages mapped to same value
+em_inputs[[2]]$map$Ecov_beta ## all ages mapped to same value
+em_inputs[[1]]$map$Ecov_process_pars
+em_inputs[[2]]$map$Ecov_process_pars
+em_inputs[[1]]$random
+em_inputs[[2]]$random
 
 
 saveRDS(em_inputs, file.path(here(),"Ecov_study", "growth", "inputs", "em_inputs.RDS"))
