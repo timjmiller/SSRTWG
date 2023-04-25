@@ -34,10 +34,25 @@ source(file.path(here(), "Ecov_study", "growth", "code", "sim_management.R"))
 SR_model = c(2)
 growth_est = c(TRUE, FALSE)[1]
 re_config = c("rec","rec+1", "rec+M")[1]
-Ecov_est = c(TRUE,FALSE)
-
-#create data.frame defining estimation models data.fram
-df.ems <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = Ecov_est, stringsAsFactors = FALSE)
+Ecov_est = c(TRUE)
+growth_method = c('growth', 'LAA')[1]
+growth_re_config = c(NA)
+# create df em part 1 (only when Ecov on). TODO: Add Ecov on LAA? 
+df.ems.1 <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = Ecov_est, growth_method= growth_method, 
+                        growth_re_config = growth_re_config, stringsAsFactors = FALSE)
+# Config for growth or LAA random effects (only when Ecov = FALSE):
+# Caution when creating this data.frame, some combinations are not possible:
+growth_method_1 = c('growth', 'growth')
+growth_re_config_1 = c(NA, 'growth_re')
+growth_method_2 = c('LAA', 'LAA')
+growth_re_config_2 = c(NA, 'LAA_re')
+df1 = data.frame(growth_method = c(growth_method_1, growth_method_2),
+                 growth_re_config = c(growth_re_config_1, growth_re_config_2))
+df.ems.2 <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = FALSE, stringsAsFactors = FALSE)
+df.ems.2 = df.ems.2 %>% dplyr::cross_join(df1)
+# Merge both df:
+# NOT SURE IF THIS IS THE MOST EFFICIENT WAY TO CREATE THE EM DF:
+df.ems <- rbind(df.ems.1, df.ems.2)
 saveRDS(df.ems, file.path(here(),"Ecov_study", "growth", "inputs", "df.ems.RDS"))
 
 #same as naa_om_setup.R
@@ -120,11 +135,12 @@ W <- a_LW*L^b_LW
 L[1] ## length at reference age (1)
 CV <- .1
 ## growth CVs at age 1 and 10
-gf_growth <- list(model='vB_classic', init_vals=c(k, Linf, L[1]),
-                  est_pars=1:2, SD_vals=c(CV*L[1], CV*L[10]),
-                  SD_est=1:2)
+gf_growth <- list(model='vB_classic', re = rep('none', times = 3), 
+                  init_vals=c(k, Linf, L[1]),
+                  est_pars=1:3, SD_vals=c(CV*L[1], CV*L[10]),
+                  SD_est=1:2) 
 gf_LW <- list(init_vals=c(a_LW, b_LW))
-
+gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none', SD_vals = c(CV*L[1], CV*L[10]), SD_est=2) # fixing SD1
 
 #make inputs for estimating model (smaller objects to save, can overwrinte data elements with simulated data)
 em_inputs = list()
@@ -134,6 +150,7 @@ for(i in 1:NROW(df.ems)){
   NAA_re_i = gf_NAA_re
   M_i = gf_M # mapped to single value below and not estimated for now
   growth_i <- gf_growth
+  LAA_i = gf_LAA
   M_i$est_ages = 1:length(gf_info$ages)
   ecov_i = gf_ecov
   selectivity = gf_selectivity
@@ -151,12 +168,33 @@ for(i in 1:NROW(df.ems)){
   if(!df.ems$growth_est[i]) {
     growth_i$est_pars <- NULL
     growth_i$SD_est <- NULL
+    LAA_i$est_pars <- NULL
+    LAA_i$SD_est <- NULL
+  }
+  # Change Ecov information:
+  if(df.ems$Ecov_est[i] & df.ems$growth_method[i] == 'growth'){
+    ecov_i$how = 1
+    ecov_i$where = df.ems$growth_method[i]
+  }
+  if(df.ems$Ecov_est[i] & df.ems$growth_method[i] == 'LAA'){
+    ecov_i$how = 1
+    ecov_i$where = df.ems$growth_method[i]
+  }  
+  # Change growth information:
+  if(df.ems$growth_method[i] == 'growth') { 
+    LAA_i = NULL
+    if(!is.na(df.ems$growth_re_config[i])) { 
+      growth_i$re[3] = "ar1_y" # always on L1
+    }
+  }
+  # Change LAA information
+  if(df.ems$growth_method[i] == 'LAA') { 
+    growth_i = NULL
+    if(!is.na(df.ems$growth_re_config[i])) { 
+      LAA_i$re = '2dar1'
+    }
   }
 
-  if(df.ems$Ecov_est[i]){
-    ecov_i$how = 1
-    ecov_i$where = "growth"
-  }
   basic_info <- make_basic_info()
   basic_info$fracyr_indices[,1] = 0.25
   basic_info$fracyr_indices[,2] = 0.75
@@ -175,7 +213,7 @@ for(i in 1:NROW(df.ems)){
 
   em_inputs[[i]] <-
     prepare_wham_input(basic_info = basic_info,
-                       growth=growth_i, LW=gf_LW,
+                       growth=growth_i, LW=gf_LW, LAA= LAA_i,
                        selectivity = selectivity, NAA_re = NAA_re_i, M= M_i,
                        ecov = ecov_i, age_comp = "logistic-normal-miss0",
                        len_comp='multinomial')
@@ -195,24 +233,27 @@ for(i in 1:NROW(df.ems)){
   ## }
   ## seems like leaving where="none" shoudl map these off but doesn't..??
   if(!df.ems$Ecov_est[i]){
-     ## for now turning off NAA random effects so it runs faster
-    em_inputs[[i]]$random <- NULL
-    ##  em_inputs[[i]]$random <- 'log_NAA'
+    em_inputs[[i]]$random = NULL # will turn off Ecov as well
+    # is this still required?:
     em_inputs[[i]]$map$Ecov_re <- factor(NA*em_inputs[[i]]$par$Ecov_re)
     em_inputs[[i]]$par$Ecov_re <- 0*em_inputs[[i]]$par$Ecov_re
     em_inputs[[i]]$map$Ecov_process_pars <- factor(NA*em_inputs[[i]]$par$Ecov_process_pars)
+    if(!is.na(df.ems$growth_re_config[i])) { # RE on growth or LAA
+      em_inputs[[i]]$random <- df.ems$growth_re_config[i]
+      ##  em_inputs[[i]]$random <- 'log_NAA'
+    }
   } else {
     ## estimate Ecov effect on L1 growth? for now using penalized
     ## ML for speed
-    em_inputs[[i]]$random <- NULL#'Ecov_re'
+    em_inputs[[i]]$random <- 'Ecov_re'
     ## pars are basically: mean, rho, sigma; need to map off
     ## sigma for now
-    em_inputs[[i]]$map$Ecov_process_pars <- factor(c(1,2,NA))
+    ## em_inputs[[i]]$map$Ecov_process_pars <- factor(c(1,2,NA))
   }
   ## can't really esitmate growth SD1 so map it off
-  if(df.ems$growth_est[i]) {
-    em_inputs[[i]]$map$SDgrowth_par <- factor(c(NA,1))
-  }
+  #if(df.ems$growth_est[i]) {
+  #  em_inputs[[i]]$map$SDgrowth_par <- factor(c(NA,1))
+  #}
 
   #turn off bias correction
   em_inputs[[i]] = set_simulation_options(em_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE,
@@ -230,22 +271,23 @@ for(i in 1:NROW(df.ems)){
 
 
 df.ems
-test1 <- fit_wham(em_inputs[[1]], do.fit=FALSE)
-test2 <- fit_wham(em_inputs[[2]], do.fit=FALSE)
-p1 <- test1$par %>% names %>% unique
-p2 <- test2$par %>% names %>% unique
+# what is this for?:
+#test1 <- fit_wham(em_inputs[[1]], do.fit=FALSE)
+#test2 <- fit_wham(em_inputs[[2]], do.fit=FALSE)
+#p1 <- test1$par %>% names %>% unique
+#p2 <- test2$par %>% names %>% unique
 ## extra pars estimated when Ecov turned on
-p1[which(! p1 %in% p2)]
+#p1[which(! p1 %in% p2)]
 
 ## beta set to zero for initial values
-em_inputs[[2]]$par$Ecov_beta %>% max
-em_inputs[[1]]$par$Ecov_beta %>% max
-em_inputs[[1]]$map$Ecov_beta ## all ages mapped to same value
-em_inputs[[2]]$map$Ecov_beta ## all ages mapped to same value
-em_inputs[[1]]$map$Ecov_process_pars
-em_inputs[[2]]$map$Ecov_process_pars
-em_inputs[[1]]$random
-em_inputs[[2]]$random
-
+# what is this for?:
+#em_inputs[[2]]$par$Ecov_beta %>% max
+#em_inputs[[1]]$par$Ecov_beta %>% max
+#em_inputs[[1]]$map$Ecov_beta ## all ages mapped to same value
+#em_inputs[[2]]$map$Ecov_beta ## all ages mapped to same value
+#em_inputs[[1]]$map$Ecov_process_pars
+#em_inputs[[2]]$map$Ecov_process_pars
+#em_inputs[[1]]$random
+#em_inputs[[2]]$random
 
 saveRDS(em_inputs, file.path(here(),"Ecov_study", "growth", "inputs", "em_inputs.RDS"))

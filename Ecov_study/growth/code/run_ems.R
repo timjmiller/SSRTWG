@@ -19,8 +19,8 @@ run_iter <- function(sim, om, em){
 
 sfInit(parallel=TRUE, cpus=10)
 
-# sfExportAll()
-# run_iter(1,1,2)
+sfExportAll()
+run_iter(sim = 1, om = 2, em = 5)
 # trash <- sfLapply(1:30, function(sim) run_iter(sim,2,1))
 
 for(om in 1:2){

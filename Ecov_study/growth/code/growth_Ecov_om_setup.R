@@ -5,7 +5,7 @@
 ## } else library(wham) #make sure to use the right version of wham
 
 ## requires special growth branch
-## devtools::install_github("gmoroncorrea/wham", ref='growth')
+## devtools::install_github("GiancarloMCorrea/wham", ref='growth')
 ## devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
 ## devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="growth")
 library(tidyr)
