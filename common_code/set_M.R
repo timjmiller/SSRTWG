@@ -143,10 +143,10 @@ without changing ASAP file, specify M$initial_means.")
     #if(data$M_re_model == 3) par$M_repars[3] <- 0 # if ar1 over ages only, fix rho_y = 0
     #if(data$M_re_model == 4) par$M_repars[2] <- 0 # if ar1 over years only, fix rho_a = 0
     } else{
-    inv_trans_rho <- function(rho) 0.5 * log(rho+1) - log(1-rho) # 0.5 because needed transformation on cpp side is unusual.
-    if(data$M_re_model == 3) par$M_repars[2] <- inv_trans_rho(M$cor_vals) # if ar1 over ages only, fix rho_y = 0
-    if(data$M_re_model == 4) par$M_repars[3] <- inv_trans_rho(M$cor_vals) # if ar1 over years only, fix rho_a = 0
-    if(data$M_re_model == 5) par$M_repars[2:3] <- inv_trans_rho(M$cor_vals) # if 2dar1 years and ages
+    #inv_trans_rho <- function(rho) 0.5 * log(rho+1) - log(1-rho) # 0.5 because needed transformation on cpp side is unusual.
+    if(data$M_re_model == 3) par$M_repars[2] <- wham:::gen.logit(M$cor_vals, -1, 1, 2) #inv_trans_rho(M$cor_vals) # if ar1 over ages only, fix rho_y = 0
+    if(data$M_re_model == 4) par$M_repars[3] <- wham:::gen.logit(M$cor_vals, -1, 1, 2) #inv_trans_rho(M$cor_vals) # if ar1 over years only, fix rho_a = 0
+    if(data$M_re_model == 5) par$M_repars[2:3] <- wham:::gen.logit(M$cor_vals, -1, 1, 2) #inv_trans_rho(M$cor_vals) # if 2dar1 years and ages
   }
   # M_repars: sigma_M, rho_M_a, rho_M_y
   if(data$M_re_model == 1) tmp <- rep(NA,3) # no RE pars to estimate

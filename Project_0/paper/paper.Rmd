@@ -217,6 +217,26 @@ Bias, Mean Square error
 ### Estimating models include alternative random effects options: NAA, M, sel, q
 \clearpage 
 
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on survival.}
+{\input{naa_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on natural mortality.}
+{\input{M_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on selectivity.}
+{\input{Sel_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on catchability.}
+{\input{q_om_tab}}
+\end{table}
+
 
 \begin{table}
 \caption{NAA operating models, estimating models all assume a B-H stock recruit relationship and M is fixed at the true value.}
