@@ -140,7 +140,7 @@ gf_growth <- list(model='vB_classic', re = rep('none', times = 3),
                   est_pars=1:3, SD_vals=c(CV*L[1], CV*L[10]),
                   SD_est=1:2) 
 gf_LW <- list(init_vals=c(a_LW, b_LW))
-gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none', SD_vals = c(CV*L[1], CV*L[10]), SD_est=2) # fixing SD1
+gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none', SD_vals = c(CV*L[1], CV*L[10]), SD_est=1:2) # fixing SD1
 
 #make inputs for estimating model (smaller objects to save, can overwrinte data elements with simulated data)
 em_inputs = list()
