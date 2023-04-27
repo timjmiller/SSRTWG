@@ -67,7 +67,7 @@ gf_info = make_basic_info()
 gf_selectivity = list(
   ## model = c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
   model = c("logistic", "logistic", "len-logistic"),
-  initial_pars = list(c(5,1), c(5,1), c(65,4)))
+  initial_pars = list(c(5,1), c(5,1), c(30,4))) # original value: 65
 
 
 #different from naa_om_setup.R
@@ -140,7 +140,8 @@ gf_growth <- list(model='vB_classic', re = rep('none', times = 3),
                   est_pars=1:3, SD_vals=c(CV*L[1], CV*L[10]),
                   SD_est=1:2) 
 gf_LW <- list(init_vals=c(a_LW, b_LW))
-gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none', SD_vals = c(CV*L[1], CV*L[10]), SD_est=1:2) # fixing SD1
+gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none', 
+              SD_vals = c(CV*L[1], CV*L[10]), SD_est=1:2) # fixing SD1
 
 #make inputs for estimating model (smaller objects to save, can overwrinte data elements with simulated data)
 em_inputs = list()
@@ -232,7 +233,7 @@ for(i in 1:NROW(df.ems)){
   ##    ## em_inputs[[i]]$map$growth_a = factor(rep(1,length(em_inputs[[i]]$par$growth_a)))
   ## }
   ## seems like leaving where="none" shoudl map these off but doesn't..??
-  if(!df.ems$Ecov_est[i]){
+  if(!df.ems$Ecov_est[i]){ # if we do not estimate Ecov:
     em_inputs[[i]]$random = NULL # will turn off Ecov as well
     # is this still required?:
     em_inputs[[i]]$map$Ecov_re <- factor(NA*em_inputs[[i]]$par$Ecov_re)
@@ -242,7 +243,7 @@ for(i in 1:NROW(df.ems)){
       em_inputs[[i]]$random <- df.ems$growth_re_config[i]
       ##  em_inputs[[i]]$random <- 'log_NAA'
     }
-  } else {
+  } else { # if we estimate Ecov
     ## estimate Ecov effect on L1 growth? for now using penalized
     ## ML for speed
     em_inputs[[i]]$random <- 'Ecov_re'
