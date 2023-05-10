@@ -175,3 +175,9 @@ make_df <- function(all_aic, est_ind = SR_rec_Mest, om_ind = NULL){
   return(df_out)
 }
 temp = make_df(all_naa_aic, SR_rec_Mest, om_ind)
+
+
+
+
+
+

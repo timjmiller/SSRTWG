@@ -11,8 +11,9 @@
 Project_0/hpcc_bash
 misspecification_study/output
 /code/
-Ecov_study/recruitment/results
+Ecov_study/recruitment/results*
 Ecov_study/recruitment/output*
 Ecov_study/recruitment/error*
+Ecov_study/recruitment/other*
 Ecov_study/mortality/untracked
 !Ecov_study/mortality/inputs/*.RDS
