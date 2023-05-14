@@ -136,7 +136,7 @@ Two time series of surveys are assumed and observed in numbers rather than bioma
 
 ### Observation Uncertainty 
 
-Standard deviation for log-aggregate catch was 0.1. There were two levels of observation error variance for indices and age composition for both indices and fleet catch. A low uncertainty specification assumed standard deviation of both series of log-aggregate index observations was 0.1 and the standard deviation of the logistic-normal for age composition observations was 0.3 In the high uncertainty specification the standard deviation for log-aggregate indices was 0.4 and that for the age composition observations was 1.5. For all estimating models, standard deviation for log-aggregate observations was assumed known whereas that for the logitic-normal age composition observations was estimated.
+Standard deviation for log-aggregate catch was 0.1. There were two levels of observation error variance for indices and age composition for both indices and fleet catch. A low uncertainty specification assumed standard deviation of both series of log-aggregate index observations was 0.1 and the standard deviation of the logistic-normal for age composition observations was 0.3 In the high uncertainty specification the standard deviation for log-aggregate indices was 0.4 and that for the age composition observations was 1.5. For all estimating models, standard deviation for log-aggregate observations was assumed known whereas that for the logistic-normal age composition observations was estimated.
 
 
 ### Operating models with random effects on numbers at age
@@ -195,7 +195,7 @@ Random effects on Recruitment only, fleet logistic selectivity RE model?
 q_re
 Random effects on Recruitment only, one survey catchability RE model?
 
-Simulations were all carried out on the University of Massachussetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit XXXXX).
+Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit 77bbd94).
 
 # Results
 
@@ -217,26 +217,32 @@ Bias, Mean Square error
 ### Estimating models include alternative random effects options: NAA, M, sel, q
 \clearpage 
 
+\begin{landscape}
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on survival.}
-{\input{naa_om_tab}}
+\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}
+{\footnotesize \input{naa_om_tab}}
 \end{table}
 
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on natural mortality.}
+\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
 {\input{M_om_tab}}
 \end{table}
 
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on selectivity.}
+\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
 {\input{Sel_om_tab}}
 \end{table}
 
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on catchability.}
+\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
 {\input{q_om_tab}}
 \end{table}
+\end{landscape}
 
+\begin{table}
+\caption{Distinguishing characteristics of the estimating models.}
+{\scriptsize \input{em_tab}}
+\end{table}
 
 \begin{table}
 \caption{NAA operating models, estimating models all assume a B-H stock recruit relationship and M is fixed at the true value.}

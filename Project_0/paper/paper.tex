@@ -37,8 +37,8 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={How reliable are inferences from state-space age-structured assessment models?},
-  pdfauthor={Timothy J. Miller1, Britten, Brooks, Fay, Legault, Stock,},
+  pdftitle={Factors affecting reliablity of state-space age-structured assessment models},
+  pdfauthor={Timothy J. Miller1, Britten, Brooks, Fay, Legault, Stock, et al.},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
@@ -174,10 +174,10 @@
 \usepackage[]{natbib}
 \bibliographystyle{cjfas2.bst}
 
-\title{How reliable are inferences from state-space age-structured
-assessment models?}
+\title{Factors affecting reliablity of state-space age-structured
+assessment models}
 \author{Timothy J. Miller\textsuperscript{1}, Britten, Brooks, Fay,
-Legault, Stock,}
+Legault, Stock, et al.}
 \date{}
 
 \begin{document}
@@ -220,13 +220,25 @@ But those studies focus primarily on Gaussian linear models. review
 literature on reliability of hidden/latent process models. Primarily in
 other fields.
 
+Here we conduct a simulation study with operating models varying by
+degree of observation error uncertainty, sources of process error (M,
+NAA, q, sel), and fishing history. The simulations from these operating
+models are fitted with estimating models that make alternative
+assumptions for sources of process error (M, NAA\textless{} q, sel),
+whether a stock-recruit model was estimated, and whether M is estimated.
+We evaluate whether AIC can correctly determine the correct source of
+process error and stock effects on recruitment. We also evaluate the
+degree of bias in the outputs of the assessment model that are important
+for management.
+
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
 
 Used the WHAM package \citep[][commit 77bbd94]{stockmiller21} (Miller
 and Stock 2020). This packages has also been used to configure operating
 and estimating models for closed loop simulations evaluating index-based
-assessment methods \citep{legaultetalinpress}.
+assessment methods \citep{legaultetalinpress} and is used for management
+of haddock, butterfish, plaice, bluefish in the Northeast US.
 
 We completed a simulation study with a number of operating models that
 can be categorized based on where random effects are assumed: abundance
@@ -285,6 +297,9 @@ estimates of overfishing for NE groundfish stocks from Wiedenmann et
 al.~(20XX). Legault et al.~(2023) also used similar approaches to
 defining fishing mortality histories for operating models.
 
+Currenlty, initial population is configured at the equilibrium
+distribution fishing at \(F = 2.5\times F_{\text{MSY}}\).
+
 Initial population was configured at the equilibrium distribution
 fishing at either \(F = 2.5\times F_{\text{MSY}}\) or
 \(F = F_{\text{MSY}}\) for the two alternative fishing histories. That
@@ -339,7 +354,10 @@ standard deviation of both series of log-aggregate index observations
 was 0.1 and the standard deviation of the logistic-normal for age
 composition observations was 0.3 In the high uncertainty specification
 the standard deviation for log-aggregate indices was 0.4 and that for
-the age composition observations was 1.5.
+the age composition observations was 1.5. For all estimating models,
+standard deviation for log-aggregate observations was assumed known
+whereas that for the logistic-normal age composition observations was
+estimated.
 
 \hypertarget{operating-models-with-random-effects-on-numbers-at-age}{%
 \subsubsection{Operating models with random effects on numbers at
@@ -357,11 +375,20 @@ mortality}\label{operating-models-with-random-effects-on-natural-mortality}}
 NOTE: inv\_trans\_rho function in set\_M.R is mis-defined. Will affect
 correlation parameters assigned in operating models?
 
+Steepness and BRPs are not constant when M is time-varying (Miller and
+Brooks 2021). We uses the a/b parameters for the B-H defined for Fmsy =
+F40 at the mean M = 0.2 as defined above.
+
 \hypertarget{operating-models-with-random-effects-on-fleet-selectivity}{%
 \subsubsection{Operating models with random effects on fleet
 selectivity}\label{operating-models-with-random-effects-on-fleet-selectivity}}
 
 16 operating models Table of process error assumptions
+
+BRPs are not constant when fleet selectivity is time-varying. We uses
+the a/b parameters for the B-H defined for Fmsy = F40 at the mean of the
+time series model for selectivity which is the same as the constant
+selectivity defined above.
 
 \hypertarget{operating-models-with-random-effects-on-index-catchability}{%
 \subsubsection{Operating models with random effects on index
@@ -396,11 +423,11 @@ RE model?
 q\_re Random effects on Recruitment only, one survey catchability RE
 model?
 
-Simulations were all carried out on the University of Massachussetts
+Simulations were all carried out on the University of Massachusetts
 Green High-Performance Computing Cluster. Code for completing the
 simulations and summarization of results can be found at
 github.com/timjmiller/SSRTWG/Project\_0. We used the wham package
-version 1.X.X (commit XXXXX).
+version 1.X.X (commit 77bbd94).
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
@@ -429,6 +456,33 @@ options: NAA, M, sel,
 q}\label{estimating-models-include-alternative-random-effects-options-naa-m-sel-q}}
 
 \clearpage
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}
+{\footnotesize \input{naa_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+{\input{M_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+{\input{Sel_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+{\input{q_om_tab}}
+\end{table}
+\end{landscape}
+
+\begin{table}
+\caption{Distinguishing characteristics of the estimating models.}
+{\scriptsize \input{em_tab}}
+\end{table}
 
 \begin{table}
 \caption{NAA operating models, estimating models all assume a B-H stock recruit relationship and M is fixed at the true value.}

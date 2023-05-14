@@ -162,3 +162,105 @@ plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = emp_p, colour = Ecov_re_sig:
     geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red")
 plt
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_estimated.png"), plt)
+
+#all EM PE assumptions
+for(i in 1:3) {
+  re_mod <- c("rec", "rec+1", "rec+M")[i]
+  #EM:  M estimated
+  em_ind <- which(df.ems$M_est == TRUE) #all EM PE assumptions
+  om_ind <- which(df.oms$NAA_M_re == re_mod) #om and em match
+  Mfixed_rec <- aic_fn(aic_res, em_ind, om_ind)
+  res <- cbind(df.oms[rep(om_ind, each = length(em_ind)),], df.ems[rep(em_ind, length(om_ind)),], n = c(Mfixed_rec))
+  if(i == 1) {
+    all_res <- res
+  } else {
+    all_res <- rbind(all_res, res)
+  }
+}
+facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","obs_error", "NAA_M_re", "re_config", "Ecov_est")
+all_res[facs] <- lapply(all_res[facs], factor)
+all_res_mod <- all_res %>%
+  mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
+    "0.1" = "Ecov obs SD = 0.1",
+    "0.5" = "Ecov obs SD = 0.5"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(obs_error = recode(obs_error,
+    "L" = "Low obs error (indices, age comp)",
+    "H" = "High obs error (indices, age comp)"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(NAA_M_re = recode(NAA_M_re,
+    "rec" = "R",
+    "rec+1" = "R+S",
+    "rec+M" = "R+M"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(re_config = recode(re_config,
+    "rec" = "R",
+    "rec+1" = "R+S",
+    "rec+M" = "R+M"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(Ecov_re_sig = recode(Ecov_re_sig,
+    "0.1" = "Ecov SD = 0.1",
+    "0.5" = "Ecov SD = 0.5"
+  ))
+all_res_mod <- all_res_mod %>%
+  mutate(Ecov_re_cor = recode(Ecov_re_cor,
+    "0" = "Ecov Cor = 0",
+    "0.5" = "Ecov Cor = 0.5"
+  ))
+
+#1: correct effect assumption and RE will be 1, 
+#2: correct RE, wrong effect assumption
+#3: wrong RE, correct effect assumption
+#4: wrong RE, wrong effect assumption
+all_res_mod$correct <- 0 
+all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == FALSE] <- 1
+all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == TRUE] <- 1
+all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == TRUE] <- 2
+all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == FALSE] <- 2
+all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == FALSE] <- 3
+all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == TRUE] <- 3
+all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == TRUE] <- 4
+all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == FALSE] <- 4
+all_res_mod$correct <- factor(all_res_mod$correct)
+temp <- all_res_mod 
+temp$Ecov_effect <- factor(temp$Ecov_effect)
+temp <- temp %>%
+  mutate(correct = recode(correct,
+    "1" = "Correct Effect, Correct PE",
+    "2" = "Wrong Effect, Correct PE",
+    "3" = "Correct Effect, Wrong PE",
+    "4" = "Wrong Effect, Wrong PE"
+  ))
+
+cols <- viridis_pal()(4)
+plt <- ggplot(temp, aes(x = Ecov_effect, y = n, fill = correct)) + scale_fill_viridis_d() + 
+    geom_col(position = "fill") + 
+    #geom_col(position = position_dodge(0.1)) + 
+    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + labs(fill = "EM assumptions") +
+    ggtitle("EM: M estimated") + theme(plot.title = element_text(hjust = 0.5))
+plt
+ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_PE_effect_M_estimated.png"), plt, height = 12, width = 20, units = "in")
+
+x <- subset(temp, NAA_M_re == "R+M" & Ecov_effect == "0")
+aggregate(x$n, x["re_config"], sum)
+x <- subset(temp, NAA_M_re == "R+M" & Ecov_effect == "0.25")
+aggregate(x$n, x["re_config"], sum)
+x <- subset(temp, NAA_M_re == "R+M" & Ecov_effect == "0.5")
+aggregate(x$n, x["re_config"], sum)
+
+g <- ggplot_gtable(ggplot_build(plt))
+stript <- grep('strip-t', g$layout$name)
+#fills <- c("red","green","blue","yellow")
+fills <- cols
+k <- 1
+for (i in stript) {
+j <- grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- fills[k]
+k <- k+1
+}
+grid.draw(g)

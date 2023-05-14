@@ -133,6 +133,11 @@ find -maxdepth 1 -type d -name "om_*" -exec rm -r {} \;
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 60 1 16 5 24 20
 bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 61 100 1 16 5 24 20
 #done
+#redo oms 3,4 7,8, 11,12, 15,16 with correct correlation for AR1 oms.
+bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 100 3 4 5 24 20
+bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 100 7 8 5 24 20
+bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 100 11 12 5 24 20
+bash ~/SSRTWG/Project_0/code/M_om_hpcc_bsub.sh 1 100 15 16 5 24 20
 
 //for jobs that didn't finish in time use R session and run 
 // source("~/SSRTWG/Project_0/code/sim_management.R")
