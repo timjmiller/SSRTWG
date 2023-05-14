@@ -11,22 +11,25 @@ source("em_setup.R")
 ## using snowfall
 rm(list=ls())
 
+df.ems <- readRDS('../inputs/df.ems.RDS')
+df.oms <- readRDS('../inputs/df.oms.RDS')
+
 run_iter <- function(sim, om, em){
   cmd <-
     paste("Rscript --vanilla growth_Ecov_om_hpcc_script.R", sim,om,em)
   system(cmd)
 }
 
-sfInit(parallel=TRUE, cpus=10)
+sfInit(parallel=TRUE, cpus=6)
 
-# sfExportAll()
-# run_iter(1,1,2)
+sfExportAll()
+# run_iter(sim = 1, om = 2, em = 5)
 # trash <- sfLapply(1:30, function(sim) run_iter(sim,2,1))
 
-for(om in 1:2){
-  for(em in 1:2){
+for(om in 1:nrow(df.oms)){
+  for(em in 1:nrow(df.ems)){
     sfExportAll()
-    trash <- sfLapply(1:20, function(sim) run_iter(sim,em,om))
+    trash <- sfLapply(1:30, function(sim) run_iter(sim,om,em))
   }
 }
 

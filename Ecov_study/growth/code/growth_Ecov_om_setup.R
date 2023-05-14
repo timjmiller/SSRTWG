@@ -5,7 +5,7 @@
 ## } else library(wham) #make sure to use the right version of wham
 
 ## requires special growth branch
-## devtools::install_github("gmoroncorrea/wham", ref='growth')
+## devtools::install_github("GiancarloMCorrea/wham", ref='growth')
 ## devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="77bbd94")
 ## devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="growth")
 library(tidyr)
@@ -85,7 +85,7 @@ gf_info = make_basic_info()
 gf_selectivity = list(
   ## model = c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
   model = c("logistic", "logistic", "len-logistic"),
-  initial_pars = list(c(5,1), c(5,1), c(65,4)))
+  initial_pars = list(c(5,1), c(5,1), c(30,4))) # original value: 65
 #M set is not changing
 gf_M = list(model = "age-specific",
   initial_means = rep(0.2, length(gf_info$ages))#,
