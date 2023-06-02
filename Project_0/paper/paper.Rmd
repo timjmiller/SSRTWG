@@ -62,6 +62,8 @@ Much is known about the reliability of state-space models that are linear or Gau
 But those studies focus primarily on Gaussian linear models.
 review literature on reliability of hidden/latent process models. Primarily in other fields.
 
+Convergence results can be useful for understanding how bad convergence in applications to real data might direct the practitioner to which alternative random effects configurations is be more appropriate. The type of convergence that we might use as a diagnostic is important. And what rule of thumb we use for certain criteria e.g. 1e-6? large SEs/CVs?
+
 Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, sources of process error (M, NAA, q, sel), and fishing history. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error (M, NAA< q, sel), whether a stock-recruit model was estimated, and whether M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
 
 # Methods
@@ -197,10 +199,30 @@ Random effects on Recruitment only, one survey catchability RE model?
 
 Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit 77bbd94).
 
+
+Summary statitics
+
+Bias
+
+Mohn's rho
+
+marginal AIC
+
+convergence types: 
+1) whether the optimization completed
+2) nlminb convergence flag = 0
+3) max abs gradient < 1e-6
+4) No NAs for SE of fixed effects returned from TMB::sdreport
+5) No SE NAs AND no SE > 100
+
+
 # Results
 
 Do each of these by type of operating model (Naa, M, sel, q)
 Convergence performance
+
+Probability of convergence was better for models that assumed the correct source of process error, assumed M was known, and did not assume stock-recruit relationships.
+
 
 AIC performance
 
