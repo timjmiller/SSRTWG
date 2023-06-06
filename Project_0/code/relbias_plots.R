@@ -54,6 +54,7 @@ relF_fn <- function(df.oms, om_type = "naa"){
   })
   return(relF)
 }
+make_results <- FALSE
 if(make_results) {
   df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
   all_naa_relssb <- relssb_fn(df.oms,"naa")
