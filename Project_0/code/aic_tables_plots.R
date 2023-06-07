@@ -530,7 +530,6 @@ types <- c("naa", "M", "Sel", "q")
 types.plt <- c("R, R+S","R+M", "R+Sel", "R+q")
 est_conds <- cbind(c(FALSE,FALSE,TRUE,TRUE), c(FALSE,TRUE,FALSE,TRUE))
 em_inds <- cbind(1:20, 5:24, c(5:20,25:28), c(5:20, 29:32))
-SR_M_ind = which(use.df.ems$SR_model == ifelse(SR_est,3,2) & use.df.ems$M_est == M_est)
 df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
 for(i in 1:4) {
   all_aic <- readRDS(file = here("Project_0","results", paste0("all_", types[i], "_aic_results.RDS")))
