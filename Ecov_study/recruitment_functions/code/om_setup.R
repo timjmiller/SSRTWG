@@ -24,7 +24,7 @@ write.dir <- file.path(here(),"Ecov_study", "recruitment_functions", "om_inputs_
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
 
 #SR parameters are the same for all naa_om models 
-#GLB: this is to get FMSY?
+#GLB: this is to get FMSY? Where do these parameters come from
 temp <- fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
 SRab <- exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
 
