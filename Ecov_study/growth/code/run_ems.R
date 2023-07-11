@@ -5,18 +5,19 @@ library(snowfall)
 ## -Check set_* functions are working with growth options
 
 ## Make OM and EM inputs
-source("growth_Ecov_om_setup.R")
-source("em_setup.R")
+source(file.path(here(), "Ecov_study", "growth", "code", "growth_Ecov_om_setup.R"))
+source(file.path(here(), "Ecov_study", "growth", "code", "em_setup.R"))
+
 ## clear workspace otherwise gets pushed into remote sessions
 ## using snowfall
 rm(list=ls())
 
-df.ems <- readRDS('../inputs/df.ems.RDS')
-df.oms <- readRDS('../inputs/df.oms.RDS')
+df.ems = readRDS(file.path(here(), "Ecov_study", "growth", "inputs", "df.ems.RDS"))
+df.oms = readRDS(file.path(here(), "Ecov_study", "growth", "inputs", "df.oms.RDS"))
 
 run_iter <- function(sim, om, em){
   cmd <-
-    paste("Rscript --vanilla growth_Ecov_om_hpcc_script.R", sim,om,em)
+    paste("Rscript --vanilla growth_Ecov_om_hpcc_script.R", sim, om, em)
   system(cmd)
 }
 
