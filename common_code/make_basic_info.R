@@ -1,4 +1,4 @@
-make_basic_info <- function(base_years = 1970:2021, ages = 1:10, Fhist = "updown", n_feedback_years = 0) { #changed years
+make_basic_info <- function(base_years = 1982:2021, ages = 1:10, Fhist = "updown", n_feedback_years = 0) { #changed years
     
     # Should we make a species argument in the function for groundfish and pelagic, then have different parameters below?
     
@@ -6,7 +6,7 @@ make_basic_info <- function(base_years = 1970:2021, ages = 1:10, Fhist = "updown
     info$ages <- ages
     info$years <- as.integer(base_years[1] - 1 + 1:(length(base_years) + n_feedback_years))
     info$n_fleets <- 1 
-    info$n_indices <- 1
+    info$n_indices <- 2
     na <- length(info$ages)
     ny <- length(info$years)
     
