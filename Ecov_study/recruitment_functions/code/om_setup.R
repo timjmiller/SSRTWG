@@ -36,11 +36,11 @@ Ecov_re_sig  <- c(0.1)
 obs_error    <- c("L")
 
 #variable factors
-R_sig       <- c(0.5,1.0)
+R_sig       <- c(0.1,1.0)
 Fhist       <- c("H-MSY","MSY")
 NAA_cor     <- c(0.2,0.8)
 Ecov_re_cor <- c(0.2,0.8)
-Ecov_effect <- c(0.1, 0.5)  #need to modify according to functional form
+Ecov_effect <- c(0.1, 1.0)  #need to modify according to functional form
 Ecov_how    <- c(1,2,4)   
 
 df.oms <- expand.grid(NAA_re = NAA_re,
