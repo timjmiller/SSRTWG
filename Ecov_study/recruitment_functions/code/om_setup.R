@@ -30,18 +30,18 @@ SRab <- exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
 
 #Operating model factors
 #Constant factors
-NAA_re       <- c("rec")
-Ecov_obs_sig <- c(0.1)
+NAA_re       <- c("rec")  #recruitment random effects
+Ecov_obs_sig <- c(0.1)    #ecov observation error
 Ecov_re_sig  <- c(0.1)
 obs_error    <- c("L")
 
 #variable factors
-R_sig       <- c(0.1,1.0)
-Fhist       <- c("H-MSY","MSY")
-NAA_cor     <- c(0.2,0.8)
-Ecov_re_cor <- c(0.2,0.8)
-Ecov_effect <- c(0.1, 1.0)  #need to modify according to functional form
-Ecov_how    <- c(1,2,4)   
+R_sig       <- c(0.1,1.0)        #recruitment random effects sigma
+Fhist       <- c("H-MSY","MSY")  #fishing history
+NAA_cor     <- c(0.2,0.8)        #correlation of recruitment random effects
+Ecov_re_cor <- c(0.2,0.8)        #correlation of ecov random effects
+Ecov_effect <- c(0.1, 1.0)       #beta coefficients; need to modify according to functional form
+Ecov_how    <- c(1,2,4)          #ecov-recruiment functional form
 
 df.oms <- expand.grid(NAA_re = NAA_re,
                       Ecov_obs_sig=Ecov_obs_sig, 
