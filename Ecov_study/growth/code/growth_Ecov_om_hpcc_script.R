@@ -68,6 +68,11 @@ ompars$par2 <- sapply(unique(ompars$par), function(x) {
 res <- list(truth = truth, model=model, ompars=ompars)
 res$fit <- list()
 
+## Build test object to test for initial 0 gradients?
+test <- fit_wham(EM_input, do.fit=FALSE, do.sdrep=F, do.osa=F, do.retro=F, do.proj=F, MakeADFun.silent=TRUE)
+if(any(test$gr()==0)) warning((paste0("Initial gradients 0 in OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n")))
+
+
 #do fit withouth sdreport first
 fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=F, do.proj=F, MakeADFun.silent=TRUE),
   error = function(e) conditionMessage(e))

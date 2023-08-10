@@ -12,6 +12,7 @@ library(tidyr)
 library(dplyr)
 library(here)
 library(ggplot2)
+theme_set(theme_bw())
 library(wham)
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "common_code", "set_NAA.R"))
@@ -56,10 +57,10 @@ NAA_sig <- c(0.3)
 M_sig <- 0.3
 M_cor <- 0
 Ecov_obs_sig <- c(0.1, 0.5)[1]
-Ecov_re_sig <- c(0.1,0.5)[1] # This parameter is not being specified correctly in the OM. Make sure you use the right scale
+Ecov_re_sig <- c(0.1,0.5) # This parameter is not being specified correctly in the OM. Make sure you use the right scale
 # For example. 0 == (sigma = 1 internally)
-Ecov_re_cor <- c(0, 0.5)[1] # This parameter is not being specified correctly in the OM. Make sure you use the right scale 
-Ecov_effect <- c(0, 0.25, 0.5)[-2] # This parameter is not being specified correctly in the OM
+Ecov_re_cor <- c(0, 0.5)[2] # This parameter is not being specified correctly in the OM. Make sure you use the right scale
+Ecov_effect <- c(0, 0.1, 0.2) # This parameter is not being specified correctly in the OM
 Fhist = c("H-MSY","MSY")[2]
 #how much observation error
 obs_error = c("L", "H")[1]
@@ -195,8 +196,8 @@ for(i in 1:NROW(df.oms)){
             growth=gf_growth, LW=gf_LW,
             age_comp = "logistic-normal-miss0", brp_year = 1, eq_F_init = 0.3,
             om_input = TRUE, max_mult_Fmsy = max_mult, min_mult_Fmsy = min_mult,
-            df.oms = df.oms[i,]) # I added the dfOM here, there are some things that you are specifying but cannot be passed to the 
-            # parameter section using prepare_wham_input, so they will need to be modified in the make_om function. 
+            df.oms = df.oms[i,]) # I added the dfOM here, there are some things that you are specifying but cannot be passed to the
+            # parameter section using prepare_wham_input, so they will need to be modified in the make_om function.
   #turn off bias correction
   om_inputs[[i]] = set_simulation_options(om_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE,
     bias_correct_pe = FALSE, bias_correct_oe = FALSE)
@@ -215,14 +216,13 @@ for(i in 1:NROW(df.oms)){
 }
 
 
-### This code will only work with two specific OMs:  $ Ecov_effect : num  0 0.5
-if(FALSE){
-### test the new growth stuff
+### test the new growth stuff is working in the OM
+png('../plots/OM_basics.png', width=7, height=5, units='in', res=500)
 x <- om_inputs[[1]]
 log(gf_NAA_re$recruit_pars)
 x$par$mean_rec_pars
 test <- fit_wham(input=x, do.fit=FALSE)
-par(mfrow=c(2,3), mar=c(3,3,3,.5), mgp=c(1.5,.5,0))
+par(mfrow=c(2,3), mar=c(2.5,2.5,.5,.5), mgp=c(1.5,.25,0), tck=-.02)
 plot(x$data$lengths, test$rep$selAL[[3]][1,], type='b',
      xlab='length', ylab='selex')
 ## derived selex at age
@@ -230,7 +230,7 @@ selL <- test$rep$selAL[[3]][1,]
 phi <- test$rep$phi_mat[1,,]
 selA <- as.numeric(selL %*% phi)
 plot(1:10, selA/max(selA), ylim=c(0,1), xlab='age', ylab='selex', type='b')
-legend('topleft', legend=c('survey 1', 'survey 2 derived age selex'),
+legend('bottomright', legend=c('survey 1', 'survey 2 derived'),
        col=2:1, lty=1)
 lines(1:10, test$rep$selAL[[2]][1,], col=2, type='b')
 plot(1:10, L, type='l', xlab='age', ylab='length')
@@ -245,49 +245,51 @@ legend('topleft', legend=c('expected', 'simulated'), lty=1, col=2:1)
 plot(1:10, test$rep$pred_waa[5,1,], type='b', col=2, xlab='age', ylab='weight')
 lines(1:10, W, type='b')
 legend('topleft', legend=c('default', 'growth'), lty=1, col=1:2)
+dev.off()
+
+
 ## test that time-varying growth works
-## x <- om_inputs[[2]]
-## x$data$Ecov_model
-## x$data$Ecov_where
-## x$data$Ecov_where_subindex
-## x$data$n_Ecov
-## x$par$Ecov_beta[5,1,1,]
-## x$par$Ecov_re
-## Does L1 vary?
-test1 <- fit_wham(input=om_inputs[[1]], do.fit=FALSE)
-test2 <- fit_wham(input=om_inputs[[2]], do.fit=FALSE)
-laa1 <- test1$rep$LAA %>%
-       reshape2::melt() %>% setNames(c('year', 'age', 'length')) %>%
-       mutate(OM=1)
-laa2 <- test2$rep$LAA %>%
-       reshape2::melt() %>% setNames(c('year', 'age', 'length')) %>%
-       mutate(OM=2)
-g <- bind_rows(laa1, laa2) %>%
-  mutate(year=year+1981, cohort=year-age) %>%
-  filter(cohort>1981) %>%
-  ggplot(aes(age, length, color=factor(cohort))) + geom_line() + facet_wrap('OM')
-g
-waa1 <- test1$rep$pred_waa[5,,] %>%
-       reshape2::melt() %>% setNames(c('year', 'age', 'weight')) %>%
-       mutate(OM=1)
-waa2 <- test2$rep$pred_waa[5,,] %>%
-       reshape2::melt() %>% setNames(c('year', 'age', 'weight')) %>%
-       mutate(OM=2)
-g <- bind_rows(waa1,waa2) %>%
-  mutate(year=year+1981, cohort=year-age) %>%
-  filter(cohort>1981) %>%
-  ggplot(aes(year, weight, color=factor(age))) + geom_line()+facet_wrap('OM')
-g
-g <- reshape2::melt(test2$rep$pred_waa[5,,]) %>%
-  setNames(c('year', 'age', 'weight')) %>%
-  mutate(year=year+1981, cohort=year-age) %>%
-  group_by(age) %>% mutate(delta_weight=weight-mean(weight)) %>%
-  ggplot(aes(year, age, size=abs(delta_weight), color=delta_weight>0)) + geom_point()
-g
-x <- test2$rep$Ecov_x[,1]
-y <- log(test2$rep$LAA[,1])
-plot(x,y)
+fits <- lapply(1:6, function(i){
+  fit <- fit_wham(input=om_inputs[[i]], do.fit=FALSE)
+  fit$simulate(complete=TRUE)
+})
+get_laa <- function(fit, om){
+  x <- fit$LAA %>% reshape2::melt() %>% setNames(c('year', 'age', 'length')) %>%
+    mutate(OM=om, year=year+1981, cohort=year-age)
+  merge(x, df.oms, by.x='OM', by.y='Model') %>%
+    mutate(Ecov_effectf=paste0('Ecov_effect=', Ecov_effect),
+           Ecov_re_sigf=paste0('Ecov_re_sig=', Ecov_re_sig))
 }
+g <- lapply(1:6, function(i) get_laa(fits[[i]], df.oms$Model[i])) %>%
+  bind_rows %>% filter(cohort>1981) %>%
+  ggplot(aes(age, length, group=cohort)) + geom_line() +
+  facet_grid(Ecov_effectf~Ecov_re_sigf)
+ggsave('../plots/OM_laa.png', g, width=6, height=4)
+get_waa <- function(fit, om){
+  x <- fit$pred_waa[1,,] %>% reshape2::melt() %>% setNames(c('year', 'age', 'weight')) %>%
+    mutate(OM=om, year=year+1981, cohort=year-age)
+  merge(x, df.oms, by.x='OM', by.y='Model') %>%
+    mutate(Ecov_effectf=paste0('Ecov_effect=', Ecov_effect),
+           Ecov_re_sigf=paste0('Ecov_re_sig=', Ecov_re_sig))
+}
+g <- lapply(1:6, function(i) get_waa(fits[[i]], df.oms$Model[i])) %>%
+  bind_rows %>% filter(cohort>1981) %>%
+  ggplot(aes(age, weight, group=cohort)) + geom_line() +
+  facet_grid(Ecov_effectf~Ecov_re_sigf)
+ggsave('../plots/OM_waa.png', g, width=6, height=4)
+get_ecov <- function(fit, om){
+  x <- data.frame(Ecov=fit$Ecov_x[,1], OM=om, year=gf_info$years) %>%
+    merge(df.oms, by.x='OM', by.y='Model')  %>%
+        mutate(Ecov_effectf=paste0('Ecov_effect=', Ecov_effect),
+               Ecov_re_sigf=paste0('Ecov_re_sig=', Ecov_re_sig))
+}
+g <- lapply(1:6, function(i) get_ecov(fits[[i]], df.oms$Model[i])) %>%
+  bind_rows %>%
+  ggplot(aes(year, Ecov, group=Ecov_effect)) + geom_line() +
+  facet_grid(.~Ecov_re_sigf)
+ggsave('../plots/OM_ecov.png', g, width=6, height=4)
+
+
 
 ## ##start out at MSY and continue
 ## om_msy = make_om(Fhist = "Fmsy", N1_state = "overfished", selectivity = gf_selectivity,
