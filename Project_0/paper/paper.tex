@@ -37,8 +37,8 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={How reliable are inferences from state-space age-structured assessment models?},
-  pdfauthor={Timothy J. Miller1, Britten, Brooks, Fay, Legault, Stock,},
+  pdftitle={Factors affecting reliablity of state-space age-structured assessment models},
+  pdfauthor={Timothy J. Miller1, Britten, Brooks, Fay, Legault, Stock, et al.},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
@@ -174,10 +174,10 @@
 \usepackage[]{natbib}
 \bibliographystyle{cjfas2.bst}
 
-\title{How reliable are inferences from state-space age-structured
-assessment models?}
+\title{Factors affecting reliablity of state-space age-structured
+assessment models}
 \author{Timothy J. Miller\textsuperscript{1}, Britten, Brooks, Fay,
-Legault, Stock,}
+Legault, Stock, et al.}
 \date{}
 
 \begin{document}
@@ -220,13 +220,31 @@ But those studies focus primarily on Gaussian linear models. review
 literature on reliability of hidden/latent process models. Primarily in
 other fields.
 
+Convergence results can be useful for understanding how bad convergence
+in applications to real data might direct the practitioner to which
+alternative random effects configurations is be more appropriate. The
+type of convergence that we might use as a diagnostic is important. And
+what rule of thumb we use for certain criteria e.g.~1e-6? large SEs/CVs?
+
+Here we conduct a simulation study with operating models varying by
+degree of observation error uncertainty, sources of process error (M,
+NAA, q, sel), and fishing history. The simulations from these operating
+models are fitted with estimating models that make alternative
+assumptions for sources of process error (M, NAA\textless{} q, sel),
+whether a stock-recruit model was estimated, and whether M is estimated.
+We evaluate whether AIC can correctly determine the correct source of
+process error and stock effects on recruitment. We also evaluate the
+degree of bias in the outputs of the assessment model that are important
+for management.
+
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
 
 Used the WHAM package \citep[][commit 77bbd94]{stockmiller21} (Miller
 and Stock 2020). This packages has also been used to configure operating
 and estimating models for closed loop simulations evaluating index-based
-assessment methods \citep{legaultetalinpress}.
+assessment methods \citep{legaultetalinpress} and is used for management
+of haddock, butterfish, plaice, bluefish in the Northeast US.
 
 We completed a simulation study with a number of operating models that
 can be categorized based on where random effects are assumed: abundance
@@ -285,6 +303,9 @@ estimates of overfishing for NE groundfish stocks from Wiedenmann et
 al.~(20XX). Legault et al.~(2023) also used similar approaches to
 defining fishing mortality histories for operating models.
 
+Currenlty, initial population is configured at the equilibrium
+distribution fishing at \(F = 2.5\times F_{\text{MSY}}\).
+
 Initial population was configured at the equilibrium distribution
 fishing at either \(F = 2.5\times F_{\text{MSY}}\) or
 \(F = F_{\text{MSY}}\) for the two alternative fishing histories. That
@@ -339,7 +360,10 @@ standard deviation of both series of log-aggregate index observations
 was 0.1 and the standard deviation of the logistic-normal for age
 composition observations was 0.3 In the high uncertainty specification
 the standard deviation for log-aggregate indices was 0.4 and that for
-the age composition observations was 1.5.
+the age composition observations was 1.5. For all estimating models,
+standard deviation for log-aggregate observations was assumed known
+whereas that for the logistic-normal age composition observations was
+estimated.
 
 \hypertarget{operating-models-with-random-effects-on-numbers-at-age}{%
 \subsubsection{Operating models with random effects on numbers at
@@ -347,6 +371,13 @@ age}\label{operating-models-with-random-effects-on-numbers-at-age}}
 
 24 operating models, 16 Sel re operating models and 16 q re operating
 models. Table of process error assumptions
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}
+{\footnotesize \input{naa_om_tab}}
+\end{table}
+\end{landscape}
 
 \hypertarget{operating-models-with-random-effects-on-natural-mortality}{%
 \subsubsection{Operating models with random effects on natural
@@ -357,11 +388,34 @@ mortality}\label{operating-models-with-random-effects-on-natural-mortality}}
 NOTE: inv\_trans\_rho function in set\_M.R is mis-defined. Will affect
 correlation parameters assigned in operating models?
 
+Steepness and BRPs are not constant when M is time-varying (Miller and
+Brooks 2021). We uses the a/b parameters for the B-H defined for Fmsy =
+F40 at the mean M = 0.2 as defined above.
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+{\input{M_om_tab}}
+\end{table}
+\end{landscape}
+
 \hypertarget{operating-models-with-random-effects-on-fleet-selectivity}{%
 \subsubsection{Operating models with random effects on fleet
 selectivity}\label{operating-models-with-random-effects-on-fleet-selectivity}}
 
 16 operating models Table of process error assumptions
+
+BRPs are not constant when fleet selectivity is time-varying. We uses
+the a/b parameters for the B-H defined for Fmsy = F40 at the mean of the
+time series model for selectivity which is the same as the constant
+selectivity defined above.
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+{\input{Sel_om_tab}}
+\end{table}
+\end{landscape}
 
 \hypertarget{operating-models-with-random-effects-on-index-catchability}{%
 \subsubsection{Operating models with random effects on index
@@ -369,8 +423,20 @@ catchability}\label{operating-models-with-random-effects-on-index-catchability}}
 
 16 operating models Table of process error assumptions
 
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+{\input{q_om_tab}}
+\end{table}
+\end{landscape}
+
 \hypertarget{estimating-models}{%
 \subsection{Estimating models}\label{estimating-models}}
+
+\begin{table}
+\caption{Distinguishing characteristics of the estimating models.}
+{\scriptsize \input{em_tab}}
+\end{table}
 
 32 estimating models Table of estimating models
 
@@ -396,35 +462,210 @@ RE model?
 q\_re Random effects on Recruitment only, one survey catchability RE
 model?
 
-Simulations were all carried out on the University of Massachussetts
+Simulations were all carried out on the University of Massachusetts
 Green High-Performance Computing Cluster. Code for completing the
 simulations and summarization of results can be found at
 github.com/timjmiller/SSRTWG/Project\_0. We used the wham package
-version 1.X.X (commit XXXXX).
+version 1.X.X (commit 77bbd94).
+
+Summary statitics
+
+Bias
+
+Mohn's rho
+
+marginal AIC
+
+convergence types: 1) whether the optimization completed 2) nlminb
+convergence flag = 0 3) max abs gradient \textless{} 1e-6 4) No NAs for
+SE of fixed effects returned from TMB::sdreport 5) No SE NAs AND no SE
+\textgreater{} 100
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
 
-Do each of these by type of operating model (Naa, M, sel, q) Convergence
-performance
+Do each of these by type of operating model (Naa, M, sel, q)
 
-AIC performance
+\hypertarget{convergence-performance}{%
+\subsection{Convergence performance}\label{convergence-performance}}
 
-SR estimation? M estimation?
+convergence types: 1) whether the optimization completed 2) nlminb
+convergence flag = 0 3) max abs gradient \textless{} 1e-6 4) No NAs for
+SE of fixed effects returned from TMB::sdreport 5) No SE NAs AND no SE
+\textgreater{} 100
 
-Bias, Mean Square error
+Probability of convergence was better for models that assumed the
+correct source of process error, assumed M was known, and did not assume
+stock-recruit relationships.
 
-Certain basic parameters (stock-recruit pars, M, variance parameters)
-SSB, F, R
+\hypertarget{r-rs-operating-models}{%
+\subsubsection{R, R+S operating models}\label{r-rs-operating-models}}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structures R and R+S. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.}\label{naa_om_em_R_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_p_convergence_meanR_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structures R and R+S. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.}\label{naa_om_em_R_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_p_convergence_meanR_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structures R and R+S. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is fixed at the true value.}\label{naa_om_em_BH_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_p_convergence_BH_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structures R and R+S. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is estimated.}\label{naa_om_em_BH_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_p_convergence_BH_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\hypertarget{rm-operating-models}{%
+\subsubsection{R+M operating models}\label{rm-operating-models}}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+M. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.}\label{M_om_em_R_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_p_convergence_meanR_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+M. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.}\label{M_om_em_R_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_p_convergence_meanR_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+M. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is fixed at the true value.}\label{M_om_em_BH_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_p_convergence_BH_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+M. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is estimated.}\label{M_om_em_BH_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_p_convergence_BH_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\hypertarget{rsel-operating-models}{%
+\subsubsection{R+Sel operating models}\label{rsel-operating-models}}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+Sel. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.}\label{Sel_om_em_R_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_p_convergence_meanR_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+Sel. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.}\label{Sel_om_em_R_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_p_convergence_meanR_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+Sel. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is fixed at the true value.}\label{Sel_om_em_BH_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_p_convergence_BH_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+Sel. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is estimated.}\label{Sel_om_em_BH_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_p_convergence_BH_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\hypertarget{rq-operating-models}{%
+\subsubsection{R+q operating models}\label{rq-operating-models}}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+q. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.}\label{q_om_em_R_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_p_convergence_meanR_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+q. vertical lines represent 95\% confidence intervals. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.}\label{q_om_em_R_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_p_convergence_meanR_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+q. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is fixed at the true value.}\label{q_om_em_BH_MF_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_p_convergence_BH_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of each type of convergence of estimating models with alternative process error assumptions for operating models that have process error structure R+q. vertical lines represent 95\% confidence intervals. All estimating models estimate a Beverton-Holt stock-recruit relationship and and M is estimated.}\label{q_om_em_BH_ME_convergence}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_p_convergence_BH_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\hypertarget{aic-performance-for-process-error-structure}{%
+\subsection{AIC performance for process error
+structure}\label{aic-performance-for-process-error-structure}}
 
 \clearpage
 
 \hypertarget{numbers-at-age-operating-models}{%
-\subsection{Numbers at age operating
+\subsubsection{Numbers at age operating
 models}\label{numbers-at-age-operating-models}}
 
 \hypertarget{estimating-models-include-alternative-random-effects-options-naa-m-sel-q}{%
-\subsubsection{Estimating models include alternative random effects
+\subsection{Estimating models include alternative random effects
 options: NAA, M, sel,
 q}\label{estimating-models-include-alternative-random-effects-options-naa-m-sel-q}}
 
@@ -450,6 +691,108 @@ q}\label{estimating-models-include-alternative-random-effects-options-naa-m-sel-
 {\input{naa_om_em_R_MF_aic_table}}
 \end{table}
 \clearpage
+
+\clearpage
+
+\hypertarget{aic-performance-for-stock-recruit-relationship}{%
+\subsection{AIC performance for stock-recruit
+relationship}\label{aic-performance-for-stock-recruit-relationship}}
+
+\hypertarget{r-rs-operating-models-1}{%
+\subsubsection{R, R+S operating models}\label{r-rs-operating-models-1}}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R or R+S process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
+{\input{naa_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R or R+S process error structures. Estimating models assume mean M is fixed at the true value.}\label{naa_om_MF_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_MF_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Estimating models allow estimation of mean M.}\label{naa_om_ME_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_ME_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\hypertarget{rm-operating-models-1}{%
+\subsubsection{R+M operating models}\label{rm-operating-models-1}}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R+M process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
+{\input{M_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+M process error structures. Estimating models assume mean M is fixed at the true value.}\label{M_om_MF_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_MF_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+M process error structures. Estimating models allow estimation of mean M.}\label{M_om_ME_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_ME_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\hypertarget{rsel-operating-models-1}{%
+\subsubsection{R+Sel operating models}\label{rsel-operating-models-1}}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R+Sel process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
+{\input{Sel_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+Sel process error structures. Estimating models assume mean M is fixed at the true value.}\label{Sel_om_MF_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_MF_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+Sel process error structures. Estimating models allow estimation of mean M.}\label{Sel_om_ME_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_ME_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\hypertarget{rq-operating-models-1}{%
+\subsubsection{R+q operating models}\label{rq-operating-models-1}}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R+q process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
+{\input{q_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+q process error structures. Estimating models assume mean M is fixed at the true value.}\label{q_om_MF_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_MF_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+q process error structures. Estimating models allow estimation of mean M.}\label{q_om_ME_BH_glm_AIC_plots}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_ME_pred_BH_best.png}
+\end{center}
+\end{figure}
+
+\clearpage
+
+\hypertarget{bias-mean-square-error}{%
+\subsection{Bias, Mean Square error}\label{bias-mean-square-error}}
+
+Certain basic parameters (stock-recruit pars, M, variance parameters)
+SSB, F, R, BRPs
 
 \begin{landscape}
 \begin{figure}
@@ -486,55 +829,6 @@ q}\label{estimating-models-include-alternative-random-effects-options-naa-m-sel-
 \end{center}
 \end{figure}
 \end{landscape}
-
-\hypertarget{estimating-models-include-naa-random-effects-and-estimation-assumes-mean-r-or-bh-sr}{%
-\subsubsection{Estimating models include NAA random effects and
-estimation assumes mean R or BH
-SR}\label{estimating-models-include-naa-random-effects-and-estimation-assumes-mean-r-or-bh-sr}}
-
-\clearpage
-
-\begin{table}
-\caption{Operating models and estimation models all assume RE on recruitment only, estimating models assume mean recruitment or a B-H stock recruit relationship and M is fixed at the true value.}
-{\input{rec_om_em_R_SR_MF_aic_table}}
-\end{table}
-
-\begin{table}
-\caption{Operating models and estimation models all assume RE on recruitment only, estimating models assume mean recruitment or a B-H stock recruit relationship and M is estimated.}
-{\input{rec_om_em_R_SR_ME_aic_table}}
-\end{table}
-
-\begin{table}
-\caption{Operating models and estimation models all assume RE on all abundances at age, estimating models assume mean recruitment or a B-H stock recruit relationship and M is fixed at the true value.}
-{\input{naa_om_em_R_SR_MF_aic_table}}
-\end{table}
-
-\begin{table}
-\caption{Operating models and estimation models all assume RE on all abundances at age, estimating models assume mean recruitment or a B-H stock recruit relationship and M is estimated.}
-{\input{naa_om_em_R_SR_ME_aic_table}}
-\end{table}
-\clearpage
-
-\begin{figure}
-\caption{Predicted probability of AIC being better for BH model.}\label{glm_res_NAA_re}
-\begin{center}
-\includegraphics[width = \textwidth]{pred_SR_best_NAA_oms.png}
-\end{center}
-\end{figure}
-
-\hypertarget{m-operating-models}{%
-\subsection{M operating models}\label{m-operating-models}}
-
-\hypertarget{estimating-models-include-naa-random-effects-and-estimation-assumes-mean-r-or-bh-sr-1}{%
-\subsubsection{Estimating models include NAA random effects and
-estimation assumes mean R or BH
-SR}\label{estimating-models-include-naa-random-effects-and-estimation-assumes-mean-r-or-bh-sr-1}}
-
-\begin{table}
-\caption{M random effects operating models.}
-{\input{M_om_em_R_BH_aic_table}}
-\end{table}
-\clearpage
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}

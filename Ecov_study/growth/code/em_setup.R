@@ -42,12 +42,9 @@ df.ems.1 <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est
                         growth_re_config = growth_re_config, stringsAsFactors = FALSE)
 # Config for growth or LAA random effects (only when Ecov = FALSE):
 # Caution when creating this data.frame, some combinations are not possible:
-growth_method_1 = c('growth', 'growth')
-growth_re_config_1 = c(NA, 'growth_re')
-growth_method_2 = c('LAA', 'LAA')
-growth_re_config_2 = c(NA, 'LAA_re')
-df1 = data.frame(growth_method = c(growth_method_1, growth_method_2),
-                 growth_re_config = c(growth_re_config_1, growth_re_config_2))
+growth_method = c('growth', 'growth', 'LAA', 'LAA', 'semiparametric')
+growth_re_config = c(NA, 'growth_re', NA, 'LAA_re', 'LAA_re')
+df1 = data.frame(growth_method = c(growth_method), growth_re_config = c(growth_re_config))
 df.ems.2 <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = FALSE, stringsAsFactors = FALSE)
 df.ems.2 = df.ems.2 %>% dplyr::cross_join(df1)
 # Merge both df:
@@ -208,6 +205,12 @@ for(i in 1:NROW(df.ems)){
     growth_i = NULL
     LAA_i <- gf_LAA
     if(!is.na(df.ems$growth_re_config[i])) {
+      LAA_i$re = '2dar1'
+    }
+  }
+  # Change growth and LAA information (semiparametric)
+  if(df.ems$growth_method[i] == 'semiparametric') { 
+    if(!is.na(df.ems$growth_re_config[i])) { 
       LAA_i$re = '2dar1'
     }
   }

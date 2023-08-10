@@ -26,6 +26,7 @@ ems = 5:24
 #aggregate_hpcc_results(sim = 1, oms = 1, ems = 5:24, res_dir = file.path(here::here(),"Project_0", "results", "M_om"))
 #sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = 1, ems = 5:24, res_dir = file.path(here::here(),"Project_0", "results", "M_om")))
 sapply(1:16, function(y) sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = y, ems = 5:24, res_dir = file.path(here::here(),"Project_0", "results", "M_om"))))
+sapply(c(3:4,7:8,11:12,15:16), function(y) sapply(1:100, function(x) aggregate_hpcc_results(sim = x, oms = y, ems = 5:24, res_dir = file.path(here::here(),"Project_0", "results", "M_om"))))
 
 
 #Sel operating models
