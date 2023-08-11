@@ -209,8 +209,8 @@ for(i in 1:NROW(df.ems)){
     }
   }
   # Change growth and LAA information (semiparametric)
-  if(df.ems$growth_method[i] == 'semiparametric') { 
-    if(!is.na(df.ems$growth_re_config[i])) { 
+  if(df.ems$growth_method[i] == 'semiparametric') {
+    if(!is.na(df.ems$growth_re_config[i])) {
       LAA_i$re = '2dar1'
     }
   }

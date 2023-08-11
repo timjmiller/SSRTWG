@@ -57,13 +57,13 @@ NAA_sig <- c(0.3)
 M_sig <- 0.3
 M_cor <- 0
 Ecov_obs_sig <- c(0.1, 0.5)[1]
-Ecov_re_sig <- c(0.1,0.5) # This parameter is not being specified correctly in the OM. Make sure you use the right scale
+Ecov_re_sig <- c(0.1,0.5)[2]
 # For example. 0 == (sigma = 1 internally)
-Ecov_re_cor <- c(0, 0.5)[2] # This parameter is not being specified correctly in the OM. Make sure you use the right scale
-Ecov_effect <- c(0, 0.1, 0.2) # This parameter is not being specified correctly in the OM
+Ecov_re_cor <- c(0, 0.9)[2] # This parameter is not being specified correctly in the OM. Make sure you use the right scale
+Ecov_effect <- c(0, 0.2, 0.4) # This parameter is not being specified correctly in the OM
 Fhist = c("H-MSY","MSY")[2]
 #how much observation error
-obs_error = c("L", "H")[1]
+obs_error = c("L", "H")
 NAA_M_re <- c("rec","rec+1", "rec+M")[1]
 df.oms <- expand.grid(NAA_M_re = NAA_M_re,
   Ecov_obs_sig=Ecov_obs_sig, Ecov_re_sig=Ecov_re_sig, Ecov_re_cor=Ecov_re_cor, Ecov_effect = Ecov_effect,
@@ -72,6 +72,7 @@ df.oms <- expand.grid(NAA_M_re = NAA_M_re,
 L_N_sigma = c(L = 0.3, H = 1.5)
 #(log) index SDs for L/H observation error
 index_sigma = c(L = 0.1, H = 0.4)
+index_NeffL <- c(L=50, H=200)
 
 n.mods <- dim(df.oms)[1] #288 operating model scenarios
 df.oms$Model <- paste0("om_",1:n.mods)
@@ -173,8 +174,8 @@ for(i in 1:NROW(df.oms)){
   }
   ecov_i = gf_ecov
   ecov_i$logsigma = cbind(rep(log(df.oms$Ecov_obs_sig[i]), length(ecov_i$year)))
-  # ecov_i$process_sig_vals = df.oms$Ecov_re_sig[i] # wrong way to do it
-  # ecov_i$process_cor_vals = df.oms$Ecov_re_cor[i] # wrong way to do it
+  ecov_i$process_sig_vals = df.oms$Ecov_re_sig[i]
+  ecov_i$process_cor_vals = df.oms$Ecov_re_cor[i]*100
   if(df.oms$Ecov_effect[i] < 1e-7){
     ecov_i$how = 0
     ecov_i$where = "none"
@@ -209,12 +210,23 @@ for(i in 1:NROW(df.oms)){
   #change Neff so scalar doesn't affect L-N SD
   om_inputs[[i]]$data$catch_Neff[] = 1
   om_inputs[[i]]$data$index_Neff[] = 1
-  ## this didn't get updated so do it manually here. THis
+  ## length comps can only use multinomial so set depending on
+  ## the data scenario
+  om_inputs[[i]]$data$index_NeffL[,2] <- index_NeffL[df.oms$obs_error[i]]
+   ## this didn't get updated so do it manually here. THis
   ## shouldn't be necessary b/c internal to make_om it should get
   ## updated via set_ecov but that doesn't work right now
-  ## om_inputs[[i]]$par$Ecov_beta[5,1,1,] <- df.oms$Ecov_effect[i]
+  ## om_inputs[[i]]$par$Ecov_beta[5,1,1,] <-
+  ## df.oms$Ecov_effect[i]
+  ## manually set the Ecov process pars based on AR1 model
+   om_inputs[[i]]$par$Ecov_process_pars[,1] <- c(0,log(df.oms$Ecov_re_sig[i]), -log(2/(1+df.oms$Ecov_re_cor[i])-1))
 }
 
+## ## Not sure the ecov process pars are right??
+## x <- -log(2/(1+df.oms$Ecov_re_cor[i])-1)
+## -1+2/(1+exp(-x))
+## lapply(om_inputs, function(x) x$par$Ecov_process_pars)
+## om_inputs[[i]]$par$Ecov_process_pars[,1]
 
 ### test the new growth stuff is working in the OM
 png('../plots/OM_basics.png', width=7, height=5, units='in', res=500)
@@ -240,8 +252,17 @@ legend('bottomright', legend=c('default', 'growth'), lty=1, col=1:2)
 sim <- test$simulate(complete=TRUE)
 plot(1:50, sim$index_pal[2,1,], type='l', xlab='length',
      ylab='proportion')
+mtext(line=-1.5, text='Data L')
 lines(test$rep$pred_index_pal[1,2,], type='b', col=2)
-legend('topleft', legend=c('expected', 'simulated'), lty=1, col=2:1)
+##legend('topleft', legend=c('expected', 'simulated'), lty=1, col=2:1)
+## with more data
+test2 <- fit_wham(input=om_inputs[[4]], do.fit=FALSE)
+sim2 <- test2$simulate(complete=TRUE)
+plot(1:50, sim2$index_pal[2,1,], type='l', xlab='length',
+     ylab='proportion')
+mtext(line=-1.5, text='Data H')
+lines(test2$rep$pred_index_pal[1,2,], type='b', col=2)
+##legend('topleft', legend=c('expected', 'simulated'), lty=1, col=2:1)
 plot(1:10, test$rep$pred_waa[5,1,], type='b', col=2, xlab='age', ylab='weight')
 lines(1:10, W, type='b')
 legend('topleft', legend=c('default', 'growth'), lty=1, col=1:2)
@@ -263,7 +284,7 @@ get_laa <- function(fit, om){
 g <- lapply(1:6, function(i) get_laa(fits[[i]], df.oms$Model[i])) %>%
   bind_rows %>% filter(cohort>1981) %>%
   ggplot(aes(age, length, group=cohort)) + geom_line() +
-  facet_grid(Ecov_effectf~Ecov_re_sigf)
+  facet_grid(Ecov_effectf~obs_error)
 ggsave('../plots/OM_laa.png', g, width=6, height=4)
 get_waa <- function(fit, om){
   x <- fit$pred_waa[1,,] %>% reshape2::melt() %>% setNames(c('year', 'age', 'weight')) %>%
@@ -275,7 +296,7 @@ get_waa <- function(fit, om){
 g <- lapply(1:6, function(i) get_waa(fits[[i]], df.oms$Model[i])) %>%
   bind_rows %>% filter(cohort>1981) %>%
   ggplot(aes(age, weight, group=cohort)) + geom_line() +
-  facet_grid(Ecov_effectf~Ecov_re_sigf)
+  facet_grid(Ecov_effectf~obs_error)
 ggsave('../plots/OM_waa.png', g, width=6, height=4)
 get_ecov <- function(fit, om){
   x <- data.frame(Ecov=fit$Ecov_x[,1], OM=om, year=gf_info$years) %>%
@@ -286,9 +307,9 @@ get_ecov <- function(fit, om){
 g <- lapply(1:6, function(i) get_ecov(fits[[i]], df.oms$Model[i])) %>%
   bind_rows %>%
   ggplot(aes(year, Ecov, group=Ecov_effect)) + geom_line() +
-  facet_grid(.~Ecov_re_sigf)
+  facet_grid(.~obs_error)
 ggsave('../plots/OM_ecov.png', g, width=6, height=4)
-
+print(g)
 
 
 ## ##start out at MSY and continue

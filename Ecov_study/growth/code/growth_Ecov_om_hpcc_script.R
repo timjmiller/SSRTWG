@@ -24,7 +24,7 @@ model <- cbind(im=simi, om=omj, em=emk, optimized=FALSE, sdreport=FALSE, y,x)
 ## only new data for growth study is the marginal lengths in
 ## index_pal for survey 2
 obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa",
-  "Ecov_obs", "obs", "obsvec", "index_pal")
+  "Ecov_obs", "obs", "obsvec", "index_pal", 'index_NeffL')
 #######################################################
 
 #######################################################
