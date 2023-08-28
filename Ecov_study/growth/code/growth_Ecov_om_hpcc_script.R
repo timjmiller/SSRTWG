@@ -24,7 +24,7 @@ model <- cbind(im=simi, om=omj, em=emk, optimized=FALSE, sdreport=FALSE, y,x)
 ## only new data for growth study is the marginal lengths in
 ## index_pal for survey 2
 obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa",
-  "Ecov_obs", "obs", "obsvec", "index_pal")
+  "Ecov_obs", "obs", "obsvec", "index_pal", 'index_NeffL')
 #######################################################
 
 #######################################################
@@ -67,6 +67,11 @@ ompars$par2 <- sapply(unique(ompars$par), function(x) {
 }) %>% unlist
 res <- list(truth = truth, model=model, ompars=ompars)
 res$fit <- list()
+
+## Build test object to test for initial 0 gradients?
+test <- fit_wham(EM_input, do.fit=FALSE, do.sdrep=F, do.osa=F, do.retro=F, do.proj=F, MakeADFun.silent=TRUE)
+if(any(test$gr()==0)) warning((paste0("Initial gradients 0 in OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n")))
+
 
 #do fit withouth sdreport first
 fit <- tryCatch(fit_wham(EM_input, do.sdrep=F, do.osa=F, do.retro=F, do.proj=F, MakeADFun.silent=TRUE),

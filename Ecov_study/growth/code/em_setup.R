@@ -37,8 +37,8 @@ re_config = c("rec","rec+1", "rec+M")[1]
 Ecov_est = c(TRUE)
 growth_method = c('growth', 'LAA')[1]
 growth_re_config = c(NA)
-# create df em part 1 (only when Ecov on). TODO: Add Ecov on LAA? 
-df.ems.1 <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = Ecov_est, growth_method= growth_method, 
+# create df em part 1 (only when Ecov on). TODO: Add Ecov on LAA?
+df.ems.1 <- expand.grid(growth_est = growth_est, re_config = re_config, Ecov_est = Ecov_est, growth_method= growth_method,
                         growth_re_config = growth_re_config, stringsAsFactors = FALSE)
 # Config for growth or LAA random effects (only when Ecov = FALSE):
 # Caution when creating this data.frame, some combinations are not possible:
@@ -50,6 +50,13 @@ df.ems.2 = df.ems.2 %>% dplyr::cross_join(df1)
 # Merge both df:
 # NOT SURE IF THIS IS THE MOST EFFICIENT WAY TO CREATE THE EM DF:
 df.ems <- rbind(df.ems.1, df.ems.2)
+
+
+## New approach started in August 2023
+df.ems <- data.frame(growth_est=TRUE, re_config='rec', Ecov_est=TRUE,
+                     growth_method=c('none', 'L1-par', 'L1-ecov'),
+                     EM=c('EM1: Constant', 'EM2: L1-par', 'EM3:L1-ecov'))
+
 saveRDS(df.ems, file.path(here(),"Ecov_study", "growth", "inputs", "df.ems.RDS"))
 
 #same as naa_om_setup.R
@@ -132,12 +139,12 @@ W <- a_LW*L^b_LW
 L[1] ## length at reference age (1)
 CV <- .1
 ## growth CVs at age 1 and 10
-gf_growth <- list(model='vB_classic', re = rep('none', times = 3), 
+gf_growth <- list(model='vB_classic', re = rep('none', times = 3),
                   init_vals=c(k, Linf, L[1]),
                   est_pars=1:3, SD_vals=c(CV*L[1], CV*L[10]),
-                  SD_est=1:2) 
+                  SD_est=1:2)
 gf_LW <- list(init_vals=c(a_LW, b_LW))
-gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none', 
+gf_LAA = list(LAA_vals = L, est_pars = 1:10, re = 'none',
               SD_vals = c(CV*L[1], CV*L[10]), SD_est=1:2) # fixing SD1
 
 #make inputs for estimating model (smaller objects to save, can overwrinte data elements with simulated data)
@@ -148,7 +155,7 @@ for(i in 1:NROW(df.ems)){
   NAA_re_i = gf_NAA_re
   M_i = gf_M # mapped to single value below and not estimated for now
   growth_i <- gf_growth
-  LAA_i = gf_LAA
+  LAA_i = NULL ## not currently used
   M_i$est_ages = 1:length(gf_info$ages)
   ecov_i = gf_ecov
   selectivity = gf_selectivity
@@ -169,32 +176,41 @@ for(i in 1:NROW(df.ems)){
     LAA_i$est_pars <- NULL
     LAA_i$SD_est <- NULL
   }
-  # Change Ecov information:
-  if(df.ems$Ecov_est[i] & df.ems$growth_method[i] == 'growth'){
+  ## turn on estimation of Ecov for all models
+  if(df.ems$Ecov_est[i]){
     ecov_i$how = 1
-    ecov_i$where = df.ems$growth_method[i]
+    ecov_i$where = 'growth'
   }
-  if(df.ems$Ecov_est[i] & df.ems$growth_method[i] == 'LAA'){
-    ecov_i$how = 1
-    ecov_i$where = df.ems$growth_method[i]
-  }  
-  # Change growth information:
-  if(df.ems$growth_method[i] == 'growth') { 
-    LAA_i = NULL
-    if(!is.na(df.ems$growth_re_config[i])) { 
-      growth_i$re[3] = "ar1_y" # always on L1
-    }
+  ## Change growth information
+  if(df.ems$growth_method[i] == 'none') {
+    ## no esitmate of time-varying growth
+    ecov_i$how <- 0
+    ecov_i$where <- 'none'
+    random_i<- NULL
   }
-  # Change LAA information
-  if(df.ems$growth_method[i] == 'LAA') { 
+  if(df.ems$growth_method[i] == 'L1-par') {
+    ## estimate AR(1) on L1 directly
+    growth_i$re[3] = "ar1_y" # always on L1
+    random_i<- 'growth_re'
+    ecov_i$where <- 'none'
+    ecov_i$how <- 0
+  }
+  if(df.ems$growth_method[i] == 'L1-ecov') {
+    ## estimate Ecov relationship on L1
+    ecov_i$where <- 'growth'
+    random <- NULL
+  }
+  if(df.ems$growth_method[i] == 'LAA') {
+    ## non-parametric LAA smoothing (not currently used)
     growth_i = NULL
-    if(!is.na(df.ems$growth_re_config[i])) { 
+    LAA_i <- gf_LAA
+    if(!is.na(df.ems$growth_re_config[i])) {
       LAA_i$re = '2dar1'
     }
   }
   # Change growth and LAA information (semiparametric)
-  if(df.ems$growth_method[i] == 'semiparametric') { 
-    if(!is.na(df.ems$growth_re_config[i])) { 
+  if(df.ems$growth_method[i] == 'semiparametric') {
+    if(!is.na(df.ems$growth_re_config[i])) {
       LAA_i$re = '2dar1'
     }
   }
@@ -237,6 +253,7 @@ for(i in 1:NROW(df.ems)){
   ## }
   ## seems like leaving where="none" shoudl map these off but doesn't..??
   if(!df.ems$Ecov_est[i]){ # if we do not estimate Ecov:
+    stop('fix me')
     em_inputs[[i]]$random = NULL # will turn off Ecov as well
     # is this still required?:
     em_inputs[[i]]$map$Ecov_re <- factor(NA*em_inputs[[i]]$par$Ecov_re)
@@ -246,18 +263,19 @@ for(i in 1:NROW(df.ems)){
       em_inputs[[i]]$random <- df.ems$growth_re_config[i]
       ##  em_inputs[[i]]$random <- 'log_NAA'
     }
-  } else { # if we estimate Ecov
-    ## estimate Ecov effect on L1 growth? for now using penalized
-    ## ML for speed
-    em_inputs[[i]]$random <- 'Ecov_re'
-    ## pars are basically: mean, rho, sigma; need to map off
-    ## sigma for now
-    ## em_inputs[[i]]$map$Ecov_process_pars <- factor(c(1,2,NA))
   }
-  ## can't really esitmate growth SD1 so map it off
-  #if(df.ems$growth_est[i]) {
-  #  em_inputs[[i]]$map$SDgrowth_par <- factor(c(NA,1))
+
+  ## estimate Ecov effect on L1 growth? for now using penalized
+  ## ML for speed
+  em_inputs[[i]]$random <- c('Ecov_re', 'log_NAA', random_i)
+  ## pars are basically: mean, rho, sigma; need to map off
+  ## sigma for now
+  ## em_inputs[[i]]$map$Ecov_process_pars <- factor(c(1,2,NA))
   #}
+  ## can't really esitmate growth SD1 so map it off
+  if(df.ems$growth_est[i]) {
+   em_inputs[[i]]$map$SDgrowth_par <- factor(c(NA,1))
+  }
 
   #turn off bias correction
   em_inputs[[i]] = set_simulation_options(em_inputs[[i]], simulate_data = TRUE, simulate_process = TRUE, simulate_projection = TRUE,
@@ -272,6 +290,23 @@ for(i in 1:NROW(df.ems)){
 
   em_inputs[[i]]$map$log_NAA_sigma <- factor(NA*em_inputs[[i]]$par$log_NAA_sigma)
 }
+
+str(em_inputs)
+
+
+fits <- lapply(em_inputs, function(x) fit_wham(x, do.fit=FALSE))
+
+parests <- lapply(fits, function(x) table(sort(names(x$par)))) %>%
+  bind_rows %>% t %>% as.data.frame %>%
+  tibble::rownames_to_column('par') %>% setNames(c('par',
+  'EM1: none', 'EM2: L1-par', 'EM3: L1-ecov'))
+
+print(parests)
+
+parinits <- lapply(1:nrow(df.ems), function(x)
+  data.frame(EM=df.ems$EM[x], par=names(fits[[x]]$par), init=fits[[x]]$par)) %>%
+  bind_rows %>%  filter(grepl(c('Ecov|growth'), par))
+print(parinits)
 
 
 df.ems
