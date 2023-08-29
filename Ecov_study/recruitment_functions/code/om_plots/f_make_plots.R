@@ -1,7 +1,7 @@
-make_plots <- function(lls,om_inputs,ncols,nrows,ylims,xlims){
+make_plots <- function(lls,om_inputs,ncol,nrow,ylims,xlims){
   
   pdf(file.path(here(),'Ecov_study','recruitment_functions','plots','S_R_om_sims.pdf'),height=8,width=8)
-  par(mfrow=c(ncols,nrows),mar=rep(0,4),oma=c(5,5,2,2))
+  par(mfrow=c(ncol,nrow),mar=rep(0,4),oma=c(5,5,2,2))
   #for(ll in 1:length(om_inputs)){
   for(ll in lls){
     om  <- fit_wham(om_inputs[[ll]], do.fit = FALSE, MakeADFun.silent = TRUE)
@@ -20,7 +20,7 @@ make_plots <- function(lls,om_inputs,ncols,nrows,ylims,xlims){
       if(p%in%seq(1,ncol*nrow,nrow)) axis(side=2,las=2)
       if(p%in%seq(nrow*ncol - ncol + 1, nrow*ncol)) axis(side=1)
     })
-    nms <- lapply(2:10,function(j) paste0(colnames(df.oms[1,])[j],' = ',df.oms[ll,j]))
+    nms <- lapply(2:11,function(j) paste0(colnames(df.oms[1,])[j],' = ',df.oms[ll,j]))
     mtext(paste(nms,collapse='  '),outer=TRUE,line=0,cex=0.6)
     mtext('SSB',outer=TRUE,side=1,line=3)
     mtext('Recruits',outer=TRUE,side=2,line=3.5)
@@ -52,7 +52,7 @@ make_plots <- function(lls,om_inputs,ncols,nrows,ylims,xlims){
       
       if(p%in%seq(nrow*ncol - ncol + 1, nrow*ncol)) axis(side=1)
     })
-    nms <- lapply(2:10,function(j) paste0(colnames(df.oms[1,])[j],' = ',df.oms[ll,j]))
+    nms <- lapply(2:11,function(j) paste0(colnames(df.oms[1,])[j],' = ',df.oms[ll,j]))
     mtext(paste(nms,collapse='  '),outer=TRUE,line=0,cex=0.6)
     mtext(side=1,'Ecov',outer=TRUE,line=2.5)
     mtext(side=2,'Recruits',outer=TRUE,line=2.5)
@@ -84,7 +84,7 @@ make_plots <- function(lls,om_inputs,ncols,nrows,ylims,xlims){
       
       if(p%in%seq(nrow*ncol - ncol + 1, nrow*ncol)) axis(side=1)
     })
-    nms <- lapply(2:10,function(j) paste0(colnames(df.oms[1,])[j],' = ',df.oms[ll,j]))
+    nms <- lapply(2:11,function(j) paste0(colnames(df.oms[1,])[j],' = ',df.oms[ll,j]))
     mtext(paste(nms,collapse='  '),outer=TRUE,line=0,cex=0.6)
     mtext(side=2,'Ecov',outer=TRUE,line=2.5)
   }
