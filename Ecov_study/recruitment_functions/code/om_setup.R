@@ -61,7 +61,7 @@ index_sigma = c(L = 0.1, H = 0.4) #(log) index SDs for L/H observation error
 n.mods       <- dim(df.oms)[1] 
 df.oms$Model <- paste0("om_",1:n.mods)
 df.oms       <- df.oms %>% select(Model, everything()) # moves Model to first col
-saveRDS(df.oms, file.path(write.dir,"df.oms.RDS"))
+saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
 
 
 gf_info = make_basic_info()
@@ -122,7 +122,7 @@ for(i in 1:NROW(df.oms)){
   if(df.oms$Ecov_how[i] == 4) ecov_i$how = 4
   ecov_i$where = "recruit"
   beta_vals_i = beta_vals
-  beta_vals_i[[1]][[2]][] <- df.oms$Ecov_effect[i]
+  #beta_vals_i[[1]][[2]][] <- df.oms$Ecov_effect[i]
   ecov_i$beta_vals = beta_vals_i
   
   Fhist. = "Fmsy"
@@ -160,4 +160,4 @@ for(i in 1:NROW(df.oms)){
   om_inputs[[i]]$data$index_Neff[] = 1
 }
 
-saveRDS(om_inputs, file.path(write.dir,"om_inputs.RDS"))
+saveRDS(om_inputs, file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
