@@ -62,7 +62,7 @@ relssb_fn <- function(df.oms, om_type = "naa"){
   return(relssb)
 }
 
-relR_fn <- function(df.oms, om_type = "naa", res =){
+relR_fn <- function(df.oms, om_type = "naa"){
   relR = lapply(1:NROW(df.oms), function(y){
     res = lapply(1:100, function(x){
       print(paste0("om_", y, ", sim_",x))

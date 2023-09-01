@@ -9,6 +9,7 @@
 *.RDS
 !Project_0/inputs/*.RDS
 Project_0/hpcc_bash
+Project_0/paper/*.pdf
 misspecification_study/output
 /code/
 Ecov_study/recruitment/results*
