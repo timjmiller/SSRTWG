@@ -1,4 +1,5 @@
 library(snowfall)
+library(doParallel)
 library(here)
 
 ## Make OM and EM inputs
@@ -12,26 +13,29 @@ library(here)
 
 ## clear workspace otherwise gets pushed into remote sessions
 ## using snowfall
-rm(list=ls())
+#rm(list=ls())
 
-df.ems <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
-df.oms <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
+nsim <- 100
+
+om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
+em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "em_inputs.RDS"))
+df.ems    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
+df.oms    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
 
 run_iter <- function(sim, om, em){
-  cmd <- paste("Rscript --vanilla growth_Ecov_om_hpcc_script.R", sim,om,em)
+  cmd <- paste("Rscript --vanilla hpc_script.R", sim,om,em)
   system(cmd)
 }
 
-sfInit(parallel=TRUE, cpus=8)
+x <- detectCores()      
+sfInit(parallel=TRUE, cpus=x-1)
 
-sfExportAll()
-# run_iter(sim = 1, om = 2, em = 5)
-# trash <- sfLapply(1:30, function(sim) run_iter(sim,2,1))
-
-for(om in 1:nrow(df.oms)){
-  for(em in 1:nrow(df.ems)){
+#for(om in 1:nrow(df.oms)){
+for(om in 1:1){
+#  for(em in 1:nrow(df.ems)){
+ for(em in 2){
     sfExportAll()
-    trash <- sfLapply(1:8, function(sim) run_iter(sim,om,em))
+    trash <- sfLapply(1:nsim, function(sim) run_iter(sim,om,em))
   }
 }
 

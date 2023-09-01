@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 simi = as.integer(args[1])
 omj  = as.integer(args[2])
 emk  = as.integer(args[3])
-simi <- 1; omj <- 14; emk <- 2
+#simi <- 1; omj <- 1; emk <- 2
 
 library(wham)
 library(here)
@@ -22,30 +22,30 @@ y        <- data.frame(df.oms[omj,])
 names(y) <- paste0('om_',names(y))
 model    <- cbind(im=simi, om=omj, em=emk, optimized=FALSE, sdreport=FALSE, y,x)
 
-obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa",
-  "Ecov_obs", "obs", "obsvec", "index_pal", 'index_NeffL')
+obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
+               "Ecov_obs", "obs", "obsvec")
 
 #######################################################
 #seeds <- readRDS(file.path(here::here(), "Ecov_study", "recruitment_functions", "inputs","seeds.RDS"))
 #######################################################
 cat(paste0("START OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
 
-#write.dir <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results", paste0("om", omj))
-#dir.create(write.dir, recursive = T, showWarnings = FALSE)
+write.dir <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results", paste0("om", omj))
+dir.create(write.dir, recursive = T, showWarnings = FALSE)
 
 om                 <- fit_wham(om_inputs[[omj]], do.fit = FALSE, MakeADFun.silent = TRUE)
 sim_data           <- om$simulate(complete=TRUE)
 truth              <- sim_data
 truth$wham_version <- om$wham_version #save the version for reproducibility
 EM_input           <- em_inputs[[emk]] # Read in the EM
-## EM_input$map$growth_a
-## EM_input$map$SD_par
-#put simulated data into the em input
-      #EM_input$data[obs_names] = sim_data[obs_names]
-#not estimating observation error in Ecov
-  #EM_input$par$Ecov_obs_logsigma[] <- om_inputs[[omj]]$par$Ecov_obs_logsigma
-## the fixed effects used to generate truth
 
+#put simulated data into the em input
+EM_input$data[obs_names] = sim_data[obs_names]
+
+#not estimating observation error in Ecov
+EM_input$par$Ecov_obs_logsigma[] <- om_inputs[[omj]]$par$Ecov_obs_logsigma
+
+## the fixed effects used to generate truth
 ompars <- data.frame(par=names(om$par), value=om$par) |> dplyr::filter(par!='F_devs')
 ompars$par2 <- sapply(unique(ompars$par), function(x) {
   y <- which(ompars$par==x)
@@ -93,6 +93,6 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   res$empars <- empars
 }
 
-rds.fn = file.path(here::here(), "Ecov_study", "growth", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
+rds.fn = file.path(here::here(), "Ecov_study", "recruitment_functions", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
 saveRDS(res, file = rds.fn)
 cat(paste0("END OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
