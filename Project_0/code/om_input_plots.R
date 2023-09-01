@@ -1,0 +1,37 @@
+library(here)
+library(dplyr)
+library(wham, lib.loc = "c:/work/wham/old_packages/77bbd94")
+df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
+om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+x <- fit_wham(om_inputs[[1]], do.fit =F)
+
+
+png(here("Project_0","paper","om_mean_selectivity.png"), width=7, height=7, units='in', res = 300)
+plot(1:length(x$ages), x$rep$selAA[[1]][1,], type = 'n', xaxt = 'n', ylim = c(0,1), ylab = 'Selectivity', xlab ='Age')
+axis(1, labels = x$ages, at = 1:length(x$ages))
+lines(1:length(x$ages), x$rep$selAA[[1]][1,], lwd = 2)
+grid(col = gray(0.7), lty = 2)
+dev.off()
+
+png(here("Project_0","paper","om_maturity.png"), width=7, height=7, units='in', res = 300)
+plot(1:length(x$ages), x$input$data$mature[1,], type = 'n', xaxt = 'n', ylim = c(0,1), ylab = 'Proportion mature', xlab ='Age')
+axis(1, labels = x$ages, at = 1:length(x$ages))
+lines(1:length(x$ages), x$input$data$mature[1,], lwd = 2)
+grid(col = gray(0.7), lty = 2)
+dev.off()
+
+png(here("Project_0","paper","om_waa.png"), width=7, height=7, units='in', res = 300)
+plot(1:length(x$ages), x$input$data$waa[1,1,], type = 'n', xaxt = 'n', ylab = 'Mass (kg)', xlab ='Age')
+axis(1, labels = x$ages, at = 1:length(x$ages))
+lines(1:length(x$ages), x$input$data$waa[1,1,], lwd = 2)
+grid(col = gray(0.7), lty = 2)
+dev.off()
+
+png(here("Project_0","paper","om_sr.png"), width=7, height=7, units='in', res = 300)
+ssb <- seq(0,10e5,1)
+sr.fn <- function(ssb) exp(x$rep$log_SR_a[1])*ssb/(1+exp(x$rep$log_SR_b[1])*ssb)
+
+plot(ssb/1000, sr.fn(ssb), type = 'n', ylab = 'Recruitment (1000s)', xlab ='SSB (kmt)')
+lines(ssb/1000, sr.fn(ssb), lwd = 2)
+grid(col = gray(0.7), lty = 2)
+dev.off()
