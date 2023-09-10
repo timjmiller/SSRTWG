@@ -25,10 +25,7 @@ Generic OM & EM settings that are the same as project 0:
 
 Project-specific OM settings that are not variable:
 
--   Ecov ar1 process on catchability for both surveys (spring & fall)
-    with mean = 0
-
--   
+-   Ecov ar1 process on catchability with mean = 0
 
 OM settings that are variable:
 
@@ -42,9 +39,9 @@ OM settings that are variable:
     parameter but should confirm
 
 -   Fishing history = F_MSY for 40 year history OR fish 2.5\*F_MSY for
-    20 years than fish at F_MSY for remaining 20
+    20 years than fish at F_MSY for remaining 20 - NOT CURRENTLY IMPLEMENTED, IN PROGRESS
 
--   
+-   Seasonality of Ecov effect on catchability (neither, one, or both seasons impacted) - NOT CURRENTLY IMPLEMENTED, IN PROGRESS
 
 EM settings that are variable:
 
@@ -55,8 +52,14 @@ EM settings that are variable:
 -   Ecov link/random effect setting = NoEnv, NoEnvRand, WithEnvRand,
     WithEnv
 
--   
+-   Seasonality of Ecov effect on catchability
 
+
+Run analysis in 3 pieces:
+1) Factorial runs with different ecov process magnitude, fishing history and observation error
+-   maybe don't vary obs/process NAA since we are testing ability to
+    recover catchability effect, could do sensitivity run with survival
+    random effects and pick one of these settings
 ```{r}
 ##### OM
 # Ecov process & effect magnitude set up
@@ -70,20 +73,16 @@ F_hist <- c("H-MSY", "MSY") # High-then MSY vs. MSY for entire history
 
 # Observation error
 ageComp_sig <- c(0.3, 1.5) # Fleet and index age comp treated with same error
-logIndex_sig <- c(0.1, 0.4)
+log_index_sig <- c(0.1, 0.4) # agg_index_sigma
+log_catch_sig <- 0.1 # agg_catch_sigma
 
 # Factorial combinations
 OMsetup <- expand.grid(Eco_process_sig = Ecov_process_sig, Ecov_process_cor = Ecov_process_cor, Ecov_process_obs_sig = Ecov_process_obs_sig, Ecov_effect = Ecov_effect, F_hist = F_hist, ageComp_sig = ageComp_sig, logIndex_sig = logIndex_sig)
 OMsetup
-
-# Catchability set up
-q_Ecov <- c("includeEcov", "excludeEcov") # May want to include these as a sensitivity run to compare what happens if OM has no ecov effect but EM assumes there is one (ecov process setup won't matter since fitting to data without effect specified in model)
-
-##### OM sensitivity runs
-# Factorial combinations when on ecov effect in OM
-expand.grid(q_Ecov = q_Ecov, F_hist = F_hist, ageComp_sig = ageComp_sig, logIndex_sig = logIndex_sig) # probably do a subset, we have to decide what subset
-
-
+```
+    
+2) Pick subset of OM settings and vary seasonality of q effect in EM
+```{r}
 ##### EM
 # EM factorial settings
 miss_season <- c("BOTH", "ONE", "NONE") # Number of seasons with correctly specified effect, assumes 2 survey indices (spring & fall)
@@ -91,9 +90,19 @@ miss_q <- c("NoEnv", "NoEnvRand", "WithEnvRand", "WithEnv") # Catchability setup
 expand.grid(miss_season = miss_season, miss_q = miss_q)
 ```
 
--   maybe don't vary obs/process NAA since we are testing ability to
-    recover catchability effect, could do sensitivity run with survival
-    random effects and pick one of these settings
+3) May run sensitivity run with no ecov effect in OM but compare same EMs
+```{r}
+# Catchability set up
+q_Ecov <- c("includeEcov", "excludeEcov") # May want to include these as a sensitivity run to compare what happens if OM has no ecov effect but EM assumes there is one (ecov process setup won't matter since fitting to data without effect specified in model)
+
+##### OM sensitivity runs
+# Factorial combinations when no ecov effect in OM
+expand.grid(q_Ecov = q_Ecov, F_hist = F_hist, ageComp_sig = ageComp_sig, logIndex_sig = logIndex_sig) # probably do a subset, we have to decide what subset
+```
+
+
+
+
 
 # set up generic OM
 
@@ -133,34 +142,43 @@ fitting operational WHAM models.
 ```{r}
 source(file.path(here::here(),"common_code", "set_ecov.R"))
 
-# Loop over OMsetup to initialize OMs
+# Loop over rows in OMsetup to initialize OM and EMs
 for(iom in 1:nrow(OMsetup)){
   # Pull generic input settings
   input <- genericInput
   
   # Ecov setup
     Ecov <- list(label = "Ecov",
+                 mean = matrix(rep(0,length(groundfish_info$years)), ncol =1), # Mean = 0
+                 logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), length(groundfish_info$years), ncol=1),
+                 years = groundfish_info$years, 
+                 use_obs = matrix(rep(TRUE, length(groundfish_info$years)), ncol = 1),
                  lag = 0, 
                  where = "q", # Where/how/indices settings need to change if we do sensitivity runs
                  how = 1,
-                 indices = c(1,2),
-                 process_model = "ar1", 
-                 process_mean_vals = rep(0,length(groundfish_info$years)), # End generic inputs for ecov
+                 indices = list(1,2),
+                 process_model = "ar1", # End generic inputs for ecov
+                 process_mean_vals = rep(0,length(groundfish_info$years)), # Mean = 0
                  process_sig_vals = rep(OMsetup$Eco_process_sig[iom]),
                  process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
-                 beta_vals = list(rep(list(matrix(rep(OMsetup$Ecov_effect[iom], length(groundfish_info$ages)), nrow = 1)), 4)), #!!! Why 4 rows?
-                 logsigma = as.matrix(rep(OMsetup$Ecov_process_obs_sig[iom], length(groundfish_info$years))))
+                 beta_vals = list(rep(list(matrix(rep(OMsetup$Ecov_effect[iom], length(groundfish_info$ages)), nrow = 1)), 4))) #!!! Why 4 rows?
     
   input <- set_ecov(input = input, ecov = Ecov)
   
   
-  # 
-  # Fishing history
-F_hist <- c("H-MSY", "MSY") # High-then MSY vs. MSY for entire history
+#   # Fishing history
+#   # input =
+#           set_F_scenario(input, Fhist, Fmsy = Fmsy, max_mult = max_mult_Fmsy, min_mult= min_mult_Fmsy,
+#     change_time = F_change_time) # Function pulled from get_FMSY.R
+#   
+# F_hist <- c("H-MSY", "MSY") # High-then MSY vs. MSY for entire history Fmsy is an option
 
-# Observation error
-ageComp_sig <- c(0.3, 1.5) # Fleet and index age comp treated with same error
-logIndex_sig <- c(0.1, 0.4)
+# Observation error - set L-N SD parameters for catch and index age comps
+input$par$catch_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+input$par$index_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+input$data$agg_catch_sigma[] <- OMsetup[iom,"log_catch_sig"]
+input$data$agg_index_sigma[] <- OMsetup[iom,"log_index_sig"]
+
 
 }
 

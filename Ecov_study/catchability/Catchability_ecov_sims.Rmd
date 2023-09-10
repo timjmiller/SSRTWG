@@ -2,83 +2,28 @@
 title: "Catchability_ecov_sims"
 output: html_document
 date: "2022-11-14"
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
-# Function definitions
-Functions based on simulation testing vignette: https://github.com/timjmiller/wham/blob/devel/vignettes/ex10_simulation.Rmd
 
-## Generate simulated OM data
+Load packages & source functions used in simulation testing
 ```{r}
-#' @param OM A fitted WHAM model to use as the operating model, no default.
-#' 
-#' @return A simulated OM dataset, may be used to overwrite input$data either entirely or in part in simulations
-
-simOM <- function(OM=NULL){
-        input <- OM$input
-        dataOM = OM$simulate(complete=TRUE) # Overwrite input with simulated data & return
-        return(dataOM)
-}
+# Packages
+library(tidyverse)
+library(wham)
+# Simulation testing functions
+source(here::here("Ecov_study","catchability","simOM.R"))
+source(here::here("Ecov_study","catchability","simTestWHAM.R"))
 ```
 
-## Fit specified EMs to simulated OM data and store results
-```{r}
-#' @param nsim A number specifying how many simulations to run, default = 1.
-#' @param OM A fitted WHAM model to use as an operating model, no default.
-#' @param inputEMlist A list of WHAM input data objects for all estimation models, no default.
-#' @param outdir A filename specifying the directory where time-stamped results should be stored, if NULL (default) then the results are not saved as RData,
-#' 
-#' @return A nested list with names and results corresponding to the operating models and all estimation models. For each model results contains a sub-list with items for each simulation's results stored as sub-sub lists (because WHAM results are stored as a list). If outdir != NULL then results are saved as RData and returned as an object from the function.
 
-simTestWHAM <- function(nsim = 1,
-                        OM = NULL,
-                        inputEMlist = NULL,
-                        outdir = NULL){
-        # Simulation set-up
-        obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec") # Data overwritten by OM
-        namesEM <- lapply(inputEMlist, FUN = function(inputEMlist){inputEMlist$model_name}) %>% unlist() # EM model names
-
-        # Storage set-up
-        results <- NULL #!!!!! Still need to work on setting this up
-        storeEM <- lapply(namesEM, FUN = assign, value = list())
-        names(storeEM) <- namesEM
-        
-        # Generate OM data for all simulations
-        sim_inputs <- replicate(nsim, simOM(OM), simplify = FALSE)
-
-        for(isim in 1:nsim){ # Loop over simulations
-          print(paste0("Simulation_", isim))
-                for(iEM in 1:length(inputEMlist)){ # Loop over estimation models
-                        # Pull EM initial input from list
-                        inputEM <- inputEMlist[[iEM]] 
-                        
-                        # Update EM input with OM simulated data
-                        inputEM$data[obs_names] = sim_inputs[[isim]][obs_names]
-                        
-                        # Fit WHAM model to updated EM input and save results
-                        resultEM <- fit_wham(inputEM, do.osa = FALSE, do.retro = FALSE, MakeADFun.silent = TRUE) #!!!! Figure out how to store
-                        
-                        # Store model-specific results for given isim here (append EM results to storage list for that EM)
-                        storeEM[which(namesEM == namesEM[iEM])][[1]] <- append(storeEM[which(namesEM == namesEM[iEM])][[1]], list(resultEM))
-                       
-                } # End loop over EM
-        } # End loop over nsims
-        
-        # Store all results
-        results$OM <- sim_inputs
-        names(results) <- OM$model_name # Name OM column based on model_name
-        results <- append(results, storeEM) # Should add named EM results to the final resuts object
-        
-        # Save time-stamped results as RData if output directory provided as argument
-        timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
-        if(is.null(outdir)==FALSE){
-                save(results, file = paste(outdir, paste0("simWHAM_", nsim, "_nsim_", OM$model_name, "_OM_", timeStamp, ".RData"), sep="/"))
-        }
-        
-        return(results) # Always return results as an object
-}
-```
 
 ### Visual describing results structure
-WHAM results objects only displayed for OM simulation 1, similar structure for other simulations and for estimation models.
+
+WHAM results objects only displayed for OM simulation 1, similar
+structure for other simulations and for estimation models.
+
 ```{r}
 library(DiagrammeR)
         
@@ -146,194 +91,90 @@ graph[nodesep = 0.1, rankdir = LR] # set distance between nodes # for left-right
 ```
 
 ## Post-process results
+
 ```{r}
-#' @param filenames A vector of strings (including .RData extensions) indicating what results files to read in and post process
-#' 
-#' @return A dataframe containing the following columns describing model performance
-#' \itemize{
-#'   \item{Year - Year associated with performance metric}
-#'   \item{sim - Simulation number (based on total number of simulations in all files processed)}
-#'   \item{EM - Name of estimation model used to calculate performance metric}
-#'   \item{converged - Boolean indicating whether model converged with invertible hessian ("Yes") or not ("No")}
-#'   \item{relSSB - Ratio of SSB from EM:OM}
-#'   \item{relF - Ratio of F from EM:OM}
-#'   \item{relR - Ratio of R from EM:OM}
-#'   \item{relEcov_x - Ratio of Ecov_x from EM:OM}
-#' }
 
-
-postprocess_simTestWHAM <- function(filenames = NULL){
-  # Set up storage for processed results
-  perfMet <- NULL
-  
-  # Establish total number of simulations across all files (based on nsim in filename)
-  nsim <- rep(NA, length(filenames))
-  for(ifile in 1:length(filenames)){
-    fileSpecs <- strsplit(filenames[ifile], "_")
-    nsim[ifile] <- fileSpecs[[1]][which(grepl("simWHAM", fileSpecs[[1]]))+1] %>% as.numeric()
-  }
-  
-  nsim <- c(0, nsim) # Add 0 so isim indexing in file processed output goes from 1:total nsim
-  
-  # Loop over files to calculate performance metrics
-  for(ifile in 1:length(filenames)){
-    # Read in RData object
-    load(file=filenames[ifile]) # loads object named "results"
-    
-    # Loop over simulations in each file
-    for(isim in 1:nsim[ifile+1]){ # start at ifile+1 since nsim[ifile] = 0 for sim numbering reasons
-      
-      # Pull out EM names 
-      EMs <- names(results)[2:length(names(results))]
-      
-      # Loop over EM in each ifile
-      for(iEM in 1:length(EMs)){
-        
-        
-        # Store Years, isim, iEM, convergence (mod$opt$convergence == 0 and hessian invertible $na_sdrep == FALSE)
-        Year <- results[EMs[iEM]][[1]][isim][[1]]$years
-        sim <- rep((isim+nsim[ifile]), length(Year)) # + 0 for first file, starts sim numbering at nsim[ifile=1]+1 for second file
-        EM <- rep(EMs[iEM], length(Year))
-        if(check_convergence(results[EMs[iEM]][[1]][isim][[1]], ret=TRUE)$na_sdrep == TRUE){
-          converged <- rep("No", length(Year))
-        } else{
-          converged <- rep("Yes", length(Year))
-        }
-        
-        
-        # Proportion of EM:OM SSB
-          # EM SSB calculated based on plotting script https://github.com/timjmiller/wham/blob/6c30301d5b68c2bb0c0330cc4f112432c7950dfd/R/wham_plots_tables.R#L725-L738
-        tempSSB_EM <- results[EMs[iEM]][[1]][isim][[1]]$sdrep %>% summary() #EM SSB must be calculated, this line triggers an NaNs produced warning for EMs that didn't converge with invertible hessians
-        tempSSB_EM <- tempSSB_EM[rownames(tempSSB_EM) == "log_SSB",]
-        tempSSB_EM <- exp(cbind(tempSSB_EM, tempSSB_EM[,1]+qnorm(0.975)*cbind(-tempSSB_EM[,2], tempSSB_EM[,2])))#/1000 Don't divide by 1000 so units in mt rather than kmt
-        tempSSB_EM <- tempSSB_EM[,1] 
-          # OM SSB
-        tempSSB_OM <- results$OM[isim][[1]]$SSB # Pull SSB directly from simulated data
-          # relative SSB
-        relSSB <- tempSSB_EM/tempSSB_OM
-        
-        
-        # Proportion of EM:OM F
-          # EM calculated F based on plotting scripts
-        mod <- results[EMs[iEM]][[1]][isim][[1]]
-        std = results[EMs[iEM]][[1]][isim][[1]]$sdrep %>% summary()
-        years_full <- mod$years_full
-        n_ages = mod$env$data$n_ages
-        faa.ind <- which(rownames(std) == "log_FAA_tot")
-        log.faa <- matrix(std[faa.ind,1], length(years_full), n_ages)
-        faa.cv <- matrix(std[faa.ind,2], length(years_full), n_ages)
-        age.full.f <- apply(log.faa,1, function(x) max(which(x == max(x))))
-        full.f.ind = cbind(1:length(years_full), age.full.f)
-        log.full.f <- log.faa[full.f.ind]
-        full.f.cv <- faa.cv[full.f.ind]
-        full.f <- exp(log.full.f)
-          # OM F
-        tempF_OM <- c(results$OM[isim][[1]]$F)
-          # relative F
-        relF <- full.f/tempF_OM
-        
-        
-        # Proportion of EM:OM Recruitment 
-          # EM R calculated based on plotting script: https://github.com/timjmiller/wham/blob/6c30301d5b68c2bb0c0330cc4f112432c7950dfd/R/wham_plots_tables.R#L765-L780
-        tempR_EM <-  results[EMs[iEM]][[1]][isim][[1]]$sdrep %>% summary()
-        ind <- rownames(tempR_EM) == "log_NAA_rep"
-        tempR_EM <-  exp(array(tempR_EM[ind,1], dim = c(length(results[EMs[iEM]][[1]][isim][[1]]$years), 8)))
-        tempR_EM <- tempR_EM[,1]
-          # OM recruitment
-        tempR_OM <- results$OM[isim][[1]]$NAA[,1] 
-          # relative R
-        relR <- tempR_EM/tempR_OM
-        
-        
-        # Relative Ecov_x values (EM:OM ratio)
-        if("TRUE" %in% (results[EMs[iEM]][[1]][isim][[1]]$input$data$Ecov_where > 0)){ # If link to ecov specified in EM calculate EM:OM ratio for Ecov_x values
-            # EM
-        tempEcovx_EM <- results[EMs[iEM]][[1]][isim][[1]]$sdrep %>% summary() 
-        tempEcovx_EM <- tempEcovx_EM[rownames(tempEcovx_EM)=="Ecov_x",]
-          # OM
-        tempEcovx_OM <- results$OM[isim][[1]]$Ecov_x
-          # Relative Ecov_x
-        relEcov_x <- tempEcovx_EM[,"Estimate"]/tempEcovx_OM
-        } else{ # If no ecov link specified then save an NA for that model in all years 
-          relEcov_x <- rep(NA, length(Year))
-        }
-        
-        
-        # # Relative Ecov_beta (EM:OM ratio) for all four indices
-        #   # EM
-        # tempEcovbeta_EM <- results[EMs[iEM]][[1]][isim][[1]]$sdrep %>% summary()
-        # tempEcovbeta_EM <- tempEcovbeta_EM[rownames(tempEcovbeta_EM)=="Ecov_beta"]
-        #   # OM
-        # tempEcovbeta_OM <- results$OM[isim][[1]]$Ecov_beta # by age rather than by index?
-        # 
-        
-        
-        # Store results
-          # EM perfMets
-          EMperfMets <- cbind(Year, sim, EM, converged, relSSB, relF, relR, relEcov_x)
-        
-          # Append perfMets to storage
-          perfMet <- rbind(perfMet, EMperfMets)
-        
-      } # End loop over EM
-      
-    } # End loop over simulations in ifile
-    
-  } # End loop over filenames
-  
-  # Clean table rownames and ensure that numeric results are not treated as strings
-  rownames(perfMet) <- NULL
-  colnames(perfMet) <- c("Year", "sim", "EM", "converged", "relSSB", "relF", "relR", "relEcov_x")
-  perfMet <- perfMet %>% as.data.frame() %>% 
-    dplyr::summarise(Year = as.numeric(Year),
-                     sim = as.numeric(sim),
-                     EM = EM,
-                     converged = converged,
-                     relSSB = as.numeric(relSSB),
-                     relF = as.numeric(relF),
-                     relR = as.numeric(relR),
-                     relEcov_x = as.numeric(relEcov_x))
-  
-  
-  return(perfMet)
-}
 ```
 
 # Specifics for environmentally-linked catchability WHAM runs
+
+## Generic stock info that is never misspecified/changed
+```{r}
+# Pull generic groundfish life history/data
+source(file.path(here::here(),"common_code", "make_basic_info.R"))
+groundfish_info <- make_basic_info()
+
+# Assume logistic selectivity for the fleet and all indices
+sel_list <- list(model = c(rep("logistic", groundfish_info$n_fleets),rep("logistic", groundfish_info$n_indices)),
+                   initial_pars = rep(list(c(5,1)), groundfish_info$n_fleets + groundfish_info$n_indices),
+                 n_selblocks = c(groundfish_info$n_fleets + groundfish_info$n_indices)) #fleet, index
+
+# Starting mean M estimate at 0.2, estimate constant M for all ages/years
+M <- list(initial_means = rep(0.2, length(groundfish_info$ages)))
+
+# Assume random about the mean recruitment, beverton-holt stock recruit didn't converge with an invertible hessian
+recruit_model <- 2 
+# NAA_list <- list(sigma="rec") # Recruitment random effects so stock recruit function implemented
+
+genericInput <- prepare_wham_input(basic_info = groundfish_info, 
+                                   selectivity = sel_list, 
+                                   recruit_model = recruit_model) #,
+                                   #NAA_re = NAA_list)
+genericFit <- fit_wham(genericInput, MakeADFun.silent = TRUE, do.retro = FALSE, do.osa = FALSE)
+
+```
+
 ## Define Operating Models (OMs)
-All OMs should have catchability linked to an environmental covariate but may differ in 
-- Uncertainty around this relationship #!!!!!!!!
-- Sign of this relationship (+/-) #!!!!!!!!
+
+All OMs should have catchability linked to an environmental covariate
+but may differ in - Uncertainty around this relationship #!!!!!!!! -
+Sign of this relationship (+/-) #!!!!!!!!
 
 Set up input and fit OM1
+
 ```{r}
 inputOM1 <- prepare_wham_input(model_name = "OM1") #!!!!!!!!!!!!
 OM1 <- fit_wham(inputOM1, do.osa = FALSE, do.retro = FALSE, MakeADFun.silent = TRUE)
 ```
 
 ## Define Estimation Models (EMs)
+
+| q-Env link                    | Seasonal misspecification |
+| ----------------------------- | ------------------------- |
+| Without link                  | Both seasons correct (q-Env link in EM and OM)         |
+| With link                     | 1 season misspecified (q-Env linked but no link in OM) |
+| Without link, q random effect | Both seasons misspecified (no link but link in OM)     |
+| With link, q random effect    | |
+
 Correctly specified link between catchability and the environment
+
 ```{r}
 EMq_env <- prepare_wham_input(model_name = "EMq_env")
 ```
 
-Catchability random effect and a link between catchability and the environment
+Catchability random effect and a link between catchability and the
+environment
+
 ```{r}
 EMq_rand_env <- prepare_wham_input(model_name = "EMq_rand_env")
 ```
 
-Only a catchability random effect, fit to environmental model without link
+Only a catchability random effect, fit to environmental model without
+link
+
 ```{r}
 EMq_rand <- prepare_wham_input(model_name ="EMq_rand")
 ```
 
-No catchability considerations (i.e. status quo), fit to environmental model without link !!!! how does this work if you feed in the ecov_beta?
+No catchability considerations (i.e. status quo), fit to environmental
+model without link !!!! how does this work if you feed in the ecov_beta?
+
 ```{r}
 EMq <- prepare_wham_input(model_name = "EMq")
 ```
 
+## Simulation testing
 
-## Simulation testing 
 ```{r}
 simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_rand, EMq)) # Update once OM/EM specifics finalized!!!!
 
@@ -341,33 +182,31 @@ simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_ra
 ```
 
 ## Post-process simulation results
+
 ```{r}
 postprocess_simTestWHAM(filenames = c("filename1.Rds", "filename2.Rds", "ect.Rds")) # !!! Update once completed runs
 ```
 
-!!!! post-process based on storage & how sims run
-- could run sims based varying isim
-- could also loop over OM but this could be computationally expensive
-- I recommend labeling runs with OM and EM names (and setting these up with informative) so it is easy to pull out results & compare based on model setup
-  - pull from mod$model_name to help aggregate data
+!!!! post-process based on storage & how sims run - could run sims based
+varying isim - could also loop over OM but this could be computationally
+expensive - I recommend labeling runs with OM and EM names (and setting
+these up with informative) so it is easy to pull out results & compare
+based on model setup - pull from mod\$model_name to help aggregate data
 
-
-proposed function with:
-- fitted OM model object
-- list of EM inputs
+proposed function with: - fitted OM model object - list of EM inputs
 
 ### Result formatted as list of lists, save as rdata object in specified directory with timestamp in name
-run1_11_14_22.Rda<-result
- - EM1 
- - EM2 
- - EM3
- - EM4
- - OM result
+
+run1_11_14_22.Rda\<-result - EM1 - EM2 - EM3 - EM4 - OM result
 
 # Other things to consider
-- Other EMs can be developed (e.g. with alternative ecov process assumptions) but should be given DIFFERENT model_names to help with post-processing
+
+-   Other EMs can be developed (e.g. with alternative ecov process
+    assumptions) but should be given DIFFERENT model_names to help with
+    post-processing
 
 # Short script for function testing purposes only!!!
+
 ```{r}
 library(wham)
 # For testing function
@@ -383,3 +222,22 @@ inputEMlist <- list(testinput1, testinput2, testinput3)
 
 test <- simTestWHAM(nsim = 2, OM = OM, inputEMlist = inputEMlist)
 ```
+
+# To do next
+
+- Finish OM setup
+  - change how ecov passed in
+  - set up range of uncertainty values to explore
+  - tim sets equilibrium F (eq_F_init)
+    - setup OM without fit & use model to find F40 proxy
+  - Tim also sets intitial numbers at age based on equilibrium (overfished F=eqFN1*max_mult_Fmsy or not eqFN1=0)
+- Tim lines 71-79 pf make_om use internal processing for prepare_wham_input to plug in setup from M_Ecov_om_setup.R
+- Update what is saved as output
+  - calculate performance metrics
+- Run simulations, hpcc?
+- Separate sims and function scripts
+
+
+
+
+
