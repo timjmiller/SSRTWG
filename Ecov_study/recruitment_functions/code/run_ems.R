@@ -1,3 +1,6 @@
+blah = commandArgs(trailingOnly=TRUE)
+om   = as.integer(blah[1])
+
 library(snowfall)
 library(doParallel)
 library(here)
@@ -27,16 +30,16 @@ run_iter <- function(sim, om, em){
   system(cmd)
 }
 
-x <- detectCores()      
-sfInit(parallel=TRUE, cpus=x-1)
+#x <- detectCores()      
+sfInit(parallel=TRUE, cpus=2)
 
 #for(om in 1:nrow(df.oms)){
-for(om in 1:1){
+#for(om in 1:1){
 #  for(em in 1:nrow(df.ems)){
- for(em in 2){
-    sfExportAll()
-    trash <- sfLapply(1:nsim, function(sim) run_iter(sim,om,em))
-  }
+for(em in 4){
+  sfExportAll()
+  trash <- sfLapply(1:nsim, function(sim) run_iter(sim,om,em))
 }
+#}
 
 sfStop()
