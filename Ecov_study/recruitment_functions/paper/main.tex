@@ -1,0 +1,103 @@
+\documentclass[11pt]{article}
+\usepackage{parskip}
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+\usepackage{amsmath,amsfonts,amsthm,bm}
+\usepackage[english]{isodate}
+\usepackage[final]{pdfpages}
+\usepackage{graphicx} 
+\usepackage{breakcites}
+\usepackage{mathtools}
+\usepackage{soul}
+\usepackage{natbib}
+\usepackage{authblk}
+\usepackage[mathlines]{lineno}
+\usepackage[labelfont=bf,skip=0.5cm,justification=justified,singlelinecheck=false]{caption}
+\usepackage{outlines}
+\bibliographystyle{agu}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Title %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Reliability of stock-recruitment function estimation in state space assessment models}
+\author[1]{Gregory L. Britten}
+\author[2]{Elizabeth Brooks}
+\author[2]{Timothy Miller}
+\affil[1]{Woods Hole Oceanographic Institution}
+\affil[2]{Northeast Fisheries Science Center}
+\date{\small{\printdayoff\today}}
+
+\begin{document}
+\maketitle 
+\linenumbers
+\section*{Abstract}
+Stock-recruitment functions are important but difficult to estimate.
+
+Many assessment models do not estimate stock-recruitment functions.
+
+Maybe state space models help.
+
+Here we ...
+
+We find ...
+
+This has implications for ...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Introduction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Methods}
+We used the WHAM package (ref, commit 77bbd94)
+
+We performed a simulation study with 96 operating models that differed in the stock recruitment function used to simulate the population and a variety of additional variance parameter settings. 
+Variance parameter settings were determined by a review of the range of estimates from recent applications of WHAM in management of stocks of haddock, butterfish, and American plaice in the NE US.
+
+We simulated 100 data sets for each operating model. 
+
+For each simulated data set we fit a set of 4 estimating models.
+
+%%--OPERATING MODELS--%%
+\subsubsection*{Operating Models}
+The general operating model structure follows that of Project 0, reviewed briefly here. 
+The population model tracks 10 age classes: ages 1 to 10+, assuming spawning occurs
+1/4 of the way through the year. 
+The maturity at age was a logistic curve with a50 = 2.89 and slope = 0.88, assumed known in all estimation models.
+
+Weight at age was generated with a LVB growth function
+
+$$ L_a = L_{\inf} \left( 1 - e^{-k(a-t_0}  \right)$$
+
+with $t_0 = 0$, $L_{\inf}=85$, and $k=0.3$. The length-weight relationship is
+
+$$W_a = \theta_1 L_a^{\theta_2}$$
+
+with $\theta_1 = e^{-12.1}$ and $\theta_2 = 3.2$.
+
+We assume a Beverton-Holt stock-recruitment of the form 
+
+$$ N_{1,y} = \frac{\alpha\mathrm{SSB}_{y-1}}{1 + \beta \mathrm{SSB}_{y-1}} $$
+
+where $\alpha$ is referred to as the density-independent recruitment and $\beta$ sets the strength of density-dependence. 
+We specified unfished recruitment at $R_0 = e^{19}$ and $F_{MSY} = F_{\%40} = 0.348$ which corresponds to a steepness of 0.69, $\alpha=0.60$, and $\beta=2.4*10^{-5}$.
+
+%%--ESTIMATING MODELS--%%
+\subsubsection*{Estimating Models}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Results}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Discussion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Appendix A}
+\input{df.oms.tex}
+\input{df.ems.tex}
+
+
+
+\bibliography{refs.bib}
+ 
+\end{document}
