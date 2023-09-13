@@ -5,6 +5,8 @@ omj  = as.integer(args[2])
 emk  = as.integer(args[3])
 #simi <- 1; omj <- 1; emk <- 2
 
+set.seed(simi)
+
 library(wham)
 library(here)
 source(file.path(here::here(), "Ecov_study", "recruitment_functions", "code", "sim_management.R"))
