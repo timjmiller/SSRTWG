@@ -60,8 +60,8 @@ aic_rank_df_fn <- function(df.ems, df.oms, M_est = FALSE) {
   all_res[facs] <- lapply(all_res[facs], factor)
   all_res_mod <- all_res %>%
     mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
-      "0.1" = "Ecov obs SD = 0.1",
-      "0.5" = "Ecov obs SD = 0.5"
+      "0.1" = "sigma[ecov] == 0.1",
+      "0.5" = "sigma[ecov] == 0.5"
     ))
   all_res_mod <- all_res_mod %>%
     mutate(obs_error = recode(obs_error,
@@ -70,10 +70,25 @@ aic_rank_df_fn <- function(df.ems, df.oms, M_est = FALSE) {
     ))
   all_res_mod <- all_res_mod %>%
     mutate(NAA_M_re = recode(NAA_M_re,
-      "rec" = "R",
-      "rec+1" = "R+S",
-      "rec+M" = "R+M"
+      "rec" = "OM=EM: R",
+      "rec+1" = "OM=EM: R+S",
+      "rec+M" = "OM=EM: R+M"
     ))
+  all_res_mod <- all_res_mod %>%
+    mutate(Fhist = recode(Fhist,
+      "H-MSY" = "High->FMSY",
+      "MSY" = "FMSY"
+    ))
+  # all_res_mod <- all_res_mod %>%
+  #   mutate(Ecov_re_sig = recode(Ecov_re_sig,
+  #     "0.1" = "sigma[Ecov] == 0.1",
+  #     "0.5" = "sigma[Ecov] == 0.5"
+  #   ))
+  # all_res_mod <- all_res_mod %>%
+  #   mutate(Ecov_re_cor = recode(Ecov_re_cor,
+  #     "0" = "rho[Ecov] == 0",
+  #     "0.5" = "rho[Ecov] == 0.5"
+  #   ))
   return(all_res_mod)
 }
 
@@ -81,28 +96,32 @@ all_res <- aic_rank_df_fn(df.ems, df.oms, M_est = FALSE)
 
 plt <- ggplot(all_res, aes(x = Ecov_effect, y = emp_p, colour = Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-    facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect assumption)") + xlab("Ecov effect size") +
-    ggtitle("EM: M = 0.2") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    facet_grid(Ecov_obs_sig+obs_error ~ NAA_M_re+Fhist, 
+      labeller = labeller(Ecov_re_sig = label_parsed, obs_error = label_wrap_gen(width = 40), Ecov_obs_sig = label_parsed)) +
+    # facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect assumption)") + xlab(expression(beta[Ecov])) +
+    ggtitle(bquote(beta[M]==log(0.2))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = bquote(sigma[Ecov]:rho[Ecov])) +
     geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi), width = .05, position = position_dodge(0.1)) + 
     geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red") + scale_x_continuous(breaks = c(0, 0.25, 0.5))
 plt
 
-ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_fixed.png"), plt)
+ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_fixed.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res, all_res_mod)
 
 all_res <- aic_rank_df_fn(df.ems, df.oms, M_est = TRUE)
 
 plt <- ggplot(all_res, aes(x = Ecov_effect, y = emp_p, colour = Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-    facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect assumption)") + xlab("Ecov effect size") +
-    ggtitle("EM: M estimated") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    facet_grid(Ecov_obs_sig+obs_error ~ NAA_M_re+Fhist, 
+      labeller = labeller(Ecov_re_sig = label_parsed, obs_error = label_wrap_gen(width = 40), Ecov_obs_sig = label_parsed)) +
+    # facet_grid(Ecov_obs_sig:obs_error ~ NAA_M_re:Fhist, labeller = label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(correct Ecov effect assumption)") + xlab(expression(beta[Ecov])) +
+    ggtitle(bquote(beta[M]~estimated)) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = bquote(sigma[Ecov]:rho[Ecov])) +
     geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi), width = .05, position = position_dodge(0.1)) + 
     geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red") + scale_x_continuous(breaks = c(0, 0.25, 0.5))
 plt
 
-ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_estimated.png"), plt)
+ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_estimated.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res, all_res_mod)
 
 aic_wt_fn <- function(all, est_ind, om_ind = NULL){
@@ -276,88 +295,109 @@ plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = emp_p, colour = Ecov_re_sig:
 plt
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_effect_M_estimated.png"), plt)
 
-#all EM PE assumptions
-for(i in 1:3) {
-  re_mod <- c("rec", "rec+1", "rec+M")[i]
-  #EM:  M estimated
-  em_ind <- which(df.ems$M_est == TRUE) #all EM PE assumptions
-  om_ind <- which(df.oms$NAA_M_re == re_mod) #om and em match
-  Mfixed_rec <- aic_fn(aic_res, em_ind, om_ind)
-  res <- cbind(df.oms[rep(om_ind, each = length(em_ind)),], df.ems[rep(em_ind, length(om_ind)),], n = c(Mfixed_rec))
-  if(i == 1) {
-    all_res <- res
-  } else {
-    all_res <- rbind(all_res, res)
+make_df_fn <- function(M_est = TRUE){
+  #all EM PE assumptions
+  for(i in 1:3) {
+    re_mod <- c("rec", "rec+1", "rec+M")[i]
+    #EM:  M estimated
+    em_ind <- which(df.ems$M_est == M_est) #all EM PE assumptions
+    om_ind <- which(df.oms$NAA_M_re == re_mod) #om and em match
+    Mfixed_rec <- aic_fn(aic_res, em_ind, om_ind)
+    res <- cbind(df.oms[rep(om_ind, each = length(em_ind)),], df.ems[rep(em_ind, length(om_ind)),], n = c(Mfixed_rec))
+    if(i == 1) {
+      all_res <- res
+    } else {
+      all_res <- rbind(all_res, res)
+    }
   }
+  facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","obs_error", "NAA_M_re", "re_config", "Ecov_est")
+  all_res[facs] <- lapply(all_res[facs], factor)
+  all_res_mod <- all_res %>%
+    mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
+      "0.1" = "sigma[ecov] == 0.1",
+      "0.5" = "sigma[ecov] == 0.5"
+    ))
+  all_res_mod <- all_res_mod %>%
+    mutate(obs_error = recode(obs_error,
+      "L" = "Low obs error (indices, age comp)",
+      "H" = "High obs error (indices, age comp)"
+    ))
+  all_res_mod <- all_res_mod %>%
+    mutate(NAA_M_re = recode(NAA_M_re,
+      "rec" = "R",
+      "rec+1" = "R+S",
+      "rec+M" = "R+M"
+    ))
+  all_res_mod <- all_res_mod %>%
+    mutate(re_config = recode(re_config,
+      "rec" = "R",
+      "rec+1" = "R+S",
+      "rec+M" = "R+M"
+    ))
+  all_res_mod <- all_res_mod %>%
+    mutate(Ecov_re_sig = recode(Ecov_re_sig,
+        "0.1" = "sigma[Ecov] == 0.1",
+        "0.5" = "sigma[Ecov] == 0.5"
+    ))
+  all_res_mod <- all_res_mod %>%
+    mutate(Ecov_re_cor = recode(Ecov_re_cor,
+        "0" = "rho[Ecov] == 0",
+        "0.5" = "rho[Ecov] == 0.5"
+    ))
+
+  #1: correct effect assumption and RE will be 1, 
+  #2: correct RE, wrong effect assumption
+  #3: wrong RE, correct effect assumption
+  #4: wrong RE, wrong effect assumption
+  all_res_mod$correct <- 0 
+  all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == FALSE] <- 1
+  all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == TRUE] <- 1
+  all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == TRUE] <- 2
+  all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == FALSE] <- 2
+  all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == FALSE] <- 3
+  all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == TRUE] <- 3
+  all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == TRUE] <- 4
+  all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == FALSE] <- 4
+  all_res_mod$correct <- factor(all_res_mod$correct)
+  temp <- all_res_mod 
+  all_res_mod$Ecov_effect <- factor(all_res_mod$Ecov_effect)
+  all_res_mod <- all_res_mod %>%
+    mutate(correct = recode(correct,
+      "1" = "Correct Effect, Correct PE",
+      "2" = "Wrong Effect, Correct PE",
+      "3" = "Correct Effect, Wrong PE",
+      "4" = "Wrong Effect, Wrong PE"
+    ))
+    return(all_res_mod)
 }
-facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor","obs_error", "NAA_M_re", "re_config", "Ecov_est")
-all_res[facs] <- lapply(all_res[facs], factor)
-all_res_mod <- all_res %>%
-  mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
-    "0.1" = "Ecov obs SD = 0.1",
-    "0.5" = "Ecov obs SD = 0.5"
-  ))
-all_res_mod <- all_res_mod %>%
-  mutate(obs_error = recode(obs_error,
-    "L" = "Low obs error (indices, age comp)",
-    "H" = "High obs error (indices, age comp)"
-  ))
-all_res_mod <- all_res_mod %>%
-  mutate(NAA_M_re = recode(NAA_M_re,
-    "rec" = "R",
-    "rec+1" = "R+S",
-    "rec+M" = "R+M"
-  ))
-all_res_mod <- all_res_mod %>%
-  mutate(re_config = recode(re_config,
-    "rec" = "R",
-    "rec+1" = "R+S",
-    "rec+M" = "R+M"
-  ))
-all_res_mod <- all_res_mod %>%
-  mutate(Ecov_re_sig = recode(Ecov_re_sig,
-    "0.1" = "Ecov SD = 0.1",
-    "0.5" = "Ecov SD = 0.5"
-  ))
-all_res_mod <- all_res_mod %>%
-  mutate(Ecov_re_cor = recode(Ecov_re_cor,
-    "0" = "Ecov Cor = 0",
-    "0.5" = "Ecov Cor = 0.5"
-  ))
 
-#1: correct effect assumption and RE will be 1, 
-#2: correct RE, wrong effect assumption
-#3: wrong RE, correct effect assumption
-#4: wrong RE, wrong effect assumption
-all_res_mod$correct <- 0 
-all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == FALSE] <- 1
-all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == TRUE] <- 1
-all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == TRUE] <- 2
-all_res_mod$correct[all_res_mod$re_config == all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == FALSE] <- 2
-all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == FALSE] <- 3
-all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == TRUE] <- 3
-all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect == 0 & all_res_mod$Ecov_est == TRUE] <- 4
-all_res_mod$correct[all_res_mod$re_config != all_res_mod$NAA_M_re & all_res_mod$Ecov_effect > 0 & all_res_mod$Ecov_est == FALSE] <- 4
-all_res_mod$correct <- factor(all_res_mod$correct)
-temp <- all_res_mod 
-temp$Ecov_effect <- factor(temp$Ecov_effect)
-temp <- temp %>%
-  mutate(correct = recode(correct,
-    "1" = "Correct Effect, Correct PE",
-    "2" = "Wrong Effect, Correct PE",
-    "3" = "Correct Effect, Wrong PE",
-    "4" = "Wrong Effect, Wrong PE"
-  ))
-
-cols <- viridis_pal()(4)
-plt <- ggplot(temp, aes(x = Ecov_effect, y = n, fill = correct)) + scale_fill_viridis_d() + 
+all_res_mod <- make_df_fn(M_est = TRUE)
+plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = n, fill = correct)) + scale_fill_viridis_d() + 
     geom_col(position = "fill") + 
     #geom_col(position = position_dodge(0.1)) + 
-    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + labs(fill = "EM assumptions") +
-    ggtitle("EM: M estimated") + theme(plot.title = element_text(hjust = 0.5))
+    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
+    #facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + xlab(expression(beta[Ecov])) + labs(fill = "EM process error") +
+    ggtitle(bquote(beta[M]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
 plt
 ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_PE_effect_M_estimated.png"), plt, height = 12, width = 20, units = "in")
+
+
+all_res_mod <- make_df_fn(M_est = FALSE)
+plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = n, fill = correct)) + scale_fill_viridis_d() + 
+    geom_col(position = "fill") + 
+    #geom_col(position = position_dodge(0.1)) + 
+    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
+    #facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + xlab(expression(beta[Ecov])) + labs(fill = "EM process error") +
+    ggtitle(bquote(beta[M]==log(0.2))) + theme(plot.title = element_text(hjust = 0.5))
+plt
+ggsave(here("Ecov_study","mortality", "paper", "proportion_correct_PE_effect_M_estimated.png"), plt, height = 12, width = 20, units = "in")
+
+
+
 
 x <- subset(temp, NAA_M_re == "R+M" & Ecov_effect == "0")
 aggregate(x$n, x["re_config"], sum)
