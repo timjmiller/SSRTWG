@@ -2,14 +2,15 @@
 title: Factors affecting reliablity of state-space age-structured assessment models
 author: 
   - Timothy J. Miller^1^
-  - A. Applegate 
-  - G. Britten
-  - E. N. Brooks
-  - G. Fay
-  - A. Hansell
-  - C. M. Legault
-  - B. Muffley
-  - J. Wiedenmann
+  - Andrew Applegate 
+  - Greg Britten
+  - Elizabeth N. Brooks
+  - Gavin Fay
+  - Alex Hansell
+  - Christopher M. Legault
+  - Brandon Muffley
+  - Brian C. Stock
+  - John Wiedenmann
 date: ''
 fontsize: 12pt
 output:
@@ -224,25 +225,7 @@ For each data set simulated from an operating model 20 estimating models were fi
 {\scriptsize \input{em_tab}}
 \end{table}
 
-
-SR estimation or not
-
-Initial values for BH parameters are the true values.
-Initial values for mean R model = true R0.
-
-M estimation or not
-
-NAA_re
-Random effects on Recruitment only or random effects on recruitment and transitions among older numbers at age.
-
-M_re
-Random effects on Recruitment only, M constant across age .
-
-sel_re
-Random effects on Recruitment only, fleet logistic selectivity RE model?
-
-q_re
-Random effects on Recruitment only, one survey catchability RE model?
+The observation error variance of the environmental observations and aggregate catch and indices were all assumed known at the true values.
 
 Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit 77bbd94).
 
@@ -735,7 +718,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{naa_om_em_R_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{naa_om_em_R_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_R_MF_relbias_ssb.png}
 \end{center}
@@ -744,7 +727,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{naa_om_em_R_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{naa_om_em_R_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_R_ME_relbias_ssb.png}
 \end{center}
@@ -753,7 +736,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{naa_om_em_BH_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{naa_om_em_BH_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_BH_MF_relbias_ssb.png}
 \end{center}
@@ -762,7 +745,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{naa_om_em_BH_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{naa_om_em_BH_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_BH_ME_relbias_ssb.png}
 \end{center}
@@ -773,7 +756,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+M process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{M_om_em_R_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{M_om_em_R_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{M_om_R_MF_relbias_ssb.png}
 \end{center}
@@ -782,7 +765,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{M_om_em_R_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{M_om_em_R_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{M_om_R_ME_relbias_ssb.png}
 \end{center}
@@ -791,7 +774,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{M_om_em_BH_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{M_om_em_BH_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{M_om_BH_MF_relbias_ssb.png}
 \end{center}
@@ -800,7 +783,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{M_om_em_BH_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{M_om_em_BH_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{M_om_BH_ME_relbias_ssb.png}
 \end{center}
@@ -811,7 +794,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{Sel_om_em_R_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{Sel_om_em_R_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{Sel_om_R_MF_relbias_ssb.png}
 \end{center}
@@ -820,7 +803,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{Sel_om_em_R_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{Sel_om_em_R_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{Sel_om_R_ME_relbias_ssb.png}
 \end{center}
@@ -829,7 +812,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{Sel_om_em_BH_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{Sel_om_em_BH_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{Sel_om_BH_MF_relbias_ssb.png}
 \end{center}
@@ -838,7 +821,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{Sel_om_em_BH_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{Sel_om_em_BH_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{Sel_om_BH_ME_relbias_ssb.png}
 \end{center}
@@ -849,7 +832,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+q process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{q_om_em_R_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{q_om_em_R_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{q_om_R_MF_relbias_ssb.png}
 \end{center}
@@ -858,7 +841,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{q_om_em_R_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{q_om_em_R_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{q_om_R_ME_relbias_ssb.png}
 \end{center}
@@ -867,7 +850,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{q_om_em_BH_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{q_om_em_BH_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{q_om_BH_MF_relbias_ssb.png}
 \end{center}
@@ -876,9 +859,85 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{q_om_em_BH_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{q_om_em_BH_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{q_om_BH_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### Beverton-Holt parameter estimation
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R and R+S process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{naa_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R+M process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{M_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R+Sel process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{Sel_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R+q process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{q_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### (Mean) natural mortality rate estimation
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R and R+S process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{naa_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R+M process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{M_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R+Sel process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{Sel_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R+q process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{q_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_M_relerror.png}
 \end{center}
 \end{figure}
 \end{landscape}
