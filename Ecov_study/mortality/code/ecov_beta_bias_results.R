@@ -46,9 +46,19 @@ plot_df_fn <- function(df.ems, df.oms, M_est = FALSE) {
   all_res[facs] <- lapply(all_res[facs], factor)
   all_res_mod <- all_res %>%
     mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
-      "0.1" = "Ecov obs SD = 0.1",
-      "0.5" = "Ecov obs SD = 0.5"
+      "0.1" = "SD(Ecov obs) = 0.1",
+      "0.5" = "SD(Ecov obs) = 0.5"
     ))
+  # all_res_mod <- all_res_mod %>%
+  #   mutate(Ecov_re_sig = recode(Ecov_re_sig,
+  #     "0.1" = "sigma(Ecov) = 0.1",
+  #     "0.5" = "sigma(Ecov) = 0.5"
+  #   ))
+  # all_res_mod <- all_res_mod %>%
+  #   mutate(Ecov_re_cor = recode(Ecov_re_cor,
+  #     "0" = "rho(Ecov) = 0",
+  #     "0.5" = "rho(Ecov) = 0.5"
+  #   ))
   all_res_mod <- all_res_mod %>%
     mutate(obs_error = recode(obs_error,
       "L" = "Low obs error (indices, age comp)",
@@ -60,6 +70,9 @@ plot_df_fn <- function(df.ems, df.oms, M_est = FALSE) {
       "rec+1" = "R+S",
       "rec+M" = "R+M"
     ))
+  all_res_mod <- all_res_mod %>% mutate(Fhist = recode(Fhist,
+      "H-MSY" = "F history: High->FMSY",
+      "MSY" = "F history: FMSY"))
   return(all_res_mod)
 }
 
@@ -67,22 +80,21 @@ all_res <- plot_df_fn(df.ems, df.oms, M_est = FALSE)
 plt <- ggplot(all_res, aes(x = Ecov_effect, y = bias_est, colour = Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-    facet_grid(Ecov_obs_sig + obs_error ~ NAA_M_re + Fhist, labeller = label_wrap_gen(width = 35)) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(-1, 1)) + ylab("Median Bias of Ecov effect (beta)") + xlab("Ecov effect size") +
-    ggtitle("EM: M fixed") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    facet_grid(Ecov_obs_sig + obs_error ~ NAA_M_re + Fhist, labeller = labeller(obs_error = label_wrap_gen(width = 35))) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(-1, 1)) + ylab(bquote(Median~Bias~of~beta[Ecov])) + xlab(expression(beta[Ecov])) +
+    ggtitle(bquote(beta[M]==log(0.2))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = expression(sigma[Ecov]:rho[Ecov])) +
     geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .05, position = position_dodge(0.1))
 plt
-
-ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_M_fixed.png"), plt, width = 20, height = 12, unites = "in")
+ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_M_fixed.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res)
 
 all_res <- plot_df_fn(df.ems, df.oms, M_est = TRUE)
 plt <- ggplot(all_res, aes(x = Ecov_effect, y = bias_est, colour = Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-    facet_grid(Ecov_obs_sig + obs_error ~ NAA_M_re + Fhist, labeller = label_wrap_gen(width = 35)) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(-1, 1)) + ylab("Median Bias of Ecov effect (beta)") + xlab("Ecov effect size") +
-    ggtitle("EM: M Estimated") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor") +
+    facet_grid(Ecov_obs_sig + obs_error ~ NAA_M_re + Fhist, labeller = labeller(obs_error = label_wrap_gen(width = 35))) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(-1, 1)) + ylab(bquote(Median~Bias~of~beta[Ecov])) + xlab(expression(beta[Ecov])) +
+    ggtitle(bquote(beta[M]~Estimated)) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = expression(sigma[Ecov]:rho[Ecov])) +
     geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .05, position = position_dodge(0.1))
 plt
 ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_M_estimated.png"), plt, width = 20, height = 12, units = "in")
@@ -118,8 +130,8 @@ plot_df_fn <- function(df.ems, df.oms, M_est = FALSE) {
   all_res[facs] <- lapply(all_res[facs], factor)
   all_res_mod <- all_res %>%
     mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
-      "0.1" = "Ecov obs SD = 0.1",
-      "0.5" = "Ecov obs SD = 0.5"
+      "0.1" = "SD(Ecov obs) = 0.1",
+      "0.5" = "SD(Ecov obs) = 0.5"
     ))
   all_res_mod <- all_res_mod %>%
     mutate(obs_error = recode(obs_error,
@@ -138,42 +150,46 @@ plot_df_fn <- function(df.ems, df.oms, M_est = FALSE) {
       "rec+1" = "R+S",
       "rec+M" = "R+M"
     ))
+  all_res_mod <- all_res_mod %>%
+    mutate(Ecov_re_sig = recode(Ecov_re_sig,
+      "0.1" = "sigma[Ecov] == 0.1",
+      "0.5" = "sigma[Ecov] == 0.5"
+    ))
+  all_res_mod <- all_res_mod %>%
+    mutate(Ecov_re_cor = recode(Ecov_re_cor,
+      "0" = "rho[Ecov] == 0",
+      "0.5" = "rho[Ecov] == 0.5"
+    ))
   return(all_res_mod)
 }
-all_res <- plot_df_fn(df.ems, df.oms, M_est = TRUE)
 library(scales)
 par(mfrow = c(2,4))
 for(i in LETTERS[1:8]) show_col(viridis_pal(option=i, begin = 0.5)(4))
 cols = c(viridis_pal(option="E", begin = 0.5, alpha = 0.5)(4),viridis_pal(option="G", begin = 0.5, alpha = 0.5)(4),viridis_pal(option="H", begin = 0.5, alpha = 0.5)(4))
-# plt <- ggplot(all_res, aes(x = Ecov_effect, y = bias_est, colour = re_config:Ecov_re_sig:Ecov_re_cor)) + scale_colour_manual(values = cols) + 
-#     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
-#     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-#     facet_grid(Ecov_obs_sig + obs_error ~ NAA_M_re + Fhist, labeller = label_wrap_gen(width = 35)) + #, labeller = label_parsed) + 
-#     theme_bw() + coord_cartesian(ylim = c(-1, 1)) + ylab("Median Bias of Ecov effect (beta)") + xlab("Ecov effect size") +
-#     ggtitle("EM: M Estimated") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM PE: Ecov SD:Ecov Cor") +
-#     geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .05, position = position_dodge(0.1))
-# plt
-# ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_all_EMPE_M_estimated.png"), plt, width = 20, height = 12, units = "in")
-# remove(all_res)
 
-all_res <- all_res %>%
-  mutate(Ecov_re_sig = recode(Ecov_re_sig,
-    "0.1" = "Ecov SD = 0.1",
-    "0.5" = "Ecov SD = 0.5"
-  ))
-all_res <- all_res %>%
-  mutate(Ecov_re_cor = recode(Ecov_re_cor,
-    "0" = "Ecov Cor = 0",
-    "0.5" = "Ecov Cor = 0.5"
-  ))
+all_res <- plot_df_fn(df.ems, df.oms, M_est = TRUE)
+plt <- ggplot(all_res, aes(x = Ecov_effect, y = bias_est, colour = re_config)) + scale_colour_viridis_d() + 
+    geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
+    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor  ~ NAA_M_re + Fhist + obs_error, 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_wrap_gen(width = 15))) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(-0.5, 0.5)) + ylab(bquote(Median~Bias~of~beta[Ecov])) + xlab(expression(beta[Ecov])) +
+    ggtitle(bquote(beta[M]~Estimated)) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM process error") +
+    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .05, position = position_dodge(0.1))
+plt
+ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_all_PE_effect_M_estimated.png"), plt, width = 20, height = 12, units = "in")
+remove(all_res)
+
+all_res <- plot_df_fn(df.ems, df.oms, M_est = FALSE)
 
 plt <- ggplot(all_res, aes(x = Ecov_effect, y = bias_est, colour = re_config)) + scale_colour_viridis_d() + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor  ~ NAA_M_re + Fhist + obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(-0.5, 0.5)) + ylab("Median Bias of Ecov effect (beta)") + xlab("Ecov effect size") +
-    ggtitle("EM: M Estimated") + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "Ecov SD:Ecov Cor:EM PE") +
+    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor  ~ NAA_M_re + Fhist + obs_error, 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_wrap_gen(width = 15))) + #, labeller = label_parsed) + 
+    theme_bw() + coord_cartesian(ylim = c(-0.5, 0.5)) + ylab(bquote(Median~Bias~of~beta[Ecov])) + xlab(expression(beta[Ecov])) +
+    ggtitle(bquote(beta[M]==log(0.2))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM process error") +
     geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .05, position = position_dodge(0.1))
 plt
-ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_all_PE_effect_M_estimated.png"), plt, width = 20, height = 12, units = "in")
+ggsave(here("Ecov_study","mortality", "paper", "Ecov_beta_bias_all_PE_effect_M_fixed.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res)

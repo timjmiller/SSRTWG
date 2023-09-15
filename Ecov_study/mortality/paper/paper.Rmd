@@ -1,0 +1,324 @@
+---
+title: Factors affecting inferences on natural mortality and associated environmental effects
+author: 
+  - Timothy J. Miller^1^
+  - Andrew Applegate 
+  - Greg Britten
+  - Elizabeth N. Brooks
+  - Gavin Fay
+  - Alex Hansell
+  - Christopher M. Legault
+  - Brandon Muffley
+  - Brian C. Stock
+  - John Wiedenmann
+date: ''
+fontsize: 12pt
+output:
+  pdf_document:
+    citation_package: natbib
+    fig_caption: yes
+    includes:
+      in_header:
+      - options.sty
+      - journalshortcuts.tex
+    keep_tex: yes
+    number_sections: yes
+  html_document:
+    df_print: paged
+  word_document: default
+header-includes:
+- \usepackage{xspace}
+- \usepackage{bm}
+- \usepackage{caption,graphics}
+- \usepackage{graphicx}
+- \usepackage{makecell}
+- \renewcommand\figurename{Fig.}
+- \captionsetup{labelsep=period, singlelinecheck=false}
+- \newcommand{\changesize}[1]{\fontsize{#1pt}{#1pt}\selectfont}
+- \renewcommand{\arraystretch}{1.5}
+- \renewcommand\theadfont{}
+csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
+biblio-style: cjfas2.bst
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
+knitr::opts_knit$set(root.dir = '../' )
+library(knitr)
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(png)
+library(forcats)
+```
+
+$^1$corresponding author: timothy.j.miller@noaa.gov, Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
+
+\pagebreak
+
+## Abstract {-}
+
+### Keywords {-}
+
+\pagebreak
+
+# Introduction {-}
+<!--
+Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada and the Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}. State-space approaches that use random effects to parameterize process errors is considered best practice and a requirement for the next generation of stock assessment models.
+
+Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. Furthermore, there is a wide range of potential random effects structures and model parameters that can be treated as random effects in assessment models. We know relatively little about the statistical reliability of such models or the ability of information criteria to distinguish among such alternative structures. 
+
+ But those studies focus primarily on Gaussian linear models.
+review literature on reliability of hidden/latent process models. Primarily in other fields.
+
+Convergence results can be useful for understanding how bad convergence in applications to real data might direct the practitioner to which alternative random effects configurations is be more appropriate. The type of convergence that we might use as a diagnostic is important. And what rule of thumb we use for certain criteria e.g. 1e-6? large SEs/CVs?
+-->
+
+Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, sources of process error (M or survival), fishing history, temporal variation in environmental covariates, and magnitude of the effect of the covariate on natural mortality. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error (M, NAA), and whether (mean) M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
+
+# Methods {-}
+
+We used the WHAM package \citep[][commit 77bbd94]{millerstock20,stockmiller21} to configure all operating models and estimation models. This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetal23} and is used for management of haddock, butterfish, plaice, bluefish in the Northeast US.
+
+We completed a simulation study with a number of operating models. Many of the characteristics of the operating models are the same as those used by \citet{milleretal_wp}. 
+
+288 total operating models.
+We simulated 100 data sets for each operating model.
+For each simulated data set we fit a set of 12 estimating models.
+
+## Operating models {-}
+
+### Population {-}
+
+The population model tracks 10 age classes: ages 1 to 10+ and we assume spawning occurs 1/4 of the way through the year. The maturity at age was a logistic curve with a50 = 2.89 and slope = 0.88 and assumed known in all estimation models (Figure \ref{om_maturity}).
+
+\begin{figure}
+\caption{The proportion mature at age assumed for the population in all operating and estimating models.}\label{om_maturity}
+\begin{center}
+\includegraphics[width = \textwidth]{om_maturity.png}
+\end{center}
+\end{figure}
+  
+Weight at age was generated with a LVB growth function
+$$
+L_a = L_{\infty}\left(1 - e^{-k(a - t_0)}\right)
+$$
+where $t_0 = 0$, $L_\infty = 85$, and $k = 0.3$, and a L-W relationship such that 
+$$
+W_a = \theta_1 L_a^{\theta_2}
+$$
+where $\theta_1 = e^{-12.1}$ and $\theta_2 = 3.2$ (Figure \ref{om_waa}).
+
+\begin{figure}
+\caption{The weight at age assumed for the population in all operating and estimating models.}\label{om_waa}
+\begin{center}
+\includegraphics[width = \textwidth]{om_waa.png}
+\end{center}
+\end{figure}
+
+We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components are constant in the NAA and survey catchability process error operating models. Therefore steepness and unfished recruitment are also constant over the time period for those operating models \citep{millerbrooks21}. We specified unfished recruitment = $R_0 = e^{10}$ and $\Fmsy = \Fspr[40] = 0.348$ equated to a steepness of 0.69 and $\alpha=0.60$ and $\beta = 2.4 \times 10^{-5}$ for the
+\[
+N_{1,y} = \frac{\alpha \text{SSB}_{y-1}}{1 + \beta \text{SSB}_{y-1}} 
+\]
+Beverton-Holt parameterization (Figure \ref{om_sr}). For OMs without process errors on natural mortality we assumed the rate was assumed 0.2. For OMs with process errors on natural mortality the mean rate was 0.2. 
+
+\begin{figure}
+\caption{The Beverton-Holt stock recruit relationship assume for all operating models.}\label{om_sr}
+\begin{center}
+\includegraphics[width = \textwidth]{om_sr.png}
+\end{center}
+\end{figure}
+
+Two alternative fishing histories were used for operating models. In the first scenario, the stock experiences overfishing for the first 20 years and fishing at \Fmsy for the last 20 years. In the second scenario, the stock is fished at \Fmsy for the entire time period. The magnitude of the overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from \citet{wiedenmannetal19}. \Citet{legaultetal23} also used similar approaches to defining fishing mortality histories for operating models.
+
+Initial population was configured at the equilibrium distribution fishing at either $F = 2.5\times \Fmsy$ or $F = \Fmsy$ for the two alternative fishing histories. That is for a deterministic model, the age composition would not change over time when the fishing mortality was constant at the respective level. 
+
+For operating models with time-varying random effects or covariate effects on M, steepness is not constant, but we used the same alpha and beta parameters as other operating models this equates to a steepness and R0 at the mean of the time series process for M. For operating models with time-varying random effects for fishery selectivity, \Fmsy is also not constant however we use the same F history as other operating models which corresponds to Fmsy at the mean selectivity parameters.
+
+### Environmental covariate {-}
+
+In the WHAM model, environmental covariates are assumed to be described as state-space processes with annual observations of the true latent covariate. The latent covariate is assumed to be Gaussian AR1
+$$
+E_y|E_{y-1} \sim \text{N}\left(\mu_\text{Ecov}\left(1-\rho_\text{Ecov}\right) + \rho_\text{Ecov} E_{y-1}, \sigma^2_\text{Ecov}\right)
+$$
+with marginal mean $\mu_\text{Ecov}$ and variance $\frac{\sigma^2_\text{Ecov}}{1-\rho_\text{Ecov}^2}$. The configuration of the latent environmental covariate in the operating models have one of two alternate assumptions about the marginal standard deviation and autocorrelation parameter:
+\begin{itemize}
+\item marginal standard deviation $\in \{0.1, 0.5\}$
+\item AR1 correlation $\rho_\text{Ecov} \in \{0, 0.9\}$
+\end{itemize}
+
+The observations of the latent environmental covariate are assumed to be unbiased and Gaussian
+$$
+\text{ecov}_y|E_y \sim \text{N}\left(E_y,\sigma^2_\text{ecov}\right)
+$$
+The standard deviation of the environmental observations in the operating models is one of two values:
+\begin{itemize}
+\item standard deviation $\in \{0.1, 0.5\}$
+\end{itemize}
+Figure \ref{om_ecov_example} provides example simulations of the latent process and observations under the alternative configurations.
+
+\begin{figure}
+\caption{Example simulations of environmental covariate latent processes and observations with different levels of observation error, and different assumptions about variability of the latent process.}\label{om_ecov_example}
+\begin{center}
+\includegraphics[width = \textwidth]{Ecov_true_obs_example.png}
+\end{center}
+\end{figure}
+
+
+### Random effects on recruitment, survival, and natural mortality {-}
+
+Internally, WHAM treats natural mortality as a log-transformed parameter 
+$$
+\log M_y = \beta_M + \beta_{\text{Ecov}} E_y + \epsilon_{M,y}
+$$
+that is a linear combination of a mean $\beta_M$ and any annual covariate $\beta_{\text{Ecov}}$ and random effects marginally distributed as $\epsilon_{M,y} \sim \text{N}\left(0,\sigma_M^2\right)$.
+
+The covariate effect is one of 3 alternative values in the operating models:
+\begin{itemize}
+\item $\beta_\text{Ecov} \in \{0,0.25,0.5\}$
+\end{itemize}
+
+The alternative configurations of random effects on recruitment, natural mortality, survival
+\begin{itemize}
+\item uncorrelated random effects on R and survival with $\sigma_R = 0.5$, marginal standard deviation of survival of older age clases of 0.3
+\item uncorrelated random effects on R and survival with $\sigma_R = 0.5$, marginal standard deviation of natural mortality of 0.3
+\end{itemize}
+
+### Fleets {-}
+
+We assumed a single fleet operating year round for catch observations with logistic selectivity for the fleet with $a_{50} = 5$ and slope = 1 (Figure \ref{om_mean_selectivity}). This selectivity is was used to define \Fmsy for the Beverton-Holt stock recruitment parameters above. We assumed a logistic-normal distribution for the age-composition observations for the fleet.
+
+\begin{figure}
+\caption{The selectivity at age assumed for the fishing fleet in operating models without selectivity random effects. The mean selectivity at age across time for the fishing fleet in operating models with selectivity random effects.}\label{om_mean_selectivity}
+\begin{center}
+\includegraphics[width = \textwidth]{om_mean_selectivity.png}
+\end{center}
+\end{figure}
+
+
+### Indices {-}
+
+Two time series of surveys are assumed and observed in numbers rather than biomass for the entire 40 year period with one occurring in the spring (0.25 way through the year) and one in the fall (0.75 way through the year). Actually we have it currently configured that both occur 0.5 way through the year. Catchability of both surveys are assumed to be 0.1.  Like the fishing fleet, we assumed logistic selectivity for both indices with $a_{50} = 5$ and slope = 1 and a logistic-normal distribution for the age-composition observations.
+
+
+### Observation Uncertainty {-}
+
+Standard deviation for log-aggregate catch was 0.1. There were two levels of observation error variance for indices and age composition for both indices and fleet catch. A low uncertainty specification assumed standard deviation of both series of log-aggregate index observations was 0.1 and the standard deviation of the logistic-normal for age composition observations was 0.3 In the high uncertainty specification the standard deviation for log-aggregate indices was 0.4 and that for the age composition observations was 1.5. For all estimating models, standard deviation for log-aggregate observations was assumed known whereas that for the logistic-normal age composition observations was estimated.
+
+The factorial combinations of fishing histories, index and age composition observation error assumptions, latent environmental covariate and observation assumptions, covariate effects on natural mortality, and sources of process error (R, R+S, R+M) results in 288 different operating models.
+
+
+## Estimating models {-}
+
+For each data set simulated from an operating model 12 estimating models were fit. There were three factors defining the configuration of each estimating model
+
+\begin{itemize}
+\item whether the mean natural mortality $\beta_M$ was estimated or assumed known ($\log 0.2$)
+\item whether an environmental effect $\beta_\text{Ecov}$ was estimated or not (fixed at 0)
+\item whether the process errors were just on recruitment (R), on recruitment and survival (R+S) or on recruitment and natural mortality (R+M)
+\end{itemize}
+The configuration of the process errors in the estimating models matched the corresponding options in the operating models. For example, if R+S was assumed for both the estimating and operating model, the assumptions about process errors matched. The environmental covariate observations were included in all estimation models to ensure comparability of information criteria. The observation error variance of the environmental observations and aggregate catch and indices were all assumed known at the true values.
+
+
+Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/ecov_study/mortality. We used the wham package version 1.X.X (commit 77bbd94).
+
+## Measures of reliability {-}
+
+The first measure of reliability we investigated was frequency of convergence when fitting each estimating model to the simulated data sets. There are various ways to assess convergence of the fit. We summarized 5 alternative categories of convergence.
+1. Did the optimization routine (stats::nlminb) complete without error?
+2. Did the stats::nlminb convergence flag = 0 indicate successful convergence?
+3. Was the maximum absolute value of the gradient of the log-likelihood < $1\times10^{-6}$?
+4. Did TMB::sdreport provide non-NA values for all fixed effects standard errors?
+5. Did TMB::sdreport provide all standard errors < 100?
+
+The first convergence criterion assesses whether the model crashes. The third is a measure that assesses how flat the likelihood is at the optimized point of the likelihood surface. The fourth and fifth criteria are specific to the hessian-based standard error reporting provided by TMB. the TMB::sdreport function will sometimes return standard error estimates even when the calculated hessian is not invertible (fourth criterion). It will also provide large standard errors for some parameters that are not estimated well or are near bounds on the transformed scale that is of primary interest. For example, variance parameters for random effects can often be estimated near 0 when the fit suggests no variation in the random effects or, equivalently, that the model without random effects is better.  
+
+
+### AIC for model selection {-}
+
+We measured the frequency of correct model selection using marginal AIC. For a given operating model we the set of models that were considered all made the same assumptions on whether or not to estimate M and whether a stock-recruit function is assumed.
+
+
+### Bias {-}
+
+We calculated relative errors of various quantities for each fitted estimation model for the $i$th simulated data set as
+$$
+{\text{RE}_i}\left(\theta\right) = \frac{\widehat \theta_i - \theta_i}{\theta_i}
+$$
+and measured bias as the median relative error and constructed 95\% confidence intervals using the binomial distribution approach as in \citet{stockmiller21}. 
+
+
+# Results {-}
+
+## Convergence performance {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of convergence of estimating models with alternative process error assumptions fit to simulated populations and data sets from operating models. The convergence criterion is an invertible hessian providing standard error estimates for all fixed effects parameters. Vertical lines represent 95\% confidence intervals. All estimating models estimate environmental covariate effects on natural mortality but assume the mean mortality parameter $\beta_\text{M} = \log 0.2$.}\label{convergence_M_fixed}
+\begin{center}
+\includegraphics[width = \textwidth]{proportion_good_hessian_ecov_effect_est_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Probability of convergence of estimating models with alternative process error assumptions fit to simulated populations and data sets from operating models. The convergence criterion is an invertible hessian providing standard error estimates for all fixed effects parameters. Vertical lines represent 95\% confidence intervals. All estimating models estimate environmental covariate effects on natural mortality and the mean mortality parameter $\beta_\text{M}$.}\label{convergence_M_estimated}
+\begin{center}
+\includegraphics[width = \textwidth]{proportion_good_hessian_ecov_effect_est_M_est.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+## AIC performance {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets for each operating model where the estimation model with the lowest AIC had correct assumptions of process errors (R,R+S,R+M) and/or about whether the environmental covariate affected natural mortality. All estimating models assumed the mean mortality parameter $\beta_\text{M} = \log 0.2$.}\label{aic_rank_M_fixed}
+\begin{center}
+\includegraphics[width = \textwidth]{proportion_correct_PE_effect_M_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets for each operating model where the estimation model with the lowest AIC had correct assumptions of process errors (R,R+S,R+M) and/or about whether the environmental covariate affected natural mortality. All estimating models estimate the mean mortality parameter $\beta_\text{M}$.}\label{aic_rank_M_estimated}
+\begin{center}
+\includegraphics[width = \textwidth]{proportion_correct_PE_effect_M_estimated.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+## Bias {-}
+
+
+
+
+# Discussion {-}
+
+The estimating models assumed variances of aggregate catch and index observations was known. This approximation may be appropriate for indices where we have a reliable estimate of uncertainty based on the survey design (), but there may be better approaches for the aggregate catch such as an informed prior on the standard errors with realistic bounds.
+
+
+# Acknowledgements {-}
+
+This work was funded by NOAA Fisheries Northeast Fisheries Science Center. 
+
+<!--
+# CRediT authorship contribution statement {-}
+
+**Timothy J. Miller:** Conceptualization, Methodology, Writing - original draft, Formal analysis, Visualization.
+ -->
+ 
+\pagebreak
+
+\bibliography{paper}
+<!-- \bibliography{project-0-paper}
+\bibliographystyle{/home/tmiller2/work/bibliographies/cjfas2}  -->
+
+<div id="refs"></div>
+
+\pagebreak
+
+
+

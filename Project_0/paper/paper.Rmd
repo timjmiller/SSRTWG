@@ -1,7 +1,16 @@
 ---
 title: Factors affecting reliablity of state-space age-structured assessment models
 author: 
-  - Timothy J. Miller^1^, Britten, Brooks, Fay, Legault, Stock, et al.
+  - Timothy J. Miller^1^
+  - Andrew Applegate 
+  - Greg Britten
+  - Elizabeth N. Brooks
+  - Gavin Fay
+  - Alex Hansell
+  - Christopher M. Legault
+  - Brandon Muffley
+  - Brian C. Stock
+  - John Wiedenmann
 date: ''
 fontsize: 12pt
 output:
@@ -53,221 +62,215 @@ $^1$corresponding author: timothy.j.miller@noaa.gov, Northeast Fisheries Science
 
 \pagebreak
 
-# Introduction  
+# Introduction {-}
 
-Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada and the Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}.
+Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada and the Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}. State-space approaches that use random effects to parameterize process errors is considered best practice and a requirement for the next generation of stock assessment models.
 
-Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. We know relatively little about the statistical reliability of such models. Also, there is a wide range of potential random effects structures in assessment models and we  know little about the ability of information criteria to distinguish among such alternative structures. 
+Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. Furthermore, there is a wide range of potential random effects structures and model parameters that can be treated as random effects in assessment models. We know relatively little about the statistical reliability of such models or the ability of information criteria to distinguish among such alternative structures. 
 
-But those studies focus primarily on Gaussian linear models.
+<!-- But those studies focus primarily on Gaussian linear models.
 review literature on reliability of hidden/latent process models. Primarily in other fields.
+-->
 
 Convergence results can be useful for understanding how bad convergence in applications to real data might direct the practitioner to which alternative random effects configurations is be more appropriate. The type of convergence that we might use as a diagnostic is important. And what rule of thumb we use for certain criteria e.g. 1e-6? large SEs/CVs?
 
 Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, sources of process error (M, NAA, q, sel), and fishing history. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error (M, NAA< q, sel), whether a stock-recruit model was estimated, and whether M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
 
-# Methods
+# Methods {-}
 
-Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetalinpress} and is used for management of haddock, butterfish, plaice, bluefish in the Northeast US.
+Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetal23} and is used for management of haddock, butterfish, plaice, bluefish in the Northeast US.
 
-We completed a simulation study with a number of operating models that can be categorized based on where random effects are assumed: abundance at age, natural mortality, fleet selectivity, or index catchability. For each operating model assumptions about variance of process errors and observations are required and the values we used were based on a review of the range of estimates from recent applications of WHAM in management of stocks of haddock, butterfish, and American plaice in the NE US.
+We completed a simulation study with a number of operating models that can be categorized based on where process error random effects are assumed: abundance at age (R, R+S), natural mortality (R+M), fleet selectivity (R+Sel), or index catchability (R+q). For each operating model assumptions about variance of process errors and observations are required and the values we used were based on a review of the range of estimates from recent applications of WHAM in management of stocks of haddock, butterfish, and American plaice in the NE US.
 
+78 total operating models.
 We simulated 100 data sets for each operating model.
-For each simulated data from each operating model we fit a set of estimating models.
+For each simulated data set we fit a set of 20 estimating models.
 
-Y estimating models fit to each 
+## Operating models {-}
 
-## Operating models
+### Population {-}
 
-common to all:   
-  ages = 1 to 10+, 
-  M
-  maturity
+The population model tracks 10 age classes: ages 1 to 10+ and we assume spawning occurs 1/4 of the way through the year. The maturity at age was a logistic curve with a50 = 2.89 and slope = 0.88 and assumed known in all estimation models (Figure \ref{om_maturity}).
 
-marginal standard deviations for random effects are defined in tables of operating models.
-
-
-
-### Population
-
-There are 10 age classes: ages 1 to 10+.
-
-Spawning was assumed to occur 1/4 of the way through the year.
-
-Natural mortality rate was assumed 0.2 when it was constant and the mean of the time series process for operating models with M random effects.
-maturity a50 = 2.89, slope = 0.88
+\begin{figure}
+\caption{The proportion mature at age assumed for the population in all operating and estimating models.}\label{om_maturity}
+\begin{center}
+\includegraphics[width = \textwidth]{om_maturity.png}
+\end{center}
+\end{figure}
   
-Weight at age was generated with a LVB growth
-\[
+Weight at age was generated with a LVB growth function
+$$
 L_a = L_{\infty}\left(1 - e^{-k(a - t_0)}\right)
-\]
+$$
 where $t_0 = 0$, $L_\infty = 85$, and $k = 0.3$, and a L-W relationship such that 
-\[
+$$
 W_a = \theta_1 L_a^{\theta_2}
-\]
-where $\theta_1 = e^{-12.1}$ and $\theta_2 = 3.2$.
+$$
+where $\theta_1 = e^{-12.1}$ and $\theta_2 = 3.2$ (Figure \ref{om_waa}).
 
-We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components are constant in the NAA and survey catchability process error operating models. Therefore steepness and unfished recruitment are also constant over the time period for those operating models (Miller and Brooks 2021). We specified unfished recruitment = $R_0 = e^{10}$ and $F_{\text{MSY}} = F_{40} = 0.348$ equated to a steepness of 0.69 and $\alpha=0.60$ and $\beta = 2.4 \times 10^{-5}$ for the
+\begin{figure}
+\caption{The weight at age assumed for the population in all operating and estimating models.}\label{om_waa}
+\begin{center}
+\includegraphics[width = \textwidth]{om_waa.png}
+\end{center}
+\end{figure}
+
+We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components are constant in the NAA and survey catchability process error operating models. Therefore steepness and unfished recruitment are also constant over the time period for those operating models \citep{millerbrooks21}. We specified unfished recruitment = $R_0 = e^{10}$ and $\Fmsy = \Fspr[40] = 0.348$ equated to a steepness of 0.69 and $\alpha=0.60$ and $\beta = 2.4 \times 10^{-5}$ for the
 \[
 N_{1,y} = \frac{\alpha \text{SSB}_{y-1}}{1 + \beta \text{SSB}_{y-1}} 
 \]
-Beverton-Holt parameterization.
+Beverton-Holt parameterization (Figure \ref{om_sr}). For OMs without process errors on natural mortality we assumed the rate was assumed 0.2. For OMs with process errors on natural mortality the mean rate was 0.2. 
+
+\begin{figure}
+\caption{The Beverton-Holt stock recruit relationship assume for all operating models.}\label{om_sr}
+\begin{center}
+\includegraphics[width = \textwidth]{om_sr.png}
+\end{center}
+\end{figure}
+
+Two alternative fishing histories were used for operating models. In the first scenario, the stock experiences overfishing for the first 20 years and fishing at \Fmsy for the last 20 years. In the second scenario, the stock is fished at \Fmsy for the entire time period. The magnitude of the overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from \citet{wiedenmannetal19}. \Citet{legaultetal23} also used similar approaches to defining fishing mortality histories for operating models.
+
+Initial population was configured at the equilibrium distribution fishing at either $F = 2.5\times \Fmsy$ or $F = \Fmsy$ for the two alternative fishing histories. That is for a deterministic model, the age composition would not change over time when the fishing mortality was constant at the respective level. 
+
+For operating models with time-varying random effects for M, steepness is not constant, but we used the same alpha and beta parameters as other operating models this equates to a steepness and R0 at the mean of the time series process for M. For operating models with time-varying random effects for fishery selectivity, \Fmsy is also not constant however we use the same F history as other operating models which corresponds to Fmsy at the mean selectivity parameters.
+
+### Fleets {-}
+
+We assumed a single fleet operating year round for catch observations with logistic selectivity for the fleet with $a_{50} = 5$ and slope = 1 (Figure \ref{om_mean_selectivity}). This selectivity is was used to define \Fmsy for the Beverton-Holt stock recruitment parameters above. We assumed a logistic-normal distribution for the age-composition observations for the fleet.
+
+\begin{figure}
+\caption{The selectivity at age assumed for the fishing fleet in operating models without selectivity random effects. The mean selectivity at age across time for the fishing fleet in operating models with selectivity random effects.}\label{om_mean_selectivity}
+\begin{center}
+\includegraphics[width = \textwidth]{om_mean_selectivity.png}
+\end{center}
+\end{figure}
 
 
-The magnitude of the overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from Wiedenmann et al. (20XX). Legault et al. (2023) also used similar approaches to defining fishing mortality histories for operating models.
+### Indices {-}
 
-Currenlty, initial population is configured at the equilibrium distribution fishing at $F = 2.5\times F_{\text{MSY}}$.
+Two time series of surveys are assumed and observed in numbers rather than biomass for the entire 40 year period with one occurring in the spring (0.25 way through the year) and one in the fall (0.75 way through the year). Actually we have it currently configured that both occur 0.5 way through the year. Catchability of both surveys are assumed to be 0.1.  Like the fishing fleet, we assumed logistic selectivity for both indices with $a_{50} = 5$ and slope = 1 and a logistic-normal distribution for the age-composition observations.
 
-Initial population was configured at the equilibrium distribution fishing at either $F = 2.5\times F_{\text{MSY}}$ or $F = F_{\text{MSY}}$ for the two alternative fishing histories. That is for a deterministic model, the age composition would not change over time when the fishing mortality was constant at the respective level. 
-
-
-For operating models with time-varying random effects for M, steepness is not constant, but we used the same alpha and beta parameters as other operating models this equates to a steepness and R0 at the mean of the time series process for M. For operating models with time-varying random effects for fishery selectivity, Fmsy is also not constant however we use the same F history as other operating models which corresponds to Fmsy at the mean selectivity parameters.
-
-### Fleets
-
-We assumed a single fleet operating year round for catch observations with logistic selectivity for the fleet with $a_{50} = 5$ and slope = 1. This selectivity is was used to define $F_{\text{MSY}}$ for the Beverton-Holt stock recruitment parameters above. We assumed a logistic-normal distribution for the age-composition observations for the fleet.
-
-### Fishing histories
-All operating models assumed one of two different fishing histories. 
-One : Fishing mortality is equal to Fmsy (0.348) for the whole 40 year period.
-Two : Fishing mortality is 2.5 times Fmsy for the first 20 years then changes to Fmsy for the last 20 years.
-
-### Indices
-Two time series of surveys are assumed and observed in numbers rather than biomass for the entire 40 year period with one occurring in the spring (0.25 way through the year) and one in the fall (0.75 way through the year). Actually we have it currently configured that both occur 0.5 way through the year. Catchability of both surveys are assumed to be 0.1.  We assumed logistic selectivity for both indices with $a_{50} = 5$ and slope = 1. We assumed a logistic-normal distribution for the age-composition observations.
-
-
-### Observation Uncertainty 
+### Observation Uncertainty {-}
 
 Standard deviation for log-aggregate catch was 0.1. There were two levels of observation error variance for indices and age composition for both indices and fleet catch. A low uncertainty specification assumed standard deviation of both series of log-aggregate index observations was 0.1 and the standard deviation of the logistic-normal for age composition observations was 0.3 In the high uncertainty specification the standard deviation for log-aggregate indices was 0.4 and that for the age composition observations was 1.5. For all estimating models, standard deviation for log-aggregate observations was assumed known whereas that for the logistic-normal age composition observations was estimated.
 
 
-### Operating models with random effects on numbers at age
+### Operating models with random effects on numbers at age {-}
 
-24 operating models, 16 Sel re operating models and 16 q re operating models.
-Table of process error assumptions
+The factorial combinations of fishing histories, observation error assumptions, and marginal variance assumptions for recruitment and survival results in 24 different operating models with random effects on recruitment and survival (Table \ref{naa_om_table}).
 
 \begin{landscape}
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}
+\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}\label{naa_om_table}
 {\footnotesize \input{naa_om_tab}}
 \end{table}
 \end{landscape}
 
 
-### Operating models with random effects on natural mortality
+### Operating models with random effects on natural mortality {-}
 
-16 operating models
-Table of process error assumptions
-
-NOTE: inv_trans_rho function in set_M.R is mis-defined. Will affect correlation parameters assigned in operating models?
-
-Steepness and BRPs are not constant when M is time-varying (Miller and Brooks 2021). We uses the a/b parameters for the B-H defined for Fmsy = F40 at the mean M = 0.2 as defined above. 
+The factorial combinations of fishing histories, observation error assumptions, and marginal variance and autocorrelation assumptions for natural mortality results in 16 different operating models with random effects on natural mortality (Table \ref{M_om_table}). Internally, WHAM treats natural mortality as a log-transformed parameter 
+$$
+\log M_y = \mu_M + \epsilon_{M,y}
+$$
+that is a linear combination of a mean $\mu_M$ and any annual random effects marginally distributed as $\epsilon_{M,y} \sim \text{N}\left(0,\sigma_M^2\right)$. The values for the marginal variance and correlation parameters assumed in the operating models are given in Table \ref{M_om_table}.
 
 \begin{landscape}
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{M_om_table}
 {\input{M_om_tab}}
 \end{table}
 \end{landscape}
 
 
-### Operating models with random effects on fleet selectivity
+### Operating models with random effects on fleet selectivity {-}
 
-16 operating models
-Table of process error assumptions
-
-BRPs are not constant when fleet selectivity is time-varying. We uses the a/b parameters for the B-H defined for Fmsy = F40 at the mean of the time series model for selectivity which is the same as the constant selectivity defined above. 
+The factorial combinations of fishing histories, observation error assumptions, and marginal variance and autocorrelation assumptions for selectivity parameters results in 16 different operating models with random effects on selectivity (Table \ref{sel_om_table}). Internally, WHAM treats selectivity parameter $s$ as a logit-transformed parameter 
+$$
+\log\left(\frac{p_{s,y}-l_{s}}{u_{s}-p_{s,y}}\right) = \mu_s + \epsilon_{s,y}
+$$
+that is a linear combination of a mean $\mu_s$ and any annual random effects marginally distributed as $\epsilon_{s,y} \sim \text{N}\left(0,\sigma_s^2\right)$ where the lower and upper bounds of the parameter ($l_s$ and $u_s$) can be specified by the user. All selectivity parameters are either $a_50$ or slope parameters and we assume bounds of 0 and 10 for all selectivity parameters for all operating and estimating models. The values for the marginal variance and correlation parameters assumed in the operating models are given in Table \ref{sel_om_table}. 
 
 \begin{landscape}
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{sel_om_table}
 {\input{Sel_om_tab}}
 \end{table}
 \end{landscape}
 
-### Operating models with random effects on index catchability
+### Operating models with random effects on index catchability {-}
 
-16 operating models
-Table of process error assumptions
+The factorial combinations of fishing histories, observation error assumptions, and marginal variance and autocorrelation assumptions for catchability results in 16 different operating models with random effects on catchability (Table \ref{q_om_table}). Internally, WHAM treats catchability for index $i$ as a logit-transformed parameter 
+$$
+\log\left(\frac{q_{i,y}-l_{i}}{u_{i}-q_{i,y}}\right) = \mu_i + \epsilon_{i,y}
+$$
+that is a linear combination of a mean $\mu_i$ and any annual random effects marginally distributed as $\epsilon_{i,y} \sim \text{N}\left(0,\sigma_i^2\right)$ where the lower and upper bounds of the catchability ($l_i$ and $u_i$) can be specified by the user. Here we assume bounds of 0 and 1000 for all operating and estimating models. For operating and estimation models with process errors on catchability, the temporal variation is only assumed for the first index. The values for the marginal variance and correlation parameters assumed in the operating models are given in Table \ref{q_om_table}
+
 
 \begin{landscape}
 \begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}
+\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{q_om_table}
 {\input{q_om_tab}}
 \end{table}
 \end{landscape}
 
 
-## Estimating models
+## Estimating models {-}
+
+For each data set simulated from an operating model 20 estimating models were fit. A total of 32 different estimating models were fit across all operating models where the subset of 20 depended on the source of process error (Table \ref{em_table}). The first 20 estimating models in Table \ref{em_table} were fit to simulate data sets from R and R+S operating models. Estimating models 5 to 24 in Table \ref{em_table} were fit to simulate data sets from R+M operating models. Estimating models 5 to 20 and 25-28 in Table \ref{em_table} were fit to simulate data sets from R+Sel operating models. Finally, estimating models 5 to 20 and 29-32 in Table \ref{em_table} were fit to simulate data sets from R+q operating models.
 
 \begin{table}
-\caption{Distinguishing characteristics of the estimating models.}
+\caption{Distinguishing characteristics of the estimating models.}\label{em_table}
 {\scriptsize \input{em_tab}}
 \end{table}
 
-32 estimating models
-Table of estimating models
-
-1-20 fit to each NAA RE operating model
-5-24 fit to each M RE operating model
-5-20,25-28 to each sel RE operating model
-5-20, 29-32 to each q RE operating model
-
-SR estimation or not
-
-Make plot of S-R curve, Fmsy = F40
-Initial values for BH parameters are the true values.
-Initial values for mean R model = true R0.
-
-M estimation or not
-
-NAA_re
-Random effects on Recruitment only or random effects on recruitment and transitions among older numbers at age.
-
-M_re
-Random effects on Recruitment only, M constant across age .
-
-sel_re
-Random effects on Recruitment only, fleet logistic selectivity RE model?
-
-q_re
-Random effects on Recruitment only, one survey catchability RE model?
+The observation error variance of the environmental observations and aggregate catch and indices were all assumed known at the true values.
 
 Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit 77bbd94).
 
+## Measures of reliability {-}
 
-Summary statitics
+The first measure of reliability we investigated was frequency of convergence when fitting each estimating model to the simulated data sets. There are various ways to assess convergence of the fit. We summarized 5 alternative categories of convergence.
+1. Did the optimization routine (stats::nlminb) complete without error?
+2. Did the stats::nlminb convergence flag = 0 indicate successful convergence?
+3. Was the maximum absolute value of the gradient of the log-likelihood < $1\times10^{-6}$?
+4. Did TMB::sdreport provide non-NA values for all fixed effects standard errors?
+5. Did TMB::sdreport provide all standard errors < 100?
 
-Bias
-
-Mohn's rho
-
-marginal AIC
-
-convergence types: 
-1) whether the optimization completed
-2) nlminb convergence flag = 0
-3) max abs gradient < 1e-6
-4) No NAs for SE of fixed effects returned from TMB::sdreport
-5) No SE NAs AND no SE > 100
+The first convergence criterion assesses whether the model crashes. The third is a measure that assesses how flat the likelihood is at the optimized point of the likelihood surface. The fourth and fifth criteria are specific to the hessian-based standard error reporting provided by TMB. the TMB::sdreport function will sometimes return standard error estimates even when the calculated hessian is not invertible (fourth criterion). It will also provide large standard errors for some parameters that are not estimated well or are near bounds on the transformed scale that is of primary interest. For example, variance parameters for random effects can often be estimated near 0 when the fit suggests no variation in the random effects or, equivalently, that the model without random effects is better.  
 
 
-# Results
+### AIC for model selection {-}
 
-Do each of these by type of operating model (Naa, M, sel, q)
+We measured the frequency of correct model selection using marginal AIC. For a given operating model we the set of models that were considered all made the same assumptions on whether or not to estimate M and whether a stock-recruit function is assumed.
 
-## Convergence performance
+We also measured the frequency of correctly selecting models with Beverton-Holt stock recruit function assumed over models without the stock-recruit function (null model). Because the proportions of simulations where the correct model was chosen for a given set of operating model factors implied generally poor performance of AIC, we analyzed the effect of variation in SSB on the probability of lower AIC of the BH models. We fit binomial generalize linear models to the observed AIC choice for each data set as a function of log(SD(SSB)) and operating model.
 
-convergence types: 
-1) whether the optimization completed
-2) nlminb convergence flag = 0
-3) max abs gradient < 1e-6
-4) No NAs for SE of fixed effects returned from TMB::sdreport
-5) No SE NAs AND no SE > 100
+
+
+### Bias {-}
+
+We estimated relative bias 
+$$
+\widehat {\text{RB}}\left(\theta\right) = \frac{1}{N} \sum^N_{i = 1} \frac{\widehat \theta_i - \theta_i}{\theta_i}
+$$
+of annual SSB and fully-selected fishing mortality for each estimation model and constructed 95\% confidence intervals for the median relative bias using the binomial distribution approach as in \citet{stockmiller21}. We also estimated bias of stock-recruit parameters for estimation models that assumed the Beverton-Holt stock recruit function.
+
+
+### Mohn's rho {-}
+
+We estimated Mohn's rho for SSB, fully-selected fishing mortality, and recruitment for each estimation model. We estimated 7 peels for each estimation model. We calculated median 95\% confidence intervals for Mohn's rho using the same methods as that for bias.
+
+# Results {-}
+
+## Convergence performance {-}
 
 Probability of convergence was better for models that assumed the correct source of process error, assumed M was known, and did not assume stock-recruit relationships.
 
-### R, R+S operating models
+### R, R+S operating models {-}
+
+Figures \ref{naa_om_em_R_MF_convergence} to \ref{naa_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -305,7 +308,9 @@ Probability of convergence was better for models that assumed the correct source
 \end{figure}
 \end{landscape}
 
-### R+M operating models
+### R+M operating models {-}
+
+Figures \ref{M_om_em_R_MF_convergence} to \ref{M_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -343,7 +348,9 @@ Probability of convergence was better for models that assumed the correct source
 \end{figure}
 \end{landscape}
 
-### R+Sel operating models
+### R+Sel operating models {-}
+
+Figures \ref{Sel_om_em_R_MF_convergence} to \ref{Sel_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -381,7 +388,9 @@ Probability of convergence was better for models that assumed the correct source
 \end{figure}
 \end{landscape}
 
-### R+q operating models
+### R+q operating models {-}
+
+Figures \ref{q_om_em_R_MF_convergence} to \ref{q_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -420,11 +429,172 @@ Probability of convergence was better for models that assumed the correct source
 \end{landscape}
 
 
-## AIC performance for process error structure
-\clearpage 
-### Numbers at age operating models
+## AIC performance for process error structure {-}
 
-## Estimating models include alternative random effects options: NAA, M, sel, q
+### R, R+S operating models {-}
+
+Figures \ref{naa_om_proportion_best_aic_R_MF} to \ref{naa_om_proportion_best_aic_SR_ME}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R and R+S process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.} \label{naa_om_proportion_best_aic_R_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_proportion_best_aic_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R and R+S process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.} \label{naa_om_proportion_best_aic_R_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_proportion_best_aic_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R and R+S process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is fixed at the true value.} \label{naa_om_proportion_best_aic_SR_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_proportion_best_aic_SR_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R and R+S process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is estimated.} \label{naa_om_proportion_best_aic_SR_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_proportion_best_aic_SR_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+### R+M operating models {-}
+
+Figures \ref{M_om_proportion_best_aic_R_MF} to \ref{M_om_proportion_best_aic_SR_ME}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+M process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.} \label{M_om_proportion_best_aic_R_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_proportion_best_aic_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+M process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.} \label{M_om_proportion_best_aic_R_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_proportion_best_aic_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+M process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is fixed at the true value.} \label{M_om_proportion_best_aic_SR_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_proportion_best_aic_SR_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+M process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is estimated.} \label{M_om_proportion_best_aic_SR_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_proportion_best_aic_SR_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### R+Sel operating models {-}
+
+Figures \ref{Sel_om_proportion_best_aic_R_MF} to \ref{Sel_om_proportion_best_aic_SR_ME}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+Sel process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.} \label{Sel_om_proportion_best_aic_R_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_proportion_best_aic_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+Sel process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.} \label{Sel_om_proportion_best_aic_R_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_proportion_best_aic_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+Sel process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is fixed at the true value.} \label{Sel_om_proportion_best_aic_SR_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_proportion_best_aic_SR_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+Sel process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is estimated.} \label{Sel_om_proportion_best_aic_SR_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_proportion_best_aic_SR_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+### R+q operating models {-}
+
+Figures \ref{q_om_proportion_best_aic_R_MF} to \ref{q_om_proportion_best_aic_SR_ME}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+q process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.} \label{q_om_proportion_best_aic_R_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_proportion_best_aic_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+q process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is estimated.} \label{q_om_proportion_best_aic_R_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_proportion_best_aic_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+q process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is fixed at the true value.} \label{q_om_proportion_best_aic_SR_MF}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_proportion_best_aic_SR_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Proportion of simulated data sets from OMs with R+q process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate a stock-recruit relationship and and M is estimated.} \label{q_om_proportion_best_aic_SR_ME}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_proportion_best_aic_SR_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+<!--
+## Estimating models include alternative random effects options: NAA, M, sel, q {-}
 \clearpage 
 
 
@@ -448,13 +618,14 @@ Probability of convergence was better for models that assumed the correct source
 {\input{naa_om_em_R_MF_aic_table}}
 \end{table}
 \clearpage 
-
+-->
 
 \clearpage 
-## AIC performance for stock-recruit relationship
+## AIC performance for stock-recruit relationship {-}
 
-### R, R+S operating models
+Tables of frequencies where AIC chooses correct stock-recruit assumption imply poor performance of AIC, but figures showing effect of variation in SSB demonstrate that large variation in SSB is needed to reduce Type II errors for marginal AIC.
 
+### R, R+S operating models {-}
 
 \begin{table}
 \caption{Operating models and estimation models all assume matching R or R+S process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
@@ -476,7 +647,7 @@ Probability of convergence was better for models that assumed the correct source
 \end{center}
 \end{figure}
 
-### R+M operating models
+### R+M operating models {-}
 
 \begin{table}
 \caption{Operating models and estimation models all assume matching R+M process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
@@ -497,7 +668,7 @@ Probability of convergence was better for models that assumed the correct source
 \end{center}
 \end{figure}
 
-### R+Sel operating models
+### R+Sel operating models {-}
 
 \begin{table}
 \caption{Operating models and estimation models all assume matching R+Sel process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
@@ -518,7 +689,7 @@ Probability of convergence was better for models that assumed the correct source
 \end{center}
 \end{figure}
 
-### R+q operating models
+### R+q operating models {-}
 
 \begin{table}
 \caption{Operating models and estimation models all assume matching R+q process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
@@ -539,15 +710,15 @@ Probability of convergence was better for models that assumed the correct source
 \end{center}
 \end{figure}
 
-\clearpage 
-## Bias, Mean Square error
 
-  Certain basic parameters (stock-recruit pars, M, variance parameters)
-  SSB, F, R, BRPs
+\clearpage 
+## Bias {-}
+
+### R, R+S OMs {-}
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models that estimate mean recruitment and M is fixed at the true value.}\label{naa_om_em_R_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{naa_om_em_R_MF_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_R_MF_relbias_ssb.png}
 \end{center}
@@ -556,7 +727,7 @@ Probability of convergence was better for models that assumed the correct source
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models that estimate mean recruitment and M is estimated.}\label{naa_om_em_R_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{naa_om_em_R_ME_relbias_ssb}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_R_ME_relbias_ssb.png}
 \end{center}
@@ -565,27 +736,370 @@ Probability of convergence was better for models that assumed the correct source
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models that estimates a BH stock-recruitment function and M is fixed at the true value.}\label{naa_om_em_SR_MF_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{naa_om_em_BH_MF_relbias_ssb}
 \begin{center}
-\includegraphics[width = \textwidth]{naa_om_SR_MF_relbias_ssb.png}
+\includegraphics[width = \textwidth]{naa_om_BH_MF_relbias_ssb.png}
 \end{center}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative bias of for SSB for estimating models that estimates a BH stock-recruitment function and M is estimated.}\label{naa_om_em_SR_ME_relbias_ssb}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R and R+S process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{naa_om_em_BH_ME_relbias_ssb}
 \begin{center}
-\includegraphics[width = \textwidth]{naa_om_SR_ME_relbias_ssb.png}
+\includegraphics[width = \textwidth]{naa_om_BH_ME_relbias_ssb.png}
 \end{center}
 \end{figure}
 \end{landscape}
 
-# Discussion
+### R+M OMs {-}
 
-The estimating models assumed variances of aggregate catch and index observations was known. This approximation may be appropriate for indices
-where we have a reliable estimate of uncertainty based on the survey design (), but there may be better approaches for the aggregate
-catch such as an informed prior on the standard errors with realistic bounds.
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{M_om_em_R_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_R_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{M_om_em_R_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_R_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{M_om_em_BH_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_BH_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+M process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{M_om_em_BH_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_BH_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### R+Sel OMs {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{Sel_om_em_R_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_R_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{Sel_om_em_R_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_R_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{Sel_om_em_BH_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_BH_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+Sel process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{Sel_om_em_BH_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_BH_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### R+q OMs {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{q_om_em_R_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_R_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models do not assume a stock-recruit relationship and estimate M.}\label{q_om_em_R_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_R_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models assume a BH stock-recruitment function and M is fixed at the true value.}\label{q_om_em_BH_MF_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_BH_MF_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative bias of SSB for estimating models fitted to data sets simulated with R+q process errors. Estimation models assume a BH stock-recruitment function and estimate M.}\label{q_om_em_BH_ME_relbias_ssb}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_BH_ME_relbias_ssb.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### Beverton-Holt parameter estimation
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R and R+S process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{naa_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R+M process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{M_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R+Sel process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{Sel_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of Beverton-Holt stock recruit parameters for estimating models with correct process error assumptions fitted to data sets simulated with R+q process errors. Estimation models either assume the correct natural mortality rate or estimate it.}\label{q_om_SR_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_SR_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### (Mean) natural mortality rate estimation
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R and R+S process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{naa_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R+M process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{M_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R+Sel process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{Sel_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of (mean) natural mortality rate for estimating models with correct process error assumptions fitted to data sets simulated with R+q process errors. Estimation models assumed either no stock-recruit relationship or estimated a Beverton-Holt relationship.}\label{q_om_M_relbias}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_M_relerror.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+## Mohn's $\rho$ {-}
+
+### R, R+S OMs {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{naa_om_em_R_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_mohns_rho_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models do not assume a stock-recruit function and M estimated.}\label{naa_om_em_R_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_mohns_rho_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models assume a B-H stock-recruit function and M is fixed at the true value.}\label{naa_om_em_BH_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_mohns_rho_BH_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R and R+S process errors.  Estimation models assume a B-H stock-recruit function and M estimated.}\label{naa_om_em_BH_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{naa_om_mohns_rho_BH_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### R+M OMs {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+M process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{M_om_em_R_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_mohns_rho_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+M process errors.  Estimation models do not assume a stock-recruit function and M estimated.}\label{M_om_em_R_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_mohns_rho_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+M process errors.  Estimation models assume a B-H stock-recruit function and M is fixed at the true value.}\label{M_om_em_BH_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_mohns_rho_BH_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+M process errors.  Estimation models assume a B-H stock-recruit function and M estimated.}\label{M_om_em_BH_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{M_om_mohns_rho_BH_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### R+Sel OMs {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{Sel_om_em_R_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_mohns_rho_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models do not assume a stock-recruit function and M estimated.}\label{Sel_om_em_R_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_mohns_rho_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models assume a B-H stock-recruit function and M is fixed at the true value.}\label{Sel_om_em_BH_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_mohns_rho_BH_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+Sel process errors.  Estimation models assume a B-H stock-recruit function and M estimated.}\label{Sel_om_em_BH_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{Sel_om_mohns_rho_BH_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+### R+q OMs {-}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+q process errors.  Estimation models do not assume a stock-recruit function and M is fixed at the true value.}\label{q_om_em_R_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_mohns_rho_R_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+q process errors.  Estimation models do not assume a stock-recruit function and M estimated.}\label{q_om_em_R_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_mohns_rho_R_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+q process errors.  Estimation models assume a B-H stock-recruit function and M is fixed at the true value.}\label{q_om_em_BH_MF_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_mohns_rho_BH_MF.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median Mohn's $\rho$ for SSB, fully-selected F, and recruitment for estimating models fitted to data sets simulated with R+q process errors.  Estimation models assume a B-H stock-recruit function and M estimated.}\label{q_om_em_BH_ME_mohns_rho}
+\begin{center}
+\includegraphics[width = \textwidth]{q_om_mohns_rho_BH_ME.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+
+# Discussion {-}
+
+The estimating models assumed variances of aggregate catch and index observations was known. This approximation may be appropriate for indices where we have a reliable estimate of uncertainty based on the survey design (), but there may be better approaches for the aggregate catch such as an informed prior on the standard errors with realistic bounds.
 
 
 # Acknowledgements {-}
@@ -607,117 +1121,6 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 <div id="refs"></div>
 
 \pagebreak
-<!-- 
-\begin{figure}
-\caption{Diagram of twin-trawl gear configuration. One of the two nets is rigged with a rockhopper sweep (8) and the other is rigged with a chain sweep (7) and for both a restrictor rope (5) is used to obtain consistent net spread. The other importand components are the side wires (1), middle wire (2), doors (3), the clump weight (4), and the acoustic mensuration system (6).  The side where the rockhopper and chainsweep gears gears were deployed varied throughout the experimental tows of each.}\label{twin_trawl_diagram}
-\begin{center}
-\includegraphics[width = \textwidth]{twin_trawl_diagram.pdf}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\caption{The \textsl{F/V Karen Elizabeth} twin-trawl vessel rigged with rockhopper sweep gear on the right and chain sweep gear on the left.}\label{twin_trawl_photo}
-\begin{center}
-\includegraphics[width = \textwidth]{twin_trawl_photo_small.png}
-\end{center}
-\end{figure} -->
-
-
-<!--
-\begin{figure}
-\caption{Diagram of the standard Northeast Fisheries Science Center rockhopper sweep center and wing sections.}\label{rockhopper_schematic}
-\begin{center}
-\includegraphics[width = 0.7\textwidth]{rockhopper_schematic_1.pdf}
-\includegraphics[width = 0.7\textwidth]{rockhopper_schematic_2.pdf}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\caption{Diagram of the chain sweep designed maximize bottom contact and flatfish capture.}\label{chainsweep_schematic}
-\begin{center}
-\includegraphics[width = \textwidth]{chainsweep_schematic.pdf}
-\end{center}
-\end{figure}
-\clearpage
-  -->
-<!-- \begin{landscape}
-\begin{figure}
-\caption{Annual locations of stations where the F/V Karen Elizabeth conducted twin-trawl sets with the standard bottom trawl gear and the gear with a chain sweep instead of the rockhopper sweep.}\label{tow_locations}
-\begin{center}
-\includegraphics[width = \textwidth]{TwinTrawlLocationsAllYears.jpg}
-\end{center}
-\end{figure}
-\end{landscape}
-
-\clearpage 
-
-\begin{figure}
-\caption{Relative efficiency  of gears using chain and rockhopper sweeps from the best performing model for each species (Table \ref{best_model_compare}). Blue and red denote results for day and night data, respectively, and thick and thin lines represent overall and paired-tow specific estimates of relative catch efficiency, respectively. There was no diel effect in the best model for American plaice. Points represent empirical estimates of relative efficiency for paired observation by length and paired tow. Polygons and dashed lines represent hessian-based and bootstrap-based 95\% confidence intervals, respectively.}\label{sp_rho_plot}
-\begin{center}
-\includegraphics[height = 0.8\textheight]{sp_rho_plot.pdf}
-\end{center}
-\end{figure}
-
-\clearpage 
-
-\begin{figure}
-\caption{Annual spring (blue) and fall (red) biomass estimates for each managed stock assuming 100\% efficiency for chain sweep gear with shaded polygons representing bootstrap-based 95\% confidence intervals. Relative catch efficiency at size estimates and bootstraps are from the best performing model for each species (Table \ref{best_model_compare}).}\label{stock_biomass_plot}
-\begin{center}
-\includegraphics[height = 0.8\textheight]{stock_biomass_plot.pdf}
-\end{center}
-\end{figure}
-
-\clearpage
-
-\begin{figure}
-\caption{Implied catch efficiency of annual spring (blue) and fall (red) bottom trawl survey biomass estimates for each managed stock assuming 100\% efficiency for chain sweep gear with shaded polygons representing bootstrap-based 95\% confidence intervals. Relative catch efficiency at size estimates and bootstraps are from the best performing model for each species (Table \ref{best_model_compare}).}\label{stock_biomass_efficiency_plot}
-\begin{center}
-\includegraphics[height = 0.8\textheight]{stock_biomass_efficiency_plot.pdf}
-\end{center}
-\end{figure} -->
-
-\clearpage
 
 
 
-
-<!-- \begin{table}
-\caption{Managed stocks associated with the species for which relative catch efficiency was estimated.}\label{stock_definition_table}
-{\input{stock_definition_table}}
-\end{table}
-
-\begin{landscape}
-\begin{table}
-\caption{Description of relative catch efficiency ($\rho$) and beta-binomial dispersion ($\phi$) parameterizations for binomial and beta-binomial models and number of marginal likelihood parameters ($n_p$) for the 13 base models from \citet{miller13} and fit to paired chain sweep and rockhoppersweep tow data for each species.}\label{base_model_description}
-{\input{base_model_description}}
-\end{table}
-\end{landscape}
-
-\begin{landscape}
-\begin{table}
-\caption{Number of paired tows where fish were captured and the number of fish captured and measured for lengths for each species in total and by day or night.}\label{data_table}
-{\changesize{10}\input{data_table}}
-\end{table}
-\end{landscape}
-
-\begin{landscape}
-\begin{table}\caption{Difference in AIC for each of the 13 models described in Table \ref{base_model_description} from the best model ($\bf 0$) by species.}\label{base_model_compare}
-{\input{base_model_compare}}
-\end{table}
-\end{landscape}
-
-\begin{landscape}
-\begin{table}\caption{Best performing models from Table \ref{base_model_compare} and extended models that include diel effects on relative catch efficiency for each species with the number of parameters for each model ($n_p$) and the differences in AIC ($\Delta$AIC) from the best of the three models ($\bf 0$) by species.}\label{best_model_compare}
-{\changesize{7}\input{best_model_compare}}
-\end{table}
-\end{landscape}
-
-\begin{table}
-\caption{Average of annual (2009-2019) ratios of coefficients of variation for calibrated and uncalibrated biomass indices for each stock by seasonal survey. Coefficients of variation are based on bootstrap resampling of paired tow observations, survey station data and associated length and weight observations. Annual indices for fall 2017 were not available for summer flounder, SNE-MA windowpane, and SNE-MA yellowtail flounder.}\label{stock_cv_ratios}
-{\input{stock_cv_ratios}}
-\end{table}
-
-\begin{table}
-\caption{Average correlation of annual (2009-2019) calibrated biomass indices for each stock by seasonal survey. Annual indices for fall 2017 were not available for SNE-MA windowpane and SNE-MA yellowtail flounder.}\label{stock_mean_cor}
-{\input{stock_mean_cor}}
-\end{table} -->

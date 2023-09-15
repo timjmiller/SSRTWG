@@ -83,7 +83,7 @@ all_naa_sd_log_SSB <- t(matrix(unname(unlist(all_naa_sd_log_SSB)), nrow = 100))
 colnames(all_naa_sd_log_SSB) <- paste0("sim", 1:100)
 df <- cbind(df.oms, all_naa_sd_log_SSB)
 df <- df %>% pivot_longer(cols = paste0("sim", 1:100), names_to = "sim", values_to = "sd_log_SSB")
-df$aic_BH_ME <- sapply(all)
+#df$aic_BH_ME <- sapply(all)
 
 #om_ind <- which(!is.na(df.oms$NAA_sig))
 om_ind <- 1:24
@@ -208,47 +208,48 @@ for(i in 1:4) {
 }
 
 x <- t(sapply(1:24, coefficient_fn, df =df, col = "BH_best_MF"))
+x <- t(sapply(1:24, coefficient_fn, df =df, col = "BH_best_ME"))
 
-make_df <- function(all_aic, est_ind = SR_rec_Mest, om_ind = NULL){
-  if(!is.null(om_ind)) all_aic <- all_aic[om_ind]
-  df_out <- cbind.data.frame(OM = numeric(),
-    R_sig = numeric(), NAA_sig = numeric(), Fhist = character(), obs_error = character(), sd_log_SSB = numeric(),
-    est_SR = numeric(), est_R = numeric())
-  for(i in 1:length(all_aic)){
-    #est_ind has No SR assumption first
-    if(df.oms$NAA_sig[om_ind[i]] == 0) {
-        est_ind <- which(use.df.ems$re_config %in% c("rec") & use.df.ems$M_est == TRUE)
-    } else est_ind <- which(use.df.ems$re_config %in% c("rec+1") & use.df.ems$M_est == TRUE)
-    tmp = t(apply(all_aic[[i]][rev(est_ind),],2, function(x) {
-      if(any(!is.na(x))) {
-        return(x == min(x,na.rm=T))
-      } else return(rep(NA, length(x)))
-    })) #tmp is rows of T and F for which model had lowest AIC
-    df_i <- cbind.data.frame(OM = i, R_sig = df.oms$R_sig[om_ind[i]], NAA_sig = df.oms$NAA_sig[om_ind[i]], 
-        Fhist = df.oms$Fhist[om_ind[i]], obs_error = df.oms$obs_error[om_ind[i]],
-      sd_log_SSB = all_naa_sd_log_SSB[[om_ind[i]]], est_SR = as.numeric(tmp[,1]), est_R = as.numeric(tmp[,2]))
-    df_out <- rbind(df_out, df_i)
-  }
-  return(df_out)
-}
-temp = make_df(all_naa_aic, SR_rec_Mest, om_ind)
-fit <- glm(cbind(BH_best_MF) ~ factor(OM) * log(sd_log_SSB), family = binomial, data = temp)
-x <- t(sapply(1:24, coefficient_fn, df =temp))
-temp <- cbind(temp, pred= NA)
-temp$pred[(!is.na(temp$est_R) & !is.na(temp$est_SR))] <- predict(fit, type = "response")
-facs <- c("Fhist","NAA_sig", "R_sig", "obs_error")
-temp[facs] <- lapply(temp[facs], as.factor)
-library(ggplot2)
-plt <- ggplot(temp, aes(x = sd_log_SSB, y = pred, colour = Fhist:obs_error)) + 
-  scale_color_viridis_d() +
-  facet_grid(R_sig ~ NAA_sig, labeller = label_both) +
-  theme_bw() +
-  geom_rug(position = "jitter", sides = "b", alpha = 0.5) +
-  geom_line(linewidth = 2, alpha = 0.5) + 
-  xlab("SD(log(SSB))") + ylab("P(B-H assumption best)") 
-plt
-  #scale_linetype_discrete(labels = c("2.5 Fmsy -> Fmsy", "Fmsy"))
-ggsave(here("Project_0", "paper", "pred_SR_best_NAA_oms.png"), plt, height = 12, width = 20, units = "in")
+# make_df <- function(all_aic, est_ind = SR_rec_Mest, om_ind = NULL){
+#   if(!is.null(om_ind)) all_aic <- all_aic[om_ind]
+#   df_out <- cbind.data.frame(OM = numeric(),
+#     R_sig = numeric(), NAA_sig = numeric(), Fhist = character(), obs_error = character(), sd_log_SSB = numeric(),
+#     est_SR = numeric(), est_R = numeric())
+#   for(i in 1:length(all_aic)){
+#     #est_ind has No SR assumption first
+#     if(df.oms$NAA_sig[om_ind[i]] == 0) {
+#         est_ind <- which(use.df.ems$re_config %in% c("rec") & use.df.ems$M_est == TRUE)
+#     } else est_ind <- which(use.df.ems$re_config %in% c("rec+1") & use.df.ems$M_est == TRUE)
+#     tmp = t(apply(all_aic[[i]][rev(est_ind),],2, function(x) {
+#       if(any(!is.na(x))) {
+#         return(x == min(x,na.rm=T))
+#       } else return(rep(NA, length(x)))
+#     })) #tmp is rows of T and F for which model had lowest AIC
+#     df_i <- cbind.data.frame(OM = i, R_sig = df.oms$R_sig[om_ind[i]], NAA_sig = df.oms$NAA_sig[om_ind[i]], 
+#         Fhist = df.oms$Fhist[om_ind[i]], obs_error = df.oms$obs_error[om_ind[i]],
+#       sd_log_SSB = all_naa_sd_log_SSB[[om_ind[i]]], est_SR = as.numeric(tmp[,1]), est_R = as.numeric(tmp[,2]))
+#     df_out <- rbind(df_out, df_i)
+#   }
+#   return(df_out)
+# }
+# temp = make_df(all_naa_aic, SR_rec_Mest, om_ind)
+# fit <- glm(cbind(BH_best_MF) ~ factor(OM) * log(sd_log_SSB), family = binomial, data = temp)
+# x <- t(sapply(1:24, coefficient_fn, df =temp))
+# temp <- cbind(temp, pred= NA)
+# temp$pred[(!is.na(temp$est_R) & !is.na(temp$est_SR))] <- predict(fit, type = "response")
+# facs <- c("Fhist","NAA_sig", "R_sig", "obs_error")
+# temp[facs] <- lapply(temp[facs], as.factor)
+# library(ggplot2)
+# plt <- ggplot(temp, aes(x = sd_log_SSB, y = pred, colour = Fhist:obs_error)) + 
+#   scale_color_viridis_d() +
+#   facet_grid(R_sig ~ NAA_sig, labeller = label_both) +
+#   theme_bw() +
+#   geom_rug(position = "jitter", sides = "b", alpha = 0.5) +
+#   geom_line(linewidth = 2, alpha = 0.5) + 
+#   xlab("SD(log(SSB))") + ylab("P(B-H assumption best)") 
+# plt
+#   #scale_linetype_discrete(labels = c("2.5 Fmsy -> Fmsy", "Fmsy"))
+# ggsave(here("Project_0", "paper", "pred_SR_best_NAA_oms.png"), plt, height = 12, width = 20, units = "in")
 
 # fit_om1 <- glm(cbind(est_SR,est_R) ~ log(sd_log_SSB), family = binomial, data = subset(temp, OM == 1))
 # temp <- subset(temp, !is.na(est_SR) & !is.na(est_R))
