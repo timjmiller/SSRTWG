@@ -1,8 +1,9 @@
 library(here)
 ems <- c('em1','em2','em3')
-
+n_ems <- length(ems)
+n_oms <- 96
 #folder link to id
-dir <- '~/dropbox/working/state_space_assessments/cluster_download/results_google/results/'
+dir <- '~/dropbox/working/state_space_assessments/cluster_download/results/'
 
 folders <- list.files(dir)
 
@@ -14,15 +15,39 @@ ff <- lapply(1:10,function(om){
       dat <- try(readRDS(paste0(dir, "om", om, '/','sim',sim,'_','em',em,'.RDS')),silent=TRUE)
       if(class(dat)!='try-error'){
         #dat$truth$SSB - dat$fit$rep$SSB
-        #dat$truth$SSB - dat$fit$rep$SSB
-        dat$truth$NAA[,1] - dat$fit$rep$NAA
+        dat$truth$NAA[,1] - dat$fit$rep$NAA[,1]
       }
     })
   })
 })
 
+###################################
+## AIC ############################
+###################################
+nsim <- n_oms*100
 
-om <- 1; em <- 1; sim <- 1
+AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+4))
+colnames(AIC) <- c('sim',colnames(df.oms),'aic_pick','correct_form','correct_SR')
+
+k <- 1
+for(om in 1:96){
+  print(k)
+  for(sim in 1:100){
+    DAT <- sapply(1:4, function(em){
+      dat <- tryCatch(readRDS(paste0(dir, "om", om, '/','sim',sim,'_','em',em,'.RDS')),
+                      error = function(e) conditionMessage(e))
+      aic <- NA
+      if(class(dat)!='try-error' & class(dat)!='character'){
+        if(length(dat$fit)>0) aic = as.numeric(dat$fit$opt$objective) + as.numeric(length(dat$fit$opt$par))
+      }
+      aic
+    })
+    aic_pick <- which(DAT==min(DAT,na.rm=TRUE)) - 1
+    AIC[k,]  <- data.frame(sim=sim,df.oms[om,],aic_pick=aic_pick,
+                           correct_form=ifelse(aic_pick==df.oms$Ecov_how[om],1,0),
+                           correct_SR=ifelse(aic_pick%in%c(1,2,3),1,0))
+    k <- k + 1
+  }  
+}
 
 
-om <- 4; em <- 3; sim <- 26
