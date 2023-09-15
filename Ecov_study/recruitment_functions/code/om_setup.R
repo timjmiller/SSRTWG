@@ -1,7 +1,3 @@
-# devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="devel")
-#if(file.exists("c:/Users/timothy.j.miller")) {
-#  library(wham, lib.loc = "c:/work/wham/old_packages/77bbd94")
-#} else 
 library(wham) #make sure to use the right version of wham
 library(tidyr)
 library(dplyr)
@@ -24,7 +20,6 @@ write.dir <- file.path(here(),"Ecov_study", "recruitment_functions", "om_inputs_
 if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
 
 #SR parameters are the same for all naa_om models 
-#GLB: this is to get FMSY? Where do these parameters come from
 temp <- fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
 SRab <- exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
 
@@ -67,23 +62,20 @@ saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment_functions", "inputs
 gf_info = make_basic_info()
 
 #selectivity is not changing
-gf_selectivity = list(
-  model = c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
-  initial_pars = rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
+gf_selectivity <- list(model       =c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
+                       initial_pars=rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
 
 #M set is not changing
-gf_M = list(model = "age-specific", 
-            initial_means = rep(0.2, length(gf_info$ages))#,
-)
+gf_M <- list(initial_means=rep(0.2, length(gf_info$ages)))
 
 #NAA_re set up that can be changed for each OM scenario
 gf_NAA_re = list(
   N1_pars = exp(10)*exp(-(0:(length(gf_info$ages)-1))*gf_M$initial_means[1]),
-  sigma = "rec", #random about mean
-  cor="ar1_y", #random effects are independent
+  sigma = "rec", 
+  cor   ="ar1_y", 
   use_steepness = 0,
   recruit_model = 3, #B-H
-  recruit_pars = SRab) #defined above from naa_om_inputs
+  recruit_pars  = SRab) #defined above from naa_om_inputs
 
 gf_ecov <- list(
   label = "Ecov",
@@ -113,16 +105,13 @@ for(i in 1:NROW(df.oms)){
   ecov_i$logsigma = cbind(rep(log(df.oms$Ecov_obs_sig[i]), length(ecov_i$year)))
   ecov_i$process_sig_vals = df.oms$Ecov_re_sig[i]
   ecov_i$process_cor_vals = df.oms$Ecov_re_cor[i]
-  #if(df.oms$Ecov_how[i] == 0){
-  #  ecov_i$how = 0
-  #  ecov_i$where = "none"
-  #}
+
   if(df.oms$Ecov_how[i] == 1) ecov_i$how = 1
   if(df.oms$Ecov_how[i] == 2) ecov_i$how = 2
   if(df.oms$Ecov_how[i] == 4) ecov_i$how = 4
   ecov_i$where = "recruit"
   beta_vals_i = beta_vals
-  #beta_vals_i[[1]][[2]][] <- df.oms$Ecov_effect[i]
+  beta_vals_i[[1]][[1]][] <- df.oms$Ecov_effect[i]
   ecov_i$beta_vals = beta_vals_i
   
   Fhist. = "Fmsy"
@@ -131,16 +120,16 @@ for(i in 1:NROW(df.oms)){
   if(Fhist. == "Fmsy") max_mult = 1
   min_mult = 1 # fishing at Fmsy
   
-  om_inputs[[i]] = make_om(Fhist = Fhist., 
-                           N1_state = "overfished", 
+  om_inputs[[i]] = make_om(Fhist       = Fhist., 
+                           N1_state    = "overfished", 
                            selectivity = gf_selectivity, 
-                           M = gf_M, 
-                           NAA_re = NAA_re, 
-                           ecov = ecov_i, 
-                           age_comp = "logistic-normal-miss0", 
-                           brp_year = 1, 
-                           eq_F_init = 0.3, 
-                           om_input = TRUE, 
+                           M           = gf_M, 
+                           NAA_re      = NAA_re, 
+                           ecov        = ecov_i, 
+                           age_comp    = "logistic-normal-miss0", 
+                           brp_year    = 1, 
+                           eq_F_init   = 0.3, 
+                           om_input    = TRUE, 
                            max_mult_Fmsy = max_mult, 
                            min_mult_Fmsy = min_mult)
   #turn off bias correction
