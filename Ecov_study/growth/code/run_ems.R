@@ -27,16 +27,16 @@ run_iter <- function(sim, om, em){
   system(cmd)
 }
 
-sfInit(parallel=TRUE, cpus=8)
-
+sfInit(parallel=TRUE, cpus=18)
 sfExportAll()
-# run_iter(sim = 1, om = 2, em = 5)
-# trash <- sfLapply(1:30, function(sim) run_iter(sim,2,1))
+
+## run_iter(sim = 1, om = 2, em = 5)
+## trash <- sfLapply(1:30, function(sim) run_iter(sim,2,1))
 
 for(om in 1:nrow(df.oms)){
   for(em in 1:nrow(df.ems)){
     sfExportAll()
-    trash <- sfLapply(1:8, function(sim) run_iter(sim,om,em))
+    trash <- sfLapply(1:36, function(sim) run_iter(sim,om,em))
   }
 }
 

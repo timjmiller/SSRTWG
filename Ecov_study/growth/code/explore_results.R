@@ -172,12 +172,15 @@ get_growth <- function(fits){
   lapply(fits, function(i) ff(i)) %>% bind_rows() %>% add_labels
 }
 add_labels <- function(df){
-  emlabs <- c('OM: Ecov_beta=0.0', 'OM: Ecov_beta=0.5')
-  omlabs <- c('EM: Ecov on L1', 'EM: Constant',
-              'EM: AR(1) on L1', 'EM: LAA constant',
-              'EM: LAA 2d-AR(1)')
-  omf <- function(om) factor(om, 1:2, emlabs)
-  emf <- function(em) factor(em, 1:5, omlabs)
+  omlabs <- c('OM1: beta=0.0, low data',
+              'OM2: beta=0.2, low data',
+              'OM3: beta=0.4, low data',
+              'OM4: beta=0.0, high data',
+              'OM5: beta=0.2, high data',
+              'OM6: beta=0.4, high data')
+  emlabs <- c('EM1: constant', 'EM2: L1-par', 'EM3: L1-ecov')
+  omf <- function(om) factor(om, seq_along(omlabs), omlabs)
+  emf <- function(em) factor(em, seq_along(emlabs), emlabs)
   mutate(df, omf=omf(om), emf=emf(em))
 }
 
@@ -192,8 +195,11 @@ models <- lapply(fits, function(x) x$model) %>% bind_rows %>% add_labels
 group_by(models, omf, emf) %>%
   summarize(pct.converged=mean(optimized), n.converged=sum(optimized), n.run=length(optimized))
 
-## Quick exploration via plots
+## ## check data seem to be passed right??
+## lapply(fits, function(x) x$truth$index_NeffL[1,2])
 
+
+## Quick exploration via plots
 ts <- get_ts(fits)
 ggplot(filter(ts,par=='SSB'), aes(year, truth, group=sim, color=abs(maxgrad)>1)) +
   geom_line() + facet_grid(omf~emf, scales='free') + labs(y='SSB truth')
@@ -208,12 +214,12 @@ g <- ggplot(filter(ts, par!='Ecov_out'), aes(year, rel_error, group=sim, color=a
 ggsave("../plots/relerror_ts_by_year.png", g, width=15 , height=5)
 g <- ggplot(filter(ts, par!='Ecov_out' & abs(maxgrad)<1), aes(emf, rel_error)) +
   geom_hline(yintercept=0, col=2, lwd=1) +
-  geom_violin() +# coord_cartesian(ylim=c(-1,1))+
+  geom_violin() + coord_cartesian(ylim=c(-1,1))+
   facet_grid(par~omf, scales='free') +
   theme(axis.text.x = element_text(angle = 90)) + labs(x=NULL)
-ggsave("../plots/relerror_ts.png", g, width=7 , height=5)
+ggsave("../plots/relerror_ts.png", g, width=10 , height=5)
 
-# pars <- get_pars(fits) %>% filter(abs(maxgrad)<1)
+ pars <- get_pars(fits) %>% filter(abs(maxgrad)<1)
 g <- ggplot(pars, aes(par2, rel_error)) +
   geom_hline(yintercept=0, col=2, lwd=1) + #ylim(-3,3)+
   geom_violin() +
