@@ -5,6 +5,8 @@ n_oms <- 96
 #folder link to id
 dir <- '~/dropbox/working/state_space_assessments/cluster_download/results/'
 
+df.oms          <- readRDS(file.path(here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+
 folders <- list.files(dir)
 
 ff <- lapply(1:10,function(om){
@@ -31,7 +33,7 @@ colnames(AIC) <- c('sim',colnames(df.oms),'aic_pick','correct_form','correct_SR'
 
 k <- 1
 for(om in 1:96){
-  print(k)
+  print(paste0("OM = ",om))
   for(sim in 1:100){
     DAT <- sapply(1:4, function(em){
       dat <- tryCatch(readRDS(paste0(dir, "om", om, '/','sim',sim,'_','em',em,'.RDS')),
@@ -50,4 +52,4 @@ for(om in 1:96){
   }  
 }
 
-
+saveRDS(AIC,file.path(here(), 'Ecov_study','recruitment_functions','results','AIC.rds'))
