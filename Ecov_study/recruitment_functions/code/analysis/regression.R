@@ -54,8 +54,8 @@ AIC$Ecov_re_cor <- factor(AIC$Ecov_re_cor,labels=c("L","H"))
 
 #rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect, data=AIC)
 #rf_form <- rpart(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect, data=AIC)
-rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, data=AIC)
-rf_form <- rpart(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, data=AIC)
+rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, data=AIC, control=rpart.control(cp=0.01))
+rf_form <- rpart(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, data=AIC, control=rpart.control(cp=0.01))
 
 pdf(file.path(here(),'Ecov_study','recruitment_functions','plots','reg_tree.pdf'),
     height=4,width=7)
