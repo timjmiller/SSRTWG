@@ -9,12 +9,22 @@ editor_options:
 
 Load packages & source functions used in simulation testing
 ```{r}
-# Packages
+## Packages
 library(tidyverse)
 library(wham)
-# Simulation testing functions
-source(here::here("Ecov_study","catchability","simOM.R"))
-source(here::here("Ecov_study","catchability","simTestWHAM.R"))
+
+## OM/EM setup function
+# source(here::here("Project_0", "code", "make_om.R"))
+source(here::here("make_om.R")) # From Project_0/code/make_om.R
+# source(file.path(here::here(),"common_code", "make_basic_info.R"))
+source(here::here("make_basic_info.R"))
+
+## Simulation testing functions
+# source(here::here("Ecov_study","catchability","simOM.R"))
+source(here::here("Other_Research", "simOM.R"))
+# source(here::here("Ecov_study","catchability","simTestWHAM.R"))
+source(here::here("Other_Research", "simTestWHAM.R"))
+
 ```
 
 
@@ -90,96 +100,41 @@ graph[nodesep = 0.1, rankdir = LR] # set distance between nodes # for left-right
 
 ```
 
-## Post-process results
 
-```{r}
-
-```
 
 # Specifics for environmentally-linked catchability WHAM runs
 
-## Generic stock info that is never misspecified/changed
-```{r}
-# Pull generic groundfish life history/data
-source(file.path(here::here(),"common_code", "make_basic_info.R"))
-groundfish_info <- make_basic_info()
+## Set up operating and estimation models
+This need only be done once by running Setup_OMs.Rmd !!! Need to move this code here so OMsetup and EMsetup available below for processing
 
-# Assume logistic selectivity for the fleet and all indices
-sel_list <- list(model = c(rep("logistic", groundfish_info$n_fleets),rep("logistic", groundfish_info$n_indices)),
-                   initial_pars = rep(list(c(5,1)), groundfish_info$n_fleets + groundfish_info$n_indices),
-                 n_selblocks = c(groundfish_info$n_fleets + groundfish_info$n_indices)) #fleet, index
-
-# Starting mean M estimate at 0.2, estimate constant M for all ages/years
-M <- list(initial_means = rep(0.2, length(groundfish_info$ages)))
-
-# Assume random about the mean recruitment, beverton-holt stock recruit didn't converge with an invertible hessian
-recruit_model <- 2 
-# NAA_list <- list(sigma="rec") # Recruitment random effects so stock recruit function implemented
-
-genericInput <- prepare_wham_input(basic_info = groundfish_info, 
-                                   selectivity = sel_list, 
-                                   recruit_model = recruit_model) #,
-                                   #NAA_re = NAA_list)
-genericFit <- fit_wham(genericInput, MakeADFun.silent = TRUE, do.retro = FALSE, do.osa = FALSE)
-
-```
-
-## Define Operating Models (OMs)
-
-All OMs should have catchability linked to an environmental covariate
-but may differ in - Uncertainty around this relationship #!!!!!!!! -
-Sign of this relationship (+/-) #!!!!!!!!
-
-Set up input and fit OM1
-
-```{r}
-inputOM1 <- prepare_wham_input(model_name = "OM1") #!!!!!!!!!!!!
-OM1 <- fit_wham(inputOM1, do.osa = FALSE, do.retro = FALSE, MakeADFun.silent = TRUE)
-```
-
-## Define Estimation Models (EMs)
-
-| q-Env link                    | Seasonal misspecification |
-| ----------------------------- | ------------------------- |
-| Without link                  | Both seasons correct (q-Env link in EM and OM)         |
-| With link                     | 1 season misspecified (q-Env linked but no link in OM) |
-| Without link, q random effect | Both seasons misspecified (no link but link in OM)     |
-| With link, q random effect    | |
-
-Correctly specified link between catchability and the environment
-
-```{r}
-EMq_env <- prepare_wham_input(model_name = "EMq_env")
-```
-
-Catchability random effect and a link between catchability and the
-environment
-
-```{r}
-EMq_rand_env <- prepare_wham_input(model_name = "EMq_rand_env")
-```
-
-Only a catchability random effect, fit to environmental model without
-link
-
-```{r}
-EMq_rand <- prepare_wham_input(model_name ="EMq_rand")
-```
-
-No catchability considerations (i.e. status quo), fit to environmental
-model without link !!!! how does this work if you feed in the ecov_beta?
-
-```{r}
-EMq <- prepare_wham_input(model_name = "EMq")
-```
 
 ## Simulation testing
-
 ```{r}
 simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_rand, EMq)) # Update once OM/EM specifics finalized!!!!
 
 
 ```
+
+Run tests only for EMs with no seasonal misspecifications (only catchability misspecification misspecified)
+```{r}
+subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
+
+for(iom in 1:192){
+  testOM <- readRDS(here::here("Results", paste0("OM_", iom, ".Rds")))
+  
+  for(iem in 1:4){
+    testEM <- readRDS(here::here("Results", paste0("OM_", iom), paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+  }
+}
+```
+
+Run OMs with no ecov effect (NoEcov) and with ecov effect (Ecov) are equivalent here and the qRand and qRandEcov are also equivalent so only run the NoEcov and qRandEcov options
+```{r}
+subsetOM <- OMsetup %>% filter(Ecov_effect == 0)
+# EMs 
+subsetEM <- Msetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
+```
+
 
 ## Post-process simulation results
 
@@ -236,6 +191,24 @@ test <- simTestWHAM(nsim = 2, OM = OM, inputEMlist = inputEMlist)
   - calculate performance metrics
 - Run simulations, hpcc?
 - Separate sims and function scripts
+
+
+
+# 9/18/23
+1) do OM & EM setup (EMs specified relative to each OM)
+```{r}
+Setup_OMs()
+```
+2) simulation test EMs for each OM
+```{r}
+simTestWHAM()
+```
+3) Post-process results
+```{r}
+postprocess_simTestWHAM()
+```
+
+
 
 
 
