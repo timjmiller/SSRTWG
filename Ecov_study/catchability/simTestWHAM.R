@@ -27,7 +27,7 @@ simTestWHAM <- function(nsim = 1,
         names(storeEM) <- namesEM
         sim_inputs <- vector(mode='list', length = nsim)
         
-        # Set seeds for all simulation
+        # Set seeds for all simulation 
         if(is.null(seeds)==TRUE){ # If vector of seeds (of length nsim) is not provided, set up random seed for OM data generation
           seeds <- sample(1:1000000, size = nsim, replace = FALSE)
         }
@@ -37,11 +37,19 @@ simTestWHAM <- function(nsim = 1,
         for(isim in 1:nsim){ 
                 # Generate OM data for each simulation
                 sim_inputs[[isim]] <- simOM(OM, seed = seeds, isim = isim) #!!! this now returns is a list of dataOM and seed for each replicate
-                #!!! Save the seed somewhere here
+                
+                #!!! store specification details here !!!!!!!!!!!!
                 
                 
                 print(paste0("Simulation_", isim))
                 for(iEM in 1:length(inputEMlist)){ # Loop over estimation models
+                  # Set up temporary storage for this EM/sim
+                  tempStore <- NULL
+                  
+                  # Store EM misspecification and simulation seed (also in OM results)
+                  tempStore$seed <- sim_inputs[[isim]]$seed
+                  # !!! store misspecification here !!!!!!!!
+                  
                         # Pull EM initial input from list
                         inputEM <- inputEMlist[[iEM]] 
                         
@@ -49,23 +57,46 @@ simTestWHAM <- function(nsim = 1,
                         inputEM$data[obs_names] = sim_inputs[[isim]]$dataOM[obs_names]
                         
                         # Fit WHAM model to updated EM input and save results
-                        resultEM <- fit_wham(inputEM, do.osa = FALSE, retro.silent = TRUE, MakeADFun.silent = TRUE, save.sdrep = FALSE) #!!!! Figure out how to store
+                        fitEM <- fit_wham(inputEM, do.osa = FALSE, retro.silent = TRUE, MakeADFun.silent = TRUE, save.sdrep = FALSE) #!!!! Figure out how to store
                         
-                        # # Check convergence
-                        # if(check_convergence(resultEM, ret=TRUE)$is_sdrep == FALSE){ # If sdrep had error
+                        # Calculate Mohn's rho
+                        MohnsRho <- mohns_rho(fitEM)
+                        
+                        # # Check convergence !!! get this working, look back at cod code
+                        # if(check_convergence(fitEM, ret=TRUE)$is_sdrep == FALSE){ # If sdrep had error
                         #         converged <- "No"
                         # }
-                        # if(check_convergence(resultEM, ret=TRUE)$is_sdrep == TRUE & !is.null(check_convergence(resultEM, ret=TRUE)$na_sdrep)){
-                        #         if(check_convergence(resultEM, ret=TRUE)$na_sdrep == TRUE){
+                        # if(check_convergence(fitEM, ret=TRUE)$is_sdrep == TRUE & !is.null(check_convergence(fitEM, ret=TRUE)$na_sdrep)){
+                        #         if(check_convergence(fitEM, ret=TRUE)$na_sdrep == TRUE){
                         #                 converged <- "No" # Not converged due to NA on diagonal of hessian
                         #         } else{
                         #                 converged <- "Yes"
                         #         }
                         # }
-                        # resultEM$converged <- converged
+                        # fitEM$converged <- converged
                         
-                        # Store model-specific results for given isim here (append EM results to storage list for that EM)
-                        storeEM[which(namesEM == namesEM[iEM])][[1]] <- append(storeEM[which(namesEM == namesEM[iEM])][[1]], list(resultEM))
+                        # Pull together EM results for this EM/sim
+                        tempStore$SSB <- fitEM$rep$SSB
+                        tempStore$F <- fitEM$rep$F
+                        tempStore$FAA <- fitEM$rep$FAA_tot
+                        tempStore$R <- fitEM$rep$NAA[,1]
+                        tempStore$NAA <- fitEM$rep$NAA
+                        tempStore$Catch <- fitEM$rep$pred_catch
+                        tempStore$CAA <- fitEM$rep$rep$pred_CAA[,1,]
+                        tempStore$FMSY <- exp(fitEM$rep$log_FXSPR_static) # F40
+                        tempStore$SSBMSY <- exp(fitEM$rep$log_SSB_FXSPR_static) # at F40
+                        tempStore$MSY <- exp(fitEM$rep$log_Y_FXSPR_static) # at F40
+                        tempStore$SelAA <- fitEM$rep$selAA
+                        # check_convergence !!! get this working and store here
+                        tempStore$MohnsRho_SSB <- MohnsRho["SSB"]
+                        tempStore$MohnsRho_F <- MohnsRho["Fbar"]
+                        tempStore$MohnsRho_R <- MohnsRho["R"]
+                        tempStore$pars_Ecov_beta <- fitEM$rep$Ecov_beta[3,,1,]
+                        tempStore$pars_Ecov_process <- fitEM$rep$Ecov_process_pars
+                        tempStore$pars_q <- fitEM$rep$q
+                        
+                        # Store model-specific results for given isim here (append tempStore EM results to storage list for that EM)
+                        storeEM[which(namesEM == namesEM[iEM])][[1]] <- append(storeEM[which(namesEM == namesEM[iEM])][[1]], list(tempStore))
                         
                 } # End loop over EM
         } # End loop over nsims
@@ -83,6 +114,8 @@ simTestWHAM <- function(nsim = 1,
         
         return(results) # Always return results as an object
 }
+
+
 
 
 
