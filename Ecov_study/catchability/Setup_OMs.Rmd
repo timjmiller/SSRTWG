@@ -11,8 +11,6 @@ Generic OM & EM settings that are the same as project 0:
 
 -   Cod-like life history
 
--   B-H stock-recruit (for now)
-
 -   1 fleet
 
 -   2 indices (spring and fall)
@@ -22,6 +20,9 @@ Generic OM & EM settings that are the same as project 0:
 -   Initial M estimate = 0.2
 
 -   Logistic normal age composition for fleet and all indices
+
+-   Fishing history = F_MSY for 40 year history OR fish 2.5\*F_MSY for
+    20 years than fish at F_MSY for remaining 20 
 
 Project-specific OM settings that are not variable:
 
@@ -37,9 +38,6 @@ OM settings that are variable:
 
 -   Ecov effect on q = 0, 0.25, or 0.5 !!! I think this is the beta
     parameter but should confirm
-
--   Fishing history = F_MSY for 40 year history OR fish 2.5\*F_MSY for
-    20 years than fish at F_MSY for remaining 20 - NOT CURRENTLY IMPLEMENTED, IN PROGRESS
 
 -   Seasonality of Ecov effect on catchability (neither, one, or both seasons impacted) - NOT CURRENTLY IMPLEMENTED, IN PROGRESS
 
@@ -97,7 +95,7 @@ EMsetup
 ```
 
 # 3) May run sensitivity run with no ecov effect in OM but compare same EMs
-Check that ecov effect = 0 is essentially turning off ecov
+Check that ecov effect = 0 is essentially turning off ecov = yes this is already implemented in step 1 outlined above
 ```{r}
 # Catchability set up
 q_Ecov <- c("includeEcov", "excludeEcov") # May want to include these as a sensitivity run to compare what happens if OM has no ecov effect but EM assumes there is one (ecov process setup won't matter since fitting to data without effect specified in model)
@@ -117,7 +115,7 @@ to manipulate an OM input object to initialize the OM rather than doing
 all setup when creating the input as is typically the procedure when
 fitting operational WHAM models.
 
-Use project 0 make_om() to set up generic OM input then add additional ecov settings afterwards before fitting model
+Use unique copy of make_om() to set up generic OM input then add additional ecov settings afterwards before fitting model
 - By default catchability impacted by environment only for fall (2nd) index
 - Each OM stored in a corresponding folder/directory
 
