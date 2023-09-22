@@ -12,24 +12,28 @@ Load packages & source functions used in simulation testing
 ## Packages
 library(tidyverse)
 library(wham)
+library(TAF)
 
-## OM/EM setup function
-# source(here::here("Project_0", "code", "make_om.R"))
-source(here::here("make_om.R")) # From Project_0/code/make_om.R
-# source(file.path(here::here(),"common_code", "make_basic_info.R"))
-source(here::here("make_basic_info.R"))
+## OM/EM setup functions
+source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
+source(file.path(here::here(),"common_code", "make_basic_info.R")) 
+source(here::here("common_code", "set_ecov.R")) 
+source(here::here("common_code", "set_NAA.R")) 
+source(here::here("common_code", "set_q.R"))
+source(here::here("common_code", "set_selectivity.R")) 
+source(here::here("common_code", "set_M.R")) 
+source(here::here("common_code", "get_FMSY.R"))
 
 ## Simulation testing functions
-# source(here::here("Ecov_study","catchability","simOM.R"))
-source(here::here("Other_Research", "simOM.R"))
-# source(here::here("Ecov_study","catchability","simTestWHAM.R"))
-source(here::here("Other_Research", "simTestWHAM.R"))
-
+source(here::here("Ecov_study","catchability","simOM.R"))
+#source(here::here("Other_Research", "simOM.R"))
+source(here::here("Ecov_study","catchability","simTestWHAM.R"))
+#source(here::here("Other_Research", "simTestWHAM.R"))
 ```
 
 
 
-### Visual describing results structure
+# Visual describing results structure
 
 WHAM results objects only displayed for OM simulation 1, similar
 structure for other simulations and for estimation models.
@@ -105,36 +109,310 @@ graph[nodesep = 0.1, rankdir = LR] # set distance between nodes # for left-right
 # Specifics for environmentally-linked catchability WHAM runs
 
 ## Set up operating and estimation models
-This need only be done once by running Setup_OMs.Rmd !!! Need to move this code here so OMsetup and EMsetup available below for processing
+### Factorial OM settings
+Vary ecov process magnitude, fishing history and observation error
+```{r}
+##### OM
+# Ecov process & effect magnitude set up
+Ecov_process_sig <- c(0.1, 0.5)
+Ecov_process_cor <- c(0, 0.5)
+Ecov_process_obs_sig <- c(0.1, 0.5)
+Ecov_effect <- c(0, 0.25, 0.5) # beta
+
+# Fishing history
+F_hist <- c("H-L", "Fmsy") # High-then FMSY vs. FMSY for entire history
+
+# Observation error
+ageComp_sig <- c(0.3, 1.5) # Fleet and index age comp treated with same error
+log_index_sig <- c(0.1, 0.4) # agg_index_sigma
+log_catch_sig <- 0.1 # agg_catch_sigma
+
+# Factorial combinations
+OMsetup <- expand.grid(Ecov_process_sig = Ecov_process_sig, Ecov_process_cor = Ecov_process_cor, Ecov_process_obs_sig = Ecov_process_obs_sig, Ecov_effect = Ecov_effect, F_hist = F_hist, ageComp_sig = ageComp_sig, log_index_sig = log_index_sig, log_catch_sig = log_catch_sig)
+
+OMname <- 1:nrow(OMsetup)
+
+OMsetup <- cbind(OMname, OMsetup)
+
+OMsetup
+```
+### Factorial EM settings
+```{r}
+##### EM
+# EM factorial settings
+miss_season <- c("BOTH", "ONE", "NONE") # Number of seasons with correctly specified effect, assumes 2 survey indices (spring & fall)
+miss_q <- c("NoEcov", "Ecov", "qRand", "qRandEcov") # Catchability setup for EM
+EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
+EMsetup 
+```
+
+### Set up OM and corresponding EMs based on above factorial variations (need only be run once)
+- No stock-recruit relationship is implemented (as in project 0) so a variation of make_om() is used here to:
+  - 1) Set Fmsy equal to the F40% proxy
+  - 2) Estimate equilibirum initial numbers at age by setting NAA_re$N1_model = 1 rather than using the S-R
+- By default, the environment only impacts catchability for the fall (2nd) index. EM misspecifications are based off of this assumption.
+- Each OM is stored in a separate directory with input objects for EMs that are misspecified based on this OM in a subdirectory of the OM
+```{r}
+n_fleets <- 1
+n_indices <- 2
+n_ages <- 10
+n_years <- 40
+
+# Assume logistic selectivity for the fleet and all indices
+sel_list <- list(model = c(rep("logistic", n_fleets),rep("logistic", n_indices)),
+                 initial_pars = lapply(1:(n_fleets + n_indices), function(x) c(5,1)),
+                 n_selblocks = (n_fleets + n_indices))
+
+# Starting mean M estimate at 0.2, estimate constant M for all ages/years
+M_list <-  list(initial_means = rep(0.2, n_ages))
+
+# NAA_re = list(recruit_model = 3) # This required for Beverton-Holt S-R
+
+for(iom in 1:nrow(OMsetup)){
+  print(iom)
+  ##### Set up generic input #####
+  # Set up input without ecov
+  input <- make_om(Fhist = OMsetup[iom,"F_hist"],
+                   N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
+                   selectivity = sel_list,
+                   M = M_list, 
+                   catchability = NULL,
+                   NAA_re = NULL) 
+  # age_comp, # Default = "logistic-normal-miss0"
+  # brp_year, # Default = 1
+  # eq_F_init, # Default = 0.3
+  # om_input = TRUE, # Don't fit model, only structure generic input
+  # max_mult_Fmsy, # Default = 2.5
+  # min_mult_Fmsy, # Default = 1
+  # F_change_time # Default = 0.5, sets when F changes (in H-L or L-H F_hist scenarios)
+  
+  # Observation error - set L-N SD parameters for catch and index age comps # pulled from project 0 q_om_setup.R
+  input$par$catch_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+  input$par$index_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+  input$data$agg_catch_sigma[] <- OMsetup[iom,"log_catch_sig"]
+  input$data$agg_index_sigma[] <- OMsetup[iom,"log_index_sig"]
+  input$data$catch_Neff[] <- 1 # Change Neff so scalar doesn't affect L-N SD
+  input$data$index_Neff[] <- 1
+  
+  ##### Set up OM ecov #####
+  # Ecov setup
+  Ecov <- list(label = "Ecov",
+               mean = matrix(rep(0,n_years), ncol =1), # Mean = 0
+               logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
+               years = input$years, 
+               use_obs = matrix(rep(TRUE, n_years), ncol = 1),
+               lag = 0, 
+               where = "q", # Where/how/indices settings need to change if we do sensitivity runs
+               how = 1,
+               indices = list(2), # Ecov only impact fall index catchability
+               process_model = "ar1", # End generic inputs for ecov
+               process_mean_vals = rep(0,n_years), # Mean = 0
+               process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
+               process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
+               beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
+                                       rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+  
+  inputOM <- set_ecov(input = input, ecov = Ecov) #!!! something wrong with ecov$beta_vals[[j]][[n]] indexing
+  
+  
+  # Finish setup & save OM
+  OM <- NULL # Clear prior OM object just in case
+  OM <- fit_wham(input = inputOM, do.fit = FALSE, MakeADFun.silent = TRUE)
+  mkdir(here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup$OMname[iom]))) # set up storage
+  saveRDS(OM, file = here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup$OMname[iom]), paste0("OM_", OMsetup$OMname[iom], ".Rds"))) # save OM
+  saveRDS(OMsetup[iom,], file = here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup$OMname[iom]), "OMsettings.Rds")) # save OM settings in a separate file since naming is based on arbitraty order in OMsetup table
+  
+  
+  ##### Iterate over EM misspecifications for this OM
+  for(iem in 1:nrow(EMsetup)){
+    inputEM <- NULL # Reset at start of loop just in case
+    
+    # Seasonal misspecification (q random effect implemented with same misspecification as ecov impact)
+    if(EMsetup[iem, "miss_season"] == "BOTH"){
+      index_list <- list(1) # Both seasons misspecified
+      qRand <- c("ar1", "none")
+    } else if(EMsetup[iem, "miss_season"] == "ONE"){
+      index_list <- list(1,2) # Spring misspecified, fall correct
+      qRand <- c("ar1", "ar1")
+    } else{
+      index_list <- list(2) # Both seasons correctly specified
+      qRand <- c("none", "ar1")
+    }
+    
+    # Catchability model assumptions
+    if(EMsetup[iem, "miss_q"] == "NoEcov"){ # No ecov impact on q or q random effect
+      print("NoEcov")
+      Ecov <- list(label = "NoEcov",
+                   mean = matrix(rep(0,n_years), ncol =1), # Mean = 0
+                   logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
+                   years = input$years, 
+                   use_obs = matrix(rep(TRUE, n_years), ncol = 1),
+                   lag = 0, 
+                   where = "none", # Where/how/indices settings need to change if we do sensitivity runs
+                   how = 1,
+                   indices = index_list, # Ecov impact based on sesonal misspecification setting
+                   process_model = "ar1", # End generic inputs for ecov
+                   process_mean_vals = rep(0,n_years), # Mean = 0
+                   process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
+                   process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
+                   beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
+                                           rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+      
+      inputEM <- set_ecov(input = input, ecov = Ecov)
+      
+    } else if(EMsetup[iem, "miss_q"] == "Ecov"){ # Ecov impact on q, correctly specified option when seasonal impact correctly specified
+      print("Ecov")
+      Ecov <- list(label = "Ecov",
+                   mean = matrix(rep(0,n_years), ncol =1), # Mean = 0
+                   logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
+                   years = input$years, 
+                   use_obs = matrix(rep(TRUE, n_years), ncol = 1),
+                   lag = 0, 
+                   where = "q", # Where/how/indices settings need to change if we do sensitivity runs
+                   how = 1,
+                   indices = index_list, # Ecov impact based on sesonal misspecification setting
+                   process_model = "ar1", # End generic inputs for ecov
+                   process_mean_vals = rep(0,n_years), # Mean = 0
+                   process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
+                   process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
+                   beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
+                                           rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+      
+      inputEM <- set_ecov(input = input, ecov = Ecov)
+      
+      
+    } else if(EMsetup[iem, "miss_q"] == "qRand"){ # q random effect
+      print("qRand")
+      Ecov <- list(label = "qRand",
+                   mean = matrix(rep(0,n_years), ncol =1), # Mean = 0
+                   logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
+                   years = input$years, 
+                   use_obs = matrix(rep(TRUE, n_years), ncol = 1),
+                   lag = 0, 
+                   where = "none", # Where/how/indices settings need to change if we do sensitivity runs
+                   how = 1,
+                   indices = index_list, # Ecov impact based on sesonal misspecification setting
+                   process_model = "ar1", # End generic inputs for ecov
+                   process_mean_vals = rep(0,n_years), # Mean = 0
+                   process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
+                   process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
+                   beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
+                                           rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+      
+      inputEM <- set_ecov(input = input, ecov = Ecov)
+      
+      # Catchability random effects
+      inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
+      
+    } else{ # qRandEcov both q random effect and ecov impact on q
+      print("qRandEcov")
+      Ecov <- list(label = "qRandEcov",
+                   mean = matrix(rep(0,n_years), ncol =1), # Mean = 0
+                   logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
+                   years = input$years, 
+                   use_obs = matrix(rep(TRUE, n_years), ncol = 1),
+                   lag = 0, 
+                   where = "q", # Where/how/indices settings need to change if we do sensitivity runs
+                   how = 1,
+                   indices = index_list, # Ecov impact based on sesonal misspecification setting
+                   process_model = "ar1", # End generic inputs for ecov
+                   process_mean_vals = rep(0,n_years), # Mean = 0
+                   process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
+                   process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
+                   beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
+                                           rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+      
+      inputEM <- set_ecov(input = input, ecov = Ecov)
+      
+      # Catchability random effects
+      inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
+    }
+    
+    # Save EM specification
+    mkdir(here::here("Ecov_study", "catchability", "Results", paste0("OM_", iom), paste0("EM_missSeason_", EMsetup[iem, "miss_season"], "_missQ_", EMsetup[iem, "miss_q"]))) # set up storage
+    
+    saveRDS(inputEM, file = here::here("Ecov_study", "catchability", "Results", paste0("OM_", iom), paste0("EM_missSeason_", EMsetup[iem, "miss_season"], "_missQ_", EMsetup[iem, "miss_q"]), "EMinput.Rds")) # save EM input
+    
+    
+  } # End loop over EM specifications
+  
+  
+} # End loop over OMs
+```
 
 
 ## Simulation testing
+If OMsetup or EMsetup objects are found then source the "Factorial OM settings" and "Factorial EM settings" sections above. DO NOT rerun the actual setup (the names are used to ID what subset of the OMs/EMs are being tested).
+
+### Test
 ```{r}
 simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_rand, EMq)) # Update once OM/EM specifics finalized!!!!
 
 
 ```
 
-Run tests only for EMs with no seasonal misspecifications (only catchability misspecification misspecified)
+
+### Run tests only for EMs with no seasonal misspecifications (only catchability misspecification misspecified)
+Goal = run 100 simulations for each OM
+- postprocessing script will be set up to process multiple result files if these simulations need to be run in batches (i.e. reduce # of sims, # of OMs run, or # of EMs run at once)
+
+#### Amanda run Fhist = H-L simulations
 ```{r}
+# Set number of simulations to run
+nsim <- 2
+
+# Subset of OMs to run
+subsetOM <- OMsetup %>% filter(F_hist == "H-L")
+
+# Subset of EMs to run
 subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
 
-for(iom in 1:192){
-  testOM <- readRDS(here::here("Results", paste0("OM_", iom, ".Rds")))
+# Run simulation tests
+for(iom in 1:nrow(OMsetup)){
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
   
-  for(iem in 1:4){
-    testEM <- readRDS(here::here("Results", paste0("OM_", iom), paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+  # Pull OM
+  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  
+  for(iem in 1:nrow(subsetEM)){
+    # Pull EM
+    testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+    
+    # Run simulation test
+    simTestWHAM(nsim = nsim,
+                OM = testOM,
+                inputEMlist = list(testEM), # Run one EM at a time
+                outdir = here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"])))
   }
 }
+
+
+
+```
+#### Alex run F_hist = Fmsy simulations
+```{r}
+# Set number of simulations to run
+nsim <- 2
+
+# Subset of OMs to run
+OMsetup %>% filter(F_hist == "Fmsy")
+
+# Subset of EMs to run
+subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
+
+
 ```
 
-Run OMs with no ecov effect (NoEcov) and with ecov effect (Ecov) are equivalent here and the qRand and qRandEcov are also equivalent so only run the NoEcov and qRandEcov options
+### Run OMs with no ecov effect 
+EMs with no ecov effect (NoEcov) and with ecov effect (Ecov) are equivalent when the OM has no ecov effect and the qRand and qRandEcov are also equivalent so only run the NoEcov and qRandEcov EMs for these OMs
 ```{r}
 subsetOM <- OMsetup %>% filter(Ecov_effect == 0)
 # EMs 
-subsetEM <- Msetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
 ```
 
+### Run tests for EMs with seasonal misspecifications
+Only run these for a subset of OMs to be selected following the outcomes of tests outlined above
 
 ## Post-process simulation results
 
