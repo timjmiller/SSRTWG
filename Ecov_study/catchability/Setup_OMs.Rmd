@@ -78,6 +78,11 @@ log_catch_sig <- 0.1 # agg_catch_sigma
 
 # Factorial combinations
 OMsetup <- expand.grid(Ecov_process_sig = Ecov_process_sig, Ecov_process_cor = Ecov_process_cor, Ecov_process_obs_sig = Ecov_process_obs_sig, Ecov_effect = Ecov_effect, F_hist = F_hist, ageComp_sig = ageComp_sig, log_index_sig = log_index_sig, log_catch_sig = log_catch_sig)
+
+OMname <- 1:nrow(OMsetup)
+
+OMsetup <- cbind(OMname, OMsetup)
+
 OMsetup
 ```
     
@@ -195,9 +200,9 @@ for(iom in 1:nrow(OMsetup)){
   # Finish setup & save OM
   OM <- NULL # Clear prior OM object just in case
   OM <- fit_wham(input = inputOM, do.fit = FALSE, MakeADFun.silent = TRUE)
-  mkdir(here::here("Results", paste0("OM_", iom))) # set up storage
-  saveRDS(OM, file = here::here("Results", paste0("OM_", iom), paste0("OM_", iom, ".Rds"))) # save OM
-  saveRDS(OMsetup[iom,], file = here::here("Results", paste0("OM_", iom), "OMsettings.Rds")) # save OM settings in a separate file since naming is based on arbitraty order in OMsetup table
+  mkdir(here::here("Results", paste0("OM_", OMsetup$OMname[iom]))) # set up storage
+  saveRDS(OM, file = here::here("Results", paste0("OM_", OMsetup$OMname[iom]), paste0("OM_", OMsetup$OMname[iom], ".Rds"))) # save OM
+  saveRDS(OMsetup[iom,], file = here::here("Results", paste0("OM_", OMsetup$OMname[iom]), "OMsettings.Rds")) # save OM settings in a separate file since naming is based on arbitraty order in OMsetup table
   
   
   ##### Iterate over EM misspecifications for this OM
