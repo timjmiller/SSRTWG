@@ -1,4 +1,5 @@
 library("here")
+library("lme4")
 
 AIC <- readRDS(file.path(here(),'Ecov_study','recruitment_functions','results','AIC.rds'))
 
@@ -47,7 +48,8 @@ library(rpart.plot)
 
 AIC$R_sig <- factor(AIC$R_sig,labels = c("L","H"))
 AIC$Ecov_effect <- factor(AIC$Ecov_effect,labels=c("L","H"))
-AIC$Ecov_how    <- factor(AIC$Ecov_how,labels=c("1","2","4"))
+#AIC$Ecov_how    <- factor(AIC$Ecov_how,labels=c("1","2","4"))
+AIC$Ecov_how    <- factor(AIC$Ecov_how,labels=c("0","1"))
 AIC$NAA_cor     <- factor(AIC$NAA_cor,labels=c("L","H"))
 AIC$Fhist       <- factor(AIC$Fhist)
 AIC$Ecov_re_cor <- factor(AIC$Ecov_re_cor,labels=c("L","H"))

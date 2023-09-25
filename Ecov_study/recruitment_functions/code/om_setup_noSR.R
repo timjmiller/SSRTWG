@@ -36,7 +36,7 @@ Fhist       <- c("H-MSY","MSY")  #fishing history
 NAA_cor     <- c(0.2,0.8)        #correlation of recruitment random effects
 Ecov_re_cor <- c(0.2,0.8)        #correlation of ecov random effects
 Ecov_effect <- c(0.1, 1.0)       #beta coefficients; need to modify according to functional form
-Ecov_how    <- c(0,1)          #ecov-recruiment functional form
+Ecov_how    <- c(1,2,4)          #ecov-recruiment functional form
 recruit_mod <- c(3)
 
 df.oms <- expand.grid(NAA_re = NAA_re,

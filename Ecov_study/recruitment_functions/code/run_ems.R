@@ -20,10 +20,15 @@ library(here)
 
 nsim <- 100
 
-om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
-em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "em_inputs.RDS"))
-df.ems    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
-df.oms    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
+#om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
+#em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "em_inputs.RDS"))
+#df.ems    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
+#df.oms    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
+
+om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs_noSR.RDS"))
+em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "em_inputs_noSR.RDS"))
+df.ems    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems_noSR.RDS"))
+df.oms    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms_noSR.RDS"))
 
 run_iter <- function(sim, om, em){
   cmd <- paste("Rscript --vanilla hpc_script.R", sim,om,em)
@@ -31,12 +36,12 @@ run_iter <- function(sim, om, em){
 }
 
 #x <- detectCores()      
-sfInit(parallel=TRUE, cpus=2)
+sfInit(parallel=TRUE, cpus=4)
 
 #for(om in 1:nrow(df.oms)){
 #for(om in 1:1){
 #  for(em in 1:nrow(df.ems)){
-for(em in 4){
+for(em in 1:4){
   sfExportAll()
   trash <- sfLapply(1:nsim, function(sim) run_iter(sim,om,em))
 }
