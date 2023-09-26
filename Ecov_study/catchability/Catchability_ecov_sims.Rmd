@@ -134,6 +134,8 @@ OMname <- 1:nrow(OMsetup)
 
 OMsetup <- cbind(OMname, OMsetup)
 
+OMsetup[,"F_hist"] <- as.character(OMsetup[,"F_hist"])
+
 OMsetup
 ```
 ### Factorial EM settings
@@ -216,6 +218,7 @@ for(iom in 1:nrow(OMsetup)){
   
   
   # Finish setup & save OM
+  inputOM$model_name <- paste0("OM_", paste(OMsetup[iom, ], collapse = "_")) # Set up OM name based on OMsetup 
   OM <- NULL # Clear prior OM object just in case
   OM <- fit_wham(input = inputOM, do.fit = FALSE, MakeADFun.silent = TRUE)
   mkdir(here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup$OMname[iom]))) # set up storage
@@ -260,6 +263,9 @@ for(iom in 1:nrow(OMsetup)){
       
       inputEM <- set_ecov(input = input, ecov = Ecov)
       
+      # Set up EM name based on EMsetup
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
+      
     } else if(EMsetup[iem, "miss_q"] == "Ecov"){ # Ecov impact on q, correctly specified option when seasonal impact correctly specified
       print("Ecov")
       Ecov <- list(label = "Ecov",
@@ -280,6 +286,8 @@ for(iom in 1:nrow(OMsetup)){
       
       inputEM <- set_ecov(input = input, ecov = Ecov)
       
+      # Set up EM name based on EMsetup
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
       
     } else if(EMsetup[iem, "miss_q"] == "qRand"){ # q random effect
       print("qRand")
@@ -304,6 +312,9 @@ for(iom in 1:nrow(OMsetup)){
       # Catchability random effects
       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
       
+      # Set up EM name based on EMsetup
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
+      
     } else{ # qRandEcov both q random effect and ecov impact on q
       print("qRandEcov")
       Ecov <- list(label = "qRandEcov",
@@ -326,6 +337,9 @@ for(iom in 1:nrow(OMsetup)){
       
       # Catchability random effects
       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
+      
+      # Set up EM name based on EMsetup
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
     }
     
     # Save EM specification
@@ -346,9 +360,35 @@ If OMsetup or EMsetup objects are found then source the "Factorial OM settings" 
 
 ### Test
 ```{r}
-simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_rand, EMq)) # Update once OM/EM specifics finalized!!!!
+#simTestWHAM(nsim = 5, OM = OM1, inputEMlist = list(EMq_env, EMq_rand_env, EMq_rand, EMq)) # Update once OM/EM specifics finalized!!!!
 
+# Set number of simulations to run
+nsim <- 2
 
+# Subset of OMs to run
+subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% head(n=2)
+
+# Subset of EMs to run
+subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
+
+# Run simulation tests
+for(iom in 1:nrow(subsetOM)){
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  
+  # Pull OM
+  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  
+  for(iem in 1:nrow(subsetEM)){
+    # Pull EM
+    testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+    
+    # Run simulation test
+    simTestWHAM(nsim = nsim,
+                OM = testOM,
+                inputEMlist = list(testEM), # Run one EM at a time
+                outdir = here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"])))
+  }
+}
 ```
 
 
@@ -368,7 +408,7 @@ subsetOM <- OMsetup %>% filter(F_hist == "H-L")
 subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
 
 # Run simulation tests
-for(iom in 1:nrow(OMsetup)){
+for(iom in 1:nrow(subsetOM)){
   omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
   
   # Pull OM
@@ -390,26 +430,101 @@ for(iom in 1:nrow(OMsetup)){
 
 ```
 #### Alex run F_hist = Fmsy simulations
+This code loops over the rows in subsetOM and subsetEM. The easiest way to run smaller chunks is to change the number of rows in subsetOM (i.e. run fewer OMs at once) or run fewer simulations. Results are all time-stamped and postprocess_simTestWHAM() is set up to combine multiple files so this won't cause processing issues later on.
 ```{r}
 # Set number of simulations to run
-nsim <- 2
+nsim <- 100
 
 # Subset of OMs to run
-OMsetup %>% filter(F_hist == "Fmsy")
+subsetOM <- OMsetup %>% filter(F_hist == "Fmsy") %>% filter(Ecov_effect != 0)
 
 # Subset of EMs to run
 subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
+
+
+# Run simulation tests
+for(iom in 1:nrow(subsetOM)){
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  
+  # Pull OM
+  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  
+  for(iem in 1:nrow(subsetEM)){
+    # Pull EM
+    testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+    
+    # Run simulation test
+    simTestWHAM(nsim = nsim,
+                OM = testOM,
+                inputEMlist = list(testEM), # Run one EM at a time
+                outdir = here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"])))
+  }
+}
 
 
 ```
 
 ### Run OMs with no ecov effect 
 EMs with no ecov effect (NoEcov) and with ecov effect (Ecov) are equivalent when the OM has no ecov effect and the qRand and qRandEcov are also equivalent so only run the NoEcov and qRandEcov EMs for these OMs
+#### Amanda runs H-L Fhist
 ```{r}
-subsetOM <- OMsetup %>% filter(Ecov_effect == 0)
+# Set number of simulations to run
+nsim <- 100
+
+# Subset of OMs to run
+subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0)
 # EMs 
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
+
+# Run simulation tests
+for(iom in 1:nrow(subsetOM)){
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  
+  # Pull OM
+  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  
+  for(iem in 1:nrow(subsetEM)){
+    # Pull EM
+    testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+    
+    # Run simulation test
+    simTestWHAM(nsim = nsim,
+                OM = testOM,
+                inputEMlist = list(testEM), # Run one EM at a time
+                outdir = here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"])))
+  }
+}
 ```
+#### Alex runs Fmsy Fhist
+```{r}
+# Set number of simulations to run
+nsim <- 100
+
+# Subset of OMs to run
+subsetOM <- OMsetup %>% filter(F_hist == "Fmsy") %>% filter(Ecov_effect != 0)
+# EMs 
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
+
+# Run simulation tests
+for(iom in 1:nrow(subsetOM)){
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  
+  # Pull OM
+  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  
+  for(iem in 1:nrow(subsetEM)){
+    # Pull EM
+    testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+    
+    # Run simulation test
+    simTestWHAM(nsim = nsim,
+                OM = testOM,
+                inputEMlist = list(testEM), # Run one EM at a time
+                outdir = here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"])))
+  }
+}
+```
+
 
 ### Run tests for EMs with seasonal misspecifications
 Only run these for a subset of OMs to be selected following the outcomes of tests outlined above
@@ -417,7 +532,10 @@ Only run these for a subset of OMs to be selected following the outcomes of test
 ## Post-process simulation results
 
 ```{r}
-postprocess_simTestWHAM(filenames = c("filename1.Rds", "filename2.Rds", "ect.Rds")) # !!! Update once completed runs
+# ID all simulation result files 
+files <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
+
+postprocess_simTestWHAM(filenames = files) 
 ```
 
 !!!! post-process based on storage & how sims run - could run sims based
@@ -428,67 +546,9 @@ based on model setup - pull from mod\$model_name to help aggregate data
 
 proposed function with: - fitted OM model object - list of EM inputs
 
-### Result formatted as list of lists, save as rdata object in specified directory with timestamp in name
-
-run1_11_14_22.Rda\<-result - EM1 - EM2 - EM3 - EM4 - OM result
-
-# Other things to consider
-
--   Other EMs can be developed (e.g. with alternative ecov process
-    assumptions) but should be given DIFFERENT model_names to help with
-    post-processing
-
-# Short script for function testing purposes only!!!
-
+If results processed in batches/on multiple computers use combinePerfMet to combine final results
 ```{r}
-library(wham)
-# For testing function
-testdata <- read_asap3_dat(paste("/Users/amandahart/Research/Plaice_Methods_Development", "data", "PlaiceWHAM-2019_revised_NEFSC-LW-WAA_splitNEFSC-BigUnit_fixSeason.DAT", sep="/")) # this can be swapped out for any ASAP file you have to set up a WHAM model for debugging
-testinput <- prepare_wham_input(testdata)
-testWHAM <- fit_wham(testinput, MakeADFun.silent = TRUE, do.osa = FALSE, do.retro=FALSE)
 
-OM <- testWHAM
-testinput1 <- prepare_wham_input(testdata, model_name = "test1")
-testinput2 <- prepare_wham_input(testdata, model_name="test2")
-testinput3 <- prepare_wham_input(testdata, model_name="test3")
-inputEMlist <- list(testinput1, testinput2, testinput3)
-
-test <- simTestWHAM(nsim = 2, OM = OM, inputEMlist = inputEMlist)
 ```
-
-# To do next
-
-- Finish OM setup
-  - change how ecov passed in
-  - set up range of uncertainty values to explore
-  - tim sets equilibrium F (eq_F_init)
-    - setup OM without fit & use model to find F40 proxy
-  - Tim also sets intitial numbers at age based on equilibrium (overfished F=eqFN1*max_mult_Fmsy or not eqFN1=0)
-- Tim lines 71-79 pf make_om use internal processing for prepare_wham_input to plug in setup from M_Ecov_om_setup.R
-- Update what is saved as output
-  - calculate performance metrics
-- Run simulations, hpcc?
-- Separate sims and function scripts
-
-
-
-# 9/18/23
-1) do OM & EM setup (EMs specified relative to each OM)
-```{r}
-Setup_OMs()
-```
-2) simulation test EMs for each OM
-```{r}
-simTestWHAM()
-```
-3) Post-process results
-```{r}
-postprocess_simTestWHAM()
-```
-
-
-
-
-
 
 
