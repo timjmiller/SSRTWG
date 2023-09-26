@@ -38,17 +38,47 @@ simTestWHAM <- function(nsim = 1,
                 # Generate OM data for each simulation
                 sim_inputs[[isim]] <- simOM(OM, seed = seeds, isim = isim) #!!! this now returns is a list of dataOM and seed for each replicate
                 
-                #!!! store specification details here !!!!!!!!!!!!
+                # Store OM specification details here 
+                OMsetting <- OM$model_name %>% strsplit("_")
+                sim_inputs[[isim]]$OMname <- OMsetting[[1]][2] 
+                sim_inputs[[isim]]$Ecov_process_sig <- OMsetting[[1]][3]
+                sim_inputs[[isim]]$Ecov_process_cor <- OMsetting[[1]][4]
+                sim_inputs[[isim]]$Ecov_process_obs_sig <- OMsetting[[1]][5]
+                sim_inputs[[isim]]$Ecov_effect <- OMsetting[[1]][6]
+                sim_inputs[[isim]]$F_hist <- OMsetting[[1]][7]
+                sim_inputs[[isim]]$ageComp_sig <- OMsetting[[1]][8]
+                sim_inputs[[isim]]$log_index_sig <- OMsetting[[1]][9]
+                sim_inputs[[isim]]$log_catch_sig <- OMsetting[[1]][10]
                 
                 
-                print(paste0("Simulation_", isim))
+                
                 for(iEM in 1:length(inputEMlist)){ # Loop over estimation models
+                  print(paste0("Simulation_", isim, "_", OM$model_name, "_EM_", iEM))
+                  
                   # Set up temporary storage for this EM/sim
                   tempStore <- NULL
                   
                   # Store EM misspecification and simulation seed (also in OM results)
                   tempStore$seed <- sim_inputs[[isim]]$seed
-                  # !!! store misspecification here !!!!!!!!
+                  EMsetting <- inputEMlist[[iEM]]$model_name %>% strsplit("_") # EM specification 
+                  tempStore$EM_miss_season <- EMsetting[[1]][2]
+                  tempStore$EM_miss_q <- EMsetting[[1]][3]
+                  # tempStore$Ecov_effect_ind1 <- inputEMlist[[iEM]]$par$Ecov_beta[3,,1,] # Ecov effect will be on one of the two indices (R,M,index1,index2) so taking max of all effects will ID setting used
+                  # if(tempStore$Ecov_effect == 0){ # If EM doesn't implement ecov effect then other ecov settings not used (=NA)
+                  #   tempStore$Ecov_process_sig <- NA
+                  #   tempStore$Ecov_process_cor <- NA
+                  #   tempStore$Ecov_process_obs_sig <- NA
+                  # } else{ # If EM implements ecov, other settings match OM
+                  #   tempStore$Ecov_process_sig <- OMsetting[[1]][3] 
+                  #   tempStore$Ecov_process_cor <- OMsetting[[1]][4]
+                  #   tempStore$Ecov_process_obs_sig <- OMsetting[[1]][5]
+                  # }
+                
+                  # Store EM correct specifications (match OM)
+                  tempStore$F_hist <- OMsetting[[1]][7]
+                  tempStore$ageComp_sig <- OMsetting[[1]][8]
+                  tempStore$log_index_sig <- OMsetting[[1]][9]
+                  tempStore$log_catch_sig <- OMsetting[[1]][10]
                   
                         # Pull EM initial input from list
                         inputEM <- inputEMlist[[iEM]] 
@@ -75,6 +105,11 @@ simTestWHAM <- function(nsim = 1,
                         # }
                         # fitEM$converged <- converged
                         
+                        # Check convergence
+                        check <- check_convergence(fitEM, ret=TRUE) 
+                        whamConverge <- ifelse((check$na_sdrep == FALSE & check$is_sdrep == TRUE & check$convergence == 0), TRUE, FALSE) # If no NAs in sdrep, hessian invertible and model thinks it is converged (small gradient) then model converged
+                        
+                        
                         # Pull together EM results for this EM/sim
                         tempStore$SSB <- fitEM$rep$SSB
                         tempStore$F <- fitEM$rep$F
@@ -82,18 +117,21 @@ simTestWHAM <- function(nsim = 1,
                         tempStore$R <- fitEM$rep$NAA[,1]
                         tempStore$NAA <- fitEM$rep$NAA
                         tempStore$Catch <- fitEM$rep$pred_catch
-                        tempStore$CAA <- fitEM$rep$rep$pred_CAA[,1,]
+                        tempStore$CAA <- fitEM$rep$pred_CAA[,1,]
                         tempStore$FMSY <- exp(fitEM$rep$log_FXSPR_static) # F40
                         tempStore$SSBMSY <- exp(fitEM$rep$log_SSB_FXSPR_static) # at F40
                         tempStore$MSY <- exp(fitEM$rep$log_Y_FXSPR_static) # at F40
                         tempStore$SelAA <- fitEM$rep$selAA
-                        # check_convergence !!! get this working and store here
                         tempStore$MohnsRho_SSB <- MohnsRho["SSB"]
                         tempStore$MohnsRho_F <- MohnsRho["Fbar"]
                         tempStore$MohnsRho_R <- MohnsRho["R"]
-                        tempStore$pars_Ecov_beta <- fitEM$rep$Ecov_beta[3,,1,]
+                        tempStore$whamConverge <- whamConverge
+                        tempStore$pars_ecovBeta_ind1 <- max(fitEM$rep$Ecov_beta[3,,1,]) # index 1 ecov beta estimate (constant across ages)
+                        tempStore$pars_ecovBeta_ind2 <- max(fitEM$rep$Ecov_beta[4,,1,]) # index 2 ecov beta estimate (constant across ages)
                         tempStore$pars_Ecov_process <- fitEM$rep$Ecov_process_pars
                         tempStore$pars_q <- fitEM$rep$q
+                        tempStore$q_re <- fitEM$rep$q_re # q random effect
+                        tempStore$Ecov_re <- fitEM$rep$Ecov_re # Ecov random effect
                         
                         # Store model-specific results for given isim here (append tempStore EM results to storage list for that EM)
                         storeEM[which(namesEM == namesEM[iEM])][[1]] <- append(storeEM[which(namesEM == namesEM[iEM])][[1]], list(tempStore))
