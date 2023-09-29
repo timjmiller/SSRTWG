@@ -84,8 +84,66 @@ We specified unfished recruitment at $R_0 = e^{19}$ and $F_{MSY} = F_{\%40} = 0.
 \subsubsection*{Estimating Models}
 
 
+%%--ANALYSIS--%%
+\subsubsection*{Analysis}
+
+Metrics of interest: 
+\begin{enumerate}
+    \item Ability to correctly identify a stock recruitment relationship
+    \item Ability correctly identify the functional form of the stock recruitment relationship
+    \item Differences in estimation error (SSB, R) when SR relationships are correctly/incorrectly identified
+\end{enumerate}
+
+Generalized linear models
+
+Generalized linear mixed models
+
+Classification trees
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Results}
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width = 6in]{dRdX_1RdRdx.pdf}
+\caption{Sensitivity of recruitment to environmental covariates for the three functional forms considered in this study.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width = 5in]{raw_boxplots_SR.pdf}
+\caption{Model selection results for whether a stock recruitment relationship was correctly identified, expressed as marginal proportions against individual covariates.}
+\end{center}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width = 5in]{raw_boxplots_form.pdf}
+\caption{Model selection results for whether the correct stock recruitment functional form was identified, expressed as marginal proportions against individual covariates.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width = 6in]{effect_size_glm_glmm.pdf}
+\caption{Effect sizes for predicting estimated via a binomial generalized linear model and a binomial generalized linear mixed model with simulation random number seed as a random intercept.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width = 5in]{reg_tree.pdf}
+\caption{Classification tree analysis of model selection results. R package `rpart' was used for the model fit and visualization. Following default settings in rpart, the complexity parameter is set at $c_p=0.01$ which represents the minimum classification improvement required for any split.}
+\end{center}
+\end{figure}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Discussion}

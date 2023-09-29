@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH -n 2                                #Request cores
+#SBATCH -n 4                                 #Request cores
 #SBATCH -N 1                                 #Request nodes
 #SBATCH -t 12:00:00                          #Request runtime
 #SBATCH -C centos7                           #Request types of nodes

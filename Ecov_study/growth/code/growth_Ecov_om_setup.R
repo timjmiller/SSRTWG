@@ -72,7 +72,7 @@ df.oms <- expand.grid(NAA_M_re = NAA_M_re,
 L_N_sigma = c(L = 0.3, H = 1.5)
 #(log) index SDs for L/H observation error
 index_sigma = c(L = 0.1, H = 0.4)
-index_NeffL <- c(L=50, H=200)
+index_NeffL <- c(H=50, L=200)
 
 n.mods <- dim(df.oms)[1] #288 operating model scenarios
 df.oms$Model <- paste0("om_",1:n.mods)
