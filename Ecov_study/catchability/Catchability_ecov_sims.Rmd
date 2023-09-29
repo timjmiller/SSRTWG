@@ -13,6 +13,7 @@ Load packages & source functions used in simulation testing
 library(tidyverse)
 library(wham)
 library(TAF)
+library(varhandle)
 
 ## OM/EM setup functions
 source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
@@ -154,6 +155,7 @@ EMsetup
   - 2) Estimate equilibirum initial numbers at age by setting NAA_re$N1_model = 1 rather than using the S-R
 - By default, the environment only impacts catchability for the fall (2nd) index. EM misspecifications are based off of this assumption.
 - Each OM is stored in a separate directory with input objects for EMs that are misspecified based on this OM in a subdirectory of the OM
+!!! EM model_name labels may be misslabeled, but file path labels for EM storage are correct so those are used in postprocessing
 ```{r}
 n_fleets <- 1
 n_indices <- 2
@@ -264,7 +266,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_ecov(input = input, ecov = Ecov)
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
       
     } else if(EMsetup[iem, "miss_q"] == "Ecov"){ # Ecov impact on q, correctly specified option when seasonal impact correctly specified
       print("Ecov")
@@ -287,7 +289,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_ecov(input = input, ecov = Ecov)
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
       
     } else if(EMsetup[iem, "miss_q"] == "qRand"){ # q random effect
       print("qRand")
@@ -313,7 +315,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
       
     } else{ # qRandEcov both q random effect and ecov impact on q
       print("qRandEcov")
@@ -339,7 +341,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) # Set up OM name based on OMsetup 
+      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
     }
     
     # Save EM specification
@@ -399,20 +401,23 @@ Goal = run 100 simulations for each OM
 #### Amanda run Fhist = H-L simulations
 ```{r}
 # Set number of simulations to run
-nsim <- 2
+nsim <- 2 # 2
 
 # Subset of OMs to run
-subsetOM <- OMsetup %>% filter(F_hist == "H-L")
+subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0) %>%
+  filter(OMname >100)
+# %>% head(n=10)
+subsetOM <- subsetOM[8:nrow(subsetOM),] #7?
 
 # Subset of EMs to run
 subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
 
 # Run simulation tests
 for(iom in 1:nrow(subsetOM)){
-  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
   
   # Pull OM
-  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  testOM <- readRDS(here::here(omdir, paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
   for(iem in 1:nrow(subsetEM)){
     # Pull EM
@@ -444,10 +449,10 @@ subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
 
 # Run simulation tests
 for(iom in 1:nrow(subsetOM)){
-  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
   
   # Pull OM
-  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  testOM <- readRDS(here::here(omdir, paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
   for(iem in 1:nrow(subsetEM)){
     # Pull EM
@@ -472,16 +477,16 @@ EMs with no ecov effect (NoEcov) and with ecov effect (Ecov) are equivalent when
 nsim <- 100
 
 # Subset of OMs to run
-subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0)
+subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect == 0)
 # EMs 
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
 
 # Run simulation tests
 for(iom in 1:nrow(subsetOM)){
-  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
   
   # Pull OM
-  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  testOM <- readRDS(here::here(omdir, paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
   for(iem in 1:nrow(subsetEM)){
     # Pull EM
@@ -501,7 +506,7 @@ for(iom in 1:nrow(subsetOM)){
 nsim <- 100
 
 # Subset of OMs to run
-subsetOM <- OMsetup %>% filter(F_hist == "Fmsy") %>% filter(Ecov_effect != 0)
+subsetOM <- OMsetup %>% filter(F_hist == "Fmsy") %>% filter(Ecov_effect == 0)
 # EMs 
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
 
@@ -510,7 +515,7 @@ for(iom in 1:nrow(subsetOM)){
   omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", OMsetup[iom, "OMname"]))
   
   # Pull OM
-  testOM <- readRDS(here::here(omdir, paste0("OM_", OMsetup[iom, "OMname"], ".Rds")))
+  testOM <- readRDS(here::here(omdir, paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
   for(iem in 1:nrow(subsetEM)){
     # Pull EM
@@ -533,9 +538,10 @@ Only run these for a subset of OMs to be selected following the outcomes of test
 
 ```{r}
 # ID all simulation result files 
-files <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
+ files <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
 
-postprocess_simTestWHAM(filenames = files) 
+perfMet <- postprocess_simTestWHAM(filenames = files) 
+
 ```
 
 !!!! post-process based on storage & how sims run - could run sims based
@@ -551,4 +557,9 @@ If results processed in batches/on multiple computers use combinePerfMet to comb
 
 ```
 
+
+### Plot results
+```{r}
+plotResults(results = perfMet, convergedONLY = TRUE)
+```
 
