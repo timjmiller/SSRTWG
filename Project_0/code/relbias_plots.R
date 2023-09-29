@@ -193,7 +193,7 @@ make_plot_df <- function(type = "naa", res = all_naa_om_relssb, is_SE = FALSE) {
       "2" = "cv",
       "3" = "in_ci",
     )) %>% as.data.frame   
-  df <- res %>% pivot_wider(names_from = column, values_from = value) %>% as.data.frame
+  df <- res %>% tidyr::pivot_wider(names_from = column, values_from = value) %>% as.data.frame
   print(dim(df))
   if(is_SE) df <- filter(df, !is.na(cv))
   print(dim(df))
