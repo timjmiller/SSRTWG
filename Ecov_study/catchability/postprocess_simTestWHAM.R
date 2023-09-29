@@ -31,6 +31,7 @@ postprocess_simTestWHAM <- function(filenames = NULL){
         
         # Loop over files to calculate performance metrics
         for(ifile in 1:length(filenames)){
+          print(ifile)
           
                 # Read in RData object
                 load(file=filenames[ifile]) # loads object named "results"
@@ -73,9 +74,20 @@ postprocess_simTestWHAM <- function(filenames = NULL){
                           # EM_ecov_process_cor <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_cor, nyear)
                           # EM_ecov_process_obs_sig <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_obs_sig, nyear)
                           # EM_ecov_process_sig <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_sig, nyear)
-                          EM_miss_season <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_season, nyear)
-                          EM_miss_q <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_q, nyear)
-                          EMshortName <-  rep(EMs[iEM], nyear)
+                          
+                          # !!! Several model names were misslabeled so instead rely on file path name which is correct
+                          filepath <- filenames[ifile] %>% str_split(., "/") %>% unlist()
+                          filepath <- filepath[length(filepath)-1] %>% str_split(., "_")
+                          EM_miss_season <- filepath[[1]][3]
+                          EM_miss_q <- filepath[[1]][5]
+                          EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          # EM_miss_season <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_season, nyear)
+                          # EM_miss_q <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_q, nyear)
+                          # EMshortName <-  rep(EMs[iEM], nyear)
+                          # # For debugging misslabeling look at the following:
+                          # EMinput$data$Ecov_where #shows seasonal misspecification
+                          # EMinput$data$Ecov_how # shows if ecov implemented
+                          # EMinput$data$use_q_re # shows if qrand implemented
                           
                           ##### Store raw results #####
                           # OM
@@ -143,7 +155,7 @@ postprocess_simTestWHAM <- function(filenames = NULL){
                                 OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q,
                                 EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re) %>% 
                             as.data.frame() 
-                          numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q") == FALSE)
+                          numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist") == FALSE)
                           storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric)
                           
                           
@@ -174,6 +186,9 @@ postprocess_simTestWHAM <- function(filenames = NULL){
                                       status_SSB = EM_SSB/EM_SSBMSY,
                                       status_F = EM_F/EM_FMSY,
                                       status_Y = EM_Catch/EM_MSY,
+                                      EM_SSB = EM_SSB,
+                                      EM_R = EM_R,
+                                      EM_F = EM_F,
                                       
                                       ##### EM/OM relative statistics #####
                                       relSSB = EM_SSB/OM_SSB,
