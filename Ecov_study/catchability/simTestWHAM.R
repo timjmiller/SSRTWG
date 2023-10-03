@@ -17,6 +17,9 @@ simTestWHAM <- function(nsim = 1,
                         inputEMlist = NULL,
                         outdir = NULL,
                         seeds = NULL){
+  library(tidyverse) # Required for parallel sims
+  library(wham) # Required for parallel sims
+  
         # Simulation set-up
         obs_names = c("agg_indices","agg_catch","catch_paa","index_paa", "Ecov_obs", "obsvec") # Data overwritten by OM
         namesEM <- lapply(inputEMlist, FUN = function(inputEMlist){inputEMlist$model_name}) %>% unlist() # EM model names
@@ -53,14 +56,14 @@ simTestWHAM <- function(nsim = 1,
                 
                 
                 for(iEM in 1:length(inputEMlist)){ # Loop over estimation models
-                  print(paste0("Simulation_", isim, "_", OM$model_name, "_EM_", iEM))
+                  print(paste0("Simulation_", isim, "_", OM$model_name, "_EM_", inputEMlist[[iEM]]$model_name))
                   
                   # Set up temporary storage for this EM/sim
                   tempStore <- NULL
                   
                   # Store EM misspecification and simulation seed (also in OM results)
                   tempStore$seed <- sim_inputs[[isim]]$seed
-                  EMsetting <- inputEMlist[[iEM]]$model_name %>% strsplit("_") # EM specification 
+                  EMsetting <- inputEMlist[[iEM]]$model_name %>% strsplit("_") # EM specification from model name
                   tempStore$EM_miss_season <- EMsetting[[1]][2]
                   tempStore$EM_miss_q <- EMsetting[[1]][3]
                   # tempStore$Ecov_effect_ind1 <- inputEMlist[[iEM]]$par$Ecov_beta[3,,1,] # Ecov effect will be on one of the two indices (R,M,index1,index2) so taking max of all effects will ID setting used
