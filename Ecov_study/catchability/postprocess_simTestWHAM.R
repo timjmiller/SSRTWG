@@ -1,4 +1,5 @@
 #' @param filenames A vector of strings (including .RData extensions) indicating what results files to read in and post process
+#' @param outdir A string for the directory where a plot folder will be generated
 #' 
 #' @return A dataframe containing the following columns describing model performance
 #' \itemize{
@@ -16,7 +17,7 @@
 # filenames <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
 # file.remove(filenames) # will delete incorrect files for debugging purposes
 
-postprocess_simTestWHAM <- function(filenames = NULL){
+postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
         # Set up storage for processed results
         perfMet <- NULL
         
@@ -276,6 +277,10 @@ postprocess_simTestWHAM <- function(filenames = NULL){
                 } # End loop over simulations in ifile
                 
         } # End loop over filenames
+        
+        # Save returned perfMet in outdir
+        timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+        saveRDS(perfMet, file = paste0(outdir, paste0("/perfMet_",timeStamp, ".RDS")))
         
         # Return
         return(perfMet)
