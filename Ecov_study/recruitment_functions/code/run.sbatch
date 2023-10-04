@@ -7,7 +7,7 @@
 #SBATCH --mem-per-cpu=4000                   #'000s of MB  memory per CPU
 #SBATCH -o output_%j.txt                     #redirect output to output_JOBID.txt
 #SBATCH -e error_%j.txt                      #redirect errors to error_JOBID.txt
-#SBATCH --array=1-96
+#SBATCH --array=1-256
 module load R/4.1.0
 echo "Executing R script"
 Rscript run_ems.R $SLURM_ARRAY_TASK_ID

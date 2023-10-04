@@ -16,19 +16,19 @@ verify_version()
 
 naa_om_inputs <- readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 
-write.dir <- file.path(here(),"Ecov_study", "recruitment_functions", "om_inputs_06_13_2023")
-if(!dir.exists(write.dir)) dir.create(write.dir, recursive = T)
-
 #SR parameters are the same for all naa_om models 
 temp <- fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
 SRab <- exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
+
+#SSBMSY <- exp(temp$report()$log_SSB_FXSPR_static)
+#SRab[1]*SSBMSY/
 
 #Operating model factors
 #Constant factors
 NAA_re       <- c("rec")  #recruitment random effects
 Ecov_obs_sig <- c(0.1)    #ecov observation error
 Ecov_re_sig  <- c(0.1)
-obs_error    <- c("L")
+obs_error    <- c("L","H")
 
 #variable factors
 R_sig       <- c(0.1,1.0)        #recruitment random effects sigma
@@ -36,7 +36,8 @@ Fhist       <- c("H-MSY","MSY")  #fishing history
 NAA_cor     <- c(0.2,0.8)        #correlation of recruitment random effects
 Ecov_re_cor <- c(0.2,0.8)        #correlation of ecov random effects
 Ecov_effect <- c(0.1, 1.0)       #beta coefficients; need to modify according to functional form
-Ecov_how    <- c(1,2,4)          #ecov-recruiment functional form
+Ecov_how    <- c(0,1,2,4)          #ecov-recruiment functional form
+recruit_mod <- c(3)
 
 df.oms <- expand.grid(NAA_re = NAA_re,
                       Ecov_obs_sig=Ecov_obs_sig, 
@@ -94,21 +95,15 @@ om_inputs = list()
 for(i in 1:NROW(df.oms)){
   print(paste0("row ", i))
   NAA_re = gf_NAA_re
-
-  if(df.oms$NAA_re[i] == "rec"){
-    NAA_re$sigma = "rec"
-    NAA_re$sigma_vals = df.oms$R_sig[i]
-    NAA_re$cor_vals = df.oms$NAA_cor[i]
-  } 
-
+  NAA_re$sigma = "rec"
+  NAA_re$sigma_vals = df.oms$R_sig[i]
+  NAA_re$cor_vals = df.oms$NAA_cor[i]
+  
   ecov_i = gf_ecov
   ecov_i$logsigma = cbind(rep(log(df.oms$Ecov_obs_sig[i]), length(ecov_i$year)))
   ecov_i$process_sig_vals = df.oms$Ecov_re_sig[i]
   ecov_i$process_cor_vals = df.oms$Ecov_re_cor[i]
-
-  if(df.oms$Ecov_how[i] == 1) ecov_i$how = 1
-  if(df.oms$Ecov_how[i] == 2) ecov_i$how = 2
-  if(df.oms$Ecov_how[i] == 4) ecov_i$how = 4
+  ecov_i$how = df.oms$Ecov_how[i]
   ecov_i$where = "recruit"
   beta_vals_i = beta_vals
   beta_vals_i[[1]][[1]][] <- df.oms$Ecov_effect[i]

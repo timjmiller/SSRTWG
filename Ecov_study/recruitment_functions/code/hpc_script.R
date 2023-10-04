@@ -74,16 +74,16 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   res$fit <- fit[c("wham_version", "TMB_version", "opt", "final_gradient", "rep")]
   ## res$fit$mohns_rho <- tryCatch(mohns_rho(fit),
   ##                               error = function(e) conditionMessage(e))
-  ## fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc
-  ##         error = function(e) conditionMessage(e))
-  ## if(class(fit$sdrep) == "sdreport"){
-  ##   res$model$sdreport <- TRUE
-  ##   res$fit$sdrep <- list(
-  ##     "Estimate_par" = as.list(fit$sdrep, what = "Est"),
-  ##     "SE_par" = as.list(fit$sdrep, what = "Std"),
-  ##     "Estimate_rep" = as.list(fit$sdrep, what = "Est", report = TRUE),
-  ##     "SE_rep" = as.list(fit$sdrep, what = "Std", report = TRUE))
-  ## }
+  fit$sdrep <- tryCatch(TMB::sdreport(fit), # no bc
+           error = function(e) conditionMessage(e))
+  if(class(fit$sdrep) == "sdreport"){
+    res$model$sdreport <- TRUE
+    res$fit$sdrep <- list(
+       "Estimate_par" = as.list(fit$sdrep, what = "Est"),
+       "SE_par" = as.list(fit$sdrep, what = "Std"),
+       "Estimate_rep" = as.list(fit$sdrep, what = "Est", report = TRUE),
+       "SE_rep" = as.list(fit$sdrep, what = "Std", report = TRUE))
+  }
   empars <- data.frame(par=names(res$fit$opt$par), value=res$fit$opt$par)%>%
     dplyr::filter(!grepl(x=par,'F_devs|log_NAA'))
   empars$par2 <- sapply(unique(empars$par), function(x) {
