@@ -90,51 +90,66 @@ simTestWHAM <- function(nsim = 1,
                         inputEM$data[obs_names] = sim_inputs[[isim]]$dataOM[obs_names]
                         
                         # Fit WHAM model to updated EM input and save results
-                        fitEM <- fit_wham(inputEM, do.osa = FALSE, retro.silent = TRUE, MakeADFun.silent = TRUE, save.sdrep = FALSE) #!!!! Figure out how to store
-                        
-                        # Calculate Mohn's rho
-                        MohnsRho <- mohns_rho(fitEM)
-                        
-                        # # Check convergence !!! get this working, look back at cod code
-                        # if(check_convergence(fitEM, ret=TRUE)$is_sdrep == FALSE){ # If sdrep had error
-                        #         converged <- "No"
-                        # }
-                        # if(check_convergence(fitEM, ret=TRUE)$is_sdrep == TRUE & !is.null(check_convergence(fitEM, ret=TRUE)$na_sdrep)){
-                        #         if(check_convergence(fitEM, ret=TRUE)$na_sdrep == TRUE){
-                        #                 converged <- "No" # Not converged due to NA on diagonal of hessian
-                        #         } else{
-                        #                 converged <- "Yes"
-                        #         }
-                        # }
-                        # fitEM$converged <- converged
-                        
-                        # Check convergence
-                        check <- check_convergence(fitEM, ret=TRUE) 
-                        whamConverge <- ifelse((check$na_sdrep == FALSE & check$is_sdrep == TRUE & check$convergence == 0), TRUE, FALSE) # If no NAs in sdrep, hessian invertible and model thinks it is converged (small gradient) then model converged
+                        try(fitEM <- fit_wham(inputEM, do.osa = FALSE, retro.silent = TRUE, MakeADFun.silent = TRUE, save.sdrep = FALSE), silent = TRUE) # Ignore errors
                         
                         
-                        # Pull together EM results for this EM/sim
-                        tempStore$SSB <- fitEM$rep$SSB
-                        tempStore$F <- fitEM$rep$F
-                        tempStore$FAA <- fitEM$rep$FAA_tot
-                        tempStore$R <- fitEM$rep$NAA[,1]
-                        tempStore$NAA <- fitEM$rep$NAA
-                        tempStore$Catch <- fitEM$rep$pred_catch
-                        tempStore$CAA <- fitEM$rep$pred_CAA[,1,]
-                        tempStore$FMSY <- exp(fitEM$rep$log_FXSPR_static) # F40
-                        tempStore$SSBMSY <- exp(fitEM$rep$log_SSB_FXSPR_static) # at F40
-                        tempStore$MSY <- exp(fitEM$rep$log_Y_FXSPR_static) # at F40
-                        tempStore$SelAA <- fitEM$rep$selAA
-                        tempStore$MohnsRho_SSB <- MohnsRho["SSB"]
-                        tempStore$MohnsRho_F <- MohnsRho["Fbar"]
-                        tempStore$MohnsRho_R <- MohnsRho["R"]
-                        tempStore$whamConverge <- whamConverge
-                        tempStore$pars_ecovBeta_ind1 <- max(fitEM$rep$Ecov_beta[3,,1,]) # index 1 ecov beta estimate (constant across ages)
-                        tempStore$pars_ecovBeta_ind2 <- max(fitEM$rep$Ecov_beta[4,,1,]) # index 2 ecov beta estimate (constant across ages)
-                        tempStore$pars_Ecov_process <- fitEM$rep$Ecov_process_pars
-                        tempStore$pars_q <- fitEM$rep$q
-                        tempStore$q_re <- fitEM$rep$q_re # q random effect
-                        tempStore$Ecov_re <- fitEM$rep$Ecov_re # Ecov random effect
+                        
+                        # If model did not generate an error continue with calculations/store results
+                        if(is.null(fitEM$err) == TRUE){ 
+                          # Calculate Mohn's rho
+                          MohnsRho <- mohns_rho(fitEM)
+                          
+                          # Check convergence
+                          check <- check_convergence(fitEM, ret=TRUE) 
+                          whamConverge <- ifelse((check$na_sdrep == FALSE & check$is_sdrep == TRUE & check$convergence == 0), TRUE, FALSE) # If no NAs in sdrep, hessian invertible and model thinks it is converged (small gradient) then model converged
+                          
+                          # Pull together EM results for this EM/sim
+                          tempStore$SSB <- fitEM$rep$SSB
+                          tempStore$F <- fitEM$rep$F
+                          tempStore$FAA <- fitEM$rep$FAA_tot
+                          tempStore$R <- fitEM$rep$NAA[,1]
+                          tempStore$NAA <- fitEM$rep$NAA
+                          tempStore$Catch <- fitEM$rep$pred_catch
+                          tempStore$CAA <- fitEM$rep$pred_CAA[,1,]
+                          tempStore$FMSY <- exp(fitEM$rep$log_FXSPR_static) # F40
+                          tempStore$SSBMSY <- exp(fitEM$rep$log_SSB_FXSPR_static) # at F40
+                          tempStore$MSY <- exp(fitEM$rep$log_Y_FXSPR_static) # at F40
+                          tempStore$SelAA <- fitEM$rep$selAA
+                          tempStore$MohnsRho_SSB <- MohnsRho["SSB"]
+                          tempStore$MohnsRho_F <- MohnsRho["Fbar"]
+                          tempStore$MohnsRho_R <- MohnsRho["R"]
+                          tempStore$whamConverge <- whamConverge
+                          tempStore$pars_ecovBeta_ind1 <- max(fitEM$rep$Ecov_beta[3,,1,]) # index 1 ecov beta estimate (constant across ages)
+                          tempStore$pars_ecovBeta_ind2 <- max(fitEM$rep$Ecov_beta[4,,1,]) # index 2 ecov beta estimate (constant across ages)
+                          tempStore$pars_Ecov_process <- fitEM$rep$Ecov_process_pars
+                          tempStore$pars_q <- fitEM$rep$q
+                          tempStore$q_re <- fitEM$rep$q_re # q random effect
+                          tempStore$Ecov_re <- fitEM$rep$Ecov_re # Ecov random effect
+                        } else{ # Store NA when model generated error
+                          tempStore$Error <- fitEM$err
+                          tempStore$SSB <- NA
+                          tempStore$F <- NA
+                          tempStore$FAA <- NA
+                          tempStore$R <- NA
+                          tempStore$NAA <- NA
+                          tempStore$Catch <-NA
+                          tempStore$CAA <- NA
+                          tempStore$FMSY <- NA
+                          tempStore$SSBMSY <- NA
+                          tempStore$MSY <- NA
+                          tempStore$SelAA <- NA
+                          tempStore$MohnsRho_SSB <- NA
+                          tempStore$MohnsRho_F <- NA
+                          tempStore$MohnsRho_R <- NA
+                          tempStore$whamConverge <- FALSE # Error prevented convergence in some way
+                          tempStore$pars_ecovBeta_ind1 <- NA# index 1 ecov beta estimate (constant across ages)
+                          tempStore$pars_ecovBeta_ind2 <- NA # index 2 ecov beta estimate (constant across ages)
+                          tempStore$pars_Ecov_process <- NA
+                          tempStore$pars_q <- NA
+                          tempStore$q_re <- NA # q random effect
+                          tempStore$Ecov_re <- NA # Ecov random effect
+                        }
+                        
                         
                         # Store model-specific results for given isim here (append tempStore EM results to storage list for that EM)
                         storeEM[which(namesEM == namesEM[iEM])][[1]] <- append(storeEM[which(namesEM == namesEM[iEM])][[1]], list(tempStore))
