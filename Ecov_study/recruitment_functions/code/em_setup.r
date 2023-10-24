@@ -4,6 +4,8 @@ library(dplyr)
 library(here)
 source(file.path(here(), "common_code", "make_basic_info.R"))
 source(file.path(here(), "Ecov_study", "mortality", "code", "sim_management.R"))
+source(file.path(here(), "common_code", "set_simulation_options.R"))
+
 verify_version()
 
 naa_om_inputs = readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
@@ -15,9 +17,13 @@ SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
 ##Estimating model inputs
 #Estimating model factors
 ecov_how <- c(0,1,2,4)
-r_mod <- c("BH")
+r_mod    <- c(2,3)
+
 #create data.frame defining estimation models data.fram
-df.ems <- expand.grid(ecov_how=ecov_how, r_mod=r_mod, stringsAsFactors = FALSE)
+df.ems <- expand.grid(ecov_how=ecov_how, r_mod=r_mod, stringsAsFactors = FALSE) %>%
+  filter(!{r_mod==2 & ecov_how>1})
+
+
 saveRDS(df.ems, file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 
 #same as naa_om_setup.R
@@ -66,6 +72,8 @@ for(i in 1:NROW(df.ems)){
     ecov_i$how   <- df.ems$ecov_how[i]
     ecov_i$where <- "recruit"
   }
+  
+  NAA_re_i$recruit_model = df.ems$r_mod[i]
   
   basic_info <- make_basic_info()
   basic_info$fracyr_indices[,1] = 0.25
