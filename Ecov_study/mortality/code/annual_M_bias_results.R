@@ -242,6 +242,9 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE) {
       "rec+1" = "EM: R+S",
       "rec+M" = "EM: R+M"
     ))
+  all_res_mod <- all_res_mod %>% mutate(Fhist = recode(Fhist,
+      "H-MSY" = "2.5*F[MSY] %->% F[MSY]",
+      "MSY" = "F[MSY]"))
   all_res_mod <- all_res_mod %>%
     mutate(Ecov_effect = recode(Ecov_effect,
       "0" = "beta[Ecov] == 0",
@@ -272,16 +275,14 @@ temp <- temp %>% mutate(year = recode(year,
 pdodge <- 0.8
 plt <- ggplot(temp, aes(x = year, y = bias_est, colour = Ecov_obs_sig:Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
-    #geom_line(position = position_dodge(pdodge), linewidth = 1) + 
     geom_point(position = position_dodge(pdodge), size = 2) + 
     facet_grid(em_config+Ecov_effect  ~ NAA_M_re + Fhist + obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) + #, labeller = label_parsed) + 
-    theme_bw() +
-    coord_cartesian(ylim = c(-0.25, 0.5)) + 
-    ggtitle(bquote(beta[M]==log(0.2)*","~beta[Ecov]==0)) +
-    ylab(bquote(Median~Relative~Error*"(M)")) + xlab("Time") +
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
+    theme_bw() + coord_cartesian(ylim = c(-0.45, 0.45)) + 
+    ylab(bquote(Median~Relative~Error~of~hat(M))) + xlab("Time") +
+    ggtitle(bquote(EM:~beta[M] == log(0.2)*","~beta[Ecov]==0)) +
     theme(plot.title = element_text(hjust = 0.5), panel.spacing = unit(0.01, "lines")) + labs(colour = bquote(sigma[ecov]:sigma[Ecov]:rho[Ecov])) +
-    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .5, linewidth = 1, position = position_dodge(pdodge))
+    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .01, linewidth = 1, position = position_dodge(pdodge))
 plt
 ggsave(here("Ecov_study","mortality", "paper", "annual_M_bias_all_PE_effect_M_fixed_beta_fixed.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res)
@@ -297,16 +298,14 @@ temp <- temp %>% mutate(year = recode(year,
 pdodge <- 0.8
 plt <- ggplot(temp, aes(x = year, y = bias_est, colour = Ecov_obs_sig:Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
-    #geom_line(position = position_dodge(pdodge), linewidth = 1) + 
     geom_point(position = position_dodge(pdodge), size = 2) + 
     facet_grid(em_config+Ecov_effect  ~ NAA_M_re + Fhist + obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) + #, labeller = label_parsed) + 
-    theme_bw() +
-    coord_cartesian(ylim = c(-0.25, 0.5)) + 
-    ggtitle(bquote(beta[M]==log(0.2)*","~beta[Ecov]~Estimated)) +
-    ylab(bquote(Median~Relative~Error*"(M)")) + xlab("Time") +
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
+    theme_bw() + coord_cartesian(ylim = c(-0.45, 0.45)) + 
+    ylab(bquote(Median~Relative~Error~of~hat(M))) + xlab("Time") +
+    ggtitle(bquote(EM:~beta[M] == log(0.2)*","~beta[Ecov]~Estimated)) +
     theme(plot.title = element_text(hjust = 0.5), panel.spacing = unit(0.01, "lines")) + labs(colour = bquote(sigma[ecov]:sigma[Ecov]:rho[Ecov])) +
-    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .5, linewidth = 1, position = position_dodge(pdodge))
+    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .01, linewidth = 1, position = position_dodge(pdodge))
 plt
 ggsave(here("Ecov_study","mortality", "paper", "annual_M_bias_all_PE_effect_M_fixed_beta_estimated.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res)
@@ -322,16 +321,37 @@ temp <- temp %>% mutate(year = recode(year,
 pdodge <- 0.8
 plt <- ggplot(temp, aes(x = year, y = bias_est, colour = Ecov_obs_sig:Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
-    #geom_line(position = position_dodge(pdodge), linewidth = 1) + 
     geom_point(position = position_dodge(pdodge), size = 2) + 
     facet_grid(em_config+Ecov_effect  ~ NAA_M_re + Fhist + obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) + #, labeller = label_parsed) + 
-    theme_bw() +
-    coord_cartesian(ylim = c(-0.25, 0.5)) + 
-    ggtitle(bquote(beta[M]~Estimated*","~beta[Ecov]~Estimated)) +
-    ylab(bquote(Median~Relative~Error*"(M)")) + xlab("Time") +
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
+    theme_bw() + coord_cartesian(ylim = c(-0.45, 0.45)) + 
+    ylab(bquote(Median~Relative~Error~of~hat(M))) + xlab("Time") +
+    ggtitle(bquote(EM:~beta[M]~Estimated*","~beta[Ecov]~Estimated)) +
     theme(plot.title = element_text(hjust = 0.5), panel.spacing = unit(0.01, "lines")) + labs(colour = bquote(sigma[ecov]:sigma[Ecov]:rho[Ecov])) +
-    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .5, linewidth = 1, position = position_dodge(pdodge))
+    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .01, linewidth = 1, position = position_dodge(pdodge))
 plt
 ggsave(here("Ecov_study","mortality", "paper", "annual_M_bias_all_PE_effect_M_estimated_beta_estimated.png"), plt, width = 20, height = 12, units = "in")
+remove(all_res)
+
+all_res <- plot_df_fn(df.ems, df.oms, Ecov_est = FALSE, M_est = TRUE)
+temp <- filter(all_res, year %in% c(1,21,40))
+temp$Ecov_effect <- factor(temp$Ecov_effect)
+temp$year <- factor(temp$year)
+temp <- temp %>% mutate(year = recode(year,
+    "1" = "Start",
+    "21" = "Middle",
+    "40" = "End"))
+pdodge <- 0.8
+plt <- ggplot(temp, aes(x = year, y = bias_est, colour = Ecov_obs_sig:Ecov_re_sig:Ecov_re_cor)) + scale_colour_viridis_d() + 
+    geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
+    geom_point(position = position_dodge(pdodge), size = 2) + 
+    facet_grid(em_config+Ecov_effect  ~ NAA_M_re + Fhist + obs_error, 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_effect = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
+    theme_bw() + coord_cartesian(ylim = c(-0.45, 0.45)) + 
+    ylab(bquote(Median~Relative~Error~of~hat(M))) + xlab("Time") +
+    ggtitle(bquote(EM:~beta[M]~Estimated*","~beta[Ecov]==0)) +
+    theme(plot.title = element_text(hjust = 0.5), panel.spacing = unit(0.01, "lines")) + labs(colour = bquote(sigma[ecov]:sigma[Ecov]:rho[Ecov])) +
+    geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .01, linewidth = 1, position = position_dodge(pdodge))
+plt
+ggsave(here("Ecov_study","mortality", "paper", "annual_M_bias_all_PE_effect_M_estimated_beta_fixed.png"), plt, width = 20, height = 12, units = "in")
 remove(all_res)

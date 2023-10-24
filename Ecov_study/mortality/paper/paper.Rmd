@@ -300,7 +300,7 @@ When the mean natural mortality rate was estimated in the EM, results were simil
 
 ### Mean natural mortality rate {-}
 
-We found high accuracy for estimation of the mean natural mortality rate parameter ($\beta_M$) for all EM process errors assumptions when OMs had step changes in fishing mortality, lower uncertainty in index and age composition observations, and either R or R+M process errors (Figure \ref{mean_M_bias}). The most variation in estimates occurred when fishing and Higher uncertainty in index and age composition observations. For OMs with R+S process errors, the most reliable estimation of $\beta_M$ was obtained when the EM also assumed R+S process errors across all other factors. For OMs with R+M process errors, the matching assumption for the EM only showed the best reliability when there was low uncertainty in index and age composition observations and fishing mortality was constant. 
+We found high accuracy for estimation of the mean natural mortality rate parameter ($\beta_M$) for all EM process errors assumptions when OMs had step changes in fishing mortality, lower uncertainty in index and age composition observations, and either R or R+M process errors (Figure \ref{mean_M_bias_Ecov_beta_fixed}). The most variation in estimates occurred when fishing mortality was constant and there was higher uncertainty in index and age composition observations. For OMs with R+S process errors, the most reliable estimation of $\beta_M$ was obtained when the EM also assumed R+S process errors across all other factors. For OMs with R+M process errors, the matching assumption for the EM only showed the best reliability when there was low uncertainty in index and age composition observations and fishing mortality was constant. 
 
 ### Annual natural morality rate {-}
 
@@ -495,9 +495,18 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 
 \begin{landscape}
 \begin{figure}
-\caption{Median relative error of the estimated mean natural mortality parameter $\beta_\text{M}$ from fitting simulated observations from each operating model with alternative process error assumptions in the estimating model.}\label{mean_M_bias}
+\caption{Median relative error of the estimated mean natural mortality parameter $\beta_\text{M}$ from fitting simulated observations from each operating model with the estimating model assuming $\beta_\text{Ecov} = 0$ under alternative process error assumptions.}\label{mean_M_bias_Ecov_beta_fixed}
 \begin{center}
-\includegraphics[height = \textheight]{mean_M_bias_all_PE_effect.png}
+\includegraphics[height = \textheight]{mean_M_bias_all_PE_effect_Ecov_beta_fixed.png}
+\end{center}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\caption{Median relative error of the estimated mean natural mortality parameter $\beta_\text{M}$ from fitting simulated observations from each operating model with the estimating model estimating $\beta_\text{Ecov} = 0$ under alternative process error assumptions.}\label{mean_M_bias_Ecov_beta_estimated}
+\begin{center}
+\includegraphics[height = \textheight]{mean_M_bias_all_PE_effect_Ecov_beta_estimated.png}
 \end{center}
 \end{figure}
 \end{landscape}

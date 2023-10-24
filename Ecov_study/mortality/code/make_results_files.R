@@ -81,7 +81,7 @@ saveRDS(ecov_beta_bias_res, file = here::here("Ecov_study","mortality", "results
 
 #bias of beta_M (mean M)
 mean_M_bias_res = lapply(1:NROW(df.oms), function(y){
-  lapply(which(df.ems$Ecov_est), function(x) { #only the estimating models that estimate Ecov_beta
+  lapply(which(df.ems$M_est), function(x) { #only the estimating models that estimate Ecov_beta
   #lapply(4:4, function(x) {
     res <- readRDS(here::here("Ecov_study","mortality", "results", "aggregated_results", paste0("om_", y, "_em_", x, ".RDS")))
     print(paste(y, x))
@@ -106,6 +106,108 @@ mean_M_bias_res = lapply(1:NROW(df.oms), function(y){
   })
 })
 saveRDS(mean_M_bias_res, file = here::here("Ecov_study","mortality", "results", "mean_M_bias_results.RDS"))
+
+#relative error of F40 (prevailing)
+F40_rel_error_res = lapply(1:NROW(df.oms), function(y){
+  lapply(1:NROW(df.ems), function(x) { #only the estimating models that estimate Ecov_beta
+  #lapply(4:4, function(x) {
+    res <- readRDS(here::here("Ecov_study","mortality", "results", "aggregated_results", paste0("om_", y, "_em_", x, ".RDS")))
+    print(paste(y, x))
+  #res = sapply(1:20, function(x) {
+    bias <- t(sapply(res, function(z) { 
+      #fit = try(readRDS(here::here("Ecov_study","mortality", "results", paste0("om", y), paste0("sim", x, "_em", z, ".RDS"))), silent = TRUE)
+      out <- rep(NA,3) #bias, se, true_in_ci (0/1)
+      if(!is.character(z)) if(!is.null(z$fit$opt)) {
+        out[1] = exp(z$fit$rep$log_FXSPR_static[1]-z$truth$log_FXSPR_static[1])-1
+        if(!is.null(z$fit$sdrep)){
+          ind <- which(!is.na(z$fit$sdrep$SE_rep$log_FXSPR_static))[1]
+          if(length(ind)){
+            out[2] <- z$fit$sdrep$SE_rep$log_FXSPR_static[ind] #se
+            ci = z$fit$rep$log_FXSPR_static[1] + c(-1,1)*qnorm(0.975) * out[2]
+            out[3] <- as.integer(z$truth$log_FXSPR_static[1] >= ci[1] & z$truth$log_FXSPR_static[1] <= ci[2])
+          }
+        }
+      }
+      return(out)
+    }))
+    return(bias)
+  })
+})
+saveRDS(F40_rel_error_res, file = here::here("Ecov_study","mortality", "results", "F40_rel_error_results.RDS"))
+
+#relative error of SSB40 (prevailing)
+SSB40_rel_error_res = lapply(1:NROW(df.oms), function(y){
+  lapply(1:NROW(df.ems), function(x) { #only the estimating models that estimate Ecov_beta
+  #lapply(4:4, function(x) {
+    res <- readRDS(here::here("Ecov_study","mortality", "results", "aggregated_results", paste0("om_", y, "_em_", x, ".RDS")))
+    print(paste(y, x))
+  #res = sapply(1:20, function(x) {
+    bias <- t(sapply(res, function(z) { 
+      #fit = try(readRDS(here::here("Ecov_study","mortality", "results", paste0("om", y), paste0("sim", x, "_em", z, ".RDS"))), silent = TRUE)
+      out <- rep(NA,3) #bias, se, true_in_ci (0/1)
+      if(!is.character(z)) if(!is.null(z$fit$opt)) {
+        out[1] = exp(z$fit$rep$log_SSB_FXSPR_static[1]- z$truth$log_SSB_FXSPR_static[1]) - 1
+        if(!is.null(z$fit$sdrep)){
+          ind <- which(!is.na(z$fit$sdrep$SE_rep$log_SSB_FXSPR_static))[1]
+          if(length(ind)){
+            out[2] <- z$fit$sdrep$SE_rep$log_SSB_FXSPR_static[ind] #se
+            ci = z$fit$rep$log_SSB_FXSPR_static[1] + c(-1,1)*qnorm(0.975) * out[2]
+            out[3] <- as.integer(z$truth$log_SSB_FXSPR_static[1] >= ci[1] & z$truth$log_SSB_FXSPR_static[1] <= ci[2])
+          }
+        }
+      }
+      return(out)
+    }))
+    return(bias)
+  })
+})
+saveRDS(SSB40_rel_error_res, file = here::here("Ecov_study","mortality", "results", "SSB40_rel_error_results.RDS"))
+
+#bias of F status (prevailing, terminal year)
+Fstatus_bias_res = lapply(1:NROW(df.oms), function(y){
+  lapply(1:NROW(df.ems), function(x) { #only the estimating models that estimate Ecov_beta
+  #lapply(4:4, function(x) {
+    res <- readRDS(here::here("Ecov_study","mortality", "results", "aggregated_results", paste0("om_", y, "_em_", x, ".RDS")))
+    print(paste(y, x))
+  #res = sapply(1:20, function(x) {
+    bias <- t(sapply(res, function(z) { 
+      #fit = try(readRDS(here::here("Ecov_study","mortality", "results", paste0("om", y), paste0("sim", x, "_em", z, ".RDS"))), silent = TRUE)
+      out <- rep(NA,3) #bias, se, true_in_ci (0/1)
+      if(!is.character(z)) if(!is.null(z$fit$opt)) {
+        # print(z$fit$rep$F[40]/exp(z$fit$rep$log_FXSPR_static[1]))
+        # print(z$truth$F[40]/exp(z$truth$log_FXSPR_static[1]))
+        # stop()
+        out[1] = z$fit$rep$F[40]/exp(z$fit$rep$log_FXSPR_static[1]) - z$truth$F[40]/exp(z$truth$log_FXSPR_static[1])
+      }
+      return(out)
+    }))
+    return(bias)
+  })
+})
+saveRDS(Fstatus_bias_res, file = here::here("Ecov_study","mortality", "results", "Fstatus_bias_results.RDS"))
+
+#bias of SSB status (prevailing, terminal year)
+SSBstatus_bias_res = lapply(1:NROW(df.oms), function(y){
+  lapply(1:NROW(df.ems), function(x) { #only the estimating models that estimate Ecov_beta
+  #lapply(4:4, function(x) {
+    res <- readRDS(here::here("Ecov_study","mortality", "results", "aggregated_results", paste0("om_", y, "_em_", x, ".RDS")))
+    print(paste(y, x))
+  #res = sapply(1:20, function(x) {
+    bias <- t(sapply(res, function(z) { 
+      #fit = try(readRDS(here::here("Ecov_study","mortality", "results", paste0("om", y), paste0("sim", x, "_em", z, ".RDS"))), silent = TRUE)
+      out <- rep(NA,3) #bias, se, true_in_ci (0/1)
+      if(!is.character(z)) if(!is.null(z$fit$opt)) {
+        # print(z$fit$rep$SSB[40]/exp(z$fit$rep$log_SSB_FXSPR_static[1]))
+        # print(z$truth$SSB[40]/exp(z$truth$log_SSB_FXSPR_static[1]))
+        # stop()
+        out[1] = z$fit$rep$SSB[40]/exp(z$fit$rep$log_SSB_FXSPR_static[1]) - z$truth$SSB[40]/exp(z$truth$log_SSB_FXSPR_static[1])
+      }
+      return(out)
+    }))
+    return(bias)
+  })
+})
+saveRDS(SSBstatus_bias_res, file = here::here("Ecov_study","mortality", "results", "SSBstatus_bias_results.RDS"))
 
 #temp = try(readRDS(here::here("Ecov_study","mortality", "results", paste0("om", 1), paste0("sim", 1, "_em", 1, ".RDS"))), silent = TRUE)
 

@@ -73,3 +73,12 @@ getTree(fit, 1, labelVar = TRUE)
 
 setwd(here::here("Ecov_study","mortality","paper"))
 rmarkdown::render("paper.Rmd", output_file = "paper.pdf")
+
+
+wham:::plot.tile.age.year(mod, type="NAA_devs")
+
+abline(v=tail(years,1), lty=2, lwd=1)
+
+
+x <- as.data.frame(sims[[3]]$obs)
+

@@ -345,8 +345,8 @@ make_df_fn <- function(M_est = TRUE){
         "0.5" = "rho[Ecov] == 0.5"
     ))
   all_res_mod <- all_res_mod %>% mutate(Fhist = recode(Fhist,
-      "H-MSY" = "High->FMSY",
-      "MSY" = "FMSY"))
+      "H-MSY" = "2.5*F[MSY] %->% F[MSY]",
+      "MSY" = "F[MSY]"))
   all_res_mod <- all_res_mod %>%
     mutate(beta_ecov_fixed = recode(Ecov_est,
       "TRUE" = "beta[Ecov]==0",
@@ -391,8 +391,7 @@ plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = n, fill = correct)) + scale_
     geom_col(position = "fill") + 
     #geom_col(position = position_dodge(0.1)) + 
     facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
-    #facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
     theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + xlab(expression(beta[Ecov])) + labs(fill = "EM assumption") +
     ggtitle(bquote(beta[M]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
 plt
@@ -407,8 +406,7 @@ plt <- ggplot(temp, aes(x = Ecov_effect, y = n, fill = re_config:beta_ecov_fixed
     geom_col(position = "fill") + 
     #geom_col(position = position_dodge(0.1)) + 
     facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
-    #facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
     theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + xlab(expression(beta[Ecov])) + labs(fill = bquote(atop("EM Assumptions",PE*":"*beta[Ecov]==0))) +
     ggtitle(bquote(beta[M]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
 plt
@@ -419,8 +417,7 @@ plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = n, fill = correct)) + scale_
     geom_col(position = "fill") + 
     #geom_col(position = position_dodge(0.1)) + 
     facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
-    #facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
     theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + xlab(expression(beta[Ecov])) + labs(fill = "EM assumption") +
     ggtitle(bquote(beta[M]==log(0.2))) + theme(plot.title = element_text(hjust = 0.5))
 plt
@@ -436,8 +433,7 @@ plt <- ggplot(temp, aes(x = Ecov_effect, y = n, fill = re_config:beta_ecov_fixed
     geom_col(position = "fill") + 
     #geom_col(position = position_dodge(0.1)) + 
     facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
-    #facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ NAA_M_re+Fhist+obs_error, labeller = label_wrap_gen(width = 15)) + #, labeller = label_parsed) + 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
     theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("Proportion ranked best") + xlab(expression(beta[Ecov])) + labs(fill = bquote(atop("EM Assumptions",PE*":"*beta[Ecov]==0))) +
     ggtitle(bquote(beta[M]==log(0.2))) + theme(plot.title = element_text(hjust = 0.5))
 plt
