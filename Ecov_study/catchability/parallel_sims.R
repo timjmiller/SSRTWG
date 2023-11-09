@@ -6,6 +6,10 @@ library(tidyverse)
 library(wham)
 library(TAF)
 library(varhandle)
+library(doParallel)
+library(here)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Don't forget to create a Results directory before running!
 
 ## OM/EM setup functions
 source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
@@ -69,17 +73,28 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #### Run parallel simulations
 # Set up parallelization
 numCore <- detectCores()
-registerDoParallel(numCore-4) # Don't use 2 of the cores
+
+registerDoParallel(numCore-20) # Don't use 2 of the cores
 
 # Alex - to run your Fmsy simulations adjusts the number of simulations in line 76 and change F_hist in line 79 to = "Fmsy"
 # Set number of simulations to run
-nsim <- 2 
+nsim <- 50
 
+# ##### Run settings for separate Fmsy and H-L simulations with environmental effect implemented
+# # Subset of OMs to run
+# # subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0)# %>% filter(OMname > 153) # Only run 3 OMs for 2 simulations as a test
+# subsetOM <- OMsetup %>% filter(F_hist == "Fmsy") %>% filter(Ecov_effect != 0) %>% filter(OMname > 176) # Only run 3 OMs for 2 simulations as a test
+# 
+# # Subset of EMs to run
+# subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
+
+##### Run settings for OMs with no environmental effects - smaller subset of EMs run for these OMs
 # Subset of OMs to run
-subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0) # Only run 3 OMs for 2 simulations as a test
+subsetOM <- OMsetup %>% filter(Ecov_effect == 0) #%>% filter(OMname > 124)
+# EMs 
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
 
-# Subset of EMs to run
-subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
+
 
 # Run simulation tests
 foreach(iom = 1:nrow(subsetOM)) %dopar% { # Run foreach loop in parallel
@@ -104,4 +119,5 @@ foreach(iom = 1:nrow(subsetOM)) %dopar% { # Run foreach loop in parallel
 
 
 
-
+#Error in unserialize(socklist[[n]]) : error reading from connection
+# Gives up on OM 22 missSeason_NONE_missQ_qRandEcov
