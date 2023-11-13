@@ -14,12 +14,18 @@
 #' }
 
 # Find all result files
-# filenames <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
+filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+outdir = here::here("Ecov_study/catchability")
+postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
 # file.remove(filenames) # will delete incorrect files for debugging purposes
 
 postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
         # Set up storage for processed results
         perfMet <- NULL
+        
+        # Start sim counter at 0, will increment once at the innermost loop
+        simNum <- 0
         
         # Establish total number of simulations across all files (based on nsim in filename)
         nsim <- rep(NA, length(filenames))
@@ -44,14 +50,17 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                         EMs <- names(results)[2:length(names(results))]
                         OMname <- names(results)[which(grepl("OM", names(results))==TRUE | grepl("WHAM", names(results))==TRUE)] # model with "OM" or "WHAM" in name (default OM label is "WHAM for unnamed stock")
                         
-                        # Set up sim numbering for ifile
-                        lastSim <- ifile*nsim[ifile]*length(EMs)
-                        firstSim <- lastSim+1-(nsim[ifile]*length(EMs))
-                        simStorage <- firstSim:lastSim
-                        simIncrement <- length(EMs)*(isim-1)
+                        # # Set up sim numbering for ifile
+                        # lastSim <- ifile*nsim[ifile]*length(EMs)
+                        # firstSim <- lastSim+1-(nsim[ifile]*length(EMs))
+                        # simStorage <- firstSim:lastSim
+                        # simIncrement <- length(EMs)*(isim-1)
                         
                         # Loop over EM in each ifile
                         for(iEM in 1:length(EMs)){
+                          # Increase simNum by 1 #!!! May need to confirm that this still works if multiple EMs fit to same OM
+                          simNum <- simNum + 1
+                          
                           # Dimensions
                           nyear <- results[OMname][[1]][isim][[1]]$dataOM$n_years_model
                           
@@ -63,7 +72,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                           log_catch_sig <- rep(results[OMname][[1]][isim][[1]]$log_catch_sig, nyear)
                           log_index_sig <- rep(results[OMname][[1]][isim][[1]]$log_index_sig, nyear)
                           Year <- 1:nyear
-                          sim <- rep(simStorage[(iEM+simIncrement)], nyear) # !!! May not work if multiple EMs 
+                          sim <- rep(simNum, nyear)  
                           # OM
                           OM_ecov_effect <- rep(results[OMname][[1]][isim][[1]]$Ecov_effect, nyear)
                           OM_ecov_process_cor <- rep(results[OMname][[1]][isim][[1]]$Ecov_process_cor, nyear)
@@ -117,36 +126,39 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                           colnames(OM_q) <- c("OM_q_index1", "OM_q_index2")
                           
                           # EM
-                          EM_SSB <- results[EMs[iEM]][[1]][isim][[1]]$SSB
-                          EM_F <-  results[EMs[iEM]][[1]][isim][[1]]$F
-                          colnames(EM_F) <- "EM_F"
-                          EM_FAA <-  results[EMs[iEM]][[1]][isim][[1]]$FAA
-                          colnames(EM_FAA) <- paste("EM_FAA", 1:10, sep="_")
-                          EM_R <-  results[EMs[iEM]][[1]][isim][[1]]$R
-                          EM_NAA <-  results[EMs[iEM]][[1]][isim][[1]]$NAA
-                          colnames(EM_NAA) <- paste("EM_NAA", 1:10, sep="_")
-                          EM_Catch <-  results[EMs[iEM]][[1]][isim][[1]]$Catch
-                          colnames(EM_Catch) <- "EM_Catch"
-                          EM_CAA <- results[EMs[iEM]][[1]][isim][[1]]$CAA #!!! Double check that this gets saved correctly
-                          colnames(EM_CAA) <- paste("EM_CAA", 1:10, sep="_")
-                          EM_FMSY <-  rep(results[EMs[iEM]][[1]][isim][[1]]$FMSY, nyear)
-                          EM_SSBMSY <- rep( results[EMs[iEM]][[1]][isim][[1]]$SSBMSY, nyear)
-                          EM_MSY <- rep(results[EMs[iEM]][[1]][isim][[1]]$MSY, nyear)
-                          EM_selAA_cat <- results[EMs[iEM]][[1]][isim][[1]]$SelAA[[1]]
-                          colnames(EM_selAA_cat) <- paste("EM_selCat", 1:10, sep="_")
-                          EM_selAA_ind1 <- results[EMs[iEM]][[1]][isim][[1]]$SelAA[[2]]
-                          colnames(EM_selAA_ind1) <- paste("EM_selInd1", 1:10, sep="_")
-                          EM_selAA_ind2 <- results[EMs[iEM]][[1]][isim][[1]]$SelAA[[3]]
-                          colnames(EM_selAA_ind2) <- paste("EM_selInd2", 1:10, sep="_")
-                          EM_q <- results[EMs[iEM]][[1]][isim][[1]]$pars_q # For spring and fall surveys respectively
-                          colnames(EM_q) <- c("EM_q_index1", "EM_q_index2")
-                          EM_ecovBeta_ind1 <- results[EMs[iEM]][[1]][isim][[1]]$pars_ecovBeta_ind1
-                          EM_ecovBeta_ind2 <- results[EMs[iEM]][[1]][isim][[1]]$pars_ecovBeta_ind2
-                          EM_q_re <- results[EMs[iEM]][[1]][isim][[1]]$q_re # q random effect
-                          colnames(EM_q_re) <- c("EM_qre_Ind1", "EM_qre_Ind2")
-                          EM_Ecov_re <- results[EMs[iEM]][[1]][isim][[1]]$Ecov_re # Ecov random effect
-                          colnames(EM_Ecov_re) <- "EM_Ecov_re"
-                          #!!! pars_Ecov_process = 3 parameters, what is order for labeling purposes here?
+                          if(results[EMs[iEM]][[1]][isim][[1]]$whamConverge == TRUE){
+                            Converged <- results[EMs[iEM]][[1]][isim][[1]]$whamConverge
+                            EM_SSB <- results[EMs[iEM]][[1]][isim][[1]]$SSB
+                            EM_F <-  results[EMs[iEM]][[1]][isim][[1]]$F
+                            colnames(EM_F) <- "EM_F"
+                            EM_FAA <-  results[EMs[iEM]][[1]][isim][[1]]$FAA
+                            colnames(EM_FAA) <- paste("EM_FAA", 1:10, sep="_")
+                            EM_R <-  results[EMs[iEM]][[1]][isim][[1]]$R
+                            EM_NAA <-  results[EMs[iEM]][[1]][isim][[1]]$NAA
+                            colnames(EM_NAA) <- paste("EM_NAA", 1:10, sep="_")
+                            EM_Catch <-  results[EMs[iEM]][[1]][isim][[1]]$Catch
+                            colnames(EM_Catch) <- "EM_Catch"
+                            EM_CAA <- results[EMs[iEM]][[1]][isim][[1]]$CAA #!!! Double check that this gets saved correctly
+                            colnames(EM_CAA) <- paste("EM_CAA", 1:10, sep="_")
+                            EM_FMSY <-  rep(results[EMs[iEM]][[1]][isim][[1]]$FMSY, nyear)
+                            EM_SSBMSY <- rep( results[EMs[iEM]][[1]][isim][[1]]$SSBMSY, nyear)
+                            EM_MSY <- rep(results[EMs[iEM]][[1]][isim][[1]]$MSY, nyear)
+                            EM_selAA_cat <- results[EMs[iEM]][[1]][isim][[1]]$SelAA[[1]]
+                            colnames(EM_selAA_cat) <- paste("EM_selCat", 1:10, sep="_")
+                            EM_selAA_ind1 <- results[EMs[iEM]][[1]][isim][[1]]$SelAA[[2]]
+                            colnames(EM_selAA_ind1) <- paste("EM_selInd1", 1:10, sep="_")
+                            EM_selAA_ind2 <- results[EMs[iEM]][[1]][isim][[1]]$SelAA[[3]]
+                            colnames(EM_selAA_ind2) <- paste("EM_selInd2", 1:10, sep="_")
+                            EM_q <- results[EMs[iEM]][[1]][isim][[1]]$pars_q # For spring and fall surveys respectively
+                            colnames(EM_q) <- c("EM_q_index1", "EM_q_index2")
+                            EM_ecovBeta_ind1 <- results[EMs[iEM]][[1]][isim][[1]]$pars_ecovBeta_ind1
+                            EM_ecovBeta_ind2 <- results[EMs[iEM]][[1]][isim][[1]]$pars_ecovBeta_ind2
+                            EM_q_re <- results[EMs[iEM]][[1]][isim][[1]]$q_re # q random effect
+                            colnames(EM_q_re) <- c("EM_qre_Ind1", "EM_qre_Ind2")
+                            EM_Ecov_re <- results[EMs[iEM]][[1]][isim][[1]]$Ecov_re # Ecov random effect
+                            colnames(EM_Ecov_re) <- "EM_Ecov_re"
+                            #!!! pars_Ecov_process = 3 parameters, what is order for labeling purposes here?
+                          
                           
                                 
                           # Combine settings and raw results into a single storage data.frame 
@@ -154,13 +166,13 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                                 OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                                                                                                                    EM_miss_season, EM_miss_q, EMshortName,
                                 OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q,
-                                EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re) %>% 
+                                Converged, EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re) %>% 
                             as.data.frame() 
                           numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist") == FALSE)
                           storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric)
                           
                           
-                                
+                               
                           ##### Calculate performance metrics #####
                           
                           # Mohn's rho
@@ -178,6 +190,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                             dplyr::reframe(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
                                            OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                                            EM_miss_season, EM_miss_q, EMshortName,
+                                           Converged = results[EMs[iEM]][[1]][isim][[1]]$whamConverge,
                                            
                                       ##### EM results #####
                                       EM_MohnsRho_SSB = EM_MohnsRho_SSB,
@@ -269,9 +282,24 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                                       relselInd2_9 = EM_selInd2_9/OM_selInd2_9,
                                       relselInd2_10 = EM_selInd2_10/OM_selInd2_10) # Currently don't use EM_qre_Ind1, EM_qre_Ind2, EM_Ecov_re, or pars_Ecov_process
                                 
-                                # Append perfMets to storage
+                                # Append perfMets 
                                 perfMet <- rbind(perfMet, simPerfMet)
-                                
+                          } else{ # If EM did not converge for the simulation save only OM results and EM convergence status
+                            storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
+                                             OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+                                             EM_miss_season, EM_miss_q, EMshortName, 
+                                             Converged = results[EMs[iEM]][[1]][isim][[1]]$whamConverge,
+                                             matrix(rep(NA, 80*length(F_hist)), ncol = 80)) %>% # Fill remaining performance metrics with NAs
+                              as.data.frame() 
+                            names(storage) <- c(names(storage)[1:16], names(perfMet)[17:ncol(perfMet)])
+                            numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist") == FALSE)
+                            storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as 
+                            
+                            
+                            # Append perfMets
+                            perfMet <- rbind(perfMet, storage)
+                            
+                          } # End handling for unconverged EMs    
                         } # End loop over EM
                         
                 } # End loop over simulations in ifile
