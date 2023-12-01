@@ -7,7 +7,7 @@ editor_options:
     wrap: 72
 ---
 
-Load packages & source functions used in simulation testing
+# Load packages & source functions used in simulation testing
 ```{r}
 ## Packages
 library(tidyverse)
@@ -27,9 +27,12 @@ source(here::here("common_code", "get_FMSY.R"))
 
 ## Simulation testing functions
 source(here::here("Ecov_study","catchability","simOM.R"))
-#source(here::here("Other_Research", "simOM.R"))
 source(here::here("Ecov_study","catchability","simTestWHAM.R"))
-#source(here::here("Other_Research", "simTestWHAM.R"))
+
+## Processing functions
+source(here::here("Ecov_study", "catchability", "postprocess_simTestWHAM.R"))
+source(here::here("Ecov_study", "catchability", "combinePerfMet.R"))
+source(here::here("Ecov_study", "catchability", "plotResults.R"))
 ```
 
 
@@ -401,13 +404,12 @@ Goal = run 100 simulations for each OM
 #### Amanda run Fhist = H-L simulations
 ```{r}
 # Set number of simulations to run
-nsim <- 2 # 2
+nsim <- 2
 
 # Subset of OMs to run
-subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0) %>%
-  filter(OMname >100)
+subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0) %>% tail(n=3)# %>% filter(OMname >100)
 # %>% head(n=10)
-subsetOM <- subsetOM[8:nrow(subsetOM),] #7?
+# subsetOM <- subsetOM[8:nrow(subsetOM),] #7?
 
 # Subset of EMs to run
 subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
@@ -537,11 +539,18 @@ Only run these for a subset of OMs to be selected following the outcomes of test
 ## Post-process simulation results
 
 ```{r}
-# ID all simulation result files 
- files <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
+# Find all result files
+filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+filenames3 <- list.files(path = here::here("Ecov_study/catchability/remote3_Results_supplementalRuns"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE) # simulations to fill gaps so 100 simulations for each OM/EM pair
 
-perfMet <- postprocess_simTestWHAM(filenames = files) 
+# Set storage directory
+outdir = here::here("Ecov_study/catchability")
 
+# Post-process results
+postprocess_simTestWHAM(filenames = c(filenames1, filenames2, filenames3), outdir = outdir)
+
+# Try running in the console if this causes an "Error... cannot open the connection) 
 ```
 
 !!!! post-process based on storage & how sims run - could run sims based
@@ -554,12 +563,29 @@ proposed function with: - fitted OM model object - list of EM inputs
 
 If results processed in batches/on multiple computers use combinePerfMet to combine final results
 ```{r}
+# ID all processed performance metric files in "Results" folder
+ files <- list.files(path = here::here(), pattern = "perfMet_", recursive = TRUE)
+
+combinePerfMet(filenames = files, outdir = here::here("Ecov_study", "catchability", "Results"))
+
+
 
 ```
 
 
 ### Plot results
+168 Ecov has 150 simulation
+192?
+2 qRandEcov only has 50 - fixed
+49 qRandEcov only has 50 - fixed
+192 qRand, qRandEcov only has 50
 ```{r}
-plotResults(results = perfMet, convergedONLY = TRUE)
+perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-11-29_13-57-01.735372.RDS"))
+  # readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-11-28_09-32-17.294206.RDS"))
+
+library(TAF)
+mkdir(here::here("Ecov_study", "catchability", "plots"))
+
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots"))
 ```
 

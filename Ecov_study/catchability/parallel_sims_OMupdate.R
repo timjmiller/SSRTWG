@@ -1,5 +1,9 @@
 # Swap out OM ecov to have directional trend
+<<<<<<< HEAD
   # For testing to ID if model performance differs when ecov/q changes directionally
+=======
+# For testing to ID if model performance differs when ecov/q changes directionally
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
 
 # Load packages & source functions used in simulation testing
 ## Packages
@@ -274,7 +278,11 @@ numCore <- detectCores()
 registerDoParallel(numCore-15) # Don't use 2 of the cores
 
 ##### Simulations with all EMs fit 
+<<<<<<< HEAD
 subsetOM <- OMsetup %>% filter(OMname > 93)
+=======
+subsetOM <- OMsetup %>% filter(OMname %in% c(1,4,19, 35, 48, 80, 117)) # pick random assortment
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
 
 # Run simulation tests
@@ -290,7 +298,11 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
     testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
     
     # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+<<<<<<< HEAD
     foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+=======
+    foreach(isim = 1:5) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
       simTestWHAM(nsim = 2,
                   OM = testOM,
                   inputEMlist = list(testEM), # Run one EM at a time
@@ -299,3 +311,38 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
   } # End loop over EMs
 } # End loop over OMs
 
+<<<<<<< HEAD
+=======
+
+
+
+##### Check performance of above subset of 10 sims for OMs with directional ecov driving q
+# Find all result files
+filenames <- list.files(path = here::here("Ecov_study/catchability/Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+
+# Set storage directory
+outdir = here::here("Ecov_study/catchability")
+
+# Post-process results
+postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
+
+# Plot
+perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_.RDS")) #!!! need to update
+library(TAF)
+mkdir(here::here("Ecov_study", "catchability", "plots_updateOM"))
+
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_updateOM"))
+
+
+
+# Debug AIC and ecov_beta
+filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE) %>% head(n=1)
+outdir = here::here("Ecov_study/catchability")
+postprocess_simTestWHAM(filenames = c(filenames1), outdir = outdir)
+
+
+
+
+
+
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
