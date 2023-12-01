@@ -15,7 +15,9 @@
 
 # Find all result files
 # filenames <- list.files(path = here::here(), pattern = "simWHAM_", recursive = TRUE)
-# file.remove(filenames) # will delete incorrect files for debugging purposes
+# outdir = here::here("Ecov_study/catchability/Results")
+# postprocess_simTestWHAM(filenames = filenames, outdir = outdir)
+# # file.remove(filenames) # will delete incorrect files for debugging purposes
 
 postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
         # Set up storage for processed results

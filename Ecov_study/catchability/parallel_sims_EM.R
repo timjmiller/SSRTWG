@@ -1,4 +1,5 @@
-# Try parallelizing code
+# Try parallelizing code - parallel runs across 4 EMs instead of across OMs (as in parallel_sims.R)
+  # This code runs 50 sims fitting all 4 EMs to each OM so AIC selection can be examined
 
 # Load packages & source functions used in simulation testing
 ## Packages
@@ -76,49 +77,29 @@ numCore <- detectCores()
 
 registerDoParallel(numCore-15) # Don't use 2 of the cores
 
-# Alex - to run your Fmsy simulations adjusts the number of simulations in line 76 and change F_hist in line 79 to = "Fmsy"
-# Set number of simulations to run
-nsim <- 50
-
-# ##### Run settings for separate Fmsy and H-L simulations with environmental effect implemented
-# # Subset of OMs to run
-# # subsetOM <- OMsetup %>% filter(F_hist == "H-L") %>% filter(Ecov_effect != 0)# %>% filter(OMname > 153) # Only run 3 OMs for 2 simulations as a test
-# subsetOM <- OMsetup %>% filter(F_hist == "Fmsy") %>% filter(Ecov_effect != 0) %>% filter(OMname > 176) # Only run 3 OMs for 2 simulations as a test
-# 
-# # Subset of EMs to run
-# subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
-
-# ##### Run settings for OMs with no environmental effects - smaller subset of EMs run for these OMs
-# # Subset of OMs to run
-# subsetOM <- OMsetup %>% filter(Ecov_effect == 0) #%>% filter(OMname > 124)
-# # EMs 
-# subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
-
-##### Supplemental simulations
-subsetOM <- OMsetup %>% filter(OMname %in% c(192)) # need 3 qRandEcov and 1 none then finished 
-subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q %in% c("qRand", "qRandEcov"))
+##### Simulations with all EMs fit 
+subsetOM <- OMsetup %>% filter(OMname > 118)
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
 
 # Run simulation tests
-foreach(iom = 1:nrow(subsetOM)) %dopar% { # Run foreach loop in parallel
+for(iom in 1:nrow(subsetOM)){ 
   omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
   
   # Pull OM
   testOM <- readRDS(here::here(omdir, paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
-  for(iem in 1:nrow(subsetEM)){
     # Pull EM
-    testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
+    EM_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
+    EM_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
+    EM_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
+    EM_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
     
-    # Run simulation test
-    simTestWHAM(nsim = nsim,
-                OM = testOM,
-                inputEMlist = list(testEM), # Run one EM at a time
-                outdir = here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"])))
-  }
-}
-
-
-
-
-
+    # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+      simTestWHAM(nsim = 2,
+                  OM = testOM,
+                  inputEMlist = list(EM_qRand, EM_qRandEcov, EM_Ecov, EM_NoEcov), # Run one EM at a time
+                  outdir = here::here(omdir)) # Save in OM directory
+    } # End foreach loop over sims
+} # End loop over 
 
