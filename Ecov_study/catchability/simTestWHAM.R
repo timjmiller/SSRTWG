@@ -104,6 +104,7 @@ simTestWHAM <- function(nsim = 1,
                           whamConverge <- ifelse((check$na_sdrep == FALSE & check$is_sdrep == TRUE & check$convergence == 0), TRUE, FALSE) # If no NAs in sdrep, hessian invertible and model thinks it is converged (small gradient) then model converged
                           
                           # Pull together EM results for this EM/sim
+                          tempStore$AIC <- compare_wham_models(list(fitEM, fitEM), do.plot = FALSE, table.opts = list(calc.rho = FALSE, print = FALSE, save.csv = FALSE))$aic[1]
                           tempStore$SSB <- fitEM$rep$SSB
                           tempStore$F <- fitEM$rep$F
                           tempStore$FAA <- fitEM$rep$FAA_tot
@@ -126,6 +127,7 @@ simTestWHAM <- function(nsim = 1,
                           tempStore$q_re <- fitEM$rep$q_re # q random effect
                           tempStore$Ecov_re <- fitEM$rep$Ecov_re # Ecov random effect
                         } else{ # Store NA when model generated error
+                          tempStore$AIC <- NA
                           tempStore$Error <- fitEM$err
                           tempStore$SSB <- NA
                           tempStore$F <- NA
