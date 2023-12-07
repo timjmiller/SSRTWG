@@ -1,5 +1,8 @@
+#' @title Post-process simulation results
+#' 
 #' @param filenames A vector of strings (including .RData extensions) indicating what results files to read in and post process
 #' @param outdir A string for the directory where a plot folder will be generated
+#' @param earlySim Boolean, TRUE = assumes EM results are stored in corresponding folder and EMshortName pulled from folder name (early sims used this option due to error with EM naming that has now been resoleved), if FALSE use EM_miss_season and EM_miss_q from simulation results. Default = FALSE.
 #' 
 #' @return A dataframe containing the following columns describing model performance
 #' \itemize{
@@ -13,7 +16,6 @@
 #'   \item{relEcov_x - Ratio of Ecov_x from EM:OM}
 #' }
 
-<<<<<<< HEAD
 # # Find all result files
 # filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 # filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
@@ -21,16 +23,8 @@
 # outdir = here::here("Ecov_study/catchability")
 # postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
 # # file.remove(filenames) # will delete incorrect files for debugging purposes
-=======
-# Find all result files
-# filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
-# filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
-# outdir = here::here("Ecov_study/catchability")
-# postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
-# file.remove(filenames) # will delete incorrect files for debugging purposes
->>>>>>> f6ad9af3f4d9f7fd5d3ef642d2f616346b02e51e
 
-postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
+postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), earlySim = FALSE){
         # Set up storage for processed results
         perfMet <- NULL
         
@@ -55,7 +49,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                 
                 # Loop over simulations in each file
                 for(isim in 1:nsim[ifile]){ # start at ifile+1 since nsim[ifile] = 0 for sim numbering reasons
-                        
+                  
                         # Pull out EM names 
                         EMs <- names(results)[2:length(names(results))]
                         OMname <- names(results)[which(grepl("OM", names(results))==TRUE | grepl("WHAM", names(results))==TRUE)] # model with "OM" or "WHAM" in name (default OM label is "WHAM for unnamed stock")
@@ -68,6 +62,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                         
                         # Loop over EM in each ifile
                         for(iEM in 1:length(EMs)){
+                          
                           # Increase simNum by 1 #!!! May need to confirm that this still works if multiple EMs fit to same OM
                           simNum <- simNum + 1
                           
@@ -95,12 +90,20 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                           # EM_ecov_process_obs_sig <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_obs_sig, nyear)
                           # EM_ecov_process_sig <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_sig, nyear)
                           
-                          # !!! Several model names were misslabeled so instead rely on file path name which is correct
-                          filepath <- filenames[ifile] %>% str_split(., "/") %>% unlist()
-                          filepath <- filepath[length(filepath)-1] %>% str_split(., "_")
-                          EM_miss_season <- filepath[[1]][3]
-                          EM_miss_q <- filepath[[1]][5]
-                          EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          if(earlySim == TRUE){
+                            # !!! Several model names were misslabeled so instead rely on file path name which is correct
+                            filepath <- filenames[ifile] %>% str_split(., "/") %>% unlist()
+                            filepath <- filepath[length(filepath)-1] %>% str_split(., "_")
+                            EM_miss_season <- filepath[[1]][3]
+                            EM_miss_q <- filepath[[1]][5]
+                            EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          } else{ # Use model_name
+                            EM_miss_season <- results[EMs[iEM]][[1]][isim][[1]]$EM_miss_season
+                            EM_miss_q <- results[EMs[iEM]][[1]][isim][[1]]$EM_miss_q
+                            EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          }
+                          
+                          
                           # EM_miss_season <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_season, nyear)
                           # EM_miss_q <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_q, nyear)
                           # EMshortName <-  rep(EMs[iEM], nyear)
@@ -302,9 +305,9 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                                              Converged, AIC,
                                              matrix(rep(NA, (ncol(perfMet)-17)*length(F_hist)), ncol = (ncol(perfMet)-17))) %>% # Fill remaining performance metrics with NAs
                               as.data.frame() 
-                            names(storage) <- c(names(storage)[1:17], names(perfMet)[18:ncol(perfMet)])
-                            numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist") == FALSE)
-                            storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as 
+                            names(storage) <- names(perfMet)
+                            numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
+                            storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as placeholders
                             
                             
                             # Append perfMets
