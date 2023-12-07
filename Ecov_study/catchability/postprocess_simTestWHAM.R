@@ -1,5 +1,8 @@
+#' @title Post-process simulation results
+#' 
 #' @param filenames A vector of strings (including .RData extensions) indicating what results files to read in and post process
 #' @param outdir A string for the directory where a plot folder will be generated
+#' @param earlySim Boolean, TRUE = assumes EM results are stored in corresponding folder and EMshortName pulled from folder name (early sims used this option due to error with EM naming that has now been resoleved), if FALSE use EM_miss_season and EM_miss_q from simulation results. Default = FALSE.
 #' 
 #' @return A dataframe containing the following columns describing model performance
 #' \itemize{
@@ -20,7 +23,7 @@
 # postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
 # file.remove(filenames) # will delete incorrect files for debugging purposes
 
-postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
+postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), earlySim = FALSE){
         # Set up storage for processed results
         perfMet <- NULL
         
@@ -85,12 +88,20 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                           # EM_ecov_process_obs_sig <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_obs_sig, nyear)
                           # EM_ecov_process_sig <- rep(results[EMs[iEM]][[1]][isim][[1]]$Ecov_process_sig, nyear)
                           
-                          # !!! Several model names were misslabeled so instead rely on file path name which is correct
-                          filepath <- filenames[ifile] %>% str_split(., "/") %>% unlist()
-                          filepath <- filepath[length(filepath)-1] %>% str_split(., "_")
-                          EM_miss_season <- filepath[[1]][3]
-                          EM_miss_q <- filepath[[1]][5]
-                          EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          if(earlySim == TRUE){
+                            # !!! Several model names were misslabeled so instead rely on file path name which is correct
+                            filepath <- filenames[ifile] %>% str_split(., "/") %>% unlist()
+                            filepath <- filepath[length(filepath)-1] %>% str_split(., "_")
+                            EM_miss_season <- filepath[[1]][3]
+                            EM_miss_q <- filepath[[1]][5]
+                            EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          } else{ # Use model_name
+                            EM_miss_season <- results[EMs[iEM]][[1]][isim][[1]]$EM_miss_season
+                            EM_miss_q <- results[EMs[iEM]][[1]][isim][[1]]$EM_miss_q
+                            EMshortName <- paste("EM", EM_miss_season, EM_miss_q, sep="_")
+                          }
+                          
+                          
                           # EM_miss_season <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_season, nyear)
                           # EM_miss_q <- rep(results[EMs[iEM]][[1]][isim][[1]]$EM_miss_q, nyear)
                           # EMshortName <-  rep(EMs[iEM], nyear)
