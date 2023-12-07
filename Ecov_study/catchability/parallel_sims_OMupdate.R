@@ -267,6 +267,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 
 
 
+
 #### Run parallel simulations
 # Set up parallelization
 numCore <- detectCores()

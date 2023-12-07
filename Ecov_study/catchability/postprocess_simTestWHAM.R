@@ -16,12 +16,13 @@
 #'   \item{relEcov_x - Ratio of Ecov_x from EM:OM}
 #' }
 
-# Find all result files
+# # Find all result files
 # filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 # filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+# filenames3 <- list.files(path = here::here("Ecov_study/catchability/remote3_Results_supplementalRuns"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE) # simulations to fill gaps so 100 simulations for each OM/EM pair
 # outdir = here::here("Ecov_study/catchability")
 # postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
-# file.remove(filenames) # will delete incorrect files for debugging purposes
+# # file.remove(filenames) # will delete incorrect files for debugging purposes
 
 postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), earlySim = FALSE){
         # Set up storage for processed results
@@ -180,7 +181,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                                 OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q,
                                 Converged, AIC, EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re) %>% 
                             as.data.frame() 
-                          numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist","Converged") == FALSE)
+                          numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
                           storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric)
                           
                           
@@ -199,10 +200,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                           
                           # Calculate all other performance metrics
                           simPerfMet <- storage %>%      # Output settings
-                            dplyr::reframe(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
-                                           OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
-                                           EM_miss_season, EM_miss_q, EMshortName,
-                                           Converged, AIC,
+                            mutate(Converged = results[EMs[iEM]][[1]][isim][[1]]$whamConverge,
                                            
                                       ##### EM results #####
                                       EM_MohnsRho_SSB = EM_MohnsRho_SSB,
@@ -217,6 +215,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                                       EM_F = EM_F,
                                       EM_ecovBeta_ind1 = EM_ecovBeta_ind1,
                                       EM_ecovBeta_ind2 = EM_ecovBeta_ind2,
+                                      OM_ecov_effect_beta = OM_ecov_effect,
                                       
                                       ##### EM/OM relative statistics #####
                                       relSSB = EM_SSB/OM_SSB,

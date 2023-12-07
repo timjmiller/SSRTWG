@@ -1,5 +1,6 @@
 # Try parallelizing code - parallel runs across 4 EMs instead of across OMs (as in parallel_sims.R)
-  # This code runs 50 sims fitting all 4 EMs to each OM so AIC selection can be examined
+# This code runs 50 sims fitting all 4 EMs to each OM so AIC selection can be examined
+
 
 # Load packages & source functions used in simulation testing
 ## Packages
@@ -88,18 +89,18 @@ for(iom in 1:nrow(subsetOM)){
   # Pull OM
   testOM <- readRDS(here::here(omdir, paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
-    # Pull EM
-    EM_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
-    EM_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
-    EM_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
-    EM_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
-    
-    # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
-      simTestWHAM(nsim = 2,
-                  OM = testOM,
-                  inputEMlist = list(EM_qRand, EM_qRandEcov, EM_Ecov, EM_NoEcov), # Run one EM at a time
-                  outdir = here::here(omdir)) # Save in OM directory
-    } # End foreach loop over sims
+  # Pull EM
+  EM_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
+  EM_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
+  EM_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
+  EM_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
+  
+  # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+  foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+    simTestWHAM(nsim = 2,
+                OM = testOM,
+                inputEMlist = list(EM_qRand, EM_qRandEcov, EM_Ecov, EM_NoEcov), # Run all EMs fit to same OM data
+                outdir = here::here(omdir)) # Save in OM directory
+  } # End foreach loop over sims
 } # End loop over 
 
