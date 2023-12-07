@@ -49,6 +49,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                 
                 # Loop over simulations in each file
                 for(isim in 1:nsim[ifile]){ # start at ifile+1 since nsim[ifile] = 0 for sim numbering reasons
+                  print(paste0("sim ", isim))
                   
                         # Pull out EM names 
                         EMs <- names(results)[2:length(names(results))]
@@ -62,6 +63,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                         
                         # Loop over EM in each ifile
                         for(iEM in 1:length(EMs)){
+                          # print(paste0("EM ", iEM))
                           
                           # Increase simNum by 1 #!!! May need to confirm that this still works if multiple EMs fit to same OM
                           simNum <- simNum + 1
@@ -299,6 +301,8 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                                 # Append perfMets 
                                 perfMet <- rbind(perfMet, simPerfMet)
                           } else{ # If EM did not converge for the simulation save only OM results and EM convergence status
+                            Converged <- results[EMs[iEM]][[1]][isim][[1]]$whamConverge
+                            AIC <- NA
                             storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
                                              OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                                              EM_miss_season, EM_miss_q, EMshortName,
