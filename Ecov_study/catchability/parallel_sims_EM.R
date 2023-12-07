@@ -1,6 +1,7 @@
 # Try parallelizing code - parallel runs across 4 EMs instead of across OMs (as in parallel_sims.R)
 # This code runs 50 sims fitting all 4 EMs to each OM so AIC selection can be examined
 
+
 # Load packages & source functions used in simulation testing
 ## Packages
 library(tidyverse)
@@ -102,3 +103,4 @@ for(iom in 1:nrow(subsetOM)){
                 outdir = here::here(omdir)) # Save in OM directory
   } # End foreach loop over sims
 } # End loop over 
+

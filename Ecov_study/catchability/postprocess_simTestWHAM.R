@@ -13,6 +13,7 @@
 #'   \item{relEcov_x - Ratio of Ecov_x from EM:OM}
 #' }
 
+<<<<<<< HEAD
 # # Find all result files
 # filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 # filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
@@ -20,6 +21,14 @@
 # outdir = here::here("Ecov_study/catchability")
 # postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
 # # file.remove(filenames) # will delete incorrect files for debugging purposes
+=======
+# Find all result files
+# filenames1 <- list.files(path = here::here("Ecov_study/catchability/remote1_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+# filenames2 <- list.files(path = here::here("Ecov_study/catchability/remote2_Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+# outdir = here::here("Ecov_study/catchability")
+# postprocess_simTestWHAM(filenames = c(filenames1, filenames2), outdir = outdir)
+# file.remove(filenames) # will delete incorrect files for debugging purposes
+>>>>>>> f6ad9af3f4d9f7fd5d3ef642d2f616346b02e51e
 
 postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
         # Set up storage for processed results
@@ -129,6 +138,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                           # EM
                           if(results[EMs[iEM]][[1]][isim][[1]]$whamConverge == TRUE){
                             Converged <- results[EMs[iEM]][[1]][isim][[1]]$whamConverge
+                            AIC <- results[EMs[iEM]][[1]][isim][[1]]$AIC
                             EM_SSB <- results[EMs[iEM]][[1]][isim][[1]]$SSB
                             EM_F <-  results[EMs[iEM]][[1]][isim][[1]]$F
                             colnames(EM_F) <- "EM_F"
@@ -167,7 +177,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                                 OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                                                                                                                    EM_miss_season, EM_miss_q, EMshortName,
                                 OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q,
-                                Converged, EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re) %>% 
+                                Converged, AIC, EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re) %>% 
                             as.data.frame() 
                           numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
                           storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric)
@@ -288,11 +298,11 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here()){
                           } else{ # If EM did not converge for the simulation save only OM results and EM convergence status
                             storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
                                              OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
-                                             EM_miss_season, EM_miss_q, EMshortName, 
-                                             Converged = results[EMs[iEM]][[1]][isim][[1]]$whamConverge,
-                                             matrix(rep(NA, 80*length(F_hist)), ncol = 80)) %>% # Fill remaining performance metrics with NAs
+                                             EM_miss_season, EM_miss_q, EMshortName,
+                                             Converged, AIC,
+                                             matrix(rep(NA, (ncol(perfMet)-17)*length(F_hist)), ncol = (ncol(perfMet)-17))) %>% # Fill remaining performance metrics with NAs
                               as.data.frame() 
-                            names(storage) <- c(names(storage)[1:16], names(perfMet)[17:ncol(perfMet)])
+                            names(storage) <- c(names(storage)[1:17], names(perfMet)[18:ncol(perfMet)])
                             numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist") == FALSE)
                             storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as 
                             

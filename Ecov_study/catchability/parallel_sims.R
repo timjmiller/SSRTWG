@@ -74,7 +74,8 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # Set up parallelization
 numCore <- detectCores()
 
-registerDoParallel(numCore-20) # Don't use 2 of the cores
+registerDoParallel(numCore-15) # Don't use 2 of the cores
+
 
 # Alex - to run your Fmsy simulations adjusts the number of simulations in line 76 and change F_hist in line 79 to = "Fmsy"
 # Set number of simulations to run
@@ -88,12 +89,15 @@ nsim <- 50
 # # Subset of EMs to run
 # subsetEM <- EMsetup %>% as.data.frame() %>% filter(miss_season == "NONE")
 
-##### Run settings for OMs with no environmental effects - smaller subset of EMs run for these OMs
-# Subset of OMs to run
-subsetOM <- OMsetup %>% filter(Ecov_effect == 0) #%>% filter(OMname > 124)
-# EMs 
-subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
+# ##### Run settings for OMs with no environmental effects - smaller subset of EMs run for these OMs
+# # Subset of OMs to run
+# subsetOM <- OMsetup %>% filter(Ecov_effect == 0) #%>% filter(OMname > 124)
+# # EMs 
+# subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRand" | miss_q == "NoEcov")
 
+##### Supplemental simulations
+subsetOM <- OMsetup %>% filter(OMname %in% c(192)) # need 3 qRandEcov and 1 none then finished 
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q %in% c("qRand", "qRandEcov"))
 
 
 # Run simulation tests

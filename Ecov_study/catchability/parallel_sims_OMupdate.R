@@ -1,5 +1,9 @@
 # Swap out OM ecov to have directional trend
+<<<<<<< HEAD
+  # For testing to ID if model performance differs when ecov/q changes directionally
+=======
 # For testing to ID if model performance differs when ecov/q changes directionally
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
 
 # Load packages & source functions used in simulation testing
 ## Packages
@@ -274,7 +278,11 @@ numCore <- detectCores()
 registerDoParallel(numCore-15) # Don't use 2 of the cores
 
 ##### Simulations with all EMs fit 
+<<<<<<< HEAD
+subsetOM <- OMsetup %>% filter(OMname > 93)
+=======
 subsetOM <- OMsetup %>% filter(OMname %in% c(1,4,19, 35, 48, 80, 117)) # pick random assortment
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
 
 # Run simulation tests
@@ -290,7 +298,11 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
     testEM <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
     
     # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+<<<<<<< HEAD
+    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+=======
     foreach(isim = 1:5) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
       simTestWHAM(nsim = 2,
                   OM = testOM,
                   inputEMlist = list(testEM), # Run one EM at a time
@@ -299,6 +311,8 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
   } # End loop over EMs
 } # End loop over OMs
 
+<<<<<<< HEAD
+=======
 
 
 
@@ -331,3 +345,4 @@ postprocess_simTestWHAM(filenames = c(filenames1), outdir = outdir)
 
 
 
+>>>>>>> 4d01387ab426fdd098b938f36a39a08d18b69164
