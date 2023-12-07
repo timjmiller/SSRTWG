@@ -49,7 +49,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                 
                 # Loop over simulations in each file
                 for(isim in 1:nsim[ifile]){ # start at ifile+1 since nsim[ifile] = 0 for sim numbering reasons
-                  print(paste0("sim ", isim))
+                  # print(paste0("sim ", isim))
                   
                         # Pull out EM names 
                         EMs <- names(results)[2:length(names(results))]
