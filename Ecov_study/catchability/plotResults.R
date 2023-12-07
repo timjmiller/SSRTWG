@@ -458,6 +458,12 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     geom_hline(aes(yintercept = 1.0), color="red")
   ggsave(relQInd2, filename = here::here(outfile, "relq_index2.png"), width = 20)
   
+  # Plot index 2 q for OM only
+  q_ind2_OM <- results %>%
+    ggplot()+
+    geom_line(aes(x=Year, y = qOM_index2, group = seed), alpha = 0.5) 
+  ggsave(q_ind2_OM, filename = here::here(outfile, "q_ind2_OM.png"), width = 20)
+  
   # Plot terminal year relative SSB vs. relative F
   SSB_F_terminal <- results %>% filter(Year == 40) %>%
     ggplot()+
