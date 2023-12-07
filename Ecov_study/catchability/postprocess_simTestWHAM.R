@@ -49,7 +49,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                 
                 # Loop over simulations in each file
                 for(isim in 1:nsim[ifile]){ # start at ifile+1 since nsim[ifile] = 0 for sim numbering reasons
-                        
+                  
                         # Pull out EM names 
                         EMs <- names(results)[2:length(names(results))]
                         OMname <- names(results)[which(grepl("OM", names(results))==TRUE | grepl("WHAM", names(results))==TRUE)] # model with "OM" or "WHAM" in name (default OM label is "WHAM for unnamed stock")
@@ -62,6 +62,7 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                         
                         # Loop over EM in each ifile
                         for(iEM in 1:length(EMs)){
+                          
                           # Increase simNum by 1 #!!! May need to confirm that this still works if multiple EMs fit to same OM
                           simNum <- simNum + 1
                           
@@ -304,9 +305,9 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                                              Converged, AIC,
                                              matrix(rep(NA, (ncol(perfMet)-17)*length(F_hist)), ncol = (ncol(perfMet)-17))) %>% # Fill remaining performance metrics with NAs
                               as.data.frame() 
-                            names(storage) <- c(names(storage)[1:17], names(perfMet)[18:ncol(perfMet)])
-                            numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist") == FALSE)
-                            storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as 
+                            names(storage) <- names(perfMet)
+                            numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
+                            storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as placeholders
                             
                             
                             # Append perfMets
