@@ -379,6 +379,13 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     geom_hline(aes(yintercept = 1), color="red")
   ggsave(relSSB, filename = here::here(outfile, "relativeSSB_terminal.png"), width = 10)
   
+  # Extra plot of terminal year SSB facet by ecov_beta
+  relSSB_ecovBeta <- results %>% filter(Year == 40) %>%
+    ggplot()+
+    geom_boxplot(aes(x=EMshortName, y=relSSB)) + facet_grid(. ~ OM_ecov_effect) + # Facet by OM ecov beta (effect size)
+    geom_hline(aes(yintercept = 1), color="red")
+  ggsave(relSSB_ecovBeta, filename = here::here(outfile, "relativeSSB_ecovBeta_terminal.png"), width = 10)
+  
   # # EM SSB
   # results %>%
   #   ggplot()+
