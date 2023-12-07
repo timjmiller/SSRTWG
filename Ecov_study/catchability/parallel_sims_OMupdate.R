@@ -178,7 +178,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_ecov(input = input, ecov = Ecov)
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
+      inputEM$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
       
     } else if(EMsetup[iem, "miss_q"] == "Ecov"){ # Ecov impact on q, correctly specified option when seasonal impact correctly specified
       print("Ecov")
@@ -201,7 +201,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_ecov(input = input, ecov = Ecov)
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
+      inputEM$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
       
     } else if(EMsetup[iem, "miss_q"] == "qRand"){ # q random effect
       print("qRand")
@@ -227,7 +227,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
+      inputEM$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
       
     } else{ # qRandEcov both q random effect and ecov impact on q
       print("qRandEcov")
@@ -253,7 +253,7 @@ for(iom in 1:nrow(OMsetup)){
       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
       
       # Set up EM name based on EMsetup
-      input$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
+      inputEM$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_")) 
     }
     
     # Save EM specification
