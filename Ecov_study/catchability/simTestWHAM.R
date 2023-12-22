@@ -126,6 +126,7 @@ simTestWHAM <- function(nsim = 1,
                           tempStore$pars_q <- fitEM$rep$q
                           tempStore$q_re <- fitEM$rep$q_re # q random effect
                           tempStore$Ecov_re <- fitEM$rep$Ecov_re # Ecov random effect
+                          tempStore$Ecov_x <- fitEM$rep$Ecov_x # Predicted ecov time series
                         } else{ # Store NA when model generated error
                           tempStore$AIC <- NA
                           tempStore$Error <- fitEM$err
@@ -150,6 +151,7 @@ simTestWHAM <- function(nsim = 1,
                           tempStore$pars_q <- NA
                           tempStore$q_re <- NA # q random effect
                           tempStore$Ecov_re <- NA # Ecov random effect
+                          tempStore$Ecov_x <- NA # Predicted ecov time series
                         }
                         
                         
