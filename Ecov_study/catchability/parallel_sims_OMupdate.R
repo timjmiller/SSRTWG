@@ -306,7 +306,7 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 
 ##### Check performance of above subset of 10 sims for OMs with directional ecov driving q
 # Find all result files
-filenames <- list.files(path = here::here("Ecov_study/catchability/Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+filenames <- list.files(path = here::here("Ecov_study/catchability/Results_OMupdate"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 
 # Set storage directory
 outdir = here::here("Ecov_study/catchability")
@@ -315,7 +315,7 @@ outdir = here::here("Ecov_study/catchability")
 postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 
 # Plot
-perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-04_21-45-29.299262.RDS")) #!!! need to update
+perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-08_10-39-19.687655.RDS")) #!!! need to update
 library(TAF)
 mkdir(here::here("Ecov_study", "catchability", "plots_updateOM"))
 library(DataExplorer)
