@@ -27,6 +27,9 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     convergeRate <- full_join(convergeCount, totalCount, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "X", "n.y", "nsim.y"))
   }
   
+  numericIndex <- which(colnames(results) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
+  results[,numericIndex] <- sapply(results[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as placeholders
+  
   # Pull out results that don't have time series
   #!!! problem with sim == 351 (has both H-L and Fmsy )
   # results <- results %>% filter(sim %in% c(351, 352, 227, 228, 231, 234, 235, 236, 237, 238, 239, 240, 241, 243, 249, 250, 101, 102) == FALSE)
@@ -100,9 +103,10 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
                                                                   med_relCAA_7 = median(relCAA_7),
                                                                   med_relCAA_8 = median(relCAA_8),
                                                                   med_relCAA_9 = median(relCAA_9),
-                                                                  med_relCAA_10 = median(relCAA_10))
+                                                                  med_relCAA_10 = median(relCAA_10),
+                                                                  EM_ecovBeta_ind1 = unique(EM_ecovBeta_ind1), # EM beta parameter for index 1
+                                                                  EM_ecovBeta_ind2 = unique(EM_ecovBeta_ind2)) # EM beta parameter for index 2
     
-  # Plot convergence criteria
   if(convergedONLY == TRUE){
     singleResults_converge <- full_join(convergeRate, singleResults, by = c("OMshortName", "EMshortName")) %>% # remember that some runs only had NoEcov and qRand since the Ecov not used so Ecov and qRandEcov have fewer samples in these plots
     group_by(OMshortName, EMshortName) %>% #group_by(EMshortName) %>%
@@ -112,6 +116,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
                        OM_ecov_process_sig = unique(OM_ecov_process_sig),
                        OM_ecov_process_cor = unique(OM_ecov_process_cor),
                        OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig),
+                       OM_ecov_effect = unique(OM_ecov_effect),
                        ageComp_sig = unique(ageComp_sig),
                        log_index_sig = unique(log_index_sig),
                        Fhist = unique(Fhist),
@@ -121,7 +126,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     # Plot convergence rate
     convergePlot <- singleResults_converge %>% 
       ggplot()+
-      geom_boxplot(aes(x=EMshortName, y=convergeRate)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig)  # Facet by OM settings
+      geom_boxplot(aes(x=EMshortName, y=convergeRate)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect)  # Facet by OM settings
     ggsave(convergePlot, filename = here::here(outfile, "convergeRate.png"), width = 20)
     # Label order: Ecov, NoEcov, qRand, qRandEcov
     
@@ -156,12 +161,12 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   # MohnsRho_SSB
   mohnsRho_SSB_series <- singleResults %>% 
     ggplot() + 
-    geom_point(aes(x=sim, y=EM_MohnsRho_SSB, color = OM_ecov_effect)) # Plot by sim
+    geom_point(aes(x=sim, y=EM_MohnsRho_SSB, color = OM_ecov_effect))  # Plot by sim
   ggsave(mohnsRho_SSB_series, filename = here::here(outfile, "mohnsRho_SSB_series.png"), width = 10)
   
   mohnsRho_SSB <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_SSB)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_SSB)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 0), color="red")
     # ggtitle("OM_ecov_process_sig")
   ggsave(mohnsRho_SSB, filename = here::here(outfile, "mohnsRho_SSB.png"), width = 20)
@@ -169,35 +174,35 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   # MohnsRho_F
   mohnsRho_F <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_F)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_F)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 0), color="red")
   ggsave(mohnsRho_F, filename = here::here(outfile, "mohnsRho_F.png"), width = 20)
   
   # MohnsRho_R
   mohnsRho_R <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_R)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_R)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 0), color="red")
   ggsave(mohnsRho_R, filename = here::here(outfile, "mohnsRho_R.png"), width = 20)
   
   # Relative SSBmsy
   relSSBMSY <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=relSSBMSY)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=relSSBMSY)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 1), color="red")
   ggsave(relSSBMSY, filename = here::here(outfile, "relSSBMSY.png"), width = 20)
   
   # Relative Fmsy
   relFMSY <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=relFMSY)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=relFMSY)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 1), color="red")
   ggsave(relFMSY, filename = here::here(outfile, "relFMSY.png"), width = 20)
   
   # Relative MSY
   relMSY <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=relMSY)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=relMSY)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 1), color="red")
   ggsave(relMSY, filename = here::here(outfile, "relMSY.png"), width = 20)
   
@@ -207,7 +212,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   relSelInd1$age <- factor(relSelInd1$age, levels = c(1:10))
   relSelInd1plot <- relSelInd1 %>% 
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=sel, fill = age)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=sel, fill = age)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept =1), color="red") +
     ggtitle("Index 1 relative selectivity")
   ggsave(relSelInd1plot, filename = here::here(outfile, "relSelInd1.png"), width = 20)
@@ -218,7 +223,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     relSelInd1$age <- factor(relSelInd1$age, levels = c(1:10))
     relSelInd1plot <- relSelInd1 %>% filter(age == iage) %>%
       ggplot()+
-      geom_boxplot(aes(x=EMshortName, y=sel)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+      geom_boxplot(aes(x=EMshortName, y=sel)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
       geom_hline(aes(yintercept =1), color="red") +
       ggtitle(paste0("Index 1 relative selectivity ", iage)) +
       ylim(0, 2.7)
@@ -231,7 +236,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   relSelInd2$age <- factor(relSelInd2$age, levels = c(1:10))
   relSelInd2plot <- relSelInd2 %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=sel, fill = age)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=sel, fill = age)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept =1), color="red") +
     ggtitle("Index 2 relative selectivity")
      # ageComp_sig impacts spread of results across all ages
@@ -243,7 +248,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     relSelInd2$age <- factor(relSelInd2$age, levels = c(1:10))
     relSelInd2plot <- relSelInd2 %>% filter(age == iage) %>%
       ggplot()+
-      geom_boxplot(aes(x=EMshortName, y=sel)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+      geom_boxplot(aes(x=EMshortName, y=sel)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
       geom_hline(aes(yintercept =1), color="red") +
       ggtitle(paste0("Index 2 relative selectivity ", iage)) +
       ylim(0, 3)
@@ -258,7 +263,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   for(iage in 1:10){
     relSelFleetplot <- relSelFleet %>% filter(age == iage) %>%
       ggplot() +
-      geom_boxplot(aes(x = EMshortName, y = sel)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+      geom_boxplot(aes(x = EMshortName, y = sel)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
       geom_hline(aes(yintercept = 1), color="red")+
       ggtitle(paste0("Fleet relative selectivity ", iage)) +
       ylim(0,2.7)
@@ -273,7 +278,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     med_relFAAplot <- med_relFAA %>% filter(age == iage) %>%
       ggplot() +
       geom_boxplot(aes(x = EMshortName, y = relFAA)) + 
-      facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+      facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
       geom_hline(aes(yintercept = 1), color="red") +
       ggtitle(paste0("Median relative F at age ", iage)) +
       ylim(-5,5)
@@ -288,7 +293,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     med_relCAAplot <- med_relCAA %>% filter(age == iage) %>%
       ggplot() +
       geom_boxplot(aes(x = EMshortName, y = relCAA)) + 
-      facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+      facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
       geom_hline(aes(yintercept = 1), color="red") +
       ggtitle(paste0("Median relative Catch at age ", iage)) +
       ylim(-5,5)
@@ -303,7 +308,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     med_relNAAplot <- med_relNAA %>% filter(age == iage) %>%
       ggplot() +
       geom_boxplot(aes(x = EMshortName, y = relNAA)) + 
-      facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig) + # Facet by OM settings
+      facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
       geom_hline(aes(yintercept = 1), color="red") +
       ggtitle(paste0("Median relative N at age ", iage)) +
       ylim(-5,5)
@@ -343,7 +348,7 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     filter(OM_ecov_process_sig == 0.1) %>%
     ggplot()+
     geom_boxplot(aes(x=EMshortName, y = EM_MohnsRho_R)) +
-    facet_grid(. ~ OM_ecov_process_obs_sig)
+    facet_grid(. ~ OM_ecov_process_obs_sig + OM_ecov_effect)
   ggsave(ecov_process_MohnsRho_R, filename = here::here(outfile, paste0("ecov_process_MohnsRho_R.png")), width = 10)
     
   ecov_process_MohnsRho_F <- singleResults %>%
@@ -361,7 +366,30 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   #   facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig)
   # ggsave(qrand, filename = here::here(outfile, paste0("qrand.png")), width = 20)
   
+  # Extra plots breaking down differences in results between Ecov beta parameters
+  singleResults %>% 
+    ggplot() +
+    geom_boxplot(aes(x=EMshortName, y = relSSBMSY)) +
+    facet_grid(. ~ OM_ecov_effect)
   
+  # plot OM ecov beta vs. EM beta by EM
+  beta_Ind2 <- singleResults %>%
+    ggplot() +
+    geom_point(aes(x=OM_ecov_effect, y = EM_ecovBeta_ind2)) +
+    geom_abline() +
+    facet_grid(.~EMshortName)
+  ggsave(beta_Ind2, filename = here::here(outfile, "beta_Ind2.png"), width = 20)
+  
+  beta_Ind2_box <- singleResults %>%
+    ggplot() +
+    geom_boxplot(aes(x=EMshortName, y = EM_ecovBeta_ind2/OM_ecov_effect)) 
+  ggsave(beta_Ind2_box, filename = here::here(outfile, "beta_Ind2_box.png"), width = 5)
+  
+  beta_Ind1 <- singleResults %>%
+    ggplot() +
+    geom_point(aes(x=OM_ecov_effect, y = EM_ecovBeta_ind1)) +
+    facet_grid(.~EMshortName)
+  ggsave(beta_Ind1, filename = here::here(outfile, "beta_Ind1.png"), width = 20)
   
   ### Time series plots ###
   #include status SSB/F/Y, relSSB, relF, relR, relq both indices, relFAA, relNAA, relCAA
@@ -462,14 +490,53 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   relQInd2 <- results %>% 
     ggplot()+
     geom_line(aes(x=Year, y = relq_index2, group = seed), alpha = 0.5) + # Could color lines by F history
-    geom_hline(aes(yintercept = 1.0), color="red")
+    geom_hline(aes(yintercept = 1.0), color="red") + 
+    facet_grid(.~ OM_ecov_effect + EMshortName)
   ggsave(relQInd2, filename = here::here(outfile, "relq_index2.png"), width = 20)
   
-  # Plot index 2 q for OM only
-  q_ind2_OM <- results %>%
+  relQInd2_box <- results %>% 
     ggplot()+
-    geom_line(aes(x=Year, y = qOM_index2, group = seed), alpha = 0.5) 
+    geom_boxplot(aes(x=EMshortName, y = relq_index2), alpha = 0.5) + # Could color lines by F history
+    geom_hline(aes(yintercept = 1.0), color="red") + 
+    facet_grid(.~ OM_ecov_effect)
+  ggsave(relQInd2_box, filename = here::here(outfile, "relq_index2_box.png"), width = 20)
+  
+  # Plot index 2 q for OM only - pick handful of examples
+  q_ind2_OM <- results %>% filter(OM_ecov_effect > 0) %>% #filter(sim %in% c(201, 18718, 18905, 9126)) %>%
+    ggplot()+
+    geom_line(aes(x=Year, y = OM_q_index2, group = seed), alpha = 0.5) +
+    #geom_line(aes(x=Year, y=seq(0:5,39)), colour = "red")+
+    facet_grid(. ~ OM_ecov_effect + EMshortName)
   ggsave(q_ind2_OM, filename = here::here(outfile, "q_ind2_OM.png"), width = 20)
+  
+  # Plot index 2 q for EM only - pick handful of examples
+  q_ind2_EM <- results %>% filter(OM_ecov_effect > 0) %>% filter(EM_miss_season== "NONE") %>% #filter(sim %in% c(201, 18718, 18905, 9126)) %>%
+    ggplot()+
+    geom_line(aes(x=Year, y = EM_q_index2, group = seed), alpha = 0.5) +
+    #geom_line(aes(x=Year, y=seq(0:5,39)), colour = "red")+
+    facet_grid(. ~ OM_ecov_effect + EMshortName)
+  ggsave(q_ind2_EM, filename = here::here(outfile, "q_ind2_EM.png"), width = 20)
+  
+  # Plot environmental covariate that drives index 2 for q in OM
+  ecov_OM <- results %>% filter(OM_ecov_effect > 0) %>%
+    ggplot() +
+    geom_line(aes(x=Year, y= OM_Ecov_obs)) + # If broken try V85 (85th column in post-processed results)
+    facet_grid(.~OM_ecov_effect)
+  ggsave(ecov_OM, filename = here::here(outfile, "ecov_OM.png"))
+  
+  # # Plot predicted environmental covariate from EM
+  # ecov_EM <- results %>% filter(OM_ecov_effect > 0) %>%
+  #   ggplot() +
+  #   geom_line(aes(x=Year, y=EM_Ecov_pred)) +
+  #   facet_grid(.~OM_ecov_effect)
+  # ggsave(ecov_EM, filename = here::here(outfile, "ecov_EM.png"))
+  # 
+  # # Plot relative recovery of ecov observations
+  # ecov_relObs <- results %>% filter(OM_ecov_effect > 0) %>%
+  #   ggplot() +
+  #   geom_boxplot(aes(x=EMshortName, y=EM_Ecov_pred/OM_ecov_effect)) %>%
+  #   facet_grid(.~OM_ecov_effect)
+  # ggsave(ecov_relObs, filename = here::here(outfile, "ecov_relObs.png"))
   
   # Plot terminal year relative SSB vs. relative F
   SSB_F_terminal <- results %>% filter(Year == 40) %>%
