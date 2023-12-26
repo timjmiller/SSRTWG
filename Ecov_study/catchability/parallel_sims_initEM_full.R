@@ -332,7 +332,7 @@ numCore <- detectCores()
 registerDoParallel(numCore-10) # Don't use 2 of the cores
 
 ##### Simulations with range of ecov beta values
-subsetOM <- OMsetup %>% filter(OMname > 91) # OM 15 is missing 2 simulations, 91 is incomplete
+subsetOM <- OMsetup %>% filter(OMname > 297) # OM 15 is missing 2 simulations, 91 is incomplete, 294 is incomplete, 297 is incomplete
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
 
 
