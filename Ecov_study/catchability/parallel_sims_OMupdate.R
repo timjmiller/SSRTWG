@@ -115,7 +115,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #   Ecov <- list(label = "Ecov",
 #                mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                years = input$years,
+#                years =  input$years,
 #                use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                lag = 0,
 #                where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -162,7 +162,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "NoEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    years =  input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
@@ -185,7 +185,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "Ecov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    years =  input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -208,7 +208,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRand",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    years =  input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
@@ -234,7 +234,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRandEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    years =  input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
