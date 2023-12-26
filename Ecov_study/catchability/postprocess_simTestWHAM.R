@@ -303,15 +303,43 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
                           } else{ # If EM did not converge for the simulation save only OM results and EM convergence status
                             Converged <- results[EMs[iEM]][[1]][isim][[1]]$whamConverge
                             AIC <- NA
+                            EM_SSB = NA
+                            EM_F = NA
+                            EM_FAA = NA
+                            EM_R = NA
+                            EM_NAA = NA 
+                            EM_Catch = NA
+                            EM_CAA = NA
+                            EM_FMSY = NA
+                            EM_SSBMSY = NA
+                            EM_MSY = NA
+                            EM_selAA_cat = NA
+                            EM_selAA_ind1 = NA
+                            EM_selAA_ind2 = NA
+                            EM_q = NA
+                            EM_ecovBeta_ind1 = NA
+                            EM_ecovBeta_ind2 = NA
+                            EM_q_re = NA
+                            EM_Ecov_re = NA
+                            EM_Ecov_pred <- NA
+                            
+                            # storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
+                            #                  OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+                            #                  EM_miss_season, EM_miss_q, EMshortName,
+                            #                  Converged, AIC,
+                            #                  matrix(rep(NA, (ncol(perfMet)-17)*length(F_hist)), ncol = (ncol(perfMet)-17))) %>% # Fill remaining performance metrics with NAs
+                            #   as.data.frame() 
                             storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
                                              OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                                              EM_miss_season, EM_miss_q, EMshortName,
-                                             Converged, AIC,
-                                             matrix(rep(NA, (ncol(perfMet)-17)*length(F_hist)), ncol = (ncol(perfMet)-17))) %>% # Fill remaining performance metrics with NAs
+                                             OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q, OM_Ecov_obs,
+                                             Converged, AIC,  #EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re, EM_Ecov_pred, 
+                                             matrix(rep(NA, (ncol(perfMet)-87)*length(F_hist)), ncol = (ncol(perfMet)-87))) %>% # Fill remaining performance metrics with NAs
                               as.data.frame() 
+                            
                             names(storage) <- names(perfMet)
-                            numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
-                            storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as placeholders
+                            # numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
+                            # storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric) # This introduces NAs by coercion since using NAs as placeholders
                             
                             
                             # Append perfMets
