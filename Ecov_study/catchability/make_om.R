@@ -1,14 +1,15 @@
 make_om <- function(Fhist = "Fmsy", N1_state = "Fmsy", selectivity, M, NAA_re, catchability,
   age_comp = "logistic-normal-miss0", brp_year = 1, 
-  eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1, F_change_time = 0.5) {
+  eq_F_init = 0.3, om_input = TRUE, max_mult_Fmsy = 2.5, min_mult_Fmsy = 1, F_change_time = 0.5, ecov = NULL) {
 
   basic_info <- make_basic_info()
   basic_info$fracyr_indices[,1] = 0.25
   basic_info$fracyr_indices[,2] = 0.75
   #overfishing_mult = 2.5 #multiplier for Fmsy for overfishing
+  # basic_info$simulate_process_error <- c(TRUE, TRUE, TRUE, FALSE, TRUE) # Turn off simulation of environmental covariate for env - tested with low trust that I succeeded in parallel_sims_noEcovSim.R
   
   input <- prepare_wham_input(basic_info = basic_info, selectivity = selectivity, NAA_re = NAA_re, M= M,
-    age_comp = age_comp, catchability = catchability)
+    age_comp = age_comp, catchability = catchability, ecov = ecov)
   input$data$FXSPR_init[] = eq_F_init
   input$data$FMSY_init[] = eq_F_init
   #if you want to change the %Spawning Potential

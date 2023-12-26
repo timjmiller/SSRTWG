@@ -76,7 +76,6 @@ numCore <- detectCores()
 
 registerDoParallel(numCore-15) # Don't use 2 of the cores
 
-
 # Alex - to run your Fmsy simulations adjusts the number of simulations in line 76 and change F_hist in line 79 to = "Fmsy"
 # Set number of simulations to run
 nsim <- 50
@@ -98,7 +97,6 @@ nsim <- 50
 ##### Supplemental simulations
 subsetOM <- OMsetup %>% filter(OMname %in% c(192)) # need 3 qRandEcov and 1 none then finished 
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q %in% c("qRand", "qRandEcov"))
-
 
 # Run simulation tests
 foreach(iom = 1:nrow(subsetOM)) %dopar% { # Run foreach loop in parallel
@@ -123,5 +121,4 @@ foreach(iom = 1:nrow(subsetOM)) %dopar% { # Run foreach loop in parallel
 
 
 
-#Error in unserialize(socklist[[n]]) : error reading from connection
-# Gives up on OM 22 missSeason_NONE_missQ_qRandEcov
+

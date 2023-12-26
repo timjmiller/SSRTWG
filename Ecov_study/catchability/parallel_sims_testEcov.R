@@ -1,7 +1,8 @@
 # Run a handful of tests that:
 # 1) Change OM ecov_beta values to cover larger range - help select larger values for broader testing
 # 2) Change OM ecov observation error levels to include 0.0001 (OM trend follow observations)
-# Run 20 sims for each test
+# Run 50 sims for each test (run in 2 parts: 20 then 30 sims )
+
 # Pick other OM settings to have low sigma, H-L fishing history, and high correlation
 # Environmental covariate has an increasing mean
 
@@ -13,6 +14,7 @@ library(TAF)
 library(varhandle)
 library(doParallel)
 library(here)
+
 
 ## OM/EM setup functions
 source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
@@ -39,8 +41,9 @@ source(here::here("Ecov_study", "catchability", "plotResults.R"))
 # Ecov process & effect magnitude set up
 Ecov_process_sig <- c(0.1, 0.5)
 Ecov_process_cor <- c(0, 0.5)
-Ecov_process_obs_sig <- c(0.0001, 0.1, 0.5) # Add option so obs followed perfectly
-Ecov_effect <- c(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0) # beta
+Ecov_process_obs_sig <- c(0.0001, 0.1, 0.5) # Add option so obs followed perfectly in OM (i.e. almost no observation error)
+Ecov_effect <- c(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0) # beta
+
 
 # Fishing history
 F_hist <- c("H-L", "Fmsy") # High-then FMSY vs. FMSY for entire history
@@ -68,14 +71,14 @@ miss_q <- c("NoEcov", "Ecov", "qRand", "qRandEcov") # Catchability setup for EM
 EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 
 
-# ### OM/EM setup - environmental covariate updated to increase from 0 to 5 over 40 years
+# ## OM/EM setup - environmental covariate updated to increase from 0 to 5 over 40 years
 # dir.create(here::here("Ecov_study", "catchability", "Results"))
 # 
 # n_indices <- 2
 # n_ages <- 10
 # n_years <- 40
 # Ecov_mean_trend <- seq(0, 5, by = 5/39)
-# n_fleets = 1
+# n_fleets <- 1
 # 
 # # Assume logistic selectivity for the fleet and all indices
 # sel_list <- list(model = c(rep("logistic", n_fleets),rep("logistic", n_indices)),
@@ -87,8 +90,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # 
 # # NAA_re = list(recruit_model = 3) # This required for Beverton-Holt S-R
 # 
-# # Loop over testing OMs only
-# for(iom in 1:nrow(OMsetup)){
+# for(iom in c( 7,  19,  31,  43,  55,  67,  79,  91, 103, 115, 127, 139,  27, 31, 35)){ # nrow(OMsetup)){
 #   print(iom)
 #   ##### Set up generic input #####
 #   # Set up input without ecov
@@ -119,7 +121,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #   Ecov <- list(label = "Ecov",
 #                mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                year = input$years,
+#                years = input$years,
 #                use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                lag = 0,
 #                where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -166,7 +168,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "NoEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    year = input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
@@ -189,7 +191,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "Ecov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    year = input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -212,7 +214,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRand",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    year = input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
@@ -238,7 +240,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRandEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    year = input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs

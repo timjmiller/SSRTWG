@@ -1,5 +1,9 @@
-# Swap out OM ecov to have directional trend
-  # For testing to ID if model performance differs when ecov/q changes directionally
+# Run a handful of tests that: (same as sims_testEcov but change how EM initialized so no process/beta values are provided)
+# 1) Change OM ecov_beta values to cover larger range - help select larger values for broader testing
+# 2) Change OM ecov observation error levels to include 0.0001 (OM trend follow observations)
+# Run 50 sims for each test (run in 2 parts: 20 then 30 sims )
+# Pick other OM settings to have low sigma, H-L fishing history, and high correlation
+# Environmental covariate has an increasing mean
 
 # Load packages & source functions used in simulation testing
 ## Packages
@@ -10,10 +14,8 @@ library(varhandle)
 library(doParallel)
 library(here)
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Don't forget to create a Results directory before running!
-
 ## OM/EM setup functions
-source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
+source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship & sets ecov = NULL so only formatted by prepare_wham_input if provided to make_om
 source(file.path(here::here(),"common_code", "make_basic_info.R")) 
 source(here::here("common_code", "set_ecov.R")) 
 source(here::here("common_code", "set_NAA.R")) 
@@ -37,8 +39,8 @@ source(here::here("Ecov_study", "catchability", "plotResults.R"))
 # Ecov process & effect magnitude set up
 Ecov_process_sig <- c(0.1, 0.5)
 Ecov_process_cor <- c(0, 0.5)
-Ecov_process_obs_sig <- c(0.1, 0.5)
-Ecov_effect <- c(0, 0.25, 0.5) # beta
+Ecov_process_obs_sig <- c(0.0001, 0.1, 0.5) # Add option so obs followed perfectly in OM (i.e. almost no observation error)
+Ecov_effect <- c(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0) # beta
 
 # Fishing history
 F_hist <- c("H-L", "Fmsy") # High-then FMSY vs. FMSY for entire history
@@ -66,13 +68,14 @@ miss_q <- c("NoEcov", "Ecov", "qRand", "qRandEcov") # Catchability setup for EM
 EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 
 
-### OM/EM setup - environmental covariate updated to increase from 0 to 5 over 40 years
+# ## OM/EM setup - environmental covariate updated to increase from 0 to 5 over 40 years
 # dir.create(here::here("Ecov_study", "catchability", "Results"))
 # 
 # n_indices <- 2
 # n_ages <- 10
 # n_years <- 40
 # Ecov_mean_trend <- seq(0, 5, by = 5/39)
+# n_fleets <- 1
 # 
 # # Assume logistic selectivity for the fleet and all indices
 # sel_list <- list(model = c(rep("logistic", n_fleets),rep("logistic", n_indices)),
@@ -84,7 +87,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # 
 # # NAA_re = list(recruit_model = 3) # This required for Beverton-Holt S-R
 # 
-# for(iom in 1:nrow(OMsetup)){
+# for(iom in c( 7,  19,  31,  43,  55,  67,  79,  91, 103, 115, 127, 139,  27, 31, 35)){ # nrow(OMsetup)){
 #   print(iom)
 #   ##### Set up generic input #####
 #   # Set up input without ecov
@@ -115,7 +118,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #   Ecov <- list(label = "Ecov",
 #                mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                years =  input$years,
+#                years = input$years,
 #                use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                lag = 0,
 #                where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -162,7 +165,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "NoEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years =  input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
@@ -175,7 +178,22 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
 #                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
 # 
-#       inputEM <- set_ecov(input = input, ecov = Ecov)
+#       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
+#                        N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
+#                        selectivity = sel_list,
+#                        M = M_list,
+#                        catchability = NULL,
+#                        NAA_re = NULL, 
+#                        ecov = Ecov)
+#       
+#       # Observation error - set L-N SD parameters for catch and index age comps # pulled from project 0 q_om_setup.R
+#       inputEM$par$catch_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$par$index_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$data$agg_catch_sigma[] <- OMsetup[iom,"log_catch_sig"]
+#       inputEM$data$agg_index_sigma[] <- OMsetup[iom,"log_index_sig"]
+#       inputEM$data$catch_Neff[] <- 1 # Change Neff so scalar doesn't affect L-N SD
+#       inputEM$data$index_Neff[] <- 1
+#       
 # 
 #       # Set up EM name based on EMsetup
 #       inputEM$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_"))
@@ -185,7 +203,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "Ecov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years =  input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -198,7 +216,21 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
 #                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
 # 
-#       inputEM <- set_ecov(input = input, ecov = Ecov)
+#       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
+#                          N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
+#                          selectivity = sel_list,
+#                          M = M_list,
+#                          catchability = NULL,
+#                          NAA_re = NULL, 
+#                          ecov = Ecov)
+#       
+#       # Observation error - set L-N SD parameters for catch and index age comps # pulled from project 0 q_om_setup.R
+#       inputEM$par$catch_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$par$index_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$data$agg_catch_sigma[] <- OMsetup[iom,"log_catch_sig"]
+#       inputEM$data$agg_index_sigma[] <- OMsetup[iom,"log_index_sig"]
+#       inputEM$data$catch_Neff[] <- 1 # Change Neff so scalar doesn't affect L-N SD
+#       inputEM$data$index_Neff[] <- 1
 # 
 #       # Set up EM name based on EMsetup
 #       inputEM$model_name <- paste0("EM_", paste(unfactor(EMsetup[iem, ]), collapse = "_"))
@@ -208,7 +240,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRand",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years =  input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
@@ -221,7 +253,21 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
 #                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
 # 
-#       inputEM <- set_ecov(input = input, ecov = Ecov)
+#       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
+#                          N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
+#                          selectivity = sel_list,
+#                          M = M_list,
+#                          catchability = NULL,
+#                          NAA_re = NULL, 
+#                          ecov = Ecov)
+#       
+#       # Observation error - set L-N SD parameters for catch and index age comps # pulled from project 0 q_om_setup.R
+#       inputEM$par$catch_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$par$index_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$data$agg_catch_sigma[] <- OMsetup[iom,"log_catch_sig"]
+#       inputEM$data$agg_index_sigma[] <- OMsetup[iom,"log_index_sig"]
+#       inputEM$data$catch_Neff[] <- 1 # Change Neff so scalar doesn't affect L-N SD
+#       inputEM$data$index_Neff[] <- 1
 # 
 #       # Catchability random effects
 #       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
@@ -234,7 +280,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRandEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years =  input$years,
+#                    years = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -247,7 +293,21 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
 #                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
 # 
-#       inputEM <- set_ecov(input = input, ecov = Ecov)
+#       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
+#                          N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
+#                          selectivity = sel_list,
+#                          M = M_list,
+#                          catchability = NULL,
+#                          NAA_re = NULL, 
+#                          ecov = Ecov)
+#       
+#       # Observation error - set L-N SD parameters for catch and index age comps # pulled from project 0 q_om_setup.R
+#       inputEM$par$catch_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$par$index_paa_pars[,1] <- log(OMsetup[iom, "ageComp_sig"])
+#       inputEM$data$agg_catch_sigma[] <- OMsetup[iom,"log_catch_sig"]
+#       inputEM$data$agg_index_sigma[] <- OMsetup[iom,"log_index_sig"]
+#       inputEM$data$catch_Neff[] <- 1 # Change Neff so scalar doesn't affect L-N SD
+#       inputEM$data$index_Neff[] <- 1
 # 
 #       # Catchability random effects
 #       inputEM <- set_q(input = inputEM, catchability = list(re = qRand))
@@ -274,9 +334,14 @@ numCore <- detectCores()
 
 registerDoParallel(numCore-10) # Don't use 2 of the cores
 
-##### Simulations with all EMs fit 
-subsetOM <- OMsetup %>% filter(OMname %in% c(37, 101)) # check 11 qRandEcov-1, 37 qRand-1, qRandEcov-25, 101 qRand-1, qRandEcov-25, 125 qRandEcov-1 is complete
-subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRandEcov") # No seasonal misspecification
+# ##### Simulations with range of ecov beta values
+# subsetOM <- OMsetup %>% filter(Ecov_process_sig == 0.1, Ecov_process_cor == 0.5, Ecov_process_obs_sig == 0.1, F_hist == "H-L", ageComp_sig == 0.3, log_index_sig == 0.1, log_catch_sig == 0.1)
+# subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
+
+##### Simulations with a range of Ecov observation levels
+subsetOM <- OMsetup %>% filter(Ecov_process_sig == 0.1, Ecov_process_cor == 0.5, Ecov_effect == 0.5, F_hist == "H-L", ageComp_sig == 0.3, log_index_sig == 0.1, log_catch_sig == 0.1)
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
+
 
 # Run simulation tests
 for(iom in 1:nrow(subsetOM)){  # Loop over OMs
@@ -292,7 +357,7 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
     testEM <- readRDS(here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]), paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
     
     # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+    foreach(isim = 1:15) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
       simTestWHAM(nsim = 2,
                   OM = testOM,
                   inputEMlist = list(testEM), # Run one EM at a time
@@ -304,9 +369,12 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 
 
 
-##### Check performance of above subset of 10 sims for OMs with directional ecov driving q
+##### Check performance of above OMs with a range of ecov beta parameters
 # Find all result files
-filenames <- list.files(path = here::here("Ecov_study/catchability/Results_OMupdate"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+filenames <- NULL
+for(iom in c(7,  19,  31,  43,  55,  67,  79,  91, 103, 115, 127, 139)){
+  filenames <- c(filenames, list.files(path = here::here(paste0("Ecov_study/catchability/Results_initEM/OM_", iom)), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE))
+}
 
 # Set storage directory
 outdir = here::here("Ecov_study/catchability")
@@ -315,17 +383,30 @@ outdir = here::here("Ecov_study/catchability")
 postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 
 # Plot
-perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-08_10-39-19.687655.RDS")) #!!! need to update
+# perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-19_18-46-38.998051.RDS")) # Only 20 simulations
+perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-20_21-52-54.321209.RDS")) # With OM ecov_obs 
 library(TAF)
-mkdir(here::here("Ecov_study", "catchability", "plots_updateOM"))
+mkdir(here::here("Ecov_study", "catchability", "plots_testEcovBeta_initEM"))
 library(DataExplorer)
-plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_updateOM"))
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovBeta_initEM"))
 
 
+##### Check performance of above OMs with a range of ecov obs errors
+# Find all result files
+filenames <- NULL
+for(iom in c(27, 31, 35)){
+  filenames <- c(filenames, list.files(path = here::here(paste0("Ecov_study/catchability/Results_initEM/OM_", iom)), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE))
+}
 
+# Set storage directory
+outdir = here::here("Ecov_study/catchability")
 
+# Post-process results
+postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 
-
-
-
-
+# Plot
+perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-19_19-05-25.884854.RDS")) # Only 20 simulations
+library(TAF)
+mkdir(here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
+library(DataExplorer)
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
