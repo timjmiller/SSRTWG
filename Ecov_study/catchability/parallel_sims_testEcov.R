@@ -5,7 +5,6 @@
 # Pick other OM settings to have low sigma, H-L fishing history, and high correlation
 # Environmental covariate has an increasing mean
 
-
 # Load packages & source functions used in simulation testing
 ## Packages
 library(tidyverse)
@@ -14,8 +13,6 @@ library(TAF)
 library(varhandle)
 library(doParallel)
 library(here)
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Don't forget to create a Results directory before running!
 
 ## OM/EM setup functions
 source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
@@ -42,8 +39,8 @@ source(here::here("Ecov_study", "catchability", "plotResults.R"))
 # Ecov process & effect magnitude set up
 Ecov_process_sig <- c(0.1, 0.5)
 Ecov_process_cor <- c(0, 0.5)
-Ecov_process_obs_sig <- c(0.1, 0.5)
-Ecov_effect <- c(0, 0.25, 0.5) # beta
+Ecov_process_obs_sig <- c(0.0001, 0.1, 0.5) # Add option so obs followed perfectly
+Ecov_effect <- c(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0) # beta
 
 # Fishing history
 F_hist <- c("H-L", "Fmsy") # High-then FMSY vs. FMSY for entire history
@@ -71,13 +68,14 @@ miss_q <- c("NoEcov", "Ecov", "qRand", "qRandEcov") # Catchability setup for EM
 EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 
 
-### OM/EM setup - environmental covariate updated to increase from 0 to 5 over 40 years
+# ### OM/EM setup - environmental covariate updated to increase from 0 to 5 over 40 years
 # dir.create(here::here("Ecov_study", "catchability", "Results"))
 # 
 # n_indices <- 2
 # n_ages <- 10
 # n_years <- 40
 # Ecov_mean_trend <- seq(0, 5, by = 5/39)
+# n_fleets = 1
 # 
 # # Assume logistic selectivity for the fleet and all indices
 # sel_list <- list(model = c(rep("logistic", n_fleets),rep("logistic", n_indices)),
@@ -89,6 +87,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # 
 # # NAA_re = list(recruit_model = 3) # This required for Beverton-Holt S-R
 # 
+# # Loop over testing OMs only
 # for(iom in 1:nrow(OMsetup)){
 #   print(iom)
 #   ##### Set up generic input #####
@@ -279,9 +278,14 @@ numCore <- detectCores()
 
 registerDoParallel(numCore-10) # Don't use 2 of the cores
 
-##### Simulations with all EMs fit 
-subsetOM <- OMsetup %>% filter(OMname %in% c(37, 101)) # check 11 qRandEcov-1, 37 qRand-1, qRandEcov-25, 101 qRand-1, qRandEcov-25, 125 qRandEcov-1 is complete
-subsetEM <- EMsetup %>% filter(miss_season == "NONE") %>% filter(miss_q == "qRandEcov") # No seasonal misspecification
+# ##### Simulations with range of ecov beta values
+# subsetOM <- OMsetup %>% filter(Ecov_process_sig == 0.1, Ecov_process_cor == 0.5, Ecov_process_obs_sig == 0.1, F_hist == "H-L", ageComp_sig == 0.3, log_index_sig == 0.1, log_catch_sig == 0.1)
+# subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
+
+##### Simulations with a range of Ecov observation levels
+subsetOM <- OMsetup %>% filter(Ecov_process_sig == 0.1, Ecov_process_cor == 0.5, Ecov_effect == 0.5, F_hist == "H-L", ageComp_sig == 0.3, log_index_sig == 0.1, log_catch_sig == 0.1)
+subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
+
 
 # Run simulation tests
 for(iom in 1:nrow(subsetOM)){  # Loop over OMs
@@ -297,7 +301,7 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
     testEM <- readRDS(here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]), paste0("EM_missSeason_", subsetEM[iem, "miss_season"], "_missQ_", subsetEM[iem, "miss_q"]), "EMinput.Rds"))
     
     # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+    foreach(isim = 1:15) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
       simTestWHAM(nsim = 2,
                   OM = testOM,
                   inputEMlist = list(testEM), # Run one EM at a time
@@ -309,9 +313,12 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 
 
 
-##### Check performance of above subset of 10 sims for OMs with directional ecov driving q
+##### Check performance of above OMs with a range of ecov beta parameters
 # Find all result files
-filenames <- list.files(path = here::here("Ecov_study/catchability/Results"), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
+filenames <- NULL
+for(iom in c(7,  19,  31,  43,  55,  67,  79,  91, 103, 115, 127, 139)){
+  filenames <- c(filenames, list.files(path = here::here(paste0("Ecov_study/catchability/Results_testEcov/OM_", iom)), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE))
+}
 
 # Set storage directory
 outdir = here::here("Ecov_study/catchability")
@@ -320,10 +327,34 @@ outdir = here::here("Ecov_study/catchability")
 postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 
 # Plot
-perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-04_21-45-29.299262.RDS")) #!!! need to update
+# perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-14_20-31-52.803322.RDS")) # Only 20 simulations
 library(TAF)
-mkdir(here::here("Ecov_study", "catchability", "plots_updateOM"))
+mkdir(here::here("Ecov_study", "catchability", "plots_testEcovBeta"))
 library(DataExplorer)
-plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_updateOM"))
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovBeta"))
 
+
+##### Check performance of above OMs with a range of ecov obs errors
+# Find all result files
+filenames <- NULL
+for(iom in c(27, 31, 35)){
+  filenames <- c(filenames, list.files(path = here::here(paste0("Ecov_study/catchability/Results_testEcov/OM_", iom)), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE))
+}
+
+# Set storage directory
+outdir = here::here("Ecov_study/catchability")
+
+# Post-process results
+postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
+
+# Plot
+# perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-15_15-47-36.085397.RDS")) # Only 20 simulations
+library(TAF)
+mkdir(here::here("Ecov_study", "catchability", "plots_testEcovObs"))
+library(DataExplorer)
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovObs"))
+
+
+
+# Alex devel branch SHA: b841eb1d530e94f0c8f4b5de68af891e372ad2ee
 
