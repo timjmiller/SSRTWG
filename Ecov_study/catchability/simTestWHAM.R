@@ -127,6 +127,10 @@ simTestWHAM <- function(nsim = 1,
                           tempStore$q_re <- fitEM$rep$q_re # q random effect
                           tempStore$Ecov_re <- fitEM$rep$Ecov_re # Ecov random effect
                           tempStore$Ecov_x <- fitEM$rep$Ecov_x # Predicted ecov time series
+                          tempStore$pred_ind1 <- fitEM$rep$pred_indices[,1] # Aggregate index 1 predicted values
+                          tempStore$pred_ind2 <- fitEM$rep$pred_indices[,2] # Aggregate index 2 predicted values
+                          tempStore$pred_ind1_paa <- fitEM$rep$pred_index_paa[,1,] # Index 1 predicted paa
+                          tempStore$pred_ind2_paa <- fitEM$rep$pred_index_paa[,2,] # Index 2 predicted paa
                         } else{ # Store NA when model generated error
                           tempStore$AIC <- NA
                           tempStore$Error <- fitEM$err
@@ -152,6 +156,10 @@ simTestWHAM <- function(nsim = 1,
                           tempStore$q_re <- NA # q random effect
                           tempStore$Ecov_re <- NA # Ecov random effect
                           tempStore$Ecov_x <- NA # Predicted ecov time series
+                          tempStore$pred_ind1 <- NA # Aggregate index 1 predicted values
+                          tempStore$pred_ind2 <- NA # Aggregate index 2 predicted values
+                          tempStore$pred_ind1_paa <- NA # Index 1 predicted paa
+                          tempStore$pred_ind2_paa <- NA # Index 2 predicted paa
                         }
                         
                         
