@@ -11,6 +11,7 @@
 | parallel_sims_EM.R | Copy of simulation code run in parallel, fit OMs to all 4 EMs, parallelize over simulations |
 | parallel_sims_initEM.R | Copy of simulation code run in parallel, change initialization of EMs so not provided process or beta parameters, otherwise match parallel_sims_testEcov subset. These are the sims to use in selecting beta and observation errors to evaluate over all OMs |
 | parallel_sims_OMupdate.R | Copy of simulation code run in parallel with increasing mean environmental covariate, parallelize over simulations |
+| parallel_sims_qMiss.R | Copy of simulation code run in parallel with correctly and both seasons misspecified EMs fit |
 | parallel_sims_testEcov.R | Copy of simulation code run in parallel to test a subset of OMs with 1) larger range of Ecov beta parameters and 2) range of ecov observation sigmas including an option that has the OM track observations closely. |
 | parallel_sims_testEcovTrend.R | Copy of simulation code run in parallel to run same tests as testEcov option but change observed trend to have higher contrast (increase from 0-100 here, testEcov increased from 0 to 5) |
 | plotResults.R | Function to generate plots |
