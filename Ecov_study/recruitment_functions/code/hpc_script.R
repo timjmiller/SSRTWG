@@ -27,6 +27,11 @@ model    <- cbind(im=simi, om=omj, em=emk, optimized=FALSE, sdreport=FALSE, y,x)
 obs_names <- c("agg_catch","agg_catch_sigma", "agg_indices", "agg_index_sigma", "catch_paa", "index_paa", 
                "Ecov_obs", "obs", "obsvec")
 
+# specs for the retro peels & projections ===
+n.yrs.peel <- 10
+n.yrs.proj <- 10
+yrs.avg    <- 5  # will be used to average ecov and bio pars
+
 #######################################################
 #seeds <- readRDS(file.path(here::here(), "Ecov_study", "recruitment_functions", "inputs","seeds.RDS"))
 #######################################################
