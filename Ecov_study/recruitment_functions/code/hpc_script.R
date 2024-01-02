@@ -83,7 +83,108 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
        "SE_par" = as.list(fit$sdrep, what = "Std"),
        "Estimate_rep" = as.list(fit$sdrep, what = "Est", report = TRUE),
        "SE_rep" = as.list(fit$sdrep, what = "Std", report = TRUE))
+    
+    ##-PEELS--#######################
+    
+    fit$peels <- retro(fit, ran = unique(names(fit$env$par[fit$env$random])), do.sdrep = TRUE,
+                       n.peels=n.yrs.peel, save.input = TRUE, MakeADFun.silent = TRUE,
+                       retro.silent = TRUE, n.newton=1) #n.newton = 0 (2.25 min); n.newton=1 (3.1 min; 4.531353 mins with sdrep); n.newton=2 (3.9 min)
+    # project from last peel ====
+    tmp.proj.cont.ecov <- project_wham(
+      model=fit$peels[[n.yrs.peel]],
+      proj.opts = list(n.yrs = n.yrs.proj,  
+                       use.last.F = FALSE, use.avg.F = FALSE, use.FXSPR = FALSE, use.FMSY = FALSE, 
+                       proj.F = tail(truth$F, n.yrs.peel),# use Truth so can compare projections with Trut  
+                       #proj.catch = NULL, 
+                       avg.yrs = tail(fit$peels[[n.yrs.proj]]$input$years, yrs.avg), # this will cause selectivity to be averaged over last 5 years
+                       cont.ecov = TRUE, use.last.ecov = FALSE, avg.ecov.yrs = NULL, proj.ecov = NULL, 
+                       cont.Mre = NULL, 
+                       #avg.rec.yrs = NULL,  #(only relevant if recr are fixed effects)
+                       percentFXSPR = 100, percentFMSY = 100 #,
+                       #proj_F_opt = rep(3,n.yrs.proj)
+      ),
+      n.newton = 3,
+      do.sdrep = TRUE,
+      MakeADFun.silent = TRUE,
+      save.sdrep = TRUE
+    )  
+    
+    tmp.proj.avg.ecov <- project_wham(
+      model=fit$peels[[n.yrs.peel]],
+      proj.opts = list(n.yrs = n.yrs.proj,  
+                       use.last.F = FALSE, use.avg.F = FALSE, use.FXSPR = FALSE, use.FMSY = FALSE, 
+                       proj.F = tail(truth$F, n.yrs.peel),  # use Truth so can compare projections with Truth
+                       #proj.catch = NULL, 
+                       avg.yrs = tail(fit$peels[[n.yrs.proj]]$input$years, yrs.avg), # this will cause selectivity to be averaged over last 5 years
+                       cont.ecov = FALSE, use.last.ecov = FALSE, 
+                       avg.ecov.yrs = tail(fit$peels[[n.yrs.proj]]$input$years, yrs.avg), 
+                       proj.ecov = NULL, 
+                       cont.Mre = NULL, 
+                       #avg.rec.yrs = NULL,  #(only relevant if recr are fixed effects)
+                       percentFXSPR = 100, percentFMSY = 100 #,
+                       #proj_F_opt = rep(3,n.yrs.proj)
+      ),
+      n.newton = 3,
+      do.sdrep = TRUE,
+      MakeADFun.silent = TRUE,
+      save.sdrep = TRUE
+    )  
+    
+    tmp.proj.use.ecov <- project_wham(
+      model=fit$peels[[n.yrs.peel]],
+      proj.opts = list(n.yrs = n.yrs.proj,  
+                       use.last.F = FALSE, use.avg.F = FALSE, use.FXSPR = FALSE, use.FMSY = FALSE, 
+                       proj.F = tail(truth$F, n.yrs.peel),  # use Truth so can compare projections with Truth
+                       #proj.catch = NULL, 
+                       avg.yrs = tail(fit$peels[[n.yrs.proj]]$input$years, yrs.avg), # this will cause selectivity to be averaged over same years as ecov
+                       cont.ecov = FALSE, use.last.ecov = FALSE, 
+                       avg.ecov.yrs = NULL, 
+                       proj.ecov = tail(fit$input$data$Ecov_obs, n.yrs.proj), 
+                       cont.Mre = NULL, 
+                       #avg.rec.yrs = NULL,  #(only relevant if recr are fixed effects)
+                       percentFXSPR = 100, percentFMSY = 100 #,
+                       #proj_F_opt = rep(3,n.yrs.proj)
+      ),
+      n.newton = 3,
+      do.sdrep = TRUE,
+      MakeADFun.silent = TRUE,
+      save.sdrep = TRUE
+    )  
+
+        #res$peels <- fit$peels
+    res$peels <- lapply(fit$peels, function(x) list(rep=x$rep,
+                                                    sdrep= list(
+                                                      "Estimate_par" = as.list(x$sdrep, what = "Est"),
+                                                      "SE_par" = as.list(x$sdrep, what = "Std"),
+                                                      "Estimate_rep" = as.list(x$sdrep, what = "Est", report = TRUE),
+                                                      "SE_rep" = as.list(x$sdrep, what = "Std", report = TRUE) ) )
+    )
+    
+    res$proj$cont.ecov$rep <- tmp.proj.cont.ecov$rep
+    res$proj$cont.ecov$sdrep <- list(
+      "Estimate_par" = as.list(tmp.proj.cont.ecov$sdrep, what = "Est"),
+      "SE_par" = as.list(tmp.proj.cont.ecov$sdrep, what = "Std"),
+      "Estimate_rep" = as.list(tmp.proj.cont.ecov$sdrep, what = "Est", report = TRUE),
+      "SE_rep" = as.list(tmp.proj.cont.ecov$sdrep, what = "Std", report = TRUE)
+    )
+    
+    res$proj$avg.ecov$rep <- tmp.proj.avg.ecov$rep
+    res$proj$avg.ecov$sdrep <- list(
+      "Estimate_par" = as.list(tmp.proj.avg.ecov$sdrep, what = "Est"),
+      "SE_par" = as.list(tmp.proj.avg.ecov$sdrep, what = "Std"),
+      "Estimate_rep" = as.list(tmp.proj.avg.ecov$sdrep, what = "Est", report = TRUE),
+      "SE_rep" = as.list(tmp.proj.avg.ecov$sdrep, what = "Std", report = TRUE)
+    )
+    
+    res$proj$use.ecov$rep <- tmp.proj.use.ecov$rep
+    res$proj$use.ecov$sdrep <- list(
+      "Estimate_par" = as.list(tmp.proj.use.ecov$sdrep, what = "Est"),
+      "SE_par" = as.list(tmp.proj.use.ecov$sdrep, what = "Std"),
+      "Estimate_rep" = as.list(tmp.proj.use.ecov$sdrep, what = "Est", report = TRUE),
+      "SE_rep" = as.list(tmp.proj.use.ecov$sdrep, what = "Std", report = TRUE)
+    )
   }
+  
   empars <- data.frame(par=names(res$fit$opt$par), value=res$fit$opt$par)%>%
     dplyr::filter(!grepl(x=par,'F_devs|log_NAA'))
   empars$par2 <- sapply(unique(empars$par), function(x) {
