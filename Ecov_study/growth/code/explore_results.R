@@ -184,9 +184,9 @@ add_labels <- function(df){
   mutate(df, omf=omf(om), emf=emf(em))
 }
 
-fits <- list.files('../results', pattern='RDS', recursive=1,
-                      full.names=TRUE) %>% lapply(readRDS)
-saveRDS(fits, '../results/fits.RDS')
+## fits <- list.files('../results', pattern='RDS', recursive=1,
+##                       full.names=TRUE) %>% lapply(readRDS)
+## saveRDS(fits, '../results/fits.RDS')
 
 fits <- readRDS("../results/fits.RDS")
 fits <- fits[-1] # not sure why this one is missing $model slot,
@@ -195,7 +195,7 @@ fits <- fits[-1] # not sure why this one is missing $model slot,
 ## check convergence stats
 models <- lapply(fits, function(x) x$model) %>% bind_rows %>% add_labels
 convg <- group_by(models, omf, emf) %>%
-  summarize(pct.converged=mean(optimized),
+  summarize(pct.converged=round(100*mean(optimized),1),
             n.converged=sum(optimized), n.run=length(optimized), .groups='drop')
 convg %>% write.csv('../results/convergence.csv')
 
@@ -220,7 +220,7 @@ g <- ggplot(filter(ts, par!='Ecov_out' & abs(maxgrad)<1), aes(emf, rel_error)) +
   geom_violin() + coord_cartesian(ylim=c(-1,1))+
   geom_hline(yintercept=0, col=2, lwd=1) +
   facet_grid(par~omf, scales='free') +
-  theme(axis.text.x = element_text(angle = 90)) + 
+  theme(axis.text.x = element_text(angle = 90)) +
   labs(x=NULL, y='Relative error')
 ggsave("../plots/relerror_ts.png", g, width=10 , height=5)
 
@@ -285,7 +285,7 @@ g <- ggplot(growth, aes(emf, rel_error)) +
   facet_grid(par~omf) +
   coord_cartesian(ylim=c(-1,1))+
   theme(axis.text.x = element_text(angle = 90)) + labs(x=NULL)
-ggsave("../plots/abserror_growth.png", g, width=12 , height=5)
+ggsave("../plots/relerror_growth.png", g, width=10 , height=5)
 
 
 ## ## need to get this by year too
