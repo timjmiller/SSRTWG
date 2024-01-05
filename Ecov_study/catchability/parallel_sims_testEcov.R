@@ -2,6 +2,7 @@
 # 1) Change OM ecov_beta values to cover larger range - help select larger values for broader testing
 # 2) Change OM ecov observation error levels to include 0.0001 (OM trend follow observations)
 # Run 50 sims for each test (run in 2 parts: 20 then 30 sims )
+
 # Pick other OM settings to have low sigma, H-L fishing history, and high correlation
 # Environmental covariate has an increasing mean
 
@@ -14,7 +15,6 @@ library(varhandle)
 library(doParallel)
 library(here)
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Don't forget to create a Results directory before running!
 
 ## OM/EM setup functions
 source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship
@@ -43,6 +43,7 @@ Ecov_process_sig <- c(0.1, 0.5)
 Ecov_process_cor <- c(0, 0.5)
 Ecov_process_obs_sig <- c(0.0001, 0.1, 0.5) # Add option so obs followed perfectly in OM (i.e. almost no observation error)
 Ecov_effect <- c(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0) # beta
+
 
 # Fishing history
 F_hist <- c("H-L", "Fmsy") # High-then FMSY vs. FMSY for entire history

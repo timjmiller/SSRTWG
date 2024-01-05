@@ -141,6 +141,10 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
         colnames(OM_q) <- c("OM_q_index1", "OM_q_index2")
         OM_Ecov_obs <- results[OMname][[1]][isim][[1]]$dataOM$Ecov_obs # Observations
         colnames(OM_Ecov_obs) <- "OM_Ecov_obs"
+        OM_agg_ind1 <- results[OMname][[1]][isim][[1]]$dataOM$agg_indices[,1]
+        OM_agg_ind2 <- results[OMname][[1]][isim][[1]]$dataOM$agg_indices[,2]
+        OM_ind1_paa <- results[OMname][[1]][isim][[1]]$dataOM$index_paa[1,,]
+        OM_ind2_paa <- results[OMname][[1]][isim][[1]]$dataOM$index_paa[2,,]
         
         
         # EM
@@ -179,14 +183,18 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
           #!!! pars_Ecov_process = 3 parameters, what is order for labeling purposes here?
           EM_Ecov_pred <- results[EMs[iEM]][[1]][isim][[1]]$Ecov_x # EM predictions
           colnames(EM_Ecov_pred) <- "EM_Ecov_pred"
-          # EM_Ecov_pred <- NA #!!! placeholder for EM predictions for now since models prior to 12/20/23 at 4pm do not have the data saved to support this
+          EM_agg_ind1 <- results[EMs[iEM]][[1]][isim][[1]]$pred_ind1
+          EM_agg_ind2 <- results[EMs[iEM]][[1]][isim][[1]]$pred_ind2
+          EM_ind1_paa <- results[EMs[iEM]][[1]][isim][[1]]$pred_ind1_paa
+          EM_ind2_paa <- results[EMs[iEM]][[1]][isim][[1]]$pred_ind2_paa
+          
           
           # Combine settings and raw results into a single storage data.frame 
           storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
                            OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                            EM_miss_season, EM_miss_q, EMshortName,
-                           OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q, OM_Ecov_obs,
-                           Converged, AIC, EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re, EM_Ecov_pred) %>% 
+                           OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q, OM_Ecov_obs, OM_agg_ind1, OM_agg_ind2, OM_ind1_paa, OM_ind2_paa
+                           Converged, AIC, EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re, EM_Ecov_pred, EM_agg_ind1, EM_agg_ind2, EM_ind1_paa, EM_ind2_paa) %>% 
             as.data.frame() 
           numericIndex <- which(colnames(storage) %in% c("OMshortName", 'EMshortName', "EM_miss_season", "EM_miss_q", "F_hist", "Converged") == FALSE)
           storage[,numericIndex] <- sapply(storage[,numericIndex], as.numeric)
@@ -326,6 +334,10 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
           EM_q_re = NA
           EM_Ecov_re = NA
           EM_Ecov_pred <- NA
+          EM_agg_ind1 <- NA 
+          EM_agg_ind2 <- NA 
+          EM_ind1_paa <- NA 
+          EM_ind2_paa <- NA
           
           # storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
           #                  OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
@@ -336,9 +348,9 @@ postprocess_simTestWHAM <- function(filenames = NULL, outdir = here::here(), ear
           storage <- cbind(seed, F_hist, ageComp_sig, log_catch_sig, log_index_sig, Year, sim, 
                            OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
                            EM_miss_season, EM_miss_q, EMshortName,
-                           OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q, OM_Ecov_obs,
-                           Converged, AIC,  #EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re, EM_Ecov_pred, 
-                           matrix(rep(NA, (ncol(perfMet)-87)*length(F_hist)), ncol = (ncol(perfMet)-87))) %>% # Fill remaining performance metrics with NAs
+                           OM_SSB, OM_F, OM_FAA, OM_R, OM_NAA, OM_Catch, OM_CAA, OM_FMSY, OM_SSBMSY, OM_MSY, OM_selAA_cat, OM_selAA_ind1, OM_selAA_ind2, OM_q, OM_Ecov_obs, OM_agg_ind1, OM_agg_ind2, OM_ind1_paa, OM_ind2_paa,
+                           Converged, AIC,  #EM_SSB, EM_F, EM_FAA, EM_R, EM_NAA, EM_Catch, EM_CAA, EM_FMSY, EM_SSBMSY, EM_MSY, EM_selAA_cat, EM_selAA_ind1, EM_selAA_ind2, EM_q, EM_ecovBeta_ind1, EM_ecovBeta_ind2, EM_q_re, EM_Ecov_re, EM_Ecov_pred, EM_agg_ind1, EM_agg_ind2, EM_ind1_paa, EM_ind2_paa
+                           matrix(rep(NA, (ncol(perfMet)-91)*length(F_hist)), ncol = (ncol(perfMet)-91))) %>% # Fill remaining performance metrics with NAs
             as.data.frame() 
           
           names(storage) <- names(perfMet)
