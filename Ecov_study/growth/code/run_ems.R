@@ -36,7 +36,7 @@ sfExportAll()
 for(om in 1:nrow(df.oms)){
   for(em in 1:nrow(df.ems)){
     sfExportAll()
-    trash <- sfLapply(1:36, function(sim) run_iter(sim,om,em))
+    trash <- sfLapply(1:100, function(sim) run_iter(sim,om,em))
   }
 }
 
