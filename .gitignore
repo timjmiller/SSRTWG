@@ -8,6 +8,7 @@
 .Rproj.user
 *.RDS
 !Project_0/inputs/*.RDS
+!Ecov_study/recruitment_functions/inputs/*.RDS
 Project_0/hpcc_bash
 Project_0/paper/*.pdf
 misspecification_study/output
