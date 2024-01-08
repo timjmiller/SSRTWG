@@ -1,0 +1,16 @@
+"Par","N_Bad_Grad","N_Big_SE"
+"0_Model.crash",50,NA
+"Ecov_beta",811,922
+"Ecov_process_pars",1028,94
+"Ecov_re",NA,1083
+"F_devs",1051,2
+"catch_paa_pars",28,NA
+"index_paa_pars",53,NA
+"log_F1",168,NA
+"log_N1_pars",152,NA
+"log_NAA",NA,273
+"log_NAA_sigma",141,1333
+"logit_q",30,NA
+"logit_selpars",144,NA
+"mean_rec_pars",7316,14603
+"trans_NAA_rho",182,1303

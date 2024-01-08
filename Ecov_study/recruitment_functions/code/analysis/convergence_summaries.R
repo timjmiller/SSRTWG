@@ -141,7 +141,7 @@ bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
   theme(axis.title.y = element_text(size = 13))   +
   ylab('Number failed convg. checks (OM-EM-Sim with lowest AIC)') +
   labs(subtitle=paste0(100*round(pct.fail.convg,3), '% of all OM-EM-Sims failed 1 or more convergence checks' ))
-ggsave(bad.mods.plot, filename=file.path(here(),'Ecov_study','recruitment_functions','plots', "bad.mods_lowestAIC.plot.png"),  height=7, width=12)
+ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions','plots', "bad.mods_all.plot.png"),  height=7, width=12)
 
 
 
@@ -161,14 +161,11 @@ bad_SE_par <- as_tibble(AIC_weight[bad.se.big,]) %>%
   rename(Par=SE_par_max_name)
 
 
-bad_grad_SE_table <- bad_grad_par %>%
-  add_column(bad_SE_par)
 
 
-
-bad_par_tib <- bad_grad_par %>%
+bad_par_table <- bad_grad_par %>%
   full_join(bad_SE_par) %>%
   arrange(Par) %>%
-  rename(N_Bad_Grad=ntimes.bad.grad, N_Big_SE=ntimes.bad.se)
-write.csv(bad_par_tib, file=file.path(here(),'Ecov_study','recruitment_functions','results', "Bad.param.summary.table.csv"), row.names = FALSE )
+  rename(N_Bad_Grad=ntimes.bad.grad, N_Big_SE=ntimes.bad.se) 
+write.csv(bad_par_tib, file=file.path(here(),'Ecov_study','recruitment_functions','tables', "Bad.param.summary.table.csv"), row.names = FALSE )
   
