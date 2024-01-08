@@ -166,6 +166,44 @@ bad_SE_par <- as_tibble(AIC_weight[bad.se.big,]) %>%
 bad_par_table <- bad_grad_par %>%
   full_join(bad_SE_par) %>%
   arrange(Par) %>%
-  rename(N_Bad_Grad=ntimes.bad.grad, N_Big_SE=ntimes.bad.se) 
+  rename(N_Bad.Grad=ntimes.bad.grad, N_Big.SE=ntimes.bad.se) 
 write.csv(bad_par_tib, file=file.path(here(),'Ecov_study','recruitment_functions','tables', "Bad.param.summary.table.csv"), row.names = FALSE )
+
+
+bad_par_long <- bad_par_table %>%
+  mutate(tot.bad.grad=length(bad.grad), tot.big.se=length(bad.se.big)) %>%
+  mutate(Pct_Bad.Grad = N_Bad.Grad/tot.bad.grad, Pct_Big.SE=N_Big.SE/tot.big.se ) %>%
+  select(-c(tot.bad.grad, tot.big.se) ) %>%
+  pivot_longer(cols=-Par,  names_to=c(".value", 'Condition'), names_sep="_" )
+
+bad_par_N_barplot <- ggplot(bad_par_long, aes(x=N, y=Par)) +
+  facet_grid(~Condition) +
+  geom_col(fill="#2099aa99") +
+  theme_light()  +
+  theme(strip.background =element_rect(fill="white", color="grey65"))+
+  theme(strip.text = element_text(colour = 'black', size=12)) +
+  theme(axis.text.x = element_text(size = 10))   + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(axis.title.x = element_text(size = 13))   + 
+  theme(axis.title.y = element_text(size = 13))   +
+  ylab('Parameter') +
+  xlab('Count') +
+  labs(subtitle=paste0('Number of times each parameter had the largest gradient or the biggest SE' ))
+ggsave(bad_par_N_barplot , filename=file.path(here(),'Ecov_study','recruitment_functions','plots', "bad_par_N_barplot .png"),  height=7, width=12)
+
+
+bad_par_pct_barplot <- ggplot(bad_par_long, aes(x=Pct, y=Par)) +
+  facet_grid(~Condition) +
+  geom_col(fill="#2099aa99") +
+  theme_light()  +
+  theme(strip.background =element_rect(fill="white", color="grey65"))+
+  theme(strip.text = element_text(colour = 'black', size=12)) +
+  theme(axis.text.x = element_text(size = 10))   + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(axis.title.x = element_text(size = 13))   + 
+  theme(axis.title.y = element_text(size = 13))   +
+  ylab('Parameter') +
+  xlab('Proportion') +
+labs(subtitle=paste0('Proportion of times each parameter had the largest gradient or the biggest SE' ))
+ggsave(bad_par_pct_barplot, filename=file.path(here(),'Ecov_study','recruitment_functions','plots', "bad_par_pct_barplot .png"),  height=7, width=12)
   
