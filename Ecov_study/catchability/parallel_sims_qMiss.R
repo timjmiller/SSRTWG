@@ -1,6 +1,6 @@
 # Run full set of OM/EM combinations:
-# Include a wider range of environmental effect sizes
-# Also fit all EMs to the same OM dataset so that AICs are comparable
+# Don't provide EM ecov process arguments, correct spelling mistake for year ecov argument (shouldn't matter since all years have ecov data)
+# Fit EMs with both seasons misspecified
 
 # Load packages & source functions used in simulation testing
 ## Packages
@@ -115,7 +115,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #   Ecov <- list(label = "Ecov",
 #                mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                years = input$years,
+#                year = input$years,
 #                use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                lag = 0,
 #                where = "q", # Where/how/indices settings need to change if we do sensitivity runs
@@ -162,18 +162,13 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "NoEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    year = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
 #                    how = 1,
 #                    indices = index_list, # Ecov impact based on sesonal misspecification setting
-#                    process_model = "ar1", # End generic inputs for ecov
-#                    process_mean_vals = Ecov_mean_trend, # Mean = 0
-#                    process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
-#                    process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
-#                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
-#                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+#                    process_model = "ar1") # End generic inputs for ecov
 # 
 #       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
 #                        N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
@@ -200,18 +195,14 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "Ecov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    year = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
 #                    how = 1,
 #                    indices = index_list, # Ecov impact based on sesonal misspecification setting
-#                    process_model = "ar1", # End generic inputs for ecov
-#                    process_mean_vals = Ecov_mean_trend, # Mean = 0
-#                    process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
-#                    process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
-#                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
-#                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+#                    process_model = "ar1") # End generic inputs for ecov
+# 
 # 
 #       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
 #                          N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
@@ -237,18 +228,14 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRand",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    year = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "none", # Where/how/indices settings need to change if we do sensitivity runs
 #                    how = 1,
 #                    indices = index_list, # Ecov impact based on sesonal misspecification setting
-#                    process_model = "ar1", # End generic inputs for ecov
-#                    process_mean_vals = Ecov_mean_trend, # Mean = 0
-#                    process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
-#                    process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
-#                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
-#                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+#                    process_model = "ar1") # End generic inputs for ecov
+# 
 # 
 #       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
 #                          N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
@@ -277,18 +264,14 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 #       Ecov <- list(label = "qRandEcov",
 #                    mean = matrix(Ecov_mean_trend, ncol =1), # Mean = 0
 #                    logsigma = matrix(log(OMsetup$Ecov_process_obs_sig[iom]), n_years, ncol=1),
-#                    years = input$years,
+#                    year = input$years,
 #                    use_obs = matrix(rep(TRUE, n_years), ncol = 1),
 #                    lag = 0,
 #                    where = "q", # Where/how/indices settings need to change if we do sensitivity runs
 #                    how = 1,
 #                    indices = index_list, # Ecov impact based on sesonal misspecification setting
-#                    process_model = "ar1", # End generic inputs for ecov
-#                    process_mean_vals = Ecov_mean_trend, # Mean = 0
-#                    process_sig_vals = rep(OMsetup$Ecov_process_sig[iom]),
-#                    process_cor_vals = rep(OMsetup$Ecov_process_cor[iom]),
-#                    beta_vals = list(append(rep(list(matrix(rep(0, n_ages), nrow = 1)), 2), # No impact on R,M
-#                                            rep(list(matrix(rep(OMsetup$Ecov_effect[iom], n_ages), nrow = 1)), 2)))) # impact on q by index (here 2 indices)
+#                    process_model = "ar1") # End generic inputs for ecov
+# 
 # 
 #       inputEM <- make_om(Fhist = OMsetup[iom,"F_hist"],
 #                          N1_state = "Fmsy", # Default, could also pick "overfished" or "unfished"
@@ -332,8 +315,8 @@ numCore <- detectCores()
 registerDoParallel(numCore-10) # Don't use 2 of the cores
 
 ##### Simulations with range of ecov beta values
-subsetOM <- OMsetup %>% filter(OMname > 297) # OM 15 is missing 2 simulations, 91 is incomplete, 294 is incomplete, 297 is incomplete
-subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
+subsetOM <- OMsetup %>% filter(OMname > 19) # Incomplete runs: 19, 
+subsetEM <- EMsetup #%>% filter(miss_season == "NONE" | miss_season == "BOTH") # none or both seasons q misspecified
 
 
 
@@ -343,21 +326,32 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
   # Pull OM
   testOM <- readRDS(here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]), paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
   
-    omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
-    
-    # Pull EM
-    EM_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
-    EM_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
-    EM_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
-    EM_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
-    
-    # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
-      simTestWHAM(nsim = 2,
-                  OM = testOM,
-                  inputEMlist = list(EM_qRand, EM_qRandEcov, EM_Ecov, EM_NoEcov), # Run all EMs fit to same OM data
-                  outdir = omdir) # Save in OM directory
-    } # End foreach loop over sims
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
+  
+  # Pull EM
+  EM_BOTH_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[5, "miss_season"], "_missQ_", subsetEM[5, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[6, "miss_season"], "_missQ_", subsetEM[6, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[7, "miss_season"], "_missQ_", subsetEM[7, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[8, "miss_season"], "_missQ_", subsetEM[8, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[9, "miss_season"], "_missQ_", subsetEM[9, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[10, "miss_season"], "_missQ_", subsetEM[10, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[11, "miss_season"], "_missQ_", subsetEM[11, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[12, "miss_season"], "_missQ_", subsetEM[12, "miss_q"]), "EMinput.Rds"))
+  
+  # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+  foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+    simTestWHAM(nsim = 2,
+                OM = testOM,
+                inputEMlist = list(EM_BOTH_NoEcov, EM_ONE_NoEcov, EM_NONE_NoEcov,
+                                   EM_BOTH_Ecov, EM_ONE_Ecov, EM_NONE_Ecov,
+                                   EM_BOTH_qRand, EM_ONE_qRand, EM_NONE_qRand,
+                                   EM_BOTH_qRandEcov, EM_ONE_qRandEcov, EM_NONE_qRandEcov), # Run all EMs fit to same OM data
+                outdir = omdir) # Save in OM directory
+  } # End foreach loop over sims
 } # End loop over OMs
 
 
@@ -402,3 +396,6 @@ postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 # mkdir(here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
 # library(DataExplorer)
 # plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
+
+
+
