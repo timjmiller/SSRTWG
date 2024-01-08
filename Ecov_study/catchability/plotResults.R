@@ -166,15 +166,20 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
   
   mohnsRho_SSB <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_SSB)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
-    geom_hline(aes(yintercept = 0), color="red")
+    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_SSB, fill = EMshortName)) + facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect, Fhist)) + # Facet by OM settings
+    geom_hline(aes(yintercept = 0), color="red") +
+    scale_fill_grey(start = 0.45, end = 1.0) +
+    theme(axis.text.x = element_blank()) +
+    labs(fill = "EM",
+         x="test",
+         y="confirm")
     # ggtitle("OM_ecov_process_sig")
   ggsave(mohnsRho_SSB, filename = here::here(outfile, "mohnsRho_SSB.png"), width = 20)
   
   # MohnsRho_F
   mohnsRho_F <- singleResults %>%
     ggplot()+
-    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_F)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
+    geom_boxplot(aes(x=EMshortName, y=EM_MohnsRho_F, fill = EMshortName)) + facet_grid(. ~ OM_ecov_process_sig + OM_ecov_process_cor + OM_ecov_process_obs_sig + ageComp_sig + log_index_sig + OM_ecov_effect) + # Facet by OM settings
     geom_hline(aes(yintercept = 0), color="red")
   ggsave(mohnsRho_F, filename = here::here(outfile, "mohnsRho_F.png"), width = 20)
   
@@ -546,6 +551,11 @@ plotResults <- function(results = NULL, convergedONLY = TRUE, outfile = here::he
     geom_hline(yintercept = 1, color = "red") + geom_vline(xintercept = 1, color = "red")
   ggsave(SSB_F_terminal, filename = here::here(outfile, "SSB_F_terminal.png"), width = 20)
   
+  
+  
+  # Plot indices: EM_agg_ind1, EM_agg_ind2, EM_ind1_paa, EM_ind2_paa, OM_agg_ind1, OM_agg_ind2, OM_ind1_paa, OM_ind2_paa
+  
+
   # Terminal year kobe plot
   kobe_terminal <- results %>% filter(Year == 40) %>%
     ggplot() + 
