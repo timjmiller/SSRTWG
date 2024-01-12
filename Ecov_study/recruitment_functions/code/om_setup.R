@@ -57,8 +57,10 @@ index_sigma = c(L = 0.1, H = 0.4) #(log) index SDs for L/H observation error
 n.mods       <- dim(df.oms)[1] 
 df.oms$Model <- paste0("om_",1:n.mods)
 df.oms       <- df.oms %>% select(Model, everything()) # moves Model to first col
-saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
 
+source(file.path(here(),"Ecov_study","recruitment_functions","code","beta_standardization.r"))
+
+saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
 
 gf_info = make_basic_info()
 

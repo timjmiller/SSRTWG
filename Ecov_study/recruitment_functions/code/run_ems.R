@@ -32,7 +32,7 @@ run_iter <- function(sim, om, em){
 }
 
 #x <- detectCores()      
-sfInit(parallel=TRUE, cpus=4)
+sfInit(parallel=TRUE, cpus=16)
 
 #for(om in 1:nrow(df.oms)){
 #for(om in 1:1){
