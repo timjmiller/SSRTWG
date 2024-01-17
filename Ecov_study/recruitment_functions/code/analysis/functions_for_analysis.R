@@ -8,8 +8,8 @@
 #tim's convergence check code, additions from liz
 # convergence IF out[1] == 1; out[2] ==0; out[3]==0; out[4]<max.grad.threshold; out[5]< not too big;
 convergence_fn <- function(em=NULL){
-  out <- rep(NA,11) #convergence type  1, and 2
-  names(out) <- c("opt", "conv", "sdrep", "max_grad", "SE_par_max", "CV_par_max","SE_par_max_name", "SE_par_max2","CV_par_max", "SE_par_max2_name", "max_grad_name")
+  out <- rep(NA,9) #convergence type  1, and 2
+  names(out) <- c("opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2", "SE_par_max2_name", "max_grad_name")
   if(!is.character(em)) {
     if(!is.null(em$fit$opt)) {
       out[1] <- 1 
@@ -21,7 +21,6 @@ convergence_fn <- function(em=NULL){
       maxs <- sapply(em$fit$sdrep$SE_par, function(g) ifelse(any(!is.na(g)), max(g,na.rm=TRUE), NA))
       out[5] <- ifelse(any(!is.na(maxs)), max(maxs, na.rm =TRUE), NA)
       if(!is.na(out[5]) )  {
-        out[6] <- out[5]/em$fit$sdrep$Estimate_par[ names(which(maxs==out[5]))]
         out[6] <- names(which(maxs==out[5]))
         out[7] <- sort(maxs, decreasing=TRUE) [2]
         out[8] <- names(sort(maxs, decreasing=TRUE)) [2]
@@ -64,12 +63,14 @@ mohns_rho_set_peel <- function (model=NULL, npeels=NULL, ny=NULL, na=NULL)
 #   Collect AIC and convergence info across OMs, EMs, Sims  ====
 #=======================================================================================
 
-get_aic_convergence_info <- function(df.oms=NULL, df.ems=NULL, nsims=NULL, res.path=NULL, save.rds=TRUE, save.path=NULL)  {
+get_aic_convergence_info <- function(df.oms=NULL, df.ems=NULL, nsims=NULL, res.path=NULL, 
+                                     save.rds=TRUE, save.suffix=NULL, save.path=NULL)  {
   # df.oms is dataframe of om specs
   # df.ems is dataframe of em specs
   # nsims is the number of simulated iterations of each om
   # res.path is the path to the results directory where each om is a subdirectory (ex:here::here("Ecov_study", 'recruitment_functions', 'results') )
   # save.rds (T/F) save the results as RDS file? (default=TRUE)
+  # save.suffix is appended at very end of filename (before extension) to distinguish cases
   # save.path is the path to the directory where you want to save results
   
   if(!dir.exists(save.path))  dir.create(save.path)
@@ -78,20 +79,22 @@ get_aic_convergence_info <- function(df.oms=NULL, df.ems=NULL, nsims=NULL, res.p
   nsim.all <- nrow(df.oms)*nrow(df.ems)*nsims
   
   
-  AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+22))
+  AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+18))
   colnames(AIC) <- c('sim',colnames(df.oms),'aic_pick', 'daic_next', 'daic_last', 
                      'correct_form','correct_ecov', 'correct_SR', 'EM_ecov', 'EM_SR',
-                     "opt", "conv", "sdrep", "max_grad", "SE_par_max", "CV_par_max", "SE_par_max_name",  "SE_par_max2", "CV_par_max2", "SE_par_max2_name", "max_grad_name")
+                     "opt", "conv", "sdrep", "max_grad", "SE_par_max",  "SE_par_max_name",  "SE_par_max2",  "SE_par_max2_name", "max_grad_name")
   
-  AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(22+ncol(df.oms))) )
+  AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(18+ncol(df.oms))) )
   colnames(AIC_weight) <- c('sim','OM','EM', 'EM_ecov_how', 'EM_r_mod','AIC', 'dAIC', 'AIC_rank', 'Model_prob',
-                            "opt", "conv", "sdrep", "max_grad", "SE_par_max", "CV_par_max","SE_par_max_name", "SE_par_max2", "CV_par_max2", "SE_par_max2_name", "max_grad_name" , colnames(df.oms))
+                            "opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2",  "SE_par_max2_name", "max_grad_name" , colnames(df.oms))
+  
+
   
  t1<- Sys.time() 
   
 k <- 1
 for(om in 1:nrow(df.oms)){
-  # print(paste0("OM = ",om))
+  print(paste0("OM = ",om, "out of ", nrow(df.oms)))
     # get aic ====
   for(sim in 1:nsims){
       DAT <- sapply(1:nrow(df.ems), function(em){
@@ -115,6 +118,7 @@ for(om in 1:nrow(df.oms)){
       }
       conv.info
     }    )
+    
     
     em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
                         df.ems$r_mod==df.oms$recruit_mod[om])                     #1 if ecov_how AND r_mod match for EM and OM
@@ -144,11 +148,12 @@ for(om in 1:nrow(df.oms)){
      k <- k + 1
      
     } # end sim loop
-  } # end k loop
+  
+  } # end om loop (k)
 
 if (save.rds==T) {
-  saveRDS(AIC,file.path(save.path,'AIC.rds'))
-  saveRDS(AIC_weight,file.path(save.path,'AIC_weight.rds'))
+  saveRDS(AIC,file.path(save.path, paste0('AIC', save.suffix, '.rds')) )
+  saveRDS(AIC_weight,file.path(save.path, paste0('AIC_weight',  save.suffix,'.rds'))  )
   
 }
 t2<- Sys.time() 
