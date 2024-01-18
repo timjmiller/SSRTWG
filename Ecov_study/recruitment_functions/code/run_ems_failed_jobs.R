@@ -22,10 +22,10 @@ source(file.path(here(),"Ecov_study","recruitment_functions","code","get_failed_
 
 XX <- as.data.frame(fail.list[[om]]$iter_em)
 fail.list[[om]]$iter_em <- dplyr::filter(XX,em.fails==6)
-
-sfExportAll()
 fails <- fail.list[[om]]
+
 if(fails$nfails>0){
+  sfExportAll()
   trash <- sfLapply(1:fails$nfails, function(x) run_iter(fails$iter_em[x,1],om,fails$iter_em[x,2]))
 }
 
