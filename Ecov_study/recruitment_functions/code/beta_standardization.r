@@ -44,48 +44,48 @@ df.oms$beta_std <-
 })
 
 
-# dRdX_plot <- function(beta,form,sdX,SSBMSY){
-#   if(form==2) return((l(SSBMSY,sdX,a,b,beta)  - l(SSBMSY,-sdX,a,b,beta))/(2*sdX))
-#   if(form==4) return((m(SSBMSY,sdX,a,b,beta)  - m(SSBMSY,-sdX,a,b,beta))/(2*sdX))
-#   if(form==1) return((cc(SSBMSY,sdX,a,b,beta)  - cc(SSBMSY,-sdX,a,b,beta))/(2*sdX))
-# }
-# 
-# 
-# ssbs <- seq(0,SSBMSY*2,length.out=1000)
-# par(mfrow=c(3,2),mar=c(3,3,2,2),oma=c(4,4,2,2))
-# plot(ssbs,dRdX_plot(beta=0.02395846,form=1,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
-# mtext(line=0,'0.076',cex=0.7)
-# abline(v=SSBMSY,lty=2)
-# abline(h=c0_low,lty=2)
-# mtext(side=2,line=2.5,expression(Delta*'R/'*Delta*'sd(X)'),cex=0.7)
-# plot(ssbs,dRdX_plot(beta=0.23492231,form=1,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
-# mtext(line=0,'0.453',cex=0.7)
-# abline(v=SSBMSY,lty=2)
-# abline(h=c0_high,lty=2)
-# 
-# 
-# plot(ssbs,dRdX_plot(beta=-0.03147883,form=2,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
-# abline(v=SSBMSY,lty=2)
-# abline(h=c0_low,lty=2)
-# mtext(line=0,'-0.032',cex=0.7)
-# mtext(side=2,line=2.5,expression(Delta*'R/'*Delta*'sd(X)'),cex=0.7)
-# plot(ssbs,dRdX_plot(beta=-0.30894587,form=2,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
-# abline(v=SSBMSY,lty=2)
-# abline(h=c0_high,lty=2)
-# mtext(line=0,-0.309,cex=0.7)
-# 
-# 
-# plot(ssbs,dRdX_plot(beta=-0.09997604,form=4,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
-# abline(v=SSBMSY,lty=2)
-# abline(h=c0_low,lty=2)
-# mtext(line=0,'-0.100',cex=0.7)
-# mtext('SSB',side=1,line=2.5,cex=0.7)
-# mtext(side=2,line=2.5,expression(Delta*'R/'*Delta*'sd(X)'),cex=0.7)
-# plot(ssbs,dRdX_plot(beta=-0.98153068,form=4,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
-# abline(v=SSBMSY,lty=2)
-# abline(h=c0_high,lty=2)
-# mtext(line=0,'-1.00',cex=0.7)
-# mtext('SSB',side=1,line=2.5,cex=0.7)
+dRdX_plot <- function(beta,form,sdX,SSBMSY){
+  if(form==2) return((l(SSBMSY,sdX,a,b,beta)  - l(SSBMSY,-sdX,a,b,beta))/(2*sdX))
+  if(form==4) return((m(SSBMSY,sdX,a,b,beta)  - m(SSBMSY,-sdX,a,b,beta))/(2*sdX))
+  if(form==1) return((cc(SSBMSY,sdX,a,b,beta)  - cc(SSBMSY,-sdX,a,b,beta))/(2*sdX))
+}
+
+
+ssbs <- seq(0,SSBMSY*2,length.out=1000)
+par(mfrow=c(3,2),mar=c(3,3,2,2),oma=c(4,4,2,2))
+plot(ssbs,dRdX_plot(beta=0.02395846,form=1,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
+mtext(line=0,'0.076',cex=0.7)
+abline(v=SSBMSY,lty=2)
+abline(h=c0_low,lty=2)
+mtext(side=2,line=2.5,expression(Delta*'R/'*Delta*'sd(X)'),cex=0.7)
+plot(ssbs,dRdX_plot(beta=0.23492231,form=1,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
+mtext(line=0,'0.453',cex=0.7)
+abline(v=SSBMSY,lty=2)
+abline(h=c0_high,lty=2)
+
+
+plot(ssbs,dRdX_plot(beta=-0.03147883,form=2,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
+abline(v=SSBMSY,lty=2)
+abline(h=c0_low,lty=2)
+mtext(line=0,'-0.032',cex=0.7)
+mtext(side=2,line=2.5,expression(Delta*'R/'*Delta*'sd(X)'),cex=0.7)
+plot(ssbs,dRdX_plot(beta=-0.30894587,form=2,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
+abline(v=SSBMSY,lty=2)
+abline(h=c0_high,lty=2)
+mtext(line=0,-0.309,cex=0.7)
+
+
+plot(ssbs,dRdX_plot(beta=-0.1,form=4,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
+abline(v=SSBMSY,lty=2)
+abline(h=c0_low,lty=2)
+mtext(line=0,'-0.100',cex=0.7)
+mtext('SSB',side=1,line=2.5,cex=0.7)
+mtext(side=2,line=2.5,expression(Delta*'R/'*Delta*'sd(X)'),cex=0.7)
+plot(ssbs,dRdX_plot(beta=-1,form=4,sdX=1,SSBMSY=ssbs),xlab='SSB',ylab='',type='l')
+abline(v=SSBMSY,lty=2)
+abline(h=c0_high,lty=2)
+mtext(line=0,'-1.00',cex=0.7)
+mtext('SSB',side=1,line=2.5,cex=0.7)
 
 
 
