@@ -24,7 +24,7 @@ XX <- as.data.frame(fail.list[[om]]$iter_em)
 fail.list[[om]]$iter_em <- dplyr::filter(XX,em.fails==6)
 fails <- fail.list[[om]]
 
-if(fails$nfails>0){
+if(nrow(fails$iter_em)>0){
   sfExportAll()
   trash <- sfLapply(1:fails$nfails, function(x) run_iter(as.integer(fails$iter_em[x,1]),
                                                          as.integer(om),
