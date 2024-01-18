@@ -16,9 +16,9 @@ run_iter <- function(sim, om, em){
   system(cmd)
 }
 
-sfInit(parallel=TRUE, cpus=4)
-
 source(file.path(here(),"Ecov_study","recruitment_functions","code","get_failed_jobs.R"))
+
+sfInit(parallel=TRUE, cpus=4)
 
 XX <- as.data.frame(fail.list[[om]]$iter_em)
 fail.list[[om]]$iter_em <- dplyr::filter(XX,em.fails==6)
@@ -26,7 +26,7 @@ fails <- fail.list[[om]]
 
 if(nrow(fails$iter_em)>0){
   sfExportAll()
-  trash <- sfLapply(1:fails$nfails, function(x) run_iter(as.integer(fails$iter_em[x,1]),
+  trash <- sfLapply(1:nrow(fails$iter_em), function(x) run_iter(as.integer(fails$iter_em[x,1]),
                                                          as.integer(om),
                                                          as.integer(fails$iter_em[x,2])))
 }
