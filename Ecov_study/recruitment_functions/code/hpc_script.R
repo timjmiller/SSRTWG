@@ -11,6 +11,8 @@ library(here)
 source(file.path(here::here(), "Ecov_study", "recruitment_functions", "code", "sim_management.R"))
 #verify_version()
 
+rds.fn = file.path(here::here(), "Ecov_study", "recruitment_functions", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
+
 om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
 em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "em_inputs.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
@@ -61,6 +63,8 @@ ompars$par2 <- sapply(unique(ompars$par), function(x) {
 }) %>% unlist
 res <- list(truth = truth, model=model, ompars=ompars)
 res$fit <- list()
+
+saveRDS(res, file = rds.fn)
 
 ## Build test object to test for initial 0 gradients?
 test <- fit_wham(EM_input, do.fit=FALSE, do.sdrep=F, do.osa=F, do.retro=F, do.proj=F, MakeADFun.silent=TRUE)
@@ -200,6 +204,5 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   res$empars <- empars
 }
 
-rds.fn = file.path(here::here(), "Ecov_study", "recruitment_functions", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
 saveRDS(res, file = rds.fn)
 cat(paste0("END OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
