@@ -312,10 +312,11 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # Set up parallelization
 numCore <- detectCores()
 
-registerDoParallel(numCore-10) # Don't use 2 of the cores
+registerDoParallel(25) # Don't use 2 of the cores
 
 ##### Simulations with range of ecov beta values
-subsetOM <- OMsetup %>% filter(OMname > 19) # Incomplete runs: 19, 
+subsetOM <- OMsetup %>% filter(OMname== 249) # Incomplete runs: 247  # 35, 51, 59, 65, 227, 335, 215, 205, 195, 229, 161, 117, 69, 263, 192, 186, 189, 136, 96, 257, 165, 252, 254 check 36/37 # Start 165 and 253 in different runs
+# subsetOM <- OMsetup %>% filter(OMname > 247 & OMname < 250)
 subsetEM <- EMsetup #%>% filter(miss_season == "NONE" | miss_season == "BOTH") # none or both seasons q misspecified
 
 
@@ -343,7 +344,7 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
   EM_NONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[12, "miss_season"], "_missQ_", subsetEM[12, "miss_q"]), "EMinput.Rds"))
   
   # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-  foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+  foreach(isim = 1:10) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
     simTestWHAM(nsim = 2,
                 OM = testOM,
                 inputEMlist = list(EM_BOTH_NoEcov, EM_ONE_NoEcov, EM_NONE_NoEcov,
@@ -357,17 +358,57 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 
 
 
-##### Check performance of above OMs with a range of ecov beta parameters
+##### Post-process results
 # Find all result files 
-
 filenames <- list.files(path = here::here(paste0("Ecov_study/catchability/Results")), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 
-
 # Set storage directory
-outdir = here::here("Ecov_study/catchability")
+outdir = here::here("Ecov_study/catchability/Results/parallel_process")
 
 # Post-process results
-postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
+registerDoParallel(40)
+# for(idir in 1:length(seq(1150, 4100, by = 50))){ # Store results in sequence named folders to allow debugging if one parallel run doesn't complete
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", seq(1150, 4100, by = 50)), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+# for(idir in 1:length(c(seq(5800, 6800, by = 50), head(seq(7850, length(filenames), by = 50),-1)))){
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", c(seq(5800, 6800, by = 50), head(seq(7850, length(filenames), by = 50),-1))), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+# for(idir in 1:length(c(seq(1, 1100, by = 50), seq(4150, 5750, by = 50), seq(6850, 7800, by = 50)))){
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", c(seq(1, 1100, by = 50), seq(4150, 5750, by = 50), seq(6850, 7800, by = 50))), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+# foreach(ifile = seq(1150, 4100, by = 50)) %dopar% { 
+# foreach(ifile = c(seq(5800, 6800, by = 50), head(seq(7850, length(filenames), by = 50),-1))) %dopar% {
+#foreach(ifile = c(seq(1, 1100, by = 50), seq(4150, 5750, by = 50), seq(6850, 7800, by = 50))) %dopar% {
+
+# for(idir in 1:length(head(seq(1, length(filenames), by=50), -1))){
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", head(seq(1, length(filenames), by=50), -1)), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+#foreach(ifile = head(seq(1, length(filenames), by=50), -1)) %dopar% {
+foreach(ifile = c(9201, 9251, 9301, 9351, 9401, 9451, 9501, 9551)) %dopar% {
+  print(paste0("ifile ", ifile))
+  postprocess_simTestWHAM(filenames =  c(filenames[ifile:(ifile+49)]), outdir = paste0(outdir,"/process_", ifile))
+}
+postprocess_simTestWHAM(filenames =  c(filenames[tail(seq(1, length(filenames), by = 50), n=1):length(filenames)]), outdir = paste0(outdir,"/process_", 9601)) # Last files may be less than 50 interval so processed independently
+postprocess_simTestWHAM(filenames = c(filenames[9152:9200], filenames[9151]), outdir = paste0(outdir,"/process_", 9151))
+postprocess_simTestWHAM(filenames = c(filenames[9552:9600], filenames[9551]), outdir = paste0(outdir,"/process_", 9551))
+
+parallel_processed <-  list.files(path = here::here(paste0("Ecov_study/catchability/Results/parallel_process")), pattern = "perfMet_", recursive = TRUE, full.names = TRUE)
+
+# Check that all blocks of files have been processed
+check <- parallel_processed %>% strsplit(., "/", fixed = TRUE) %>% unlist() %>% matrix(ncol = 11, byrow = T) %>% as.data.frame()
+check <- check[,10] %>% strsplit("process_", fixed = TRUE) %>% unlist() %>% matrix(ncol = 2, byrow = TRUE)
+check <- check[,2] %>% as.numeric() 
+seq(1, length(filenames), by=50)[-which(check %in% seq(1, length(filenames), by=50))] # if numeric(0) then finished processing
+
+# Aggregate processed files
+combinePerfMet(filenames = parallel_processed, outdir = outdir)
+
+
+
 
 # # Plot
 # perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-21_16-12-53.647033.RDS")) 
