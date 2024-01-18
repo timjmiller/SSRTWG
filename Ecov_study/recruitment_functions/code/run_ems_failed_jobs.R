@@ -5,8 +5,6 @@ library(snowfall)
 library(doParallel)
 library(here)
 
-nsim <- 100
-
 om_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
 em_inputs <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "em_inputs.RDS"))
 df.ems    <- readRDS(file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
@@ -21,6 +19,9 @@ run_iter <- function(sim, om, em){
 sfInit(parallel=TRUE, cpus=4)
 
 source(file.path(here(),"Ecov_study","recruitment_functions","code","get_failed_jobs.R"))
+
+XX <- as.data.frame(fail.list[[om]]$iter_em)
+fail.list[[om]]$iter_em <- dplyr::filter(XX,em.fails==6)
 
 sfExportAll()
 fails <- fail.list[[om]]
