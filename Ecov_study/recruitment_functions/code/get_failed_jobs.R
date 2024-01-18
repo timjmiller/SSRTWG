@@ -6,7 +6,7 @@ df.oms    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions
 n.em <- nrow(df.ems)
 n.om <- nrow(df.oms)
 om.names <- paste0("om", seq(1,n.om))
-iters <- seq(1,50)
+iters <- seq(1,100)
 n.iter <- length(iters)
 n.iter.em <- n.iter*n.em
 
