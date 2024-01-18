@@ -26,7 +26,9 @@ fails <- fail.list[[om]]
 
 if(fails$nfails>0){
   sfExportAll()
-  trash <- sfLapply(1:fails$nfails, function(x) run_iter(fails$iter_em[x,1],om,fails$iter_em[x,2]))
+  trash <- sfLapply(1:fails$nfails, function(x) run_iter(as.integer(fails$iter_em[x,1]),
+                                                         as.integer(om),
+                                                         as.integer(fails$iter_em[x,2])))
 }
 
 sfStop()
