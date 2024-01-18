@@ -3,9 +3,8 @@ args = commandArgs(trailingOnly=TRUE)
 simi = as.integer(args[1])
 omj  = as.integer(args[2])
 emk  = as.integer(args[3])
-#simi <- 1; omj <- 1; emk <- 2
 
-set.seed(simi)
+set.seed(simi)  #set seed according to simulation number
 
 library(wham)
 library(here)
@@ -37,8 +36,7 @@ yrs.avg    <- 5  # will be used to average ecov and bio pars
 #######################################################
 cat(paste0("START OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
 
-#write.dir <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results", paste0("om", omj))
-write.dir <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results_beta", paste0("om", omj))
+write.dir <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results", paste0("om", omj))
 dir.create(write.dir, recursive = T, showWarnings = FALSE)
 
 om                 <- fit_wham(om_inputs[[omj]], do.fit = FALSE, MakeADFun.silent = TRUE)
@@ -202,7 +200,6 @@ if(!'err' %in% names(fit) & class(fit) != "character"){
   res$empars <- empars
 }
 
-#rds.fn = file.path(here::here(), "Ecov_study", "recruitment_functions", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
-rds.fn = file.path(here::here(), "Ecov_study", "recruitment_functions", "results_beta", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
+rds.fn = file.path(here::here(), "Ecov_study", "recruitment_functions", "results", paste0("om", omj), paste0("sim", simi, "_em", emk, ".RDS"))
 saveRDS(res, file = rds.fn)
 cat(paste0("END OM: ", omj, " Sim: ", simi, " EM: ", emk, "\n"))
