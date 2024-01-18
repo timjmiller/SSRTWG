@@ -1,0 +1,61 @@
+---
+title: "Workflow for Ecov Recruitment Analysis"
+output: html_notebook
+---
+
+<!-- This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.  -->
+
+<!-- Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.  -->
+
+# Project 3 for the SSRTWG investingating the incorporation of environmental covariates into WHAM recruitment models.
+
+1. Create dataframes that have AIC info and convergence info: run **AIC_dataframe.R** to produce
+   + *AIC_all.RDS* contains AIC and convergence info for the best EM only (lowest AIC) per OM-Sim
+   + *AIC_weight.RDS* contains AIC, convergence, model rank, model weight, model probability info for all EMs per OM-Sim
+  
+2. Specify convergence tolerances/thresholds in **convergence_summaries.R**
+   + bad.grad.value : cut-off for identifying parameters with abs(gradient)>bad.grad.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
+   + bad.se.value : cut-off for identifying parameter where SE_par_max>bad.se.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
+   + given this, output is produced using bad.grad.value and bad.se.value appended to plot and table names to identify the tolerances
+     + plots of number of bad models (from the best set, and from all EMs per OM-Sim)
+     + plots of parameters that failed the bad.grad or bad.se criteria
+    
+3. Generate regression trees to characterize factors influencing model identifiability; run **AIC_regression.R**
+   + ...
+   
+4. Look at bias in SSB, Recr, Fbar
+   + ...
+
+5. Look at bias in SR_a, SR_b, sigmaR, rho_R, sigmaEcov, rho_Ecov
+   + ...
+   
+  
+
+
+-----
+
+# Figures  
+
+-----
+
+
+
+<!-- ![Number of bad models among the set of 'best' (lowest) AIC per OM-Sim ](figures/img.png) -->
+
+<!-- ![Parameters with largest gradient or SE ](figures/img.png) -->
+
+
+
+
+
+
+
+<!-- ```{r} -->
+<!-- plot(cars) -->
+<!-- ``` -->
+
+<!-- Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*. -->
+
+<!-- When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file). -->
+
+<!-- The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed. -->
