@@ -26,7 +26,7 @@ for (i in 1:n.om) {
   if(length(fails)==0) fail.list[[i]] <- NA
   
   if(length(fails>0)) {
-    om.fails <- as.numeric(substr(om.names[i], 3, nchar(_) ) )
+    om.fails <- as.numeric(substr(om.names[i], 3, nchar(om.names[i]) ) )
     tmp <- strsplit(sim.names[fails], split="_")
     iter.fails <- as.numeric(c(unlist(lapply(tmp, function(x) {substr(x[1], 4, nchar(x[1]) ) }))) )
     em.fails <- as.numeric(c(unlist( lapply(tmp, function(x) {substr(x[2], 3, 3 ) }))  ) )
