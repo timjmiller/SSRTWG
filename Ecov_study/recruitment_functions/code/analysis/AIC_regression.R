@@ -10,23 +10,25 @@ bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for 
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
 bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
-res.dir <- 'results'       # results folder where AIC dataframes are
-plot.dir <- 'plots'
-plot.suffix <- '_beta_fix'
+ 
+res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
+
 
 
 ## get converged runs with these thresholds
-AIC_best <- readRDS( file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, ".RDS")  ) )  # EM with lowest AIC per OM-Sim (that converged)
-AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, ".RDS")  ))  # info for all EMs per OM-Sim
+AIC_best <- readRDS( file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )  # EM with lowest AIC per OM-Sim (that converged)
+AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ))  # info for all EMs per OM-Sim
 
-AIC_best_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,'AIC.rds')) #includes non=converged runs
+AIC_best_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC', plot.suffix, '.rds')) )#includes non=converged runs
 aic.best.n <- nrow(AIC_best_all)
 aic.best.n.conv <- nrow(AIC_best)
 aic.best.n.bad <- aic.best.n - aic.best.n.conv
 aic.best.pct.conv <- aic.best.n.conv/aic.best.n
 
 
-AIC_weight_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,'AIC_weight.rds')) #includes non=converged runs
+AIC_weight_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC_weight', plot.suffix, '.rds')) )#includes non=converged runs
 
 aic.weight.n <- nrow(AIC_weight_all)
 aic.weight.n.conv <- nrow(AIC_weight)
@@ -60,7 +62,7 @@ AIC_best$Ecov_re_cor <- factor(AIC_best$Ecov_re_cor,labels=c("L","H"))
 rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_best, control=rpart.control(cp=0.01))
 imp.var <- rf_SR$frame[rf_SR$frame$var != '<leaf>',]
 nodes_SR <- unique(imp.var[,1])
-# "Fhist"   "R_sig"   "NAA_cor"
+# "Fhist"   "R_sig"   
 
 rf_ecov   <- rpart(correct_ecov   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_best, control=rpart.control(cp=0.01))
 imp.var <- rf_ecov$frame[rf_ecov$frame$var != '<leaf>',]
@@ -74,7 +76,7 @@ nodes_form <- unique(imp.var[,1])
 # "R_sig"       "Fhist"       "Ecov_how"    "Ecov_effect"
 
 
-pdf(file.path(here(),'Ecov_study','recruitment_functions',plot.dir,paste0('reg_tree_AIC_best', plot.suffix, '.pdf') ),
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions',plot.dir,paste0('reg_tree_AIC_best', plot.suffix, '.pdf') ),
     height=4,width=7)
 par(mfrow=c(1,3), oma=c(5,0,0,0))
 prp(rf_SR,yesno=FALSE,type=4,clip.right.labs=TRUE)
@@ -109,12 +111,10 @@ imp.var <- rf_AIC_rank$frame[rf_AIC_rank$frame$var != '<leaf>',]
 nodes_AIC_rank <- unique(imp.var[,1])
 #"R_sig"
 
-
-
 rf_Model_prob <- rpart(Model_prob ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_weight, control=rpart.control(cp=0.01))
 imp.var <- rf_Model_prob$frame[rf_Model_prob$frame$var != '<leaf>',]
 nodes_Model_prob <- unique(imp.var[,1])
-#"R_sig"
+#"Fhist"
 
 
 pdf(file.path(here(),'Ecov_study','recruitment_functions',plot.dir,paste0('reg_tree_AIC_prob', plot.suffix, '.pdf') ),
@@ -130,12 +130,16 @@ mtext('c) Model probability',adj=0,line=2.5, cex=0.9)
 
 dev.off()
 
+##############################
+# i thought i could automate summaries below with expressions, but this isn't working out...this chunk does nothing for now
 most.nodes <- nodes_dAIC
 if(length(nodes_AIC_rank)>length(most.nodes) ) most.nodes<- nodes_AIC_rank
 if(length(nodes_Model_prob)>length(most.nodes) ) most.nodes<- nodes_Model_prob
 
 nodes.expr <- sapply(most.nodes, as.expression)
 sapply(nodes.expr, eval)
+##############################
+
 
 # summarize mean model probability ====
 AIC_w_mean <- as_tibble(AIC_weight) %>%
@@ -155,15 +159,7 @@ AIC_w_mean <- as_tibble(AIC_weight) %>%
   left_join(em_tib)
 
 
-# AIC_w_merge <- as_tibble(AIC_weight) %>%
-#   left_join(AIC_w_mean) 
-# 
-# AIC_w_merge$R_sig <- factor(AIC_w_merge$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
-# AIC_w_merge$Ecov_effect <- factor(AIC_w_merge$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
-# AIC_w_merge$Ecov_how    <- factor(AIC_w_merge$Ecov_how,labels=c("0", "1","2","4"))
-# AIC_w_merge$NAA_cor     <- factor(AIC_w_merge$NAA_cor,labels=c("L","H"))
-# AIC_w_merge$Fhist       <- factor(AIC_w_merge$Fhist,labels=c("H-MSY","MSY") ) 
-# AIC_w_merge$Ecov_re_cor <- factor(AIC_w_merge$Ecov_re_cor,labels=c("L","H"))
+
 
 AIC_w_mean$R_sig <- factor(AIC_w_mean$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
 # AIC_w_mean$Ecov_effect <- factor(AIC_w_mean$Ecov_effect,labels=c("Ecov_L", "Ecov_H"))
@@ -174,13 +170,13 @@ AIC_w_mean$Fhist       <- factor(AIC_w_mean$Fhist,labels=c("H-MSY","MSY") )
 
 
 
-mod.prob.plot <- ggplot(AIC_w_mean, aes(x=EM_mod, y=mean.prob, col=as.factor(mod.match) )) +
+mod.prob.plot <- ggplot(AIC_w_mean, aes(x=EM_mod, y=median.prob, col=as.factor(mod.match) )) +
   facet_grid(R_sig  + Ecov_how~ Fhist  +NAA_cor  ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.5, col='grey55') +
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.5, col='grey35', linewidth=0.6) +
   # geom_errorbar(aes(ymin=(mean.prob-2*sqrt(var.prob)), ymax=(mean.prob+2*sqrt(var.prob)), width=.4) )+
   # ylab('Model Probability (Mean +/- 2 std)') +
-  geom_errorbar(aes(ymin=(Model_prob_p2.5), ymax=(Model_prob_p97.5), width=.4) )+
+  geom_errorbar(aes(ymin=(Model_prob_p2.5), ymax=(Model_prob_p97.5), width=.75) )+
   ylab('Model Probability (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -196,14 +192,14 @@ mod.prob.plot <- ggplot(AIC_w_mean, aes(x=EM_mod, y=mean.prob, col=as.factor(mod
 ggsave(mod.prob.plot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir,paste0('model_probability', plot.suffix, '.png') ),  height=7, width=12)
 
 
-dAIC.plot <- ggplot(AIC_w_mean, aes(x=EM_mod, y=mean.daic, col=as.factor(mod.match) )) +
+dAIC.plot <- ggplot(AIC_w_mean, aes(x=EM_mod, y=median.daic, col=as.factor(mod.match) )) +
   facet_grid(R_sig+Ecov_how ~ Fhist +NAA_cor    ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=2, col='grey55') +
-  geom_errorbar(aes(ymin=(mean.daic-2*sqrt(var.daic)), ymax=(mean.daic+2*sqrt(var.daic)), width=.4) )+
-#  geom_errorbar(aes(ymin=(dAIC_p2.5), ymax=(dAIC_p97.5), width=.4) )+
-  # ylab('Model Probability (2.5 - 50 - 97.5 percentiles)') +
-  ylab('Model Probability (Mean +/- 2 std)') +
+  geom_point(size=2.5) +
+  geom_hline(yintercept=2, col='grey35', linewidth=0.6) +
+  # geom_errorbar(aes(ymin=(mean.daic-2*sqrt(var.daic)), ymax=(mean.daic+2*sqrt(var.daic)), width=.75) )+
+  # ylab('dAIC (Mean +/- 2 std)') +
+  geom_errorbar(aes(ymin=(dAIC_p2.5), ymax=(dAIC_p97.5), width=.75) )+
+  ylab('dAIC (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
   theme(strip.text = element_text(colour = 'black', size=11)) +
@@ -219,14 +215,14 @@ ggsave(dAIC.plot, filename=file.path(here(),'Ecov_study','recruitment_functions'
 
 
 
-dAIC.plot.ylim <- ggplot(AIC_w_mean, aes(x=EM_mod, y=mean.daic, col=as.factor(mod.match) )) +
+dAIC.plot.ylim <- ggplot(AIC_w_mean, aes(x=EM_mod, y=median.daic, col=as.factor(mod.match) )) +
   facet_grid(R_sig+Ecov_how ~ Fhist+NAA_cor  ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=2, col='grey55') +
-  geom_errorbar(aes(ymin=(mean.daic-2*sqrt(var.daic)), ymax=(mean.daic+2*sqrt(var.daic)), width=.4) )+
-  #  geom_errorbar(aes(ymin=(dAIC_p2.5), ymax=(dAIC_p97.5), width=.4) )+
-  # ylab('Model Probability (2.5 - 50 - 97.5 percentiles)') +
-  ylab('Model Probability (Mean +/- 2 std)') +
+  geom_point(size=2.5) +
+  geom_hline(yintercept=2, col='grey35', linewidth=0.6) +
+  # geom_errorbar(aes(ymin=(mean.daic-2*sqrt(var.daic)), ymax=(mean.daic+2*sqrt(var.daic)), width=.4) )+
+  # ylab('dAIC (Mean +/- 2 std)') +
+   geom_errorbar(aes(ymin=(dAIC_p2.5), ymax=(dAIC_p97.5), width=.75) )+
+  ylab('dAIC (2.5 - 50 - 97.5 percentiles)') +
   coord_cartesian(ylim=c(0,10) ) +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
