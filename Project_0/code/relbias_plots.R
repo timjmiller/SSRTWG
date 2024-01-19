@@ -184,7 +184,7 @@ M_om_df.ems <- get_df_ems("M")
 Sel_om_df.ems <- get_df_ems("Sel")
 q_om_df.ems <- get_df_ems("q")
 
-make_plot_df <- function(type = "naa", res = all_naa_om_relssb, is_SE = FALSE) {
+make_plot_df <- function(type = "naa", res = all_naa_om_relssb, is_SE = FALSE, ylims = c(-0.4,0.4)) {
   library(reshape2)
   res <- melt(res)
   names(res) <- c("year", "column", "value", "em", "sim","om")
@@ -211,6 +211,7 @@ make_plot_df <- function(type = "naa", res = all_naa_om_relssb, is_SE = FALSE) {
   }
   print(head(df.oms))
   df <- df %>% pivot_wider(names_from = type, values_from = stats) %>% as.data.frame
+  df$outside <- df$ymax < min(ylims) | df$ymin > max(ylims)
   df$em_pe = df.ems$pe#[df$em]
   df <- cbind(df, df.ems[df$em,])
   df <- cbind(df, df.oms[df$om,])
@@ -265,201 +266,288 @@ library(dplyr)
 library(tidyr)
 all_naa_om_relssb <- readRDS(file = here("Project_0","results", "all_naa_relssb_results.RDS"))
 library(reshape2)
-temp <- melt(all_naa_om_relssb)
-names(temp) <- c("year", "column", "value", "em", "sim","om")
-temp <- temp %>% mutate(column = recode(column,
-    "1" = "relbias",
-    "2" = "cv",
-    "3" = "in_ci",
-  )) %>% as.data.frame
-temp <- temp %>% pivot_wider(names_from = column, values_from = value) %>% as.data.frame
+# temp <- melt(all_naa_om_relssb)
+# names(temp) <- c("year", "column", "value", "em", "sim","om")
+# temp <- temp %>% mutate(column = recode(column,
+#     "1" = "relbias",
+#     "2" = "cv",
+#     "3" = "in_ci",
+#   )) %>% as.data.frame
+# temp <- temp %>% pivot_wider(names_from = column, values_from = value) %>% as.data.frame
+
+# temp$outside <- abs(temp$relbias) > 0.4 
+# temp2 <- temp %>% group_by(om, em, sim) %>% summarise(notplot = all(outside))
 
 estM <- c(FALSE,FALSE,TRUE,TRUE)
 estSR<- c("Mean R", "B-H", "Mean R", "B-H")
 ##############################################################################################################
 #naa oms
 
+paste_ems <- function(no_plot, pe) ifelse(any(no_plot), paste0("Not shown: ", paste(pe[no_plot], collapse = ",")), "")
+paste_ems(no_plot.df$no_plot, no_plot.df$pe)
 #SSB
-plot.df <- make_plot_df(is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df(is_SE = TRUE, ylims = ylims)
+# no_plot.df <- plot.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,NAA_sig) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+# which(no_plot.df$no_plot)
+# no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,R_sig,NAA_sig) %>% summarise(no_plot = paste_ems(no_plot, pe))
+# dim(no_plot.df)
+# head(as.data.frame(no_plot.df))
+# names(no_plot.df)
+
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  #filter(current.df, Fhist == levels(Fhist)[1] & R_sig == levels(R_sig)[2] & NAA_sig == levels(NAA_sig)[1] & obs_error == levels(obs_error)[1] & pe == "R+S")
+  #filter(current.df, Fhist == levels(Fhist)[1] & R_sig == levels(R_sig)[2] & NAA_sig == levels(NAA_sig)[1] & obs_error == levels(obs_error)[1])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,NAA_sig) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,R_sig,NAA_sig) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(R_sig + NAA_sig ~ Fhist + obs_error, labeller = labeller(R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of SSB") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of SSB") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
+      #geom_text(mapping = aes(x = Inf, y = -Inf, label = no_plot, hjust = 0, vjust=1), data = no_plot.df) + 
+      #geom_text(mapping = aes(x = Inf, y = -Inf, label = no_plot, hjust = "inward", vjust="inward"), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("naa_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_ssb.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #F
 all_naa_om_relF <- readRDS(file = here("Project_0","results", "all_naa_relF_results.RDS"))
-plot.df <- make_plot_df("naa", all_naa_om_relF, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("naa", all_naa_om_relF, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,NAA_sig) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,R_sig,NAA_sig) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(R_sig + NAA_sig ~ Fhist + obs_error, labeller = labeller(R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of F") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of F") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("naa_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_F.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #R
 all_naa_om_relR <- readRDS(file = here("Project_0","results", "all_naa_relR_results.RDS"))
-plot.df <- make_plot_df("naa", all_naa_om_relR, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("naa", all_naa_om_relR, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,NAA_sig) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,R_sig,NAA_sig) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(R_sig + NAA_sig ~ Fhist + obs_error, labeller = labeller(R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("naa_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_R.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 ##############################################################################################################
 #M oms
 all_M_relssb <- readRDS(file = here("Project_0","results", "all_M_relssb_results.RDS"))
-plot.df <- make_plot_df("M", all_M_relssb, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("M", all_M_relssb, is_SE = TRUE, ylims=ylims)
 
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,M_sig,M_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,M_sig,M_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(M_sig + M_cor ~ Fhist + obs_error, labeller = labeller(M_sig = label_parsed, M_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of SSB") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of SSB") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("M_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_ssb.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #F
 all_M_om_relF <- readRDS(file = here("Project_0","results", "all_M_relF_results.RDS"))
-plot.df <- make_plot_df("M", all_M_om_relF, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("M", all_M_om_relF, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,M_sig,M_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,M_sig,M_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(M_sig + M_cor ~ Fhist + obs_error, labeller = labeller(M_sig = label_parsed, M_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of F") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of F") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("M_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_F.png")), plt, width = 20, height = 12, units = "in")
 }
-
+remove(plot.df)
 #R
 all_M_om_relR <- readRDS(file = here("Project_0","results", "all_M_relR_results.RDS"))
-plot.df <- make_plot_df("M", all_M_om_relR, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("M", all_M_om_relR, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,M_sig,M_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,M_sig,M_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(M_sig + M_cor ~ Fhist + obs_error, labeller = labeller(M_sig = label_parsed, M_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("M_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_R.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 ##############################################################################################################
 #Sel oms
 
 all_Sel_relssb <- readRDS(file = here("Project_0","results", "all_Sel_relssb_results.RDS"))
-plot.df <- make_plot_df("Sel", all_Sel_relssb, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("Sel", all_Sel_relssb, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,Sel_sig,Sel_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,Sel_sig,Sel_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(Sel_sig + Sel_cor ~ Fhist + obs_error, labeller = labeller(Sel_sig = label_parsed, Sel_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of SSB") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of SSB") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("Sel_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_ssb.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #F
 all_Sel_om_relF <- readRDS(file = here("Project_0","results", "all_Sel_relF_results.RDS"))
-plot.df <- make_plot_df("Sel", all_Sel_om_relF, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("Sel", all_Sel_om_relF, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,Sel_sig,Sel_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,Sel_sig,Sel_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(Sel_sig + Sel_cor ~ Fhist + obs_error, labeller = labeller(Sel_sig = label_parsed, Sel_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of F") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of F") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("Sel_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_F.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #R
 all_Sel_om_relR <- readRDS(file = here("Project_0","results", "all_Sel_relR_results.RDS"))
-plot.df <- make_plot_df("Sel", all_Sel_om_relR, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("Sel", all_Sel_om_relR, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,Sel_sig,Sel_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,Sel_sig,Sel_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(Sel_sig + Sel_cor ~ Fhist + obs_error, labeller = labeller(Sel_sig = label_parsed, Sel_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("Sel_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_R.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 ##############################################################################################################
 #q oms
 all_q_relssb <- readRDS(file = here("Project_0","results", "all_q_relssb_results.RDS"))
-plot.df <- make_plot_df("q", all_q_relssb, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("q", all_q_relssb, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,q_sig,q_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,q_sig,q_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(q_sig + q_cor ~ Fhist + obs_error, labeller = labeller(q_sig = label_parsed, q_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of SSB") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of SSB") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("q_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_ssb.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #F
 all_q_om_relF <- readRDS(file = here("Project_0","results", "all_q_relF_results.RDS"))
-plot.df <- make_plot_df("q", all_q_om_relF, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("q", all_q_om_relF, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,q_sig,q_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,q_sig,q_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(q_sig + q_cor ~ Fhist + obs_error, labeller = labeller(q_sig = label_parsed, q_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of F") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of F") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("q_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_F.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 
 #R
 all_q_om_relR <- readRDS(file = here("Project_0","results", "all_q_relR_results.RDS"))
-plot.df <- make_plot_df("q", all_q_om_relR, is_SE = TRUE)
+ylims = c(-0.4,0.4)
+plot.df <- make_plot_df("q", all_q_om_relR, is_SE = TRUE, ylims = ylims)
 for(i in 1:4){
+  current.df <- filter(plot.df, M_est== estM[i] & meanR == estSR[i])
+  no_plot.df <- current.df %>% group_by(om,em,pe,obs_error,Fhist,M_est,SR_model,meanR,R_sig,q_sig,q_cor) %>% summarise(no_plot = all(outside)) %>% as.data.frame()
+  no_plot.df <- no_plot.df %>% group_by(om,obs_error,Fhist,q_sig,q_cor) %>% summarise(no_plot = paste_ems(no_plot, pe)) %>% as.data.frame()
   plt <- ggplot(filter(plot.df, M_est== estM[i] & meanR == estSR[i] )) + scale_fill_viridis_d() + 
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       facet_grid(q_sig + q_cor ~ Fhist + obs_error, labeller = labeller(q_sig = label_parsed, q_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
       geom_line(aes(x = year, y = middle, colour = pe), position = position_dodge(0.1), linewidth = 1) + #geom_point(position = position_dodge(0.1), size = 1) + 
       geom_ribbon(aes(x = year, ymin=ymin,ymax=ymax, fill = pe), alpha=0.3, position = position_dodge(0.1)) +
-      theme_bw() + coord_cartesian(ylim = c(-0.4, 0.4)) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      theme_bw() + coord_cartesian(ylim = ylims) + ylab("Relative Bias of Recruitment") + xlab("Year") +
+      geom_text(mapping = aes(x = 40, y = min(ylims), label = no_plot, hjust = 1, vjust=0), data = no_plot.df) + 
       ggtitle(paste0("EM: ", ifelse(estM[i], "M estimated", "M = 0.2"), " and ", ifelse(estSR[i]=="B-H", "BH assumed", "no SRR"))) + theme(plot.title = element_text(hjust = 0.5)) + labs(colour = "EM Process Error", fill = "EM Process Error")
   plt
   ggsave(here("Project_0", "paper", paste0("q_om_", ifelse(estSR[i]=="B-H","BH","R"), "_M", ifelse(estM[i], "E","F"), "_relbias_R.png")), plt, width = 20, height = 12, units = "in")
 }
+remove(plot.df)
 

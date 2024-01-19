@@ -194,19 +194,24 @@ Street, Woods Hole, MA 02543 USA\\
 
 \pagebreak
 
-\hypertarget{summaryabstract}{%
-\subsection*{Summary/Abstract}\label{summaryabstract}}
-\addcontentsline{toc}{subsection}{Summary/Abstract}
+\hypertarget{summary}{%
+\subsection*{Summary}\label{summary}}
+\addcontentsline{toc}{subsection}{Summary}
 
-We completed a large scale simulation study with 288 operating models
-with 12 estimated models fit to each. The factors defining operating
-model configuration inlcuded the source of process error on the
-population (recruitment, recruitment and survival, recruitment and
-natural mortality), the degree of temporal variation and autocorrelation
-of the environmental covariate, the uncertainty in the observation of
-the covariate, the uncertainty in indices and age composition
-observations, fishing history, and the magnitude of the effect of the
-covariate on natural mortality.
+We completed a large scale simulation study with 288 operating models,
+each with 100 simulated data sets, and 12 estimated models fit to each
+simulated data set. The factors defining operating model configuration
+included the source of process error on the population (recruitment,
+recruitment and survival, recruitment and natural mortality), the degree
+of temporal variation and autocorrelation of the environmental
+covariate, the uncertainty in the observation of the covariate, the
+uncertainty in indices and age composition observations, fishing
+history, and the magnitude of the effect of the covariate on natural
+mortality. The estimating models make alternative assumptions on whether
+to include the environmental effect, whether the mean/intercept log
+natural mortality (log(0.2)) is estimated or known, and whether process
+errors are on just recruitment, recruitment and survival, or recruitment
+and natural mortality.
 
 We found convergence of all estimation models was generally best when
 operating models assumed process errors in recruitment and survival,
@@ -223,13 +228,55 @@ models without this match in certain cases. Probability of convergence
 generally decreased when the mean natural mortality rate parameter was
 estimated.
 
-AIC paragraph
+Whether the mean log-natural mortality was estimated or not, the best
+accuracy of AIC for model selection occurred for models with process
+errors on recruitment and survival. AIC accuracy was poor for models
+with process errors on recruitment and natural mortality. estimating the
+mean natural mortality rate had small effects on the accuracy of AIC in
+selecting the appropriate process error. Estimating the mean log-natural
+mortality resulted in a small decrease in AIC accuracy. AIC was
+conservative for determining whether the environmental covariate
+affected natural mortality. AIC was very accurate in determining no
+effect when there was no effect in the operating model, but AIC often
+ranked the null model best when there was an effect. Accuracy of AIC for
+covariate effects improved with increased effect size, increased
+temporal contrast in the covariate, and lower uncertainty in
+observations.
 
-Bias paragraph
+We found no evidence of bias in estimation of environmental effects
+regardless of process error assumptions when there was low uncertainty
+in the environmental observations and large constrast in the
+environmental covariate. In most cases the relative error of the
+estimated environmental effect did not depend on the source of process
+error assumed in the estimating model. The worst bias was observed when
+OMs assumed R+S process errors, high uncertainty in covariate
+observations, low variability in the covariate, and low uncertainty in
+index and age composition observations. Simultaneously estimating the
+mean/intercept log natural mortality resulted in larger variation in the
+relative errors of the estimated environmental effect. Estimation of the
+intercept was reliable for all EM process error assumptions when the
+operating models assumed process errors on recruitment and natural
+mortality, contrast in fishing pressure over time, and lower observation
+error. Estimating the mean/intercept for log natural mortality generally
+resulted in highly variable estimates of annual natural mortality and
+spawning biomass and evidence of bias for some operating and estimation
+model assumptions about process error source. Again reliability of
+annual natural mortality estimates was generally improved with lower
+observation error uncertainty and contrast in fishing pressure.
 
-These results suggest that models with covariate effects on M will be
-most reliable when R+S is true, large contrast in the Recommendations
-\#\#\# Keywords \{-\}
+Reliable detection of covariate effects requires informative data. AIC
+preferred simpler models than the true model when information content in
+data and contrast in covariates and abundance were low. The null model
+for environmental covariate effects (no covariate effect) was selected
+when contrast in the time series was low and/or uncertainty in
+observations was high. The selection of the null model by AIC also
+likely decreases with strength of the effect of the covariate on M.
+Similarly, when there was process error in recruitment and natural
+mortality, estimation models with process error only in recruitment were
+preferred presumably due to low variation in simulated natural mortality
+process errors. Covariate effect estimation can be robust to process
+error assumptions with high contrast in covariate and low observation
+error.
 
 \pagebreak
 
@@ -518,29 +565,10 @@ the true values.
 
 The first measure of reliability we investigated was frequency of
 convergence when fitting each estimating model to the simulated data
-sets. There are various ways to assess convergence of the fit. We
-summarized 5 alternative categories of convergence:
-
-\begin{enumerate}
-\item Did the optimization routine (stats::nlminb) complete without error?
-\item Did the stats::nlminb convergence flag = 0 indicate successful convergence?
-\item Was the maximum absolute value of the gradient of the log-likelihood < $1\times10^{-6}$?
-\item Did TMB::sdreport provide non-NA values for all fixed effects standard errors?
-\item Did TMB::sdreport provide all standard errors < 100?
-\end{enumerate}
-
-The first convergence criterion assesses whether the model crashes. The
-third is a measure that assesses how flat the likelihood is at the
-optimized point of the likelihood surface. The fourth and fifth criteria
-are specific to the hessian-based standard error reporting provided by
-TMB. the TMB::sdreport function will sometimes return standard error
-estimates even when the calculated hessian is not invertible (fourth
-criterion). It will also provide large standard errors for some
-parameters that are not estimated well or are near bounds on the
-transformed scale that is of primary interest. For example, variance
-parameters for random effects can often be estimated near 0 when the fit
-suggests no variation in the random effects or, equivalently, that the
-model without random effects is better.
+sets. There are various ways to assess convergence of the fit, but we
+defined successful convergence as the hessian of the marginal
+log-likelihood being invertible and providing variance estimates for the
+fixed effects parameters.
 
 \hypertarget{aic-for-model-selection}{%
 \subsubsection*{AIC for model selection}\label{aic-for-model-selection}}
@@ -724,14 +752,14 @@ We found high accuracy for estimation of the mean natural mortality rate
 parameter (\(\beta_M\)) for all EM process errors assumptions when OMs
 had step changes in fishing mortality, lower uncertainty in index and
 age composition observations, and either R or R+M process errors (Figure
-\ref{mean_M_bias}). The most variation in estimates occurred when
-fishing and Higher uncertainty in index and age composition
-observations. For OMs with R+S process errors, the most reliable
-estimation of \(\beta_M\) was obtained when the EM also assumed R+S
-process errors across all other factors. For OMs with R+M process
-errors, the matching assumption for the EM only showed the best
-reliability when there was low uncertainty in index and age composition
-observations and fishing mortality was constant.
+\ref{mean_M_bias_Ecov_beta_fixed}). The most variation in estimates
+occurred when fishing mortality was constant and there was higher
+uncertainty in index and age composition observations. For OMs with R+S
+process errors, the most reliable estimation of \(\beta_M\) was obtained
+when the EM also assumed R+S process errors across all other factors.
+For OMs with R+M process errors, the matching assumption for the EM only
+showed the best reliability when there was low uncertainty in index and
+age composition observations and fishing mortality was constant.
 
 \hypertarget{annual-natural-morality-rate}{%
 \subsubsection*{Annual natural morality
@@ -742,7 +770,7 @@ We present results for error in annual natural mortality rate
 conditional on three alternative EM configurations for the natural
 mortality parameters: 1) mean natural mortality rate parameter is fixed
 at the true value (\(\beta_M = log(0.2)\)) and no covariate effect is
-assmed (\(\beta_\text{Ecov} = 0\)), 2) \(\beta_M = log(0.2)\) and
+assumed (\(\beta_\text{Ecov} = 0\)), 2) \(\beta_M = log(0.2)\) and
 \(\beta_\text{Ecov}\) is estimated, and 3) both \(\beta_M\) and
 \(\beta_\text{Ecov}\) are estimated.
 
@@ -766,7 +794,7 @@ the variance of the estimated random effects for M in these EMs
 collapsed to 0. R+M EMs were the only EMs to exhibit differences in the
 sign of the median errors across the time series. When OMs had a step
 change in fishing mortality and higher uncertainty in index and age
-composition observations, we observed positive median errrors at the
+composition observations, we observed positive median errors at the
 beginning of the time series and lower median errors in later years.
 However, whether there was evidence of bias, depended on the uncertainty
 in covariate observations and the degree of variability in the latent
@@ -777,7 +805,7 @@ the covariate, but evidence of bias was strongest at the beginning of
 the time series.
 
 When \(\beta_\text{Ecov}\) was estimated, R EMs performed worse for R+S
-OMs with evidence of negative bias for OMs with cosntant fishing
+OMs with evidence of negative bias for OMs with constant fishing
 mortality, lower uncertainty in index and age composition observations,
 the largest covariate effect size, lower variability in the latent
 covariate, and larger uncertainty in the covariate observations (Figure
@@ -792,15 +820,15 @@ Allowing the EMs to estimate \(\beta_M\) resulted in very large
 variability in estimates for all EMs for R and R+M OMs with constant
 fishing mortality and higher uncertainty in index and age composition
 observations (Figure \ref{annual_M_bias_M_estimated_beta_estimated}).
-The same varibilities occurred for R+S OMs, but strong bias was
-estimated for R and R+M EMs. Annual M estimation was most reliable when
-OMs had step changes in fishing mortality and lower uncertainty in index
-and age composition observations. For R and R+M OMs with those
-characteristics, all EMs generally provided accurate estimation of
-annual M, but only R+S EMs provided accurate estimation for R+S OMs.
-Little or no bias in annual M estimation was observed for R+S EMs across
-all OM process error assumptions as long as there was a step change in
-fishing mortality and lower uncertainty in indices and age composition.
+The same variability occurred for R+S OMs, but strong bias was estimated
+for R and R+M EMs. Annual M estimation was most reliable when OMs had
+step changes in fishing mortality and lower uncertainty in index and age
+composition observations. For R and R+M OMs with those characteristics,
+all EMs generally provided accurate estimation of annual M, but only R+S
+EMs provided accurate estimation for R+S OMs. Little or no bias in
+annual M estimation was observed for R+S EMs across all OM process error
+assumptions as long as there was a step change in fishing mortality and
+lower uncertainty in indices and age composition.
 
 \hypertarget{spawning-stock-biomass}{%
 \subsubsection*{Spawning stock biomass}\label{spawning-stock-biomass}}
@@ -899,25 +927,18 @@ informative data. AIC preferred simpler models than the true model when
 information content in data and contrast in covariates and abundance
 were low. Null model for environmental covariate effect (no covariate
 effect) was selected when contrast in the time series was low and/or
-uncertainty in observations was high.
-
-When there was process error in recruitment and M (R+M), models with
-process error only in recruitment were preferred. This could be because
-the variation in the M random effects was small relative to observation
-variability. The marginal variance for log M random effects was 0.3.
-
-Null selection likely decreases with strength of the effect on M. We
-only examined two non-zero effect sizes: 0.25, and 0.5, but our results
-suggest larger effect sizes, with the same observation error and
-contrast in time series, would allow better AIC performance for
-determining covariate effects.
-
-Covariate effect estimation can be robust to process error assumptions
-(For R+M OMs) with contrast in covariate and low observation error.
-
-Reliable estimation of environmental effect on M regardless of the
-process error assumed by the EM as long as the contrast in the covariate
-is sufficient and the uncertainty in the observations is low.
+uncertainty in observations was high. Null selection likely decreases
+with strength of the effect on M. We only examined two non-zero effect
+sizes: 0.25, and 0.5, but our results suggest larger effect sizes, with
+the same observation error and contrast in time series, would allow
+better AIC performance for determining covariate effects. When there was
+process error in recruitment and M (R+M), models with process error only
+in recruitment were preferred. This could be because the variation in
+the M random effects was small relative to observation variability. The
+marginal variance for log M random effects was 0.3. Reliable estimation
+of environmental effect on M regardless of the process error assumed by
+the EM as long as the contrast in the covariate is sufficient and the
+uncertainty in the observations is low.
 
 \hypertarget{acknowledgements}{%
 \section*{Acknowledgements}\label{acknowledgements}}
