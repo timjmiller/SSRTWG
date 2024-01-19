@@ -87,9 +87,9 @@
 \usepackage{setspace}
 %\singlespacing
 %\onehalfspacing
-\doublespacing
+%\doublespacing
 \usepackage{lineno}
-\linenumbers
+%\linenumbers
 \usepackage[belowskip=0pt,aboveskip=0pt]{caption}
 \usepackage{relsize}
 \newcommand{\Fmsy}{\ensuremath{F_{\text{MSY}}}\xspace}
@@ -300,9 +300,9 @@ outputs of the assessment model that are important for management.
 \addcontentsline{toc}{section}{Methods}
 
 We used the Woods Hole Assessment Model (WHAM) to configure operating
-and estimation models in our simulation study \citep[]{stockmiller21}.
-WHAM is an R package freely available as a github repository. For this
-study we used
+and estimation models in our simulation study
+\citep[]{millerstock20,stockmiller21}. WHAM is an R package freely
+available as a github repository. For this study we used
 \href{https://github.com/timjmiller/wham/tree/77bbd946e4881216a439933473d1c58b21c270c3}{version
 1.0.6.9000, commit 77bbd94}. This packages has also been used to
 configure operating and estimating models for closed loop simulations
@@ -366,7 +366,7 @@ post-recruit productivity components are constant in the NAA and survey
 catchability process error operating models. Therefore steepness and
 unfished recruitment are also constant over the time period for those
 operating models \citep{millerbrooks21}. We specified unfished
-recruitment = \(R_0 = e^{10}\) and \(\Fmsy = \Fspr[40] = 0.348\) equated
+recruitment = \(R_0 = e^{10}\) and \(\Fmsy = F_{40\%} = 0.348\) equated
 to a steepness of 0.69 and \(\alpha=0.60\) and
 \(\beta = 2.4 \times 10^{-5}\) for the \[
 N_{1,y} = \frac{\alpha \text{SSB}_{y-1}}{1 + \beta \text{SSB}_{y-1}} 
