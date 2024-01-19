@@ -20,9 +20,6 @@ naa_om_inputs <- readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_in
 temp <- fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
 SRab <- exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
 
-#SSBMSY <- exp(temp$report()$log_SSB_FXSPR_static)
-#SRab[1]*SSBMSY/
-
 #Operating model factors
 #Constant factors
 NAA_re       <- c("rec")  #recruitment random effects
@@ -57,8 +54,11 @@ index_sigma = c(L = 0.1, H = 0.4) #(log) index SDs for L/H observation error
 n.mods       <- dim(df.oms)[1] 
 df.oms$Model <- paste0("om_",1:n.mods)
 df.oms       <- df.oms %>% select(Model, everything()) # moves Model to first col
-saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
 
+##--BETA STANDARDIZATION--##
+#source(file.path(here(),"Ecov_study","recruitment_functions","code","beta_standardization.r"))
+
+saveRDS(df.oms, file.path(here(), "Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
 
 gf_info = make_basic_info()
 

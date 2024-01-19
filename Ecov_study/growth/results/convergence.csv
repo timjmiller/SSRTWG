@@ -1,0 +1,19 @@
+"","omf","emf","pct.converged","n.converged","n.run"
+"1","OM1: beta=0.0, high data","EM1: constant",100,100,100
+"2","OM1: beta=0.0, high data","EM2: L1-par",100,92,92
+"3","OM1: beta=0.0, high data","EM3: L1-ecov",100,86,86
+"4","OM2: beta=0.2, high data","EM1: constant",100,100,100
+"5","OM2: beta=0.2, high data","EM2: L1-par",99,97,98
+"6","OM2: beta=0.2, high data","EM3: L1-ecov",96.9,95,98
+"7","OM3: beta=0.4, high data","EM1: constant",99,99,100
+"8","OM3: beta=0.4, high data","EM2: L1-par",90.2,83,92
+"9","OM3: beta=0.4, high data","EM3: L1-ecov",87.4,76,87
+"10","OM4: beta=0.0, low data","EM1: constant",100,100,100
+"11","OM4: beta=0.0, low data","EM2: L1-par",98,97,99
+"12","OM4: beta=0.0, low data","EM3: L1-ecov",97.9,94,96
+"13","OM5: beta=0.2, low data","EM1: constant",100,100,100
+"14","OM5: beta=0.2, low data","EM2: L1-par",96.9,95,98
+"15","OM5: beta=0.2, low data","EM3: L1-ecov",98,96,98
+"16","OM6: beta=0.4, low data","EM1: constant",100,100,100
+"17","OM6: beta=0.4, low data","EM2: L1-par",79.6,74,93
+"18","OM6: beta=0.4, low data","EM3: L1-ecov",95.8,91,95

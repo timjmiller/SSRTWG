@@ -48,12 +48,12 @@ for(om in 1:n_oms){
     })
     
     em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
-          df.ems$r_mod==df.oms$recruit_mod[om])
+                        df.ems$r_mod==df.oms$recruit_mod[om])
     
     aic_pick <- which(DAT==min(DAT,na.rm=TRUE))
     AIC[k,]  <- data.frame(sim=sim,df.oms[om,],aic_pick=aic_pick,
                            correct_form=ifelse(aic_pick==em_match,1,0))#,
-                           #correct_SR=ifelse(aic_pick%in%c(1,2,3),1,0))
+    #correct_SR=ifelse(aic_pick%in%c(1,2,3),1,0))
     k <- k + 1
   }  
 }
