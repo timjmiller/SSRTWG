@@ -7,11 +7,13 @@
 
 
 
-combinePerfMet <- function(filenames=NULL, outdir = here::here){
+combinePerfMet <- function(filenames=NULL, outdir = here::here()){
   
   aggPerfMet <- NULL
   
   for(ifile in 1:length(filenames)){
+    print(ifile)
+    
     # Read in RDS file
     perfMet <- readRDS(file = here::here(filenames[ifile]))
     
@@ -22,7 +24,7 @@ combinePerfMet <- function(filenames=NULL, outdir = here::here){
       # ID number of sims to append
       nsim <- perfMet$sim %>% unique() %>% length()
       # ID last sim number in aggPerfMet 
-      lastsim <- aggPerfMet$sim %>% unique() %>% max()
+      lastsim <- aggPerfMet$sim %>% unique() %>% as.numeric() %>% max()
       # New sim numbers
       newSim <- lastsim + 1:nsim
       # Replace old sim numbers with new sim numbers
