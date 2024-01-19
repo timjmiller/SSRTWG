@@ -94,7 +94,7 @@ get_aic_convergence_info <- function(df.oms=NULL, df.ems=NULL, nsims=NULL, res.p
   
 k <- 1
 for(om in 1:nrow(df.oms)){
-  print(paste0("OM = ",om, "out of ", nrow(df.oms)))
+  print(paste0("OM = ",om, " out of ", nrow(df.oms)))
     # get aic ====
   for(sim in 1:nsims){
       DAT <- sapply(1:nrow(df.ems), function(em){

@@ -12,6 +12,7 @@ output: html_notebook
 1. Create dataframes that have AIC info and convergence info: run **AIC_dataframe.R** to produce
    + *AIC_all.RDS* contains AIC and convergence info for the best EM only (lowest AIC) per OM-Sim
    + *AIC_weight.RDS* contains AIC, convergence, model rank, model weight, model probability info for all EMs per OM-Sim
+   + Runtime on Azure for unstandardized beta runs: Time difference of 4.075107 hours
   
 2. Specify convergence tolerances/thresholds in **convergence_summaries.R**
    + bad.grad.value : cut-off for identifying parameters with abs(gradient)>bad.grad.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
@@ -19,15 +20,23 @@ output: html_notebook
    + given this, output is produced using bad.grad.value and bad.se.value appended to plot and table names to identify the tolerances
      + plots of number of bad models (from the best set, and from all EMs per OM-Sim)
      + plots of parameters that failed the bad.grad or bad.se criteria
+     + Runtime is quick
     
 3. Generate regression trees to characterize factors influencing model identifiability; run **AIC_regression.R**
-   + ...
+   + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
+   + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
+   + regression trees are done to determine factors associated with dAIC (difference in model AIC), Model probability (calculated from AIC weights), and AIC rank (models are ranked by integer with 1= lowest AIC, and 6=highest AIC per OM-Sim; if not all 6 EMs converged for this OM-Sim, then the highest AIC rank is the number of models converged)/ **<span style="color: red;">question: should i just look at dAIC for models with AIC rank >1? (because dAIC=0 when AIC rank = 1)</span>**
    
-4. Look at bias in SSB, Recr, Fbar
-   + ...
+4. Look at bias in SSB, Recr, Fbar **bias_assessment.R**
+   + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
+   + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
+   + regression trees are done to determine factors associated RE in recruitment, SSB, and Fbar
+      + looks like sigmaR is the only factor that matters for all 3 metrics
+      + this script produces plots summarizing relative error (RE) over all years, the last 10 years, and the final year
 
-5. Look at bias in SR_a, SR_b, sigmaR, rho_R, sigmaEcov, rho_Ecov
-   + ...
+5. Look at bias in parameter estimates **bias_parameters.R**
+   + SR_a, SR_b, sigmaR, rho_R, sigmaEcov, rho_Ecov
+   + also grabbing catchability (logit_q), selectivity (logit_selpars), catch_paa_pars, and index_paa_pars parameters so i don't have to pass through results again
    
   
 

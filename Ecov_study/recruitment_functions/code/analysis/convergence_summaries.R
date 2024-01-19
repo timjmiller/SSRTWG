@@ -1,14 +1,19 @@
 # summarize convergence from AIC_weight.RDS, which is created from 
 ## dataframe.R with function call to get_aic_convergence_info
 
-library("here")
+library('here')
 library('tidyverse')
+library('xtable')
 
+res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'
+plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
 
-AIC_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions','results','AIC.rds'))
-AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions','results','AIC_weight.rds'))
+AIC_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC', plot.suffix, '.rds') ) )
+AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC_weight', plot.suffix, '.rds') ) )
 df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
+om.fails.df <- readRDS(file.path(here::here("Ecov_study", 'recruitment_functions', res.dir,'om.fails.df_beta_unstandardized.RDS') ) )
 
 
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
@@ -18,17 +23,23 @@ bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex
 # analyze AIC_all (info just saved for best model for given OM)  ====
 ## specify cut-off for non-converged runs for AIC_all ====
 # convergence IF opt == 1; conv ==0; sdrep==0; max_grad<max.grad.threshold; SE_par_max< not too big;
-bad.opt <- which(AIC_all$opt != 1)
-bad.conv <- which(AIC_all$conv !=0)
-bad.sdrep <- which(AIC_all$sdrep>0)
-bad.grad <- which(AIC_all$max_grad>bad.grad.value) 
-bad.se.big <- which(AIC_all$SE_par_max>bad.se.value ) #tim used 100, but threshold depends on scale of parameter (could refine this category to be parameter specific or try to specify threshold on relative scale? "CV-like?)
+bad.opt <- which(as.numeric(AIC_all$opt) != 1)
+bad.conv <- which(as.numeric(AIC_all$conv) !=0)
+bad.sdrep <- which(as.numeric(AIC_all$sdrep)>0)
+bad.grad <- which(as.numeric(AIC_all$max_grad)>bad.grad.value) 
+bad.se.big <- which(as.numeric(AIC_all$SE_par_max)>bad.se.value ) #tim used 100, but threshold depends on scale of parameter (could refine this category to be parameter specific or try to specify threshold on relative scale? "CV-like"?)
 bad.se.na <- which( is.na(AIC_all$SE_par_max))
 
 bad.runs <- c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)
+bad.runs.unique <- unique(c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na))
 length(bad.runs)
 length(unique(bad.runs))
-bad.runs.unique <- unique(c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na))
+length(bad.opt)
+length(bad.conv)
+length(bad.sdrep)
+length(bad.grad)
+length(bad.se.big)
+
 
 
 
@@ -40,10 +51,10 @@ AIC.bad <- as_tibble(AIC_all[bad.runs.unique,]) %>%
   mutate(R_sig = paste0('R_sig_', R_sig), Ecov_effect=paste0('Ecov_B_', Ecov_effect))
 
 AIC_best_conv.runs <- AIC_all[-bad.runs.unique,]
-saveRDS(AIC_best_conv.runs, file =  file.path(here(),'Ecov_study','recruitment_functions','results', paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, ".RDS")  ) )
+saveRDS(AIC_best_conv.runs, file =  file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
-pct.fail.converge<- nrow(AIC.bad)/nrow(AIC_all)
-pct.converge <- 1-pct.converge
+pct.converge <- nrow(AIC_best_conv.runs)/nrow(AIC_all)
+pct.fail.converge <- 1-pct.converge
 n.bad.runs <- length(unique(bad.runs) )
 
 
@@ -59,9 +70,7 @@ bad.mods.plot <- ggplot(AIC.bad, aes(x=EM_mod)) +
   theme(axis.title.y = element_text(size = 13))   +
   ylab('Number failed convg. checks (EM in OM-Sim with lowest AIC)') +
   labs(subtitle=paste0(100*round(pct.fail.converge,3), '% of lowest AIC model failed 1 or more convergence checks; max(abs(gradient)) > ', bad.grad.label, ' and/or par_SE > ', bad.se.value ))
-ggsave(bad.mods.plot, filename=file.path(here(),'Ecov_study','recruitment_functions','plots', paste0("bad.mods_lowestAIC.plot_grad_",bad.grad.label, "_SE_", bad.se.value, ".png") ),  height=7, width=12)
-
-
+ggsave(bad.mods.plot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad.mods_lowestAIC.plot_grad_",bad.grad.label, "_SE_", bad.se.value, plot.suffix,".png") ),  height=7, width=12)
 
 
 
@@ -86,7 +95,7 @@ AIC_weight_conv.runs <- AIC_weight[-bad.runs.unique,]
 pct.converge<-nrow(AIC_weight_conv.runs)/nrow(AIC_weight)
 pct.fail.convg <- 1-pct.converge
 n.bad.runs <- length(unique(bad.runs) )
-saveRDS(AIC_weight_conv.runs, file =  file.path(here(),'Ecov_study','recruitment_functions','results', paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, ".RDS")  ) )
+saveRDS(AIC_weight_conv.runs, file =  file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix,".RDS")  ) )
 
 
 conv.summary <- as_tibble(AIC_weight) %>%
@@ -103,7 +112,7 @@ conv.summary <- as_tibble(AIC_weight) %>%
   arrange(OM, sim, EM) %>%
   relocate(OM, sim, EM, bad.grad.value, bad.se.value)
 
-saveRDS(conv.summary, file.path(here(),'Ecov_study','recruitment_functions','results', paste0("conv.summary_grad_", bad.grad.label, "_SE_", bad.se.value,".RDS")  ) )
+saveRDS(conv.summary, file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("conv.summary_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
 
 # isolate OM - EM - SIM that did not converge
@@ -111,7 +120,7 @@ nonconv.runs <- conv.summary %>%
   mutate(bad.sum=rowSums(across(c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)))) %>%
   filter(bad.sum!=0) %>%  # bad.sum>0 had 1s or NAs (replaced by 99) for convergence criteria
   relocate(OM, EM, sim, bad.sum)
-saveRDS(nonconv.runs, file.path(here(),'Ecov_study','recruitment_functions','results', paste0("nonconv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, ".RDS") ) )
+saveRDS(nonconv.runs, file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("nonconv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS") ) )
 
 
 # identify the runs that did converge
@@ -119,7 +128,7 @@ conv.runs <- conv.summary %>%
   mutate(bad.sum=rowSums(across(c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)))) %>%
   filter(bad.sum==0) %>%  # if bad.sum==0, all conv checks passed
   relocate(OM, EM, sim, bad.sum)
-saveRDS(conv.runs, file.path(here(),'Ecov_study','recruitment_functions','results', paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value,".RDS") ) )
+saveRDS(conv.runs, file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS") ) )
 
 
 
@@ -154,7 +163,48 @@ bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
   theme(axis.title.y = element_text(size = 13))   +
   ylab('Number failed convg. checks (OM-EM-Sim with lowest AIC)') +
   labs(subtitle=paste0(100*round(pct.fail.convg,3), '% of all OM-EM-Sims failed 1 or more convergence checks; max(abs(gradient)) > ', bad.grad.value, ' and/or par_SE > ', bad.se.value  ))
-ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions','plots', paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, ".plot.png" ) ),  height=7, width=12)
+ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".plot.png" ) ),  height=7, width=12)
+
+
+
+## characterize crashes ====  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+em_tib <- as_tibble(df.ems) %>%
+  mutate(SR=ifelse(r_mod==2, 'Mean', 'BH')) %>%
+  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,6))
+
+om_fail_tib <- as_tibble(om.fails.df) %>%
+  rename(EM=em.fails) %>% 
+  left_join(df.oms2) %>%
+  left_join(em_tib) %>%
+  mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
+  mutate(fail.iter.em = paste0(N.fail, '_', EM)) %>%
+  relocate(OM, N.fail, iter.fails, EM, EM_mod)
+
+om_fail_tib$R_sig <- factor(om_fail_tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
+om_fail_tib$Ecov_how    <- factor(om_fail_tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
+om_fail_tib$NAA_cor     <- factor(om_fail_tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
+om_fail_tib$Fhist       <- factor(om_fail_tib$Fhist,labels=c("H-MSY","MSY") )
+om_fail_tib$Ecov_effect <- factor(om_fail_tib$Ecov_effect,labels=c("Ecov_L", "Ecov_H"))
+om_fail_tib$Ecov_re_cor <- factor(om_fail_tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
+
+
+
+crashed.models.plot <- ggplot(om_fail_tib, aes(x=EM_mod, fill=as.factor(mod.match) )) +
+  facet_grid(R_sig  + Ecov_how ~ Fhist  + Ecov_effect  ) +
+  geom_bar() +
+  ylab('N crashes') +
+  theme_light()  +
+  theme(strip.background =element_rect(fill="white", color="grey65"))+
+  theme(strip.text = element_text(colour = 'black', size=11)) +
+  theme(axis.text.x = element_text(size = 9))   + 
+  theme(axis.text.y = element_text(size = 11))   +
+  theme(axis.title.x = element_text(size = 13))   + 
+  theme(axis.title.y = element_text(size = 13))   +
+  theme(legend.position="bottom") +
+  theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
+  scale_fill_discrete(labels = c("OM != EM", "OM = EM")) +
+  guides(fill=guide_legend(title=NULL))
+ggsave(crashed.models.plot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir,paste0('crashed.models.plot', plot.suffix, '.png') ),  height=7, width=12)
 
 
 
@@ -180,7 +230,7 @@ bad_par_table <- bad_grad_par %>%
   full_join(bad_SE_par) %>%
   arrange(Par) %>%
   rename(N_Bad.Grad=ntimes.bad.grad, N_Big.SE=ntimes.bad.se) 
-write.csv(bad_par_tib, file=file.path(here(),'Ecov_study','recruitment_functions','tables', paste0("Bad.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, ".csv")  ), row.names = FALSE )
+write.csv(bad_par_tib, file=file.path(here(),'Ecov_study','recruitment_functions','tables', paste0("Bad.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
 
 
 bad_par_long <- bad_par_table %>%
@@ -206,7 +256,7 @@ bad_par_N_barplot <- ggplot(bad_par_long, aes(x=N, y=Par)) +
   ylab('Parameter') +
   xlab('Count') +
   labs(subtitle=paste0('Number of times each parameter had the largest gradient or the biggest SE' ))
-ggsave(bad_par_N_barplot , filename=file.path(here(),'Ecov_study','recruitment_functions','plots', paste0("bad_par_N_barplot_grad_", bad.grad.label, "_SE_", bad.se.value, ".png")  ),  height=7, width=12)
+ggsave(bad_par_N_barplot , filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad_par_N_barplot_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".png")  ),  height=7, width=12)
 
 
 bad_par_pct_barplot <- ggplot(bad_par_long, aes(x=Pct, y=Par)) +
@@ -226,5 +276,55 @@ bad_par_pct_barplot <- ggplot(bad_par_long, aes(x=Pct, y=Par)) +
   ylab('Parameter') +
   xlab('Proportion') +
 labs(subtitle=paste0('Proportion of times each parameter had the largest gradient or the biggest SE' ))
-ggsave(bad_par_pct_barplot, filename=file.path(here(),'Ecov_study','recruitment_functions','plots', paste0("bad_par_pct_barplot_grad_", bad.grad.label, "_SE_", bad.se.value, ".png" ) ),  height=7, width=12)
-  
+ggsave(bad_par_pct_barplot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad_par_pct_barplot_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".png" ) ),  height=7, width=12)
+
+
+
+##################################################################################################
+###  make plot for 2nd largest SE parameter (since first largest was dominated by mean_rec_pars)   ====  
+
+
+
+bad_SE2_par <- as_tibble(AIC_weight[bad.se.big,]) %>%
+  group_by( SE_par_max2_name) %>%
+  summarise(ntimes.bad.se2=n()) %>% 
+  rename(Par=SE_par_max2_name)
+
+
+
+
+bad_par2_table <- bad_grad_par %>%
+  full_join(bad_SE2_par) %>%
+  arrange(Par) %>%
+  rename(N_Bad.Grad=ntimes.bad.grad, N_Big.SE2=ntimes.bad.se2) 
+write.csv(bad_par2_tib, file=file.path(here(),'Ecov_study','recruitment_functions','tables', paste0("Bad.param2.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
+
+
+bad_par2_long <- bad_par2_table %>%
+  mutate(tot.bad.grad=length(bad.grad), tot.big.se2=length(bad.se.big)) %>%
+  mutate(Pct_Bad.Grad = N_Bad.Grad/tot.bad.grad, Pct_Big.SE2=N_Big.SE2/tot.big.se2 ) %>%
+  select(-c(tot.bad.grad, tot.big.se2) ) %>%
+  pivot_longer(cols=-Par,  names_to=c(".value", 'Condition'), names_sep="_" )
+
+bad_par2_N_barplot <- ggplot(bad_par2_long, aes(x=N, y=Par)) +
+  facet_grid(~Condition, labeller = as_labeller(c(Bad.Grad=paste0('max(abs(gradient))> ', bad.grad.value),
+                                                  Big.SE2 = paste0('2nd_max(SE_par)> ', bad.se.value)
+  ) 
+  )
+  ) +
+  geom_col(fill="#2099aa99") +
+  theme_light()  +
+  theme(strip.background =element_rect(fill="white", color="grey65"))+
+  theme(strip.text = element_text(colour = 'black', size=12)) +
+  theme(axis.text.x = element_text(size = 10))   + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(axis.title.x = element_text(size = 13))   + 
+  theme(axis.title.y = element_text(size = 13))   +
+  ylab('Parameter') +
+  xlab('Count') +
+  labs(subtitle=paste0('Number of times each parameter had the largest gradient or the biggest SE' ))
+ggsave(bad_par2_N_barplot , filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad_par_2nd_N_barplot_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".png")  ),  height=7, width=12)
+
+
+
+
