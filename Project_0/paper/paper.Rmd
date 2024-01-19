@@ -56,48 +56,52 @@ $^1$corresponding author: timothy.j.miller@noaa.gov, Northeast Fisheries Science
 
 \pagebreak
 
-## Abstract {-}
+## Summary {-}
 
-### Keywords {-}
+We conducted a simulation study where we simulated process errors and observations for 72 operating models with alternative assumptions about fishing history, degree of uncertainty in index and age composition observations, type (recruitment, survival, fishery selectivity, catchability and natural mortality), degree of variation, and correlation of process errors. We fit 20 different estimating models to each of 100 simulated set of observations with alternative assumptions type and correlation structure of process errors, (mean) natural mortality was known or estimated, and a B-H stock recruit relationship was assumed or not.
+
+Across simulations we summarized probability of convergence of fitted models, accuracy of marginal AIC in determining the correct process error assumption and it ability to determine the Beverton-Holt stock recruit relationship, bias in annual spawning stock biomass, in estimation of natural mortality, and in stock-recruit relationship parameters, and severity of retrospective patterns for estimation models.
+
+Alternative measures of convergence performed differently. Invertible hessians and resulting standard error estimation was possible when criteria based on the gradient of the optimized log-likelihood with respect to the fixed effects parameters. Using hessian-based convergence, probability of convergence was best for models that assumed the correct source of process error, assumed M was known, and did not assume stock-recruit relationships.
+
+Using marginal AIC provided most accurate inferences about the process errors on recruitment and survival and selectivity, in that AIC preferred EMs with assumed process errors that matched OMs, and EMs with those assumed process errors were not preferred when alternative process errors were assumed in the OMs. However, when the true process errors were more variable, AIC accuracy increased to a useful level. We found AIC more accurately determined a B-H stock recruit relationship rather than the null model without a S-R relationship when there was low variability in recruitment, low variability in survival random effects, and higher variation in spawning biomass over the time series. When the (mean) natural mortality rate was estimated, we found large bias and uncertainty much more likely in model output such as spawning stock biomass.
+
+Bias in spawning stock biomass estimation was generally low for estimating models that assumed the correct source of process error when there was lower observation error. Reliable estimation of stock-recruit relationship parameters only appears possible in ideal situations with lower observation errors in age composition and indices, lower variability in recruitment process errors and large contrast in spawning biomass over time. We found little evidence of bias for many OM process error assumptions when there was contrast in fishing pressure even when there was greater observation error although it can lead to more variable estimates of natural mortality. For OMs where there was bias in natural mortality due to high observation error, estimating the stock-recruit relationship seemed to remove the bias. However, estimation of natural mortality can cause large differences between the true and estimated SSB (that may be unbiased on average) when there is less contrast in fishing pressure over time and higher observation error.
+
+Retrospective patterns were generally weak for all estimation models regardless of the true source of process error, but they can be expected for recruitment even for the correct process error assumptions when observation error is high. When models did exhibit some retrospective pattern, estimating the mean natural mortality rate tended to remove it.
+
 
 \pagebreak
 
 # Introduction {-}
 
-Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada and the Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}. State-space approaches that use random effects to parameterize process errors is considered best practice and a requirement for the next generation of stock assessment models.
+Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada, and the Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}. State-space approaches that use random effects to parameterize process errors is considered best practice and a requirement for the next generation of stock assessment models \citep{hoyleetal22, punt23}.
 
-Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. Furthermore, there is a wide range of potential random effects structures and model parameters that can be treated as random effects in assessment models. We know relatively little about the statistical reliability of such models or the ability of information criteria to distinguish among such alternative structures. 
+Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. Furthermore, there is a wide range of potential random effects structures and model parameters that can be treated as random effects in assessment models. We know relatively little about the factors affecting statistical reliability of such models or the ability of information criteria to distinguish among such alternative structures. 
 
 <!-- But those studies focus primarily on Gaussian linear models.
 review literature on reliability of hidden/latent process models. Primarily in other fields.
 -->
 
-Convergence results can be useful for understanding how bad convergence in applications to real data might direct the practitioner to which alternative random effects configurations is be more appropriate. The type of convergence that we might use as a diagnostic is important. And what rule of thumb we use for certain criteria e.g. 1e-6? large SEs/CVs?
 
-Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, sources of process error (M, NAA, q, sel), and fishing history. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error (M, NAA< q, sel), whether a stock-recruit model was estimated, and whether M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
+Here we conduct a simulation study with operating models varying by degree of observation error uncertainty, source and variability of process error, and fishing history. The simulations from these operating models are fitted with estimating models that make alternative assumptions for sources of process error, whether a stock-recruit model was estimated, and whether M is estimated. We evaluate whether AIC can correctly determine the correct source of process error and stock effects on recruitment. We also evaluate the degree of bias in the outputs of the assessment model that are important for management.
 
 # Methods {-}
 
-Used the WHAM package  \citep[][commit 77bbd94]{stockmiller21} (Miller and Stock 2020). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetal23} and is used for management of haddock, butterfish, plaice, bluefish in the Northeast US.
+We used the Woods Hole Assessment Model (WHAM) to configure operating and estimation models in our simulation study \citep[]{millerstock20,stockmiller21}. WHAM is an R package freely available as a github repository. For this study we used [version 1.0.6.9000, commit 77bbd94](https://github.com/timjmiller/wham/tree/77bbd946e4881216a439933473d1c58b21c270c3). This packages has also been used to configure operating and estimating models for closed loop simulations evaluating index-based assessment methods \citep{legaultetal23} and is used for management of haddock, butterfish, American plaice, bluefish, Atlantic cod, and black sea bass in the Northeast US.
 
 We completed a simulation study with a number of operating models that can be categorized based on where process error random effects are assumed: abundance at age (R, R+S), natural mortality (R+M), fleet selectivity (R+Sel), or index catchability (R+q). For each operating model assumptions about variance of process errors and observations are required and the values we used were based on a review of the range of estimates from recent applications of WHAM in management of stocks of haddock, butterfish, and American plaice in the NE US.
 
-78 total operating models.
-We simulated 100 data sets for each operating model.
-For each simulated data set we fit a set of 20 estimating models.
+In total, we configured 72 operating models with alternative assumptions about the source and variability of process errors, level of observation error in indices and age composition data, and contrast in fishing pressure over time. We fitted 20 estimating models to observations from each of 100 simulations where process errors were also simulated. Estimating models made alternative assumptions about the source of process errors and whether natural mortality (or the mean for models with process error in natural mortality) was estimated and whether a Beverton-Holt stock recruit relationship was estimated within the estimation model. Details of each of the operating and estimating models are described below. 
+
+We did not use the bias-correction feature for process errors or observations described by \citet{stockmiller21} for operating and estimating models.Simulations and model fitting were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. All code we used to perform the simulation study and summarize results can be found at https://github.com/timjmiller/SSRTWG/tree/main/Project_0/code. 
 
 ## Operating models {-}
 
 ### Population {-}
 
-The population model tracks 10 age classes: ages 1 to 10+ and we assume spawning occurs 1/4 of the way through the year. The maturity at age was a logistic curve with a50 = 2.89 and slope = 0.88 and assumed known in all estimation models (Figure \ref{om_maturity}).
+The population model tracks 10 age classes: ages 1 to 10+ and we assume spawning occurs 1/4 of the way through the year. The maturity at age was a logistic curve with $a_{50}$ = 2.89 and slope = 0.88 and assumed known in all estimation models (Figure \ref{om_maturity}).
 
-\begin{figure}
-\caption{The proportion mature at age assumed for the population in all operating and estimating models.}\label{om_maturity}
-\begin{center}
-\includegraphics[width = \textwidth]{om_maturity.png}
-\end{center}
-\end{figure}
   
 Weight at age was generated with a LVB growth function
 $$
@@ -109,25 +113,11 @@ W_a = \theta_1 L_a^{\theta_2}
 $$
 where $\theta_1 = e^{-12.1}$ and $\theta_2 = 3.2$ (Figure \ref{om_waa}).
 
-\begin{figure}
-\caption{The weight at age assumed for the population in all operating and estimating models.}\label{om_waa}
-\begin{center}
-\includegraphics[width = \textwidth]{om_waa.png}
-\end{center}
-\end{figure}
-
-We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components are constant in the NAA and survey catchability process error operating models. Therefore steepness and unfished recruitment are also constant over the time period for those operating models \citep{millerbrooks21}. We specified unfished recruitment = $R_0 = e^{10}$ and $\Fmsy = \Fspr[40] = 0.348$ equated to a steepness of 0.69 and $\alpha=0.60$ and $\beta = 2.4 \times 10^{-5}$ for the
+We assumed a Beverton-Holt stock recruit function with constant pre-recruit mortality parameters for all operating models. All post-recruit productivity components are constant in the NAA and survey catchability process error operating models. Therefore steepness and unfished recruitment are also constant over the time period for those operating models \citep{millerbrooks21}. We specified unfished recruitment = $R_0 = e^{10}$ and $\Fmsy = F_{40\%} = 0.348$ equated to a steepness of 0.69 and $\alpha=0.60$ and $\beta = 2.4 \times 10^{-5}$ for the
 \[
 N_{1,y} = \frac{\alpha \text{SSB}_{y-1}}{1 + \beta \text{SSB}_{y-1}} 
 \]
 Beverton-Holt parameterization (Figure \ref{om_sr}). For OMs without process errors on natural mortality we assumed the rate was assumed 0.2. For OMs with process errors on natural mortality the mean rate was 0.2. 
-
-\begin{figure}
-\caption{The Beverton-Holt stock recruit relationship assume for all operating models.}\label{om_sr}
-\begin{center}
-\includegraphics[width = \textwidth]{om_sr.png}
-\end{center}
-\end{figure}
 
 Two alternative fishing histories were used for operating models. In the first scenario, the stock experiences overfishing for the first 20 years and fishing at \Fmsy for the last 20 years. In the second scenario, the stock is fished at \Fmsy for the entire time period. The magnitude of the overfishing assumptions is based on average estimates of overfishing for NE groundfish stocks from \citet{wiedenmannetal19}. \Citet{legaultetal23} also used similar approaches to defining fishing mortality histories for operating models.
 
@@ -138,13 +128,6 @@ For operating models with time-varying random effects for M, steepness is not co
 ### Fleets {-}
 
 We assumed a single fleet operating year round for catch observations with logistic selectivity for the fleet with $a_{50} = 5$ and slope = 1 (Figure \ref{om_mean_selectivity}). This selectivity is was used to define \Fmsy for the Beverton-Holt stock recruitment parameters above. We assumed a logistic-normal distribution for the age-composition observations for the fleet.
-
-\begin{figure}
-\caption{The selectivity at age assumed for the fishing fleet in operating models without selectivity random effects. The mean selectivity at age across time for the fishing fleet in operating models with selectivity random effects.}\label{om_mean_selectivity}
-\begin{center}
-\includegraphics[width = \textwidth]{om_mean_selectivity.png}
-\end{center}
-\end{figure}
 
 
 ### Indices {-}
@@ -160,13 +143,6 @@ Standard deviation for log-aggregate catch was 0.1. There were two levels of obs
 
 The factorial combinations of fishing histories, observation error assumptions, and marginal variance assumptions for recruitment and survival results in 24 different operating models with random effects on recruitment and survival (Table \ref{naa_om_table}).
 
-\begin{landscape}
-\begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}\label{naa_om_table}
-{\footnotesize \input{naa_om_tab}}
-\end{table}
-\end{landscape}
-
 
 ### Operating models with random effects on natural mortality {-}
 
@@ -176,14 +152,6 @@ $$
 $$
 that is a linear combination of a mean $\mu_M$ and any annual random effects marginally distributed as $\epsilon_{M,y} \sim \text{N}\left(0,\sigma_M^2\right)$. The values for the marginal variance and correlation parameters assumed in the operating models are given in Table \ref{M_om_table}.
 
-\begin{landscape}
-\begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{M_om_table}
-{\input{M_om_tab}}
-\end{table}
-\end{landscape}
-
-
 ### Operating models with random effects on fleet selectivity {-}
 
 The factorial combinations of fishing histories, observation error assumptions, and marginal variance and autocorrelation assumptions for selectivity parameters results in 16 different operating models with random effects on selectivity (Table \ref{sel_om_table}). Internally, WHAM treats selectivity parameter $s$ as a logit-transformed parameter 
@@ -191,13 +159,6 @@ $$
 \log\left(\frac{p_{s,y}-l_{s}}{u_{s}-p_{s,y}}\right) = \mu_s + \epsilon_{s,y}
 $$
 that is a linear combination of a mean $\mu_s$ and any annual random effects marginally distributed as $\epsilon_{s,y} \sim \text{N}\left(0,\sigma_s^2\right)$ where the lower and upper bounds of the parameter ($l_s$ and $u_s$) can be specified by the user. All selectivity parameters are either $a_50$ or slope parameters and we assume bounds of 0 and 10 for all selectivity parameters for all operating and estimating models. The values for the marginal variance and correlation parameters assumed in the operating models are given in Table \ref{sel_om_table}. 
-
-\begin{landscape}
-\begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{sel_om_table}
-{\input{Sel_om_tab}}
-\end{table}
-\end{landscape}
 
 ### Operating models with random effects on index catchability {-}
 
@@ -208,30 +169,16 @@ $$
 that is a linear combination of a mean $\mu_i$ and any annual random effects marginally distributed as $\epsilon_{i,y} \sim \text{N}\left(0,\sigma_i^2\right)$ where the lower and upper bounds of the catchability ($l_i$ and $u_i$) can be specified by the user. Here we assume bounds of 0 and 1000 for all operating and estimating models. For operating and estimation models with process errors on catchability, the temporal variation is only assumed for the first index. The values for the marginal variance and correlation parameters assumed in the operating models are given in Table \ref{q_om_table}
 
 
-\begin{landscape}
-\begin{table}
-\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{q_om_table}
-{\input{q_om_tab}}
-\end{table}
-\end{landscape}
-
-
 ## Estimating models {-}
 
-For each data set simulated from an operating model 20 estimating models were fit. A total of 32 different estimating models were fit across all operating models where the subset of 20 depended on the source of process error (Table \ref{em_table}). The first 20 estimating models in Table \ref{em_table} were fit to simulate data sets from R and R+S operating models. Estimating models 5 to 24 in Table \ref{em_table} were fit to simulate data sets from R+M operating models. Estimating models 5 to 20 and 25-28 in Table \ref{em_table} were fit to simulate data sets from R+Sel operating models. Finally, estimating models 5 to 20 and 29-32 in Table \ref{em_table} were fit to simulate data sets from R+q operating models.
+For each data set simulated from an operating model 20 estimating models were fit. A total of 32 different estimating models were fit across all operating models where the subset of 20 depended on the source of process error (Table \ref{em_table}). The first 20 estimating models in Table \ref{em_table} were fit to simulate data sets from R and R+S operating models. Estimating models 5 to 24 in Table \ref{em_table} were fit to simulate data sets from R+M operating models. Estimating models 5 to 20 and 25-28 in Table \ref{em_table} were fit to simulate data sets from R+Sel operating models. Finally, estimating models 5 to 20 and 29-32 in Table \ref{em_table} were fit to simulate data sets from R+q operating models. The observation error variance of aggregate catch and indices were all assumed known at the true values.
 
-\begin{table}
-\caption{Distinguishing characteristics of the estimating models.}\label{em_table}
-{\scriptsize \input{em_tab}}
-\end{table}
-
-The observation error variance of the environmental observations and aggregate catch and indices were all assumed known at the true values.
-
-Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarization of results can be found at github.com/timjmiller/SSRTWG/Project_0. We used the wham package version 1.X.X (commit 77bbd94).
 
 ## Measures of reliability {-}
 
-The first measure of reliability we investigated was frequency of convergence when fitting each estimating model to the simulated data sets. There are various ways to assess convergence of the fit. We summarized 5 alternative categories of convergence.
+The first measure of reliability we investigated was frequency of convergence when fitting each estimating model to the simulated data sets.
+There are various ways to assess convergence of the fit. We summarized 5 alternative categories of convergence.
+
 1. Did the optimization routine (stats::nlminb) complete without error?
 2. Did the stats::nlminb convergence flag = 0 indicate successful convergence?
 3. Was the maximum absolute value of the gradient of the log-likelihood < $1\times10^{-6}$?
@@ -255,22 +202,251 @@ We estimated relative bias
 $$
 \widehat {\text{RB}}\left(\theta\right) = \frac{1}{N} \sum^N_{i = 1} \frac{\widehat \theta_i - \theta_i}{\theta_i}
 $$
-of annual SSB and fully-selected fishing mortality for each estimation model and constructed 95\% confidence intervals for the median relative bias using the binomial distribution approach as in \citet{stockmiller21}. We also estimated bias of stock-recruit parameters for estimation models that assumed the Beverton-Holt stock recruit function.
+of annual SSB and fully-selected fishing mortality for each estimation model and constructed 95\% confidence intervals for the median relative bias using the binomial distribution approach as in \citet{millerhyun18} and \citet{stockmiller21}. We also estimated bias of stock-recruit parameters for estimation models that assumed the Beverton-Holt stock recruit function.
 
 
-### Mohn's rho {-}
+### Mohn's $\rho$ {-}
 
-We estimated Mohn's rho for SSB, fully-selected fishing mortality, and recruitment for each estimation model. We estimated 7 peels for each estimation model. We calculated median 95\% confidence intervals for Mohn's rho using the same methods as that for bias.
+We estimated Mohn's $\rho$ for SSB, fully-selected fishing mortality, and recruitment for each estimation model. We estimated 7 peels for each estimation model. We calculated median 95\% confidence intervals for Mohn's $\rho$ using the same methods as that for relative bias.
 
 # Results {-}
 
 ## Convergence performance {-}
 
-Probability of convergence was better for models that assumed the correct source of process error, assumed M was known, and did not assume stock-recruit relationships.
+### R, R+S operating models {-}
+
+
+R+S EMs fit to R OMs exhibited poor convergence for types 3, 4, and 5 regardless of whether M or a stock-recruit relationship was estimated (Figures \ref{naa_om_em_R_MF_convergence} to \ref{naa_om_em_BH_ME_convergence}). R EMs exhibited high convergence rates for all convergence types for both R and R+S OMs. Convergence rates were high for all convergence types for all EMs in R+S OMs with lower uncertainty in observations. Convergence for most convergence types generally declines most estimating models when mean-log natural mortality rate is estimated and/or a Beverton-Holt stock recruit relationship is estimated even when the process error assumptions of the estimating and operating models match. There can be relatively high convergence probability of type 4 (an invertible hessian) for EMs that do not have the correct process error assumed, but type 5 convergence (no very large standard errors estimated from hessian) for these estimating models is typically much lower.
+
+### R+M operating models {-}
+
+R+S EMs generally converged less reliably across convergence types than other EMs when fit to data generated from R+M OMs (Figures \ref{M_om_em_R_MF_convergence} to \ref{M_om_em_BH_ME_convergence}). However, using convergence type 5, all EMs converged poorly when OMs had low variability in natural mortality process errors or higher observation error uncertainty. Using convergence type 5, R+M EMs generally converged better than other EMs when observation error uncertainty was low and natural mortality process errors were more variable. Like R+S OMs, the probability of convergence generally declined for all EMs when mean log-natural mortality and/or a stock-recruit relationship was estimated.
+
+### R+Sel operating models {-}
+
+R+S EMs in particular converged poorly when R+Sel OMs had less variability in selectivity process errors or higher observation error uncertainty (Figures \ref{Sel_om_em_R_MF_convergence} to \ref{Sel_om_em_BH_ME_convergence}). R+Sel EMs generally converged better than other EMs for OMs with greater variability in process errors, lower observation error, and contrast in fishing pressure regardless of whether mean log natural mortality or a stock recruit relationship was estimated.
+
+### R+q operating models {-}
+
+Convergence of R+q EMs is generally better than that of other EMs for all convergence types when R+q OMs assume contrast in fishing history overFigures (\ref{q_om_em_R_MF_convergence} to \ref{q_om_em_BH_ME_convergence}).  Convergence of R+S EMs is generally worse than that of other EMs across all OMs whether or not mean log-natural mortality or a stock recruit relationship is estimated. Again, convergence probablity generally declines for all EMs when mean log-natural mortality or a stock recruit relationship is estimated.
+
+## AIC performance for process error structure {-}
 
 ### R, R+S operating models {-}
 
-Figures \ref{naa_om_em_R_MF_convergence} to \ref{naa_om_em_BH_ME_convergence}
+Marginal AIC accurately determines the correct process error assumptions in estimating models when data are generated from R and R+S OMs, regardless of whether mean log-natural mortality or a stock recruit relationship is estimated (Figures \ref{naa_om_proportion_best_aic_R_MF} to \ref{naa_om_proportion_best_aic_SR_ME}). Adding estimation of mean log-natural mortality or a stock recruit relationship separately has a negligible effect on the accuracy of determining the correct process error assumption. When both are estimated, there is a noticeable reduction in accuracy when OMs have a constant fishing history, observation error is low and largest variability in recruitment process errors.
+
+
+### R+M operating models {-}
+
+Marginal AIC only accurately determined the correct process error model and correlation structure when observation error was low and variability in natural mortality process errors was high (Figures \ref{M_om_proportion_best_aic_R_MF} to \ref{M_om_proportion_best_aic_SR_ME}). Estimating the mean natural mortality rate reduced the accuracy of AIC for OMs that assumed natural mortality process errors were independent. For OMs with poor accuracy, AIC most frequently selected EMs with process errors in catchability or selectivity. Selection of R+S EMs was typically unlikely.
+
+### R+Sel operating models {-}
+
+Marginal AIC most accurately determined the correct source of process error and correlation structure for R+Sel OMs with low observation error (Figures \ref{Sel_om_proportion_best_aic_R_MF} to \ref{Sel_om_proportion_best_aic_SR_ME}). When there was low variability in selectivity process errors and high observation error, R+q or R+S EMs were more likely to have the best AIC. Whether mean log-natural morality or stock recruit relationships were estimated appeared to have little effect on the performance of marginal AIC.
+### R+q operating models {-}
+
+Marginal AIC most accurately determined the correct source of process error and correlation structure for R+q OMs with high variability in catchability process errors (Figures \ref{q_om_proportion_best_aic_R_MF} to \ref{q_om_proportion_best_aic_SR_ME}). The worst accuracy occurred for OMs with low variability in catchability process errors and high observation error. However, in these OMs, the marginal AIC accurately determined the correct source of process error (but not correlation structure) except when EMs estimated both mean log-natural morality and the stock recruit relationships and OMs assumed a constant fishing pressure. 
+
+## AIC performance for stock-recruit relationship {-}
+
+<!--
+Tables of frequencies where AIC chooses correct stock-recruit assumption imply poor performance of AIC, but figures showing effect of variation in SSB demonstrate that large variation in SSB is needed to reduce Type II errors for marginal AIC.
+-->
+Our comparisons of model performance condition on assuming the true process error configuration is known (EM and OM process error assumptions match). Broadly, we found generally poor accuracy of AIC in selecting models assuming a Beverton-Holt stock recruit function over the null model without an assumed stock-recruit relationship for all OMs (Tables \ref{naa_om_em_R_BH_aic_table} to \ref{q_om_em_R_BH_aic_table}. However, we also found AIC to more accurately determine a stock-recruit relationship when there was greater variation in spawning biomass generated in the simulated populations.
+
+AIC accuracy for including the B-H stock-recruit relationship was estimated to be highest for models OMs and EMs with process errors only on recruitment and lowest variance of recruitment process errors (Figures \ref{naa_om_MF_BH_glm_AIC_plots} and \ref{naa_om_ME_BH_glm_AIC_plots}). Holding variability in SSB constant, accuracy of stock-recruit  model selection declined with greater variance of recruitment and survival process errors. Simultaneously estimating mean log-natural mortality has a small negative effect on AIC accuracy.
+
+For R+M OMs and EMs there appeared to little effect of correlation in the natural mortality process errors or estimating the mean log-natural mortality on accuracy of AIC in determining a stock-recruit function, holding variability in SSB constant (Figures \ref{M_om_MF_BH_glm_AIC_plots} and \ref{M_om_ME_BH_glm_AIC_plots}).
+
+The range of variation in SSB across simulated populations was lower for R+Sel operating models than R+S or R+M OMs. OMs with contrast in fishing pressure over time is the primary mechanism creating variation in SSB. However, there appears to be little effect of variability or correlation of selectivity process errors or whether mean log-natural mortality was estimated on the accuracy of AIC in selecting the stock recruit relationship (Figures \ref{Sel_om_MF_BH_glm_AIC_plots} and \ref{Sel_om_ME_BH_glm_AIC_plots})
+
+Like the R+Sel OMs, the range of variation in SSB across is only increased by allowing contrast in fishing pressure over time. There appears to be a slight decrease in accuracy in AIC when mean log-natural mortality is estimated and there is a more noticeable increase in accuracy for OMs with lower observation error in those cases. (Figures \ref{q_om_MF_BH_glm_AIC_plots} and \ref{q_om_ME_BH_glm_AIC_plots})
+
+## Bias {-}
+
+### R, R+S operating models {-}
+
+When mean log-natural mortality is known, all estimating models regardless of process error assumptions produce unbiased estimates of SSB over the entire time period for R OMs (Figure \ref{naa_om_em_R_MF_relbias_ssb}). For R+S OMs, only R+S EMs produce unbiased estimation of SSB and bias resulting from other EMs increased with larger variability in survival random effects. Estimating mean log-natural mortality generally produced greater variability in relative errors of SSB estimates and a change in sign of bias for EMs assuming process errors other than R and R+S (Figure \ref{naa_om_em_R_ME_relbias_ssb}). Estimating a stock-recruit relationship had little discernable effect on bias of SSB estimation (Figures \ref{naa_om_em_BH_MF_relbias_ssb}), but in combination with estimating mean log-natural mortality resulted in large bias of R+S EMs for R OMs with high observation error, constant fishing pressure and large variability in recruitment process errors \ref{naa_om_em_BH_ME_relbias_ssb}). 
+
+### R+M operating models {-}
+
+
+When mean log-natural mortality is known, SSB estimation bias was small or non-existent for all EM process error assumptions when the OMs had low variability of the natural mortality process errors except a tendency toward negative bias in the terminal years for OMs with high observation error and a change in fishing pressure over time (Figure \ref{M_om_em_R_MF_relbias_ssb}). Errors in SSB estimation were most variable with high variability and autocorrelation of natural mortality process errors, but confidence intervals generally covered 0 indicating no evidence of bias. Estimating mean log-natural mortality results in large variability in SSB relative errors, particularly for OMs with high observation error and constant fishing pressure and all EMs produced biased estimation of SSB over all years when OMs had high observation error, a change in fishing pressure and low variability of natural mortality process errors (Figure \ref{M_om_em_R_ME_relbias_ssb}). Like R and R+S OMs, estimating a stock-recruit relationship had little discernible effect on SSB bias (Figures \ref{M_om_em_BH_MF_relbias_ssb} and \ref{M_om_em_BH_ME_relbias_ssb})
+
+### R+Sel operating models {-}
+
+When mean log-natural mortality is known and no stock-recruit relationship was estimated, SSB estimation bias was low for all EM process error assumptions (Figure \ref{Sel_om_em_R_MF_relbias_ssb}). The worst bias occurred for OMs with uncorrelated by more variable selectivity process errors and high observations error.  As for other OMs, estimating mean log-natural mortality resulted in greater variability of the relative errors in SSB, but also more evidence of bias for EMS without the correct process error assumption (Figure \ref{Sel_om_em_R_ME_relbias_ssb}). Estimating a stock recruit relationship resulted in greater estimation of SSB in the terminal years and sometimes less bias when OMs had high observation error and a change in fishing pressure over time and the effect was more pronounced when mean log-natural mortality was estimated (Figures \ref{Sel_om_em_BH_MF_relbias_ssb} and \ref{Sel_om_em_BH_ME_relbias_ssb}).  
+
+### R+q operating models {-}
+
+When mean log-natural mortality is known and no S-R relationship was estimated, SSB estimation bias was low for all EM process error assumptions for all R+q OMs with low variability in catchability process errors (Figure \ref{q_om_em_R_MF_relbias_ssb}). With larger variability in catchability process errors, bias was low for all EMs except those configured with R+M process errors and OMs assumed low observation error. Many EMs also showed some negative bias for terminal SSB in OMs with higher observation error and a change in fishing pressure over time. As for other OMs, mean log-natural mortality resulted in greater variablity of the relative errors in SSB, but also more evidence of bias for some EMs without the correct process error assumption (Figure \ref{q_om_em_R_ME_relbias_ssb})
+Estimating a stock recruit relationship resulted in less bias in SSB in terminal years when OMs had high observation error and a change in fishing pressure over time (Figures \ref{q_om_em_BH_MF_relbias_ssb} and \ref{q_om_em_BH_ME_relbias_ssb}).  
+
+### Beverton-Holt parameter estimation {-}
+
+In R and R+S OMs, EMs with the correct assumptions about process errors, provided the least biased estimation of Beverton-Holt stock-recruit relationship parameters when there was low observation error, a change in fishing pressure over time, and lower variability of recruitment process errors, and higher variability survival process errors, and there was little effect of estimating natural mortality (Figure \ref{naa_om_SR_relbias}). For other R and R+S OMs, estimating natural mortality often resulted in less biased estimation of stock-recruit parameters. The range of confidence intervals for the median parameter bias suggests large variability of the parameter estimates.
+
+In R+M OMs, the most accurate estimation of stock-recruit parameters occurred when there was a change in fishing pressure combined with either low variability in natural mortality process errors and high observation error or vice versa (Figure \ref{M_om_SR_relbias}). Relative to the R, and R+S OMs, there was even less effect of estimating mean log-natural mortality on estimation bias for the stock- recruit relationship parameters, but similarly there was generally large variability of the parameter estimates.
+
+In R+Sel OMs, bias for stock-recruit parameters was very large for OMs with constant fishing pressure (Figure \ref{Sel_om_SR_relbias}). Less bias in parameter estimation occurred for OMs with a change in fishing pressure over time. There was little effect of estimating natural mortality. Patterns in bias of stock-recruit parameter estimation in R+q OMs, were very similar to those in R+Sel OMs with poor estimation of these parameters in OMs with constant fishing pressure (Figure \ref{q_om_SR_relbias}). Like other OMs, there was generally large variability of the parameter estimates.
+
+### (Mean) natural mortality rate estimation {-}
+
+The mean natural mortality rate is estimated pretty accurately for R and R+S OMs when EMs use the correct process error configuration and there is a change in fishing pressure over time and observation error is low (Figure \ref{naa_om_M_relbias}). Estimation is a little more variable when observation error is higher or fishing pressure is constant, but when OMs have both, estimation is extremely variable. There is little effect of estimating stock-recruit relationships on the bias in estimating natural mortality. For R+M OMs, effects on estimating mean log-natural mortality were similar to the R and R+S OMs: best estimation with a change in fishing pressure and low observation error and worst with no change in fishing pressure and higher observation error (Figure \ref{M_om_M_relbias}). The same patterns also occurred for R+Sel and R+q OMs (Figures \ref{Sel_om_M_relbias} and \ref{q_om_M_relbias}).
+
+## Mohn's $\rho$ {-}
+
+### R, R+S operating models {-}
+
+When natural mortality is known and no stock recruit relationship is estimated, median absolute Mohn's $\rho$ was less than 0.25 for all EMS fit to simulated data sets from R and R+S OMs (Figure \ref{naa_om_em_R_MF_mohns_rho}). The strongest median Mohn's $\rho$ values for F and SSB were obtained for EMs that did not match the R+S OMs with the largest variability in survival process errors, change in fishing pressure over time, and higher observation error. Mohn's $\rho$ was also greater than 0 for recruitment for all EMS, including the matching EM, fit to R OMs that had the largest variability in recruitment random effects and high observation error. Estimating natural mortality removed the retrospective patterns in F and SSB in R+S OMs with the largest variability in survival process errors, change in fishing pressure over time, and higher observation error (Figure \ref{naa_om_em_R_ME_mohns_rho}). Estimating a stock-recruit relationship had no discernible effect on the retrospective patterns (Figure \ref{naa_om_em_BH_MF_mohns_rho}). Estimating natural mortality and the stock-recruit relationship increased the variablity of Mohn's $\rho$ for recruitment particularly for OMs with high observation error (Figure \ref{naa_om_em_BH_ME_mohns_rho}).
+
+### R+M operating models {-}
+
+When mean log-natural mortality is known and no stock recruit relationship is estimated, median abslolute Mohn's $\rho$ was less than 0.125 for all EMS fit to simulated data sets from R+M OMs (Figure \ref{M_om_em_R_MF_mohns_rho}). The strongest median Mohn's $\rho$ values for F, SSB, and recruitment were obtained for EMs other than R+M with autocorrelation assumed for OMs with a change in fishing pressure over time, and higher observation error. Like R and R+S OMs, estimating natural mortality removed the retrospective patterns in the respective OMs (Figure \ref{M_om_em_R_ME_mohns_rho}). Estimating a stock-recruit relationship also had the same effect as estimating the mean log-natural mortality rate, but Mohn's $\rho$ values were more variable for R+M EMs with autocorrelation assumed (Figure \ref{M_om_em_BH_MF_mohns_rho}). Estimating natural mortality and the stock-recruit relationship increased the variablity of Mohn's $\rho$ for F, SSB, and recruitment, particularly for OMs with high observation error and constant fishing pressure over time (Figure \ref{M_om_em_BH_ME_mohns_rho}).
+
+### R+Sel operating models {-}
+
+Similar to R+M OMs, when mean log-natural mortality is known and no stock recruit relationship is estimated, median abslolute Mohn's $\rho$ was less than 0.125 for all EMS fit to simulated data sets from R+Sel OMs (Figure \ref{Sel_om_em_R_MF_mohns_rho}). The strongest median Mohn's $\rho$ values for F, SSB, and recruitment were obtained for all EMs  with OMs that had a change in fishing pressure over time, and higher observation error. Estimating natural mortality increased the variability in Mohn's $\rho$ values, particularly for OMs with higher observation error and constant fishing (Figure \ref{Sel_om_em_R_ME_mohns_rho}). Estimating a stock-recruit relationship also removed any tendency for retrospective patterns in OMs with a change in fishing pressure and higher observation error (Figure \ref{Sel_om_em_BH_MF_mohns_rho}). Estimating natural mortality and the stock-recruit relationship further increased the variablity of Mohn's $\rho$ for F, SSB, and recruitment, particularly for OMs with high observation error and constant fishing pressure over time (Figure \ref{Sel_om_em_BH_ME_mohns_rho}).
+
+### R+q operating models {-}
+
+Similar to R+M and R+Sel OMs, when mean log-natural mortality is known and no stock recruit relationship is estimated, median abslolute Mohn's $\rho$ was less than 0.125 for all EMS fit to simulated data sets from R+q OMs (Figure \ref{q_om_em_R_MF_mohns_rho}). Also similar to other OMs, the strongest median Mohn's $\rho$ values for F, SSB, and recruitment were obtained for with OMs that had a change in fishing pressure over time, and higher observation error. Estimating natural mortality increased the variability in Mohn's $\rho$ values, particularly for OMs with constant fishing and autocorrelation of process errors in catchability (Figure \ref{q_om_em_R_ME_mohns_rho}). Similar to other OMs, estimating a stock-recruit relationship removed any tendency for retrospective patterns in OMs with a change in fishing pressure and higher observation error (Figure \ref{q_om_em_BH_MF_mohns_rho}). Like R+Sel OMs, estimating natural mortality and the stock-recruit relationship further increased the variablity of Mohn's $\rho$ for F, SSB, and recruitment, particularly for OMs with high observation error and constant fishing pressure over time (Figure \ref{q_om_em_BH_ME_mohns_rho}).
+
+
+# Discussion {-}
+
+## Convergence {-}
+
+Convergence results can be useful for understanding how bad convergence in applications to real data might direct the practitioner to which alternative random effects configurations is be more appropriate. Therefore, the type of convergence that we might use as a diagnostic is important. It is common during assessment model fitting to check that the maximum absolute gradient component is less than some threshold. Our Type 3 convergence represents this and we used 1e-6 as the threshold, but there is no standard. Furthermore we found the hessian at the optimized log-likelihood can often be invertible (Convergence types 4 and 5) when the gradient approach to convergence fails.  The probability of convergence type 5 cannot be greater than that of type 4 because type 5 is a subset where none of the standard errors obtained by inverting the hessian are greater than a specified value (100 in this case). We presume that the parameters that cause type 4 convergence to fail will also typically be the same as those that cause type 5 to fail. Perhaps a higher gradient threshold for Type 3 convergence would be more consistent with hessian-based convergence, but the gradient and hessian-based standard errors should be inspected. Parameters that are not well estimated can lead the assessment scientist toward a more appropriate and often more parsimonious model configuration. For example, variance parameters that are estimated on log scale as low negative number (variance is close to 0) can happen for random effects estimated with little or no variability. These may sometimes lead a hessian to not be invertible or due to numerical issues may be invertible, but provide very large standard errors. More generally, we can expect lower likelihood of convergence when estimating natural mortality or stock-recruit relationships because the typical data in assessment models does not strongly inform these parameters. 
+
+## AIC {-}
+
+Among the process error configurations we used in operating models, we found AIC to be accurate for process errors on recruitment and survival. Fitting models to other OMs rarely preferred R+S EMs and R and R+S EMs were nearly always selected for the matching OMs. For other sources of process error, accuracy of AIC was improved to useful levels when there was larger variability in the process errors and/or lower observation error. Therefore, when data are relatively good and an there is large variability in the unknown process errors, AIC is likely to perform well.
+
+AIC generally performs weakly in determining stock recruit relationships unless there is large contrast in SSB. Interestingly, \citet{milleretal16} found AIC to prefer a stock-recruit relationship for SNEMA yellowtail flounder where there was a large change in stock size estimated over time and flatfish are well observed by the bottom trawl indices relative to some other guilds such as semi-pelagic species. Although we did not compare models with alternative stock-recruit relationships, we do not expect AIC to perform any better distinguishing these relationships. Our results comport well with those of \citet{devalpinehastings02} where state-space stock-recruit models were fit just to SSB and recruitment "observations".
+
+## Bias {-}
+
+As we might expect bias in all parameters and assessment output was generally less with lower observation error in indices and age composition. Reliable estimation of stock-recruit relationship parameters only appears possible in ideal situations with lower observation errors in age composition and indices, lower variability in recruitment process errors and large contrast in spawning biomass over time. The latter can occur in with larger variability in survival or natural mortality process errors, variation in fishing pressure. 
+
+Estimation of natural mortality (or the mean when there are process errors on natural mortality) appears more feasible. We found low or no evidence of bias for many OM process error assumptions when there was contrast in fishing pressure even when there was greater observation error although it can lead to more variable estimates of natural mortality. For OMs where there was bias in natural mortality due to high observation error (R+Sel, R+q), estimating the stock-recruit relationship seemed to remove the bias. However, estimation of natural mortality can cause large differences between the true and estimated SSB (that may be unbiased on average) when there is less contrast in fishing pressure over time and higher observation error.
+
+## Retrospective patterns {-}
+
+Higher observation error with variation in fishing pressure can produce retrospective patterns even when the the process error assumption is correct, but this retrospective pattern can be reduced if M or the correct stock recruit relationship is estimated. Retrospective patterns tended to be more variable for recruitment and can be large even when the estimating model is correct. Therefore, we recommend emphasis on inspection of retrospective patterns primarily for SSB and F, but further research on retrospective patterns in other assessment model parameters and derived output may be beneficial.
+
+
+# Acknowledgements {-}
+
+This work was funded by NOAA Fisheries Northeast Fisheries Science Center. 
+
+<!--
+# CRediT authorship contribution statement {-}
+
+**Timothy J. Miller:** Conceptualization, Methodology, Writing - original draft, Formal analysis, Visualization.
+ -->
+ 
+\pagebreak
+
+\bibliography{paper}
+<!-- \bibliography{project-0-paper}
+\bibliographystyle{/home/tmiller2/work/bibliographies/cjfas2}  -->
+
+<div id="refs"></div>
+
+\pagebreak
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on survival. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant.}\label{naa_om_table}
+{\footnotesize \input{naa_om_tab}}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on natural mortality. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{M_om_table}
+{\input{M_om_tab}}
+\end{table}
+\end{landscape}
+
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on selectivity. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{sel_om_table}
+{\input{Sel_om_tab}}
+\end{table}
+\end{landscape}
+
+
+\begin{landscape}
+\begin{table}
+\caption{Distinguishing characteristics of the operating models with random effects on catchability. Standard deviations (SD) are for log-normal distributed indices and logistic normal distributed age composition observations (fleet and indices). Fishing mortality changes after year 20 (of 40) for fishing histories where fishing mortality is not constant. For AR1 process errors, $\sigma$ is defined for the marginal distribution of the processes.}\label{q_om_table}
+{\input{q_om_tab}}
+\end{table}
+\end{landscape}
+
+\begin{table}
+\caption{Distinguishing characteristics of the estimating models.}\label{em_table}
+{\scriptsize \input{em_tab}}
+\end{table}
+
+
+<!-- AIC TABLES --->
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R or R+S process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}\label{naa_om_em_R_BH_aic_table}
+{\input{naa_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R+M process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}\label{M_om_em_R_BH_aic_table}
+{\input{M_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R+Sel process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}\label{Sel_om_em_R_BH_aic_table}
+{\input{Sel_om_em_R_BH_aic_table}}
+\end{table}
+
+\begin{table}
+\caption{Operating models and estimation models all assume matching R+q process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}\label{q_om_em_R_BH_aic_table}
+{\input{q_om_em_R_BH_aic_table}}
+\end{table}
+
+\clearpage
+<!-- OM configuration plots --->
+
+\begin{figure}
+\caption{The proportion mature at age assumed for the population in all operating and estimating models.}\label{om_maturity}
+\begin{center}
+\includegraphics[width = \textwidth]{om_maturity.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{The weight at age assumed for the population in all operating and estimating models.}\label{om_waa}
+\begin{center}
+\includegraphics[width = \textwidth]{om_waa.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{The Beverton-Holt stock recruit relationship assume for all operating models.}\label{om_sr}
+\begin{center}
+\includegraphics[width = \textwidth]{om_sr.png}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{The selectivity at age assumed for the fishing fleet in operating models without selectivity random effects. The mean selectivity at age across time for the fishing fleet in operating models with selectivity random effects.}\label{om_mean_selectivity}
+\begin{center}
+\includegraphics[width = \textwidth]{om_mean_selectivity.png}
+\end{center}
+\end{figure}
+
+<!-- Convergence --->
 
 \begin{landscape}
 \begin{figure}
@@ -308,9 +484,6 @@ Figures \ref{naa_om_em_R_MF_convergence} to \ref{naa_om_em_BH_ME_convergence}
 \end{figure}
 \end{landscape}
 
-### R+M operating models {-}
-
-Figures \ref{M_om_em_R_MF_convergence} to \ref{M_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -348,9 +521,6 @@ Figures \ref{M_om_em_R_MF_convergence} to \ref{M_om_em_BH_ME_convergence}
 \end{figure}
 \end{landscape}
 
-### R+Sel operating models {-}
-
-Figures \ref{Sel_om_em_R_MF_convergence} to \ref{Sel_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -388,9 +558,6 @@ Figures \ref{Sel_om_em_R_MF_convergence} to \ref{Sel_om_em_BH_ME_convergence}
 \end{figure}
 \end{landscape}
 
-### R+q operating models {-}
-
-Figures \ref{q_om_em_R_MF_convergence} to \ref{q_om_em_BH_ME_convergence}
 
 \begin{landscape}
 \begin{figure}
@@ -428,12 +595,7 @@ Figures \ref{q_om_em_R_MF_convergence} to \ref{q_om_em_BH_ME_convergence}
 \end{figure}
 \end{landscape}
 
-
-## AIC performance for process error structure {-}
-
-### R, R+S operating models {-}
-
-Figures \ref{naa_om_proportion_best_aic_R_MF} to \ref{naa_om_proportion_best_aic_SR_ME}
+<!-- AIC --->
 
 \begin{landscape}
 \begin{figure}
@@ -472,10 +634,6 @@ Figures \ref{naa_om_proportion_best_aic_R_MF} to \ref{naa_om_proportion_best_aic
 \end{landscape}
 
 
-### R+M operating models {-}
-
-Figures \ref{M_om_proportion_best_aic_R_MF} to \ref{M_om_proportion_best_aic_SR_ME}
-
 \begin{landscape}
 \begin{figure}
 \caption{Proportion of simulated data sets from OMs with R+M process errors where fitted estimating models had lowest marginal AIC. All estimating models estimate mean recruitment rather than a stock-recruit relationship and and M is fixed at the true value.} \label{M_om_proportion_best_aic_R_MF}
@@ -512,9 +670,6 @@ Figures \ref{M_om_proportion_best_aic_R_MF} to \ref{M_om_proportion_best_aic_SR_
 \end{figure}
 \end{landscape}
 
-### R+Sel operating models {-}
-
-Figures \ref{Sel_om_proportion_best_aic_R_MF} to \ref{Sel_om_proportion_best_aic_SR_ME}
 
 \begin{landscape}
 \begin{figure}
@@ -553,9 +708,6 @@ Figures \ref{Sel_om_proportion_best_aic_R_MF} to \ref{Sel_om_proportion_best_aic
 \end{landscape}
 
 
-### R+q operating models {-}
-
-Figures \ref{q_om_proportion_best_aic_R_MF} to \ref{q_om_proportion_best_aic_SR_ME}
 
 \begin{landscape}
 \begin{figure}
@@ -621,16 +773,9 @@ Figures \ref{q_om_proportion_best_aic_R_MF} to \ref{q_om_proportion_best_aic_SR_
 -->
 
 \clearpage 
-## AIC performance for stock-recruit relationship {-}
 
-Tables of frequencies where AIC chooses correct stock-recruit assumption imply poor performance of AIC, but figures showing effect of variation in SSB demonstrate that large variation in SSB is needed to reduce Type II errors for marginal AIC.
 
-### R, R+S operating models {-}
-
-\begin{table}
-\caption{Operating models and estimation models all assume matching R or R+S process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
-{\input{naa_om_em_R_BH_aic_table}}
-\end{table}
+<!-- AIC stock-recruit selection--->
 
 
 \begin{figure}
@@ -641,18 +786,12 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 
 \begin{figure}
-\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Estimating models allow estimation of mean M.}\label{naa_om_ME_BH_glm_AIC_plots}
+\caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R or R+S process error structures. Estimating models allow estimation of mean M.}\label{naa_om_ME_BH_glm_AIC_plots}
 \begin{center}
 \includegraphics[width = \textwidth]{naa_om_ME_pred_BH_best.png}
 \end{center}
 \end{figure}
 
-### R+M operating models {-}
-
-\begin{table}
-\caption{Operating models and estimation models all assume matching R+M process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
-{\input{M_om_em_R_BH_aic_table}}
-\end{table}
 
 \begin{figure}
 \caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+M process error structures. Estimating models assume mean M is fixed at the true value.}\label{M_om_MF_BH_glm_AIC_plots}
@@ -668,12 +807,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{center}
 \end{figure}
 
-### R+Sel operating models {-}
-
-\begin{table}
-\caption{Operating models and estimation models all assume matching R+Sel process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
-{\input{Sel_om_em_R_BH_aic_table}}
-\end{table}
 
 \begin{figure}
 \caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+Sel process error structures. Estimating models assume mean M is fixed at the true value.}\label{Sel_om_MF_BH_glm_AIC_plots}
@@ -688,13 +821,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \includegraphics[width = \textwidth]{Sel_om_ME_pred_BH_best.png}
 \end{center}
 \end{figure}
-
-### R+q operating models {-}
-
-\begin{table}
-\caption{Operating models and estimation models all assume matching R+q process error structure, estimating models assume mean recruitment or a B-H stock recruit relationship and M is either fixed at the true value or estimated.}
-{\input{q_om_em_R_BH_aic_table}}
-\end{table}
 
 \begin{figure}
 \caption{Predicted probability of AIC preferring BH model as a function of the variation of population SSB. Operating and estimating models have matching R+q process error structures. Estimating models assume mean M is fixed at the true value.}\label{q_om_MF_BH_glm_AIC_plots}
@@ -712,9 +838,8 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 
 
 \clearpage 
-## Bias {-}
 
-### R, R+S OMs {-}
+<!-- Bias --->
 
 \begin{landscape}
 \begin{figure}
@@ -752,7 +877,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### R+M OMs {-}
 
 \begin{landscape}
 \begin{figure}
@@ -790,7 +914,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### R+Sel OMs {-}
 
 \begin{landscape}
 \begin{figure}
@@ -828,7 +951,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### R+q OMs {-}
 
 \begin{landscape}
 \begin{figure}
@@ -866,7 +988,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### Beverton-Holt parameter estimation
 
 \begin{landscape}
 \begin{figure}
@@ -904,7 +1025,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### (Mean) natural mortality rate estimation
 
 \begin{landscape}
 \begin{figure}
@@ -942,9 +1062,8 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-## Mohn's $\rho$ {-}
+<!-- Retro --->
 
-### R, R+S OMs {-}
 
 \begin{landscape}
 \begin{figure}
@@ -982,7 +1101,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### R+M OMs {-}
 
 \begin{landscape}
 \begin{figure}
@@ -1020,7 +1138,7 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### R+Sel OMs {-}
+
 
 \begin{landscape}
 \begin{figure}
@@ -1058,7 +1176,6 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{figure}
 \end{landscape}
 
-### R+q OMs {-}
 
 \begin{landscape}
 \begin{figure}
@@ -1095,32 +1212,4 @@ Tables of frequencies where AIC chooses correct stock-recruit assumption imply p
 \end{center}
 \end{figure}
 \end{landscape}
-
-
-# Discussion {-}
-
-The estimating models assumed variances of aggregate catch and index observations was known. This approximation may be appropriate for indices where we have a reliable estimate of uncertainty based on the survey design (), but there may be better approaches for the aggregate catch such as an informed prior on the standard errors with realistic bounds.
-
-
-# Acknowledgements {-}
-
-This work was funded by NOAA Fisheries Northeast Fisheries Science Center. 
-
-<!--
-# CRediT authorship contribution statement {-}
-
-**Timothy J. Miller:** Conceptualization, Methodology, Writing - original draft, Formal analysis, Visualization.
- -->
- 
-\pagebreak
-
-\bibliography{paper}
-<!-- \bibliography{project-0-paper}
-\bibliographystyle{/home/tmiller2/work/bibliographies/cjfas2}  -->
-
-<div id="refs"></div>
-
-\pagebreak
-
-
 
