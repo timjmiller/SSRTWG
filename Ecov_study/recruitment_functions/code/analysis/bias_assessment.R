@@ -2,31 +2,47 @@ library(here)
 library(tidyverse)
 library(rpart)
 
-res.dir <- file.path(here::here(), "Ecov_study","recruitment_functions", "results")
-plot.dir <- 'plots'
-plot.suffix <- '_beta_fix' 
+
+# res.dir <- file.path(here::here(), "Ecov_study","recruitment_functions", "results")
+res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
+res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
+
+## specify bad.grad.label and bad.se.value (these are the thresholds set in convergence_summaries.R to determine convergence) 
+bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
+bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
+bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
+
 
 df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
-no.conv.runs <- readRDS(file.path(here(),'Ecov_study','recruitment_functions','plots_lizruns', "no.conv.runs.RDS") )
+#no.conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions','plots_lizruns', "no.conv.runs.RDS") )
+conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
-no.conv.runs <- no.conv.runs %>%
-  rename(Sim=sim)
+# conv.runs <- no.conv.runs %>%
+#   rename(Sim=sim) %>%
+#   mutate(ok.run =(bad.opt+ bad.conv+ bad.sdrep+ bad.grad+ bad.se.big) ) %>%
+#   replace_na(list(ok.run=1)) %>%
+#   relocate(OM, EM, Sim, ok.run, bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big) %>%
+#   filter(ok.run==0)  # drop unconverged runs
 
 n_oms <- nrow(df.oms)
 n_ems <- nrow(df.ems)
-n_sims <- 50
+n_sims <- 100
 nyears <- 40
 
-folders <- list.files(res.dir, pattern='om')
+#n.conv.runs <- nrow(conv.runs)
+
 
 t1 <- Sys.time()
 re.recr <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
+  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
-      #print(paste0("om ",om," em ",em," sim ",sim))
+      # print(paste0("om ",om," em ",em," sim ",sim))
       re <- rep(NA, nyears)
-      dat <- try(readRDS(file.path(res.dir, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
+      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
       # silent=TRUE)   )
       if(class(dat)!='try-error'){
         #dat$truth$NAA[,1] - dat$fit$rep$NAA[,1]  
@@ -37,32 +53,38 @@ re.recr <- lapply(1:n_oms,function(om){  #produces list of length n_oms with lis
   })
 })
 t2 <- Sys.time()
-t2-t1   #Time difference of 17.66439 mins
+t2-t1   #Time difference of 17.66439 mins (lizruns); Time difference of 2.353031 hours (gregruns)
 
-saveRDS(re.recr, file.path( res.dir,'re.recr.RDS'))
-re.recr <- readRDS(file.path( res.dir,'re.recr.RDS'))
+saveRDS(re.recr,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.recr', plot.suffix, '.RDS') ) )
+re.recr <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.recr', plot.suffix, '.RDS') ) )
 
+t1 <- Sys.time()
 re.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims ***except sometimes the matrix is a list instead of a matrix!
+  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       #print(paste0("om ",om," em ",em," sim ",sim))
       
-      dat <- try(readRDS(file.path(res.dir, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )
+      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )
       if(class(dat)!='try-error'){
         (dat$fit$rep$SSB - dat$truth$SSB)/ dat$truth$SSB   
       }
     })
   })
 })
-saveRDS(re.ssb, file.path(, res.dir,'re.ssb.RDS'))
-re.ssb <- readRDS(file.path( res.dir,'re.ssb.RDS'))
+t2 <- Sys.time()
+t2-t1  # Time difference of 1.764071 hours
+saveRDS(re.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.ssb', plot.suffix, '.RDS') ) )
+re.ssb <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.ssb', plot.suffix, '.RDS') ) )
 
+t1 <- Sys.time()
 re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
+  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       #print(paste0("om ",om," em ",em," sim ",sim))
       
-      dat <- try(readRDS(file.path(res.dir, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
+      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
       # silent=TRUE)   )
       if(class(dat)!='try-error'){
         (dat$fit$rep$Fbar - dat$truth$Fbar)/ dat$truth$Fbar   
@@ -70,26 +92,28 @@ re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with lis
     })
   })
 })
-saveRDS(re.fbar, file.path( res.dir,'re.fbar.RDS'))
-re.fbar <- readRDS(file.path( res.dir,'re.fbar.RDS'))
+t2 <- Sys.time()
+t2-t1 # Time difference of 1.781398 hours
+saveRDS(re.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+re.fbar <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ) )
 
 
 #ggplot(dplyr::bind_rows(ff[[1]], .id="EM"), aes(x=............) )
 
 #summarize convergence by OM#, then drill into factors (did any combo consistently bomb?)
-
-re.recr.all.yrs.med <- lapply(1:n_oms,function(om) {
-  lapply(1:n_ems, function(em)  {
-    sapply(1:n_sims, function(sim) {
-      med <- NA
-      dat <- try(readRDS(file.path(res.dir, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )
-      if(class(dat)!='try-error'){
-      med <- quantile(re.recr[[om]][[em]][,sim], probs=0.5)
-      }
-      med
-    } )
-  } )
-}  )
+# 
+# re.recr.all.yrs.med <- lapply(1:n_oms,function(om) {
+#   lapply(1:n_ems, function(em)  {
+#     sapply(1:n_sims, function(sim) {
+#       med <- NA
+#       dat <- try(readRDS(file.path(res.dir, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )
+#       if(class(dat)!='try-error'){
+#       med <- quantile(re.recr[[om]][[em]][,sim], probs=0.5)
+#       }
+#       med
+#     } )
+#   } )
+# }  )
 
 nyears<-dim(re.recr[[1]][[1]])[1]
 
@@ -110,23 +134,32 @@ colnames(re.recr.all.yrs) <- c('OM', 'EM', paste0(rep('P',7), c('025','05', '25'
 k <- 1
 kdf <- 1
   for(iom in 1:n_oms) {
+    print(paste0("om ",iom ))
     for (jem in 1:n_ems){
         kk<-1
       for (ksim in 1:n_sims) {
-        dat <- try(readRDS(file.path(res.dir, paste0("om", iom, '/','sim',ksim,'_','em',jem,'.RDS') ) ) )
+        dat <- try(readRDS(file.path(res.path, paste0("om", iom, '/','sim',ksim,'_','em',jem,'.RDS') ) ) )
         if(class(dat)!='try-error'){
-          if(length(re.recr[[iom]][[jem]])==2000) {
-            re.recr.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.recr[[iom]][[jem]][,ksim]
-            re.ssb.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.ssb[[iom]][[jem]][,ksim]
-            re.fbar.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.fbar[[iom]][[jem]][,ksim]
+          if(length(re.recr[[iom]][[jem]])==n_sims*nyears)  re.recr.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.recr[[iom]][[jem]][,ksim]
+          if(length(re.ssb[[iom]][[jem]])==n_sims*nyears) re.ssb.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.ssb[[iom]][[jem]][,ksim]
+          if(length(re.fbar[[iom]][[jem]])==n_sims*nyears)  re.fbar.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.fbar[[iom]][[jem]][,ksim]
             
            
-          }
-          if(length(re.recr[[iom]][[jem]])==50) {
+          
+          if(length(re.recr[[iom]][[jem]])==n_sims) {
             if(length(re.recr[[iom]][[jem]][[ksim]])>0) {
               re.recr.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.recr[[iom]][[jem]][[ksim]]
+            }
+          }
+          if(length(re.ssb[[iom]][[jem]])==n_sims) {
+            if(length(re.ssb[[iom]][[jem]][[ksim]])>0) {
               re.ssb.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.ssb[[iom]][[jem]][[ksim]]
+            }
+          }
+              if(length(re.fbar[[iom]][[jem]])==n_sims) {
+                if(length(re.fbar[[iom]][[jem]][[ksim]])>0) {
               re.fbar.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- re.fbar[[iom]][[jem]][[ksim]]
+                  
             }
           }
           
@@ -157,61 +190,62 @@ kdf <- 1
     } #jem loop
   } #iom loop
 t2 <- Sys.time()
-t2-t1
+t2-t1  # Time difference of 1.623663 hours
 
-saveRDS(re.recr.df, file.path(res.dir, "re.recr.df.RDS") )
-saveRDS(re.ssb.df, file.path(res.dir, "re.ssb.df.RDS") )
-saveRDS(re.fbar.df, file.path(res.dir, "re.fbar.df.RDS") )
+saveRDS(re.recr.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.recr", plot.suffix, ".df.RDS") ) )
+saveRDS(re.ssb.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.ssb", plot.suffix, ".df.RDS") ) )
+saveRDS(re.fbar.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.fbar", plot.suffix, ".df.RDS") ) )
 
-# Time difference of 2.908205 mins
+# 
 
 ####################################################################################
 ## Read RDS dataframes (if already run above) ====
 ####################################################################################
 
-re.recr.df <- readRDS( file.path(res.dir, "re.recr.df.RDS") )
-re.ssb.df <- readRDS( file.path(res.dir, "re.ssb.df.RDS") )
-re.fbar.df <- readRDS( file.path(res.dir, "re.fbar.df.RDS") )
+re.recr.df <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.recr", plot.suffix, ".df.RDS") ) )
+re.ssb.df <- readRDS(  file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.ssb", plot.suffix, ".df.RDS") )  )
+re.fbar.df <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.fbar", plot.suffix, ".df.RDS") )  )
 
 
 
 df.oms2 <- as_tibble(cbind(OM=seq(1,256), df.oms)) 
 df.ems2 <- cbind(EM=seq(1,6), df.ems)
-colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod")
+colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod") 
 em_tib <- as_tibble(df.ems2) %>%
   mutate(SR=ifelse(EM_r_mod==2, 'Mean', 'BH')) %>%
   mutate(EM_mod = paste0(SR, "_", EM_ecov_how))
+
+
+conv.runs.ok <- conv.runs %>%
+  mutate(re.ok = paste0(OM, '.', sim, '.', EM)) %>%
+  select(re.ok)
 
 re.rec.tib <- as_tibble(re.recr.df) %>%
   left_join(df.oms2) %>%
   left_join(em_tib) %>%
   mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
-  left_join(no.conv.runs) %>%                 #1=bad, 0=not bad
-  mutate(ok.run =(bad.opt+ bad.conv+ bad.sdrep+ bad.grad+ bad.se.big) ) %>%
-  replace_na(list(ok.run=1)) %>%
-  relocate(OM, EM, Sim, bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, ok.run) %>%
-  filter(ok.run==0)  # drop unconverged runs
-  
+  mutate(re.ok= paste0(OM, '.', Sim, '.', EM) ) %>%
+  relocate(OM, EM, Sim, Year, re.ok, RE) %>%
+  filter(re.ok %in% conv.runs.ok$re.ok) 
+
 re.ssb.tib <- as_tibble(re.ssb.df) %>%
   left_join(df.oms2) %>%
   left_join(em_tib) %>%
   mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
-  left_join(no.conv.runs) %>%                 #1=bad, 0=not bad
-  mutate(ok.run =(bad.opt+ bad.conv+ bad.sdrep+ bad.grad+ bad.se.big) ) %>%
-  replace_na(list(ok.run=1)) %>%
-  relocate(OM, EM, Sim, bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, ok.run) %>%
-  filter(ok.run==0)  # drop unconverged runs
+  mutate(re.ok= paste0(OM, '.', Sim, '.', EM) ) %>%
+  relocate(OM, EM, Sim, Year, re.ok, RE) %>%
+  filter(re.ok %in% conv.runs.ok$re.ok) 
+
 
 
 re.fbar.tib <- as_tibble(re.fbar.df) %>%
   left_join(df.oms2) %>%
   left_join(em_tib) %>%
   mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
-  left_join(no.conv.runs) %>%                 #1=bad, 0=not bad
-  mutate(ok.run =(bad.opt+ bad.conv+ bad.sdrep+ bad.grad+ bad.se.big) ) %>%
-  replace_na(list(ok.run=1)) %>%
-  relocate(OM, EM, Sim, bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, ok.run) %>%
-  filter(ok.run==0)  # drop unconverged runs
+  mutate(re.ok= paste0(OM, '.', Sim, '.', EM) ) %>%
+  relocate(OM, EM, Sim, Year, re.ok, RE) %>%
+  filter(re.ok %in% conv.runs.ok$re.ok) 
+
 
 
 re.rec.tib$R_sig <- factor(re.rec.tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
@@ -258,7 +292,7 @@ nodes_recr_last10.yrs <- unique(imp.var[,1])
 rf_recr_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
 imp.var <- rf_recr_final.yrs$frame[rf_recr_final.yrs$frame$var != '<leaf>',]
 nodes_recr_final.yrs <- unique(imp.var[,1])
-# "R_sig"
+# nothing
 
 
 # ssb ====
@@ -277,7 +311,7 @@ nodes_ssb_last10.yrs <- unique(imp.var[,1])
 rf_ssb_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
 imp.var <- rf_ssb_final.yrs$frame[rf_ssb_final.yrs$frame$var != '<leaf>',]
 nodes_ssb_final.yrs <- unique(imp.var[,1])
-# "R_sig"
+# nothing
 
 
 # fbar ====
@@ -332,7 +366,7 @@ re.fbar.sum <- re.fbar.tib %>%
 #################################################
 # summarize  last 10 years  ====
 
-# summarize  last 10 years
+
 re.rec.sum.last.10 <- re.rec.tib %>%
   filter(Year>30) %>%
   group_by(  R_sig,  Ecov_how, EM, mod.match ) %>%
@@ -367,7 +401,7 @@ re.fbar.sum.last.10 <- re.fbar.tib %>%
 #################################################
 # summarize final year  ====
 
-# summarize terminal year
+
 re.rec.sum.last.yr <- re.rec.tib %>%
   filter(Year==40) %>%
   group_by( R_sig, Ecov_how, EM, mod.match ) %>%
@@ -400,9 +434,6 @@ re.fbar.sum.last.yr <- re.fbar.tib %>%
   left_join(em_tib)
 
 
-## to do ====
-## should look at anova for re.recr, re.ssb, re.fbar to make sure there are any factors that explain variability
-# DONE....regression tree showed not effect other than R_sig (only weak)
 
 
 #################################################
@@ -411,9 +442,9 @@ re.fbar.sum.last.yr <- re.fbar.tib %>%
 re.rec.all.yrs.plot <- ggplot(re.rec.sum, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(Recr) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -433,9 +464,9 @@ ggsave(re.rec.all.yrs.plot, filename=file.path(here(),'Ecov_study','recruitment_
 re.ssb.all.yrs.plot <- ggplot(re.ssb.sum, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(SSB) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -455,9 +486,9 @@ ggsave(re.ssb.all.yrs.plot, filename=file.path(here(),'Ecov_study','recruitment_
 re.fbar.all.yrs.plot <- ggplot(re.fbar.sum, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(Fbar) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -477,9 +508,9 @@ ggsave(re.fbar.all.yrs.plot, filename=file.path(here(),'Ecov_study','recruitment
 re.rec.last.10.plot <- ggplot(re.rec.sum.last.10, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(Recr) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -500,9 +531,9 @@ ggsave(re.rec.last.10.plot, filename=file.path(here(),'Ecov_study','recruitment_
 re.ssb.last.10.plot <- ggplot(re.ssb.sum.last.10, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(SSB) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -523,9 +554,9 @@ ggsave(re.ssb.last.10.plot, filename=file.path(here(),'Ecov_study','recruitment_
 re.fbar.last.10.plot <- ggplot(re.fbar.sum.last.10, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(Fbar) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -547,9 +578,9 @@ ggsave(re.fbar.last.10.plot, filename=file.path(here(),'Ecov_study','recruitment
 re.rec.last.yr.plot <- ggplot(re.rec.sum.last.yr, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(Recr) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -569,9 +600,9 @@ ggsave(re.rec.last.yr.plot, filename=file.path(here(),'Ecov_study','recruitment_
 re.ssb.last.yr.plot <- ggplot(re.ssb.sum.last.yr, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(SSB) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
@@ -591,9 +622,9 @@ ggsave(re.ssb.last.yr.plot, filename=file.path(here(),'Ecov_study','recruitment_
 re.fbar.last.yr.plot <- ggplot(re.fbar.sum.last.yr, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
   facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
-  geom_point(size=2) +
-  geom_hline(yintercept=0.0, col='#111111dd') +
-  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.4) )+
+  geom_point(size=2.5) +
+  geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
+  geom_errorbar(aes(ymin=(RE_p2.5), ymax=(RE_p97.5), width=.5) )+
   ylab('RE(Fbar) (2.5 - 50 - 97.5 percentiles)') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
