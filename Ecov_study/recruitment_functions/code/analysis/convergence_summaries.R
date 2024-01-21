@@ -4,10 +4,13 @@
 library('here')
 library('tidyverse')
 library('xtable')
+library(rpart)
 
 res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'
 plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
 plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
+
+n.sims <- 100
 
 AIC_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC', plot.suffix, '.rds') ) )
 AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC_weight', plot.suffix, '.rds') ) )
@@ -166,19 +169,26 @@ bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
 ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".plot.png" ) ),  height=7, width=12)
 
 
+###################################################################
+# characterize crashes ====  
 
-## characterize crashes ====  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-em_tib <- as_tibble(df.ems) %>%
-  mutate(SR=ifelse(r_mod==2, 'Mean', 'BH')) %>%
-  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,6))
 
 om_fail_tib <- as_tibble(om.fails.df) %>%
-  rename(EM=em.fails) %>% 
+  rename(EM=em.fails, Iter=iter.fails) %>% 
   left_join(df.oms2) %>%
   left_join(em_tib) %>%
   mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
   mutate(fail.iter.em = paste0(N.fail, '_', EM)) %>%
-  relocate(OM, N.fail, iter.fails, EM, EM_mod)
+  relocate(OM, N.fail, Iter, EM, EM_mod)
+
+sim_tib <- as_tibble(cbind(OM=rep(seq(1, nrow(df.oms)), each=n.sims*nrow(df.ems)) , Iter=rep(seq(1,n.sims),nrow(df.oms)*nrow(df.ems)) , EM=rep(seq(1,6), nrow(df.oms)*n.sims) ) ) %>%
+  left_join(df.oms2)
+  
+
+om_all_tib <- sim_tib %>%
+  full_join(om_fail_tib) %>%
+  mutate(Crash=ifelse(is.na(N.fail), 0, 1)) %>%
+  relocate(OM, Iter, EM, Crash)
 
 om_fail_tib$R_sig <- factor(om_fail_tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
 om_fail_tib$Ecov_how    <- factor(om_fail_tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
@@ -187,7 +197,18 @@ om_fail_tib$Fhist       <- factor(om_fail_tib$Fhist,labels=c("H-MSY","MSY") )
 om_fail_tib$Ecov_effect <- factor(om_fail_tib$Ecov_effect,labels=c("Ecov_L", "Ecov_H"))
 om_fail_tib$Ecov_re_cor <- factor(om_fail_tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
 
+om_all_tib$R_sig <- factor(om_all_tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
+om_all_tib$Ecov_how    <- factor(om_all_tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
+om_all_tib$NAA_cor     <- factor(om_all_tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
+om_all_tib$Fhist       <- factor(om_all_tib$Fhist,labels=c("H-MSY","MSY") )
+om_all_tib$Ecov_effect <- factor(om_all_tib$Ecov_effect,labels=c("Ecov_L", "Ecov_H"))
+om_all_tib$Ecov_re_cor <- factor(om_all_tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
 
+# regression tree for Crashes ======================================
+rf_crash   <- rpart(Crash   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM, data=om_all_tib, control=rpart.control(cp=0.01))
+imp.var <- rf_crash$frame[rf_crash$frame$var != '<leaf>',]
+nodes_crash <- unique(imp.var[,1])
+# "EM"  
 
 crashed.models.plot <- ggplot(om_fail_tib, aes(x=EM_mod, fill=as.factor(mod.match) )) +
   facet_grid(R_sig  + Ecov_how ~ Fhist  + Ecov_effect  ) +

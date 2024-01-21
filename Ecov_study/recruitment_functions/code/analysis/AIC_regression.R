@@ -327,9 +327,9 @@ dev.off()
 
 pdf(file.path(here(),'Ecov_study','recruitment_functions',plot.dir,paste0('raw_boxplots_Ecov', plot.suffix, '.pdf') ),
     height=5,width=7)
-AIC_best$correct_SR <- factor(AIC_best$correct_SR,labels=c("N","Y"))
+AIC_best$correct_ecov <- factor(AIC_best$correct_SR,labels=c("N","Y"))
 par(mfrow=c(2,3),mar=c(2,2,2,3),oma=c(2,2,5,2))
-plot(AIC_best$correct_SR ~ AIC_best$Ecov_effect); mtext("Ecov_effect",adj=0)
+plot(AIC_best$correct_ecov ~ AIC_best$Ecov_effect); mtext("Ecov_effect",adj=0)
 title('Correct Ecov_how', outer=TRUE)
 plot(AIC_best$correct_ecov ~ AIC_best$R_sig); mtext("R_sig",adj=0)
 plot(AIC_best$correct_ecov ~ AIC_best$NAA_cor); mtext("NAA_cor",adj=0)
