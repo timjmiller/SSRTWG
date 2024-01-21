@@ -17,6 +17,7 @@ Ecov_study/recruitment/results*
 Ecov_study/recruitment/output*
 Ecov_study/recruitment/error*
 Ecov_study/recruitment_functions/results*
+!Ecov_study/recruitment_functions/results_beta_fix/*.RDS
 #Ecov_study/recruitment_functions/plots
 Ecov_study/mortality/untracked
 !Ecov_study/mortality/inputs/*.RDS
