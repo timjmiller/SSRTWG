@@ -251,7 +251,7 @@ bad_par_table <- bad_grad_par %>%
   full_join(bad_SE_par) %>%
   arrange(Par) %>%
   rename(N_Bad.Grad=ntimes.bad.grad, N_Big.SE=ntimes.bad.se) 
-write.csv(bad_par_tib, file=file.path(here(),'Ecov_study','recruitment_functions','tables', paste0("Bad.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
+write.csv(bad_par_table, file=file.path(here(),'Ecov_study','recruitment_functions','tables', paste0("Bad.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
 
 
 bad_par_long <- bad_par_table %>%
