@@ -57,20 +57,21 @@ AIC_best$Ecov_how    <- factor(AIC_best$Ecov_how,labels=c("0", "1","2","4"))
 AIC_best$NAA_cor     <- factor(AIC_best$NAA_cor,labels=c("L","H"))
 AIC_best$Fhist       <- factor(AIC_best$Fhist,labels=c("H-MSY","MSY") ) 
 AIC_best$Ecov_re_cor <- factor(AIC_best$Ecov_re_cor,labels=c("L","H"))
+AIC_best$obs_error   <- factor(AIC_best$obs_error,labels=c("L","H"))
 
 # regression tree for correct form (or SR or Ecov) ======================================
-rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_best, control=rpart.control(cp=0.01))
+rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=AIC_best, control=rpart.control(cp=0.01))
 imp.var <- rf_SR$frame[rf_SR$frame$var != '<leaf>',]
 nodes_SR <- unique(imp.var[,1])
 # "Fhist"   "R_sig"   
 
-rf_ecov   <- rpart(correct_ecov   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_best, control=rpart.control(cp=0.01))
+rf_ecov   <- rpart(correct_ecov   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=AIC_best, control=rpart.control(cp=0.01))
 imp.var <- rf_ecov$frame[rf_ecov$frame$var != '<leaf>',]
 nodes_ecov <- unique(imp.var[,1])
 # "Ecov_how"
 
 
-rf_form <- rpart(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_best, control=rpart.control(cp=0.01))
+rf_form <- rpart(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=AIC_best, control=rpart.control(cp=0.01))
 imp.var <- rf_form$frame[rf_form$frame$var != '<leaf>',]
 nodes_form <- unique(imp.var[,1])
 # "R_sig"       "Fhist"       "Ecov_how"    "Ecov_effect"
@@ -98,6 +99,7 @@ AIC_weight$Ecov_how    <- factor(AIC_weight$Ecov_how,labels=c("0", "1","2","4"))
 AIC_weight$NAA_cor     <- factor(AIC_weight$NAA_cor,labels=c("L","H"))
 AIC_weight$Fhist       <- factor(AIC_weight$Fhist,labels=c("H-MSY","MSY") ) 
 AIC_weight$Ecov_re_cor <- factor(AIC_weight$Ecov_re_cor,labels=c("L","H"))
+AIC_weight$obs_error   <- factor(AIC_weight$obs_error,labels=c("L","H"))
 
 
 rf_dAIC <- rpart(dAIC ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_weight, control=rpart.control(cp=0.01))
@@ -243,8 +245,8 @@ ggsave(dAIC.plot.ylim, filename=file.path(here(),'Ecov_study','recruitment_funct
 #===========================================================
 
 
-fit_SR_glm   <- glm(correct_SR ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect, data=AIC, family='binomial')
-fit_form_glm <- glm(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect, data=AIC, family='binomial')
+fit_SR_glm   <- glm(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + obs_error, data=AIC_best, family='binomial')
+fit_form_glm <- glm(correct_form ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + obs_error, data=AIC_best, family='binomial')
 
 # Error with glmer:  (liz)
 # Error in initializePtr() : 

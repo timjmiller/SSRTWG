@@ -14,6 +14,8 @@ output: html_notebook
    + *AIC_weight.RDS* contains AIC, convergence, model rank, model weight, model probability info for all EMs per OM-Sim
    + Runtime on Azure for unstandardized beta runs: Time difference of 4.075107 hours
    + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+   + **<span style="color: red;">STATUS: done for beta standardized; </span>**
+   
   
 2. Specify convergence tolerances/thresholds in **convergence_summaries.R**
    + bad.grad.value : cut-off for identifying parameters with abs(gradient)>bad.grad.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
@@ -24,14 +26,20 @@ output: html_notebook
      + plots of parameters that failed the bad.grad or bad.se criteria
    + Runtime is fast
    + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+   + **<span style="color: red;">STATUS: done for beta standardized; </span>**
+    
     
 3. Generate regression trees to characterize factors influencing model identifiability; run **AIC_regression.R**
    + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
    + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
-   + regression trees are done to determine factors associated with dAIC (difference in model AIC), Model probability (calculated from AIC weights), and AIC rank (models are ranked by integer with 1= lowest AIC, and 6=highest AIC per OM-Sim; if not all 6 EMs converged for this OM-Sim, then the highest AIC rank is the number of models converged)/ **<span style="color: red;">question: should i just look at dAIC for models with AIC rank >1? (because dAIC=0 when AIC rank = 1)</span>**
+   + regression trees are done to determine factors associated with dAIC (difference in model AIC), Model probability (calculated from AIC weights), and AIC rank (models are ranked by integer with 1= lowest AIC, and 6=highest AIC per OM-Sim; if not all 6 EMs converged for this OM-Sim, then the highest AIC rank is the number of models converged)/ **<span style="color: red;">question: should i just look at dAIC for models with AIC rank >1? (because dAIC=0 when AIC rank = 1);.</span>** **<span style="color: blue;">GLB: Perhaps you could look at dAIC for rank=2 as that represents the dAIC of the next best model. We would hope that to be large for the correct model and small for the incorrect.</span>**
    + Runtime is fast
    + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+   + **<span style="color: red;">STATUS: done for beta standardized; </span>**
    
+3. Fit GLMs and GLMMs to identifiability results
+   + **<span style="color: red;">STATUS: done for beta standardized; </span>**
+  
 4. Look at bias in SSB, Recr, Fbar **bias_assessment.R**
    + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
    + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
@@ -40,13 +48,20 @@ output: html_notebook
       + this script produces plots summarizing relative error (RE) over all years, the last 10 years, and the final year
    + Runtime is slooooow (and code is inefficient--feel free to tighten it up)
    + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+   + **<span style="color: red;">STATUS: pending for beta standardized; </span>**
+   
+4. Fit GLMs and GLMMs to assessment bias results
+   + **<span style="color: blue;">STATUS: pending for beta unstandardized; </span>**
+   + **<span style="color: red;">STATUS: pending for beta standardized; </span>**
 
 5. Look at bias in parameter estimates **bias_parameters.R**
    + SR_a, SR_b, sigmaR, rho_R, sigmaEcov, rho_Ecov
    + also grabbing catchability (logit_q), selectivity (logit_selpars), catch_paa_pars, and index_paa_pars parameters so i don't have to pass through results again
    + Runtime ...pending
    + **<span style="color: blue;">STATUS: pending beta unstandardized; </span>**
-   
+
+5a. Fit GLMs and GLMMs to parameter bias results
+
   
 
 
