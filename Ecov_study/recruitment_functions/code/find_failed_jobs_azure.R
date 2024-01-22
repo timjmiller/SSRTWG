@@ -7,7 +7,8 @@ df.oms    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions
 n.em <- nrow(df.ems)
 n.om <- nrow(df.oms)
 om.names <- paste0("om", seq(1,n.om))
-iters <- seq(1,50)
+#iters <- seq(1,50) #liz ran 50
+iters <- seq(1,100) #greg ran 100
 n.iter <- length(iters)
 n.iter.em <- n.iter*n.em
 
@@ -18,11 +19,13 @@ em.fails <- c()
 iter.fails <- c()
 
 fail.list <- list()
+t1 <- Sys.time()
 
 for (i in 1:n.om) {
   om=om.names[i]
   
-  sims.run <- list.files(file.path(here::here(),"Ecov_study", "recruitment_functions", "results", om), pattern = ".RDS")
+  #sims.run <- list.files(file.path(here::here(),"Ecov_study", "recruitment_functions", "results", om), pattern = ".RDS")
+  sims.run <- list.files(file.path('E:/results_beta_fix', om), pattern = ".RDS")
   fails <- which((sim.names %in% sims.run)==FALSE)
   
   if(length(fails)==0) fail.list[[i]] <- NA
@@ -41,10 +44,30 @@ for (i in 1:n.om) {
     iter.fails <- c()
 
 }
-
+t2 <- Sys.time()
+t2-t1  # 22.01293 secs
 
 om.reruns <- which(lapply(fail.list, function(x) is.na(x[1]) )==FALSE)
 
+
+
+#####################################################################################
+# make df of failed runs ====
+
+om.fails.df <- c()  #
+
+for(i in 1:nrow(df.oms)) {
+  
+  if(is.na(fail.list[[i]][1])==FALSE) om.fails.df <- rbind(om.fails.df,
+                                                           cbind(OM=rep(i, fail.list[[i]]$nfails), 
+                                                                 N.fail=rep(fail.list[[i]]$nfails, fail.list[[i]]$nfails), 
+                                                                 fail.list[[i]]$iter_em) )
+}
+
+saveRDS(om.fails.df, file.path(here::here("Ecov_study", 'recruitment_functions', 'results_beta_fix'),'om.fails.df_beta_unstandardized.RDS'))
+
+
+#####################################################################################
 
 # saveRDS(fail.list, file=file.path(here::here(),"Ecov_study", "recruitment_functions", 
 #                                   "results", "failed.list_1.RDS") ) 
