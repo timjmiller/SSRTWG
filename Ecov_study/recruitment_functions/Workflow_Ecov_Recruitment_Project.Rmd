@@ -18,6 +18,7 @@ output: html_notebook
 2. Specify convergence tolerances/thresholds in **convergence_summaries.R**
    + bad.grad.value : cut-off for identifying parameters with abs(gradient)>bad.grad.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
    + bad.se.value : cut-off for identifying parameter where SE_par_max>bad.se.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
+   + the dataframe <span style="text-decoration:underline">om.fails.df</span>, read at top of file, is created in **find_failed_jobs_Azure.R** which is in recruitment_functions/code (1 directory up from /analysis)
    + given this, output is produced using bad.grad.value and bad.se.value appended to plot and table names to identify the tolerances
      + plots of number of bad models (from the best set, and from all EMs per OM-Sim)
      + plots of parameters that failed the bad.grad or bad.se criteria
