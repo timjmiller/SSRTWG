@@ -137,10 +137,10 @@ par_mat_yearly_tib <- as_tibble(par_mat_yearly) %>%
      #!!!!!!!!!! will likely have to make this calculation with my own function !!!!!!!
   )
          
-saveRDS(par_mat_yearly, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("par_mat_yearly", plot.suffix, ".RDS") ) )
-saveRDS(par_mat, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("par_mat", plot.suffix, ".RDS") ) )
-saveRDS(true_mat_yearly, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("true_mat_yearly", plot.suffix, ".RDS") ) )
-saveRDS(true_mat, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("true_mat", plot.suffix, ".RDS") ) )
+saveRDS(par_mat_yearly_tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("par_mat_yearly", plot.suffix, ".RDS") ) )
+saveRDS(par_mat_tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("par_mat", plot.suffix, ".RDS") ) )
+saveRDS(true_mat_yearly_tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("true_mat_yearly", plot.suffix, ".RDS") ) )
+saveRDS(true_mat_tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("true_mat", plot.suffix, ".RDS") ) )
 
 
 
