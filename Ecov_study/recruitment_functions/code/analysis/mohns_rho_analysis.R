@@ -94,7 +94,7 @@ t2 <- Sys.time()
 t2-t1
 # Time difference of 1.6924 hours (gregs runs)
 saveRDS(rho.peels, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.peels', plot.suffix, '.RDS') ) )
-
+# rho.peels <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.peels', plot.suffix, '.RDS') ) )
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # get rho for random effects on recruitment ====
@@ -174,6 +174,8 @@ for (iom in 1:n_oms) {
 t2 <- Sys.time()
 t2-t1    # Time difference of 14.54442 secs
 
+
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # reformat the mohn's rho values for random effects on recruitment ====
 rho.randeff.df2 <- c()
@@ -234,6 +236,7 @@ rho.tib <- as_tibble(rho.df2) %>%
   filter(Quantity %in% c('SSB', 'Fbar', 'R')) %>%
   filter(Rho<10)
 
+saveRDS(rho.tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.SSB.Fbar.Recr', plot.suffix, '.RDS') ) )
 
 # look at regression trees for explanatory factors ====
 library(rpart.plot)
@@ -291,13 +294,14 @@ dev.off()
 rho.tib.sum <- rho.tib %>%
   filter(Quantity %in% c('SSB', 'Fbar', 'R' ) ) %>%
   group_by( EM, Ecov_how, mod.match, Quantity, R_sig, Fhist, obs_error) %>%
-  summarise(mean.rho=mean(Rho, na.rm=T), med.rho=median(Rho, na.rm=T),
+  summarise(mean.rho=mean(Rho, na.rm=T), var.rho=var(Rho, na.rm=T), med.rho=median(Rho, na.rm=T),
             p2.5=quantile(Rho, prob=0.025), p97.5=quantile(Rho, prob=0.975)) %>%
   ungroup()  %>%
   left_join(em_tib)
   #drop_na() %>%
 
 
+# now plot distribution summary of rho values  ====
 
 ssb.rho.plot <- ggplot(rho.tib.sum[rho.tib.sum$Quantity=="SSB",], aes(x=EM_mod, y=med.rho, col=as.factor(mod.match)  )) +
   facet_grid(R_sig+Ecov_how ~ Fhist+obs_error     ) +
@@ -379,6 +383,7 @@ rho.randeff.tib <- as_tibble(rho.randeff.df2) %>%
   mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
   filter(abs(R_dev)<10)
 
+saveRDS(rho.randeff.tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.Recr_devs', plot.suffix, '.RDS') ) )
 
 # look at regression trees for explanatory factors ====
 library(rpart.plot)
@@ -424,7 +429,7 @@ rho.randeff.tib.sum <- rho.randeff.tib %>%
 #drop_na() %>%
 
 
-
+# now plot distribution summary of rho values  ====
 
 recr.dev.rho.plot <- ggplot(rho.randeff.tib.sum, aes(x=EM_mod, y=med.rho, col=as.factor(mod.match)  )) +
   facet_grid(Ecov_how ~  R_sig  + Fhist     ) +
