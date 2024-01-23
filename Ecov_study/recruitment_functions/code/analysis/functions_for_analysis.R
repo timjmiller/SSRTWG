@@ -60,6 +60,27 @@ mohns_rho_set_peel <- function (model=NULL, npeels=NULL, ny=NULL, na=NULL)
 
 
 #=======================================================================================
+#   Calculate mohn's rho for Recruitment random effects for user-specified number of peels   ====
+#=======================================================================================
+# (modifying my fn_retro_par_estimates.R script in SSRTWG/common_code)
+mohns_rho_randeff_peel <- function (model=NULL, npeels=NULL, ny=NULL) 
+{
+  #npeels = length(model$peels)
+  # ny = model$env$data$n_years_model
+  
+  ny.re = ny-1  # there are ny-1 random effects, first year is mean
+  
+  if (npeels) {
+    rho = mean(sapply(1:npeels, function(x) model$peels[[x]]$rep$NAA_devs[(ny.re -x),1]/model$fit$rep$NAA_devs[(ny.re - x),1] - 1))
+    names(rho) = c("R_dev")
+    
+    return(rho)
+  }
+  else stop("There are no peels in this model")
+}
+
+
+#=======================================================================================
 #   Collect AIC and convergence info across OMs, EMs, Sims  ====
 #=======================================================================================
 

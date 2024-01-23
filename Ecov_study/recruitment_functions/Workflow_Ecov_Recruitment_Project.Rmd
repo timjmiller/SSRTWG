@@ -50,8 +50,14 @@ output: html_notebook
    + Runtime 1.17 hours
    + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
    
-5. Cleaning up script **compare_projections.R**
-   + this calculates mohn's rho for user-specified number of peels, evaluates relative error from peel 10 to peel 0, ...
+6. Look at retrospective bias **mohns_rho_analysis.R**
+   + this calculates mohn's rho for user-specified number of peels
+   + regression tree and plots for SSB, Fbar, Recruitment and also for recruitment random effects
+   + Runtime 2 * 1.6 hours
+   + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
+
+7. Cleaning up script **compare_projections.R**
+   + evaluates relative error in projections between peel 10 and truth ...
    + Runtime ...
    + **<span style="color: blue;">STATUS: pending... beta unstandardized; </span>**
 
@@ -60,7 +66,10 @@ output: html_notebook
 
 -----
 
-# Figures  
+# Figures and Tables
+
++ SSRTWG/Ecov_study/recruitment_functions/plots_beta_fix
++ SSRTWG/Ecov_study/recruitment_functions/tables
 
 -----
 
