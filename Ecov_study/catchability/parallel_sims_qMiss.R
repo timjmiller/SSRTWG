@@ -389,7 +389,8 @@ registerDoParallel(40)
 #   dir.create(here::here(dirname))
 # }
 #foreach(ifile = head(seq(1, length(filenames), by=50), -1)) %dopar% {
-foreach(ifile = c(9201, 9251, 9301, 9351, 9401, 9451, 9501, 9551)) %dopar% {
+#foreach(ifile = c(9201, 9251, 9301, 9351, 9401, 9451, 9501, 9551)) %dopar% {
+foreach(ifile = c(1251, 2201, 2451, 3201, 3851, 6201, 8501, 8851)) %dopar%{ # process files that were initially missed
   print(paste0("ifile ", ifile))
   postprocess_simTestWHAM(filenames =  c(filenames[ifile:(ifile+49)]), outdir = paste0(outdir,"/process_", ifile))
 }
@@ -399,14 +400,25 @@ postprocess_simTestWHAM(filenames = c(filenames[9552:9600], filenames[9551]), ou
 
 parallel_processed <-  list.files(path = here::here(paste0("Ecov_study/catchability/Results/parallel_process")), pattern = "perfMet_", recursive = TRUE, full.names = TRUE)
 
+postprocess_simTestWHAM(filenames = c(filenames[1153:1200], filenames[1151:1152]), outdir = paste0(outdir, "/process_1151"))
+postprocess_simTestWHAM(filenames = c(filenames[1252:1300], filenames[1251]), outdir = paste0(outdir, "/process_1251"))
+postprocess_simTestWHAM(filenames = c(filenames[2202:2250], filenames[2201]), outdir = paste0(outdir, "/process_2201"))
+postprocess_simTestWHAM(filenames = c(filenames[2452:2500], filenames[2451]), outdir = paste0(outdir, "/process_2451")) 
+postprocess_simTestWHAM(filenames = c(filenames[3203:3250], filenames[3201:3202]), outdir = paste0(outdir, "/process_3201")) 
+postprocess_simTestWHAM(filenames = c(filenames[3852:3900], filenames[3851]), outdir = paste0(outdir, "/process_3851"))
+postprocess_simTestWHAM(filenames = c(filenames[6202:6250], filenames[6201]), outdir = paste0(outdir, "/process_6201")) 
+postprocess_simTestWHAM(filenames = c(filenames[8502:8550], filenames[8501]), outdir = paste0(outdir, "/process_8501")) 
+postprocess_simTestWHAM(filenames = c(filenames[8852:8900], filenames[8851]), outdir = paste0(outdir, "/process_8851"))
+
 # Check that all blocks of files have been processed
 check <- parallel_processed %>% strsplit(., "/", fixed = TRUE) %>% unlist() %>% matrix(ncol = 11, byrow = T) %>% as.data.frame()
 check <- check[,10] %>% strsplit("process_", fixed = TRUE) %>% unlist() %>% matrix(ncol = 2, byrow = TRUE)
 check <- check[,2] %>% as.numeric() 
-seq(1, length(filenames), by=50)[-which(check %in% seq(1, length(filenames), by=50))] # if numeric(0) then finished processing
+sequence <- seq(1, length(filenames), by=50)
+sequence[-match(check, sequence)] # if numeric(0) then finished processing
 
 # Aggregate processed files
-combinePerfMet(filenames = parallel_processed, outdir = outdir)
+# combinePerfMet(filenames = parallel_processed, outdir = outdir)
 
 ##### Aggregate processed files by seasonal miss-specification (required because full results file too large)
 batchCombine <- function(filenames=NULL, manualLast = NULL){
@@ -480,43 +492,104 @@ batchCombine <- function(filenames=NULL, manualLast = NULL){
 }
 
 batchCombine(filenames = parallel_processed[1:10], manualLast = NULL)
-readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "perfMet_missSeason_NONE_Fmsy_2024-01-18_14-48-45.404633.RDS"))$sim %>% unique() %>% as.numeric() %>% max() # NONE option is last in each file so should be max sim from the file
+#readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "perfMet_missSeason_NONE_Fmsy_2024-01-22_19-50-00.346291.RDS"))$sim %>% unique() %>% as.numeric() %>% max() # NONE option is last in each file so should be max sim from the file
 batchCombine(filenames = parallel_processed[11:20], manualLast = 12000)
-readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "perfMet_missSeason_NONE_Fmsy_2024-01-18_14-55-07.363647.RDS"))$sim %>% unique() %>% as.numeric() %>% max() # NONE option is last in each file so should be max sim from the file
+#readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "perfMet_missSeason_NONE_Fmsy_2024-01-22_19-57-03.800172.RDS"))$sim %>% unique() %>% as.numeric() %>% max() # NONE option is last in each file so should be max sim from the file
 batchCombine(filenames = parallel_processed[21:30], manualLast = 24000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-24-04.481042.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
 batchCombine(filenames = parallel_processed[31:40], manualLast = 36000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-29-31.42681.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[41:50], manualLast = 48000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-35-51.096573.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[51:60], manualLast = 60000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-40-11.302437.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
+batchCombine(filenames = parallel_processed[41:45], manualLast = 48000) #! 10:22/1215/1227 file has no rows 
+batchCombine(filenames = parallel_processed[46:50], manualLast = 54000) #! 10:27 file has no rows
+batchCombine(filenames = parallel_processed[51:60], manualLast = 60000) #! 10:35 file has no rows
 batchCombine(filenames = parallel_processed[61:70], manualLast = 72000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-43-54.779406.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
 batchCombine(filenames = parallel_processed[71:80], manualLast = 84000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-45-13.199043.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
 batchCombine(filenames = parallel_processed[81:90], manualLast = 96000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-48-00.055611.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
 batchCombine(filenames = parallel_processed[91:100], manualLast = 108000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-48-47.913159.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[101:110], manualLast = 120000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-52-07.416731.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[111:120], manualLast = 132000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-52-41.688762.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[121:130], manualLast = 144000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-56-28.449862.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[131:140], manualLast = 156000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_05-56-52.446157.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[141:150], manualLast = 168000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_06-00-14.716907.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[151:160], manualLast = 180000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_06-01-05.860818.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[161:170], manualLast = 192000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_06-04-15.81736.RDS"))$sim %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[171:180], manualLast = 204000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_06-04-36.916695.RDS")) %>% select(sim) %>% unique() %>% as.numeric() %>% max()
-batchCombine(filenames = parallel_processed[181:length(parallel_processed)], manualLast = 216000)
-# readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "perfMet_missSeason_NONE_2024-01-18_06-09-16.129359.RDS")) %>% select(sim) %>% unique() %>% as.numeric() %>% max()
+batchCombine(filenames = parallel_processed[101:110], manualLast = 120000) #! 1108 no rows
+batchCombine(filenames = parallel_processed[111:120], manualLast = 132000) #! 1113 no rows
+batchCombine(filenames = parallel_processed[121:130], manualLast = 144000) # finished 1120
+batchCombine(filenames = parallel_processed[131:140], manualLast = 156000) # finished 1128
+batchCombine(filenames = parallel_processed[141:150], manualLast = 168000) # finished 1139
+batchCombine(filenames = parallel_processed[151:160], manualLast = 180000) # finished 1144
+batchCombine(filenames = parallel_processed[161:170], manualLast = 192000) # finished 1152
+batchCombine(filenames = parallel_processed[171:180], manualLast = 204000) # finished 1200
+batchCombine(filenames = parallel_processed[181:190], manualLast = 216000) # finished 1207
+batchCombine(filenames = parallel_processed[191:length(parallel_processed)], manualLast = 228000) #! 1211 no rows
+#! files with size 1.1KB and no rows result when the batch didn't contain the corresponding split (e.g. No Fmsy runs in a batch processed for plots_MissSeason_NONE_HL)
+
+
+
+# Take 2 to avoid issue with looping not storing all appended results
+
+# batchCombine <- function(filenames=NULL){ # Assumes you will batch combine either 3 or 10 files, will not change sim #s
+#   
+#   timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+#   
+#   # Read in RDS file 
+#   file1 <- readRDS(file = here::here(filenames[1]))
+#   file2 <- readRDS(file = here::here(filenames[2]))
+#   file3 <- readRDS(file = here::here(filenames[3]))
+#   
+#   if(length(filenames)==3){ # Only read in and save 3 files
+#     combined <- rbind(file1, file2, file3)
+#     # Save results by seasonal misspecification & F_hist
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+#     
+#   } else{ # Also read in files 4-10 before saving
+#     file4 <- readRDS(file = here::here(filenames[4]))
+#     file5 <- readRDS(file = here::here(filenames[5]))
+#     file6 <- readRDS(file = here::here(filenames[6]))
+#     file7 <- readRDS(file = here::here(filenames[7]))
+#     file8 <- readRDS(file = here::here(filenames[8]))
+#     file9 <- readRDS(file = here::here(filenames[9]))
+#     file10 <- readRDS(file = here::here(filenames[10]))
+#     
+#     combined <- rbind(file1, file2, file3, file4, file5, file6, file7, file8, file9, file10)
+#     # Save results by seasonal misspecification & F_hist
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+#     
+#   }
+# }
+# 
+
+# batchCombine(filenames = parallel_processed[1:10])
+# batchCombine(filenames = parallel_processed[11:20])
+# batchCombine(filenames = parallel_processed[21:30])
+# batchCombine(filenames = parallel_processed[31:40])
+# batchCombine(filenames = parallel_processed[41:50])
+# batchCombine(filenames = parallel_processed[51:60])
+# batchCombine(filenames = parallel_processed[61:70])
+# batchCombine(filenames = parallel_processed[71:80])
+# batchCombine(filenames = parallel_processed[81:90])
+# batchCombine(filenames = parallel_processed[91:100])
+# batchCombine(filenames = parallel_processed[101:110])
+# batchCombine(filenames = parallel_processed[111:120])
+# batchCombine(filenames = parallel_processed[121:130])
+# batchCombine(filenames = parallel_processed[131:140])
+# batchCombine(filenames = parallel_processed[141:150])
+# batchCombine(filenames = parallel_processed[151:160])
+# batchCombine(filenames = parallel_processed[161:170])
+# batchCombine(filenames = parallel_processed[171:180])
+# batchCombine(filenames = parallel_processed[181:190])
+# batchCombine(filenames = parallel_processed[191:200])
+# batchCombine(filenames = parallel_processed[201:length(parallel_processed)])
+
+
+
+
+
+
+
+
 
 # # Append batches for no misspecification
 # missSeason_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE")), pattern = "perfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
@@ -573,11 +646,15 @@ testrbindCombine <- function(filenames = NULL, outfile = NULL){
       file2 <- readRDS(filenames[2])
       file3 <- readRDS(filenames[3])
       file4 <- readRDS(filenames[4])
-      if(length(filenames) == 5){
+      if(length(filenames) == 4){
+        rbind(file1, file2, file3, file4) %>% saveRDS(., file = outfile)
+      } else if(length(filenames) == 5){
         file5 <- readRDS(filenames[5])
         rbind(file1, file2, file3, file4, file5) %>% saveRDS(., file =  outfile)
-      } else{
-        rbind(file1, file2, file3, file4) %>% saveRDS(., file =  outfile)
+      } else if(length(filenames)==6){
+        file5 <- readRDS(filenames[5])
+        file6 <- readRDS(filenames[6])
+        rbind(file1, file2, file3, file4, file5, file6) %>% saveRDS(., file =  outfile)
       }
 }
 
@@ -587,18 +664,26 @@ testrbindCombine(filenames = missSeason_ONE[1:5], outfile = here::here("Ecov_stu
 testrbindCombine(filenames = missSeason_ONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE6-10.Rds"))
 testrbindCombine(filenames = missSeason_ONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE11-15.Rds"))
 testrbindCombine(filenames = missSeason_ONE[16:length(missSeason_ONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE16-end.Rds"))
-final_ONE <- missSeason_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_HL")), pattern = "aggPerfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
+final_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_HL")), pattern = "aggPerfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
 testrbindCombine(filenames = final_ONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds"))
 # Check that all OM/EM pairs have been processed
 path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL")
 results <- readRDS(paste0(path,"/aggPerfMet_missSeason_ONE_HL.Rds"))
-check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_ONE_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "H-L")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_ONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
 colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
 check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
 check3 <- full_join(check, check2) 
 check3$OMshortName <- check3$OMshortName %>% as.numeric()
-colnames(OMsetup)[1] <- "OMshortName"
-full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 # Plot
 plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
@@ -608,18 +693,26 @@ testrbindCombine(filenames = missSeason_ONE[1:5], outfile = here::here("Ecov_stu
 testrbindCombine(filenames = missSeason_ONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE6-10.Rds"))
 testrbindCombine(filenames = missSeason_ONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE11-15.Rds"))
 testrbindCombine(filenames = missSeason_ONE[16:length(missSeason_ONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE16-end.Rds"))
-final_ONE <- missSeason_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_Fmsy")), pattern = "aggPerfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
+final_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_Fmsy")), pattern = "aggPerfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
 testrbindCombine(filenames = final_ONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds"))
 # Check that all OM/EM pairs have been processed
 path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy")
 results <- readRDS(paste0(path,"/aggPerfMet_missSeason_ONE_Fmsy.Rds"))
-check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_ONE_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "Fmsy")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_ONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
 colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
 check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
 check3 <- full_join(check, check2) 
 check3$OMshortName <- check3$OMshortName %>% as.numeric()
-colnames(OMsetup)[1] <- "OMshortName"
-full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 # Plot
 plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
@@ -630,18 +723,26 @@ testrbindCombine(filenames = missSeason_BOTH[1:5], outfile = here::here("Ecov_st
 testrbindCombine(filenames = missSeason_BOTH[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH6-10.Rds"))
 testrbindCombine(filenames = missSeason_BOTH[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH11-15.Rds"))
 testrbindCombine(filenames = missSeason_BOTH[16:length(missSeason_BOTH)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH16-end.Rds"))
-final_BOTH <- missSeason_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_HL")), pattern = "aggPerfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
+final_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_HL")), pattern = "aggPerfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
 testrbindCombine(filenames = final_BOTH, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds"))
 # Check that all OM/EM pairs have been processed
 path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL")
 results <- readRDS(paste0(path,"/aggPerfMet_missSeason_BOTH_HL.Rds"))
-check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_BOTH_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "H-L")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_BOTH_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
 colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
 check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
 check3 <- full_join(check, check2) 
 check3$OMshortName <- check3$OMshortName %>% as.numeric()
-colnames(OMsetup)[1] <- "OMshortName"
-full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 # Plot
 plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
@@ -651,18 +752,26 @@ testrbindCombine(filenames = missSeason_BOTH[1:5], outfile = here::here("Ecov_st
 testrbindCombine(filenames = missSeason_BOTH[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH6-10.Rds"))
 testrbindCombine(filenames = missSeason_BOTH[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH11-15.Rds"))
 testrbindCombine(filenames = missSeason_BOTH[16:length(missSeason_BOTH)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH16-end.Rds"))
-final_BOTH <- missSeason_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_Fmsy")), pattern = "aggPerfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
+final_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_Fmsy")), pattern = "aggPerfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
 testrbindCombine(filenames = final_BOTH, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds"))
 # Check that all OM/EM pairs have been processed
 path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy")
 results <- readRDS(paste0(path,"/aggPerfMet_missSeason_BOTH_Fmsy.Rds"))
-check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_BOTH_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "Fmsy")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_BOTH_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
 colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
 check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
 check3 <- full_join(check, check2) 
 check3$OMshortName <- check3$OMshortName %>% as.numeric()
-colnames(OMsetup)[1] <- "OMshortName"
-full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 # Plot
 plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
@@ -672,18 +781,26 @@ testrbindCombine(filenames = missSeason_NONE[1:5], outfile = here::here("Ecov_st
 testrbindCombine(filenames = missSeason_NONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE6-10.Rds"))
 testrbindCombine(filenames = missSeason_NONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE11-15.Rds"))
 testrbindCombine(filenames = missSeason_NONE[16:length(missSeason_NONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE16-end.Rds"))
-final_NONE <- missSeason_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_HL")), pattern = "aggPerfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+final_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_HL")), pattern = "aggPerfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
 testrbindCombine(filenames = final_NONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds"))
 # Check that all OM/EM pairs have been processed
 path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL")
 results <- readRDS(paste0(path,"/aggPerfMet_missSeason_NONE_HL.Rds"))
-check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_NONE_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "H-L")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_NONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
 colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
 check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
 check3 <- full_join(check, check2) 
 check3$OMshortName <- check3$OMshortName %>% as.numeric()
-colnames(OMsetup)[1] <- "OMshortName"
-full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 # Plot
 plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
@@ -693,42 +810,83 @@ testrbindCombine(filenames = missSeason_NONE[1:5], outfile = here::here("Ecov_st
 testrbindCombine(filenames = missSeason_NONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE6-10.Rds"))
 testrbindCombine(filenames = missSeason_NONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE11-15.Rds"))
 testrbindCombine(filenames = missSeason_NONE[16:length(missSeason_NONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE16-end.Rds"))
-final_NONE <- missSeason_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_Fmsy")), pattern = "aggPerfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+final_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_Fmsy")), pattern = "aggPerfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
 testrbindCombine(filenames = final_NONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds"))
 # Check that all OM/EM pairs have been processed
 path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy")
 results <- readRDS(paste0(path,"/aggPerfMet_missSeason_NONE_Fmsy.Rds"))
-check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_NONE_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "Fmsy")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_NONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
 colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
 check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
 check3 <- full_join(check, check2) 
 check3$OMshortName <- check3$OMshortName %>% as.numeric()
-colnames(OMsetup)[1] <- "OMshortName"
-full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 # Plot
 plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
 
 
-# ##### Check performance of above OMs with a range of ecov obs errors
-# # Find all result files
-# filenames <- NULL
-# for(iom in c(27, 31, 35)){
-#   filenames <- c(filenames, list.files(path = here::here(paste0("Ecov_study/catchability/Results_initEM/OM_", iom)), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE))
-# }
-# 
-# # Set storage directory
-# outdir = here::here("Ecov_study/catchability")
-# 
-# # Post-process results
-# postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
-# 
-# # Plot
-# perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-19_19-05-25.884854.RDS")) # Only 20 simulations
-# library(TAF)
-# mkdir(here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
-# library(DataExplorer)
-# plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
+##### Extra plots
+### Catch/Index/AIC data for Alex
+# First pick a F_hist/seasonal misspecification pair for your results
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) # Fmsy Fhist, no misspecification
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds")) # H-L Fhist, no misspecification
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) # Fmsy Fhist, one season misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds")) # H-L Fhist, one season misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) # Fmsy Fhist, both seasons misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds")) # H-L Fhist, both seasons misspecified
+
+# Pull out the AIC and simulation settings for each simulation (1 entry per simulation) 
+results_AIC <- results %>% filter(EM_converged == TRUE) %>% # Only plot models that converged
+  group_by(sim) %>% # Need this if you don't want to plot time-series
+  dplyr::summarize(seed = unique(seed), Fhist = unique(F_hist), ageComp_sig = unique(ageComp_sig), log_catch_sig = unique(log_catch_sig), log_index_sig = unique(log_index_sig),
+                   OM_ecov_effect = unique(OM_ecov_effect), OM_ecov_process_cor = unique(OM_ecov_process_cor), OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig), OM_ecov_process_sig = unique(OM_ecov_process_sig), OMshortName = unique(OMshortName),
+                   EM_miss_q = unique(EM_miss_q), EM_miss_season = unique(EM_miss_season), EMshortName = unique(EMshortName),
+                   AIC = unique(AIC)) # Add any new calculations here (everything above this pulls out simulation settings)
+
+#!!! To compare AIC across models fit to the same data you will need to group by seed
+
+# Example to pull terminal year results (here for OM and EM Catch)
+results %>% filter(Year == 40) %>% select(OM_Catch, EM_Catch, 
+                                          seed, Fhist, ageComp_sig, log_catch_sig, log_index_sig, OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName, EM_miss_q, EM_miss_season, EMshortName)
+
+# Names for Index time series: OM_agg_ind1, OM_agg_ind2, EM_agg_ind1, EM_agg_ind2
+
+
+
+### Amanda makes plots with facets across F_hist, environmental effect size, and seasonal misspecification
+results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) # Fmsy Fhist, no misspecification
+simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+plot_NONE_Fmsy <- full_join(results_NONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  dplyr::summarize(seed = unique(seed), sim = unique(sim), Fhist = unique(F_hist), ageComp_sig = unique(ageComp_sig), log_catch_sig = unique(log_catch_sig), log_index_sig = unique(log_index_sig),
+                   OM_ecov_effect = unique(OM_ecov_effect), OM_ecov_process_cor = unique(OM_ecov_process_cor), OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig), OM_ecov_process_sig = unique(OM_ecov_process_sig), OMshortName = unique(OMshortName),
+                   EM_miss_q = unique(EM_miss_q), EM_miss_season = unique(EM_miss_season), EMshortName = unique(EMshortName),
+                   EM_MohnsRho_SSB = unique(EM_MohnsRho_SSB), EM_MohnsRho_F = unique(EM_MohnsRho_F), EM_MohnsRho_R = unique(EM_MohnsRho_R), 
+                   convergeRate = unique(convergeRate),
+                   relSSBMSY = unique(relSSBMSY), relFMSY = unique(relFMSY), relMSY = unique(relMSY),
+                   EM_ecovBeta_ind1 = unique(EM_ecovBeta_ind1), EM_ecovBeta_ind2 = unique(EM_ecovBeta_ind2)) # EM beta parameter for index 1&2
+
+results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds")) # H-L Fhist, no misspecification
+results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) # Fmsy Fhist, one season misspecified
+results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds")) # H-L Fhist, one season misspecified
+results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) # Fmsy Fhist, both seasons misspecified
+results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds")) # H-L Fhist, both seasons misspecified
+
+
+
 
 
 
