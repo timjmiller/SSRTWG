@@ -863,29 +863,227 @@ results %>% filter(Year == 40) %>% select(OM_Catch, EM_Catch,
 
 
 
-### Amanda makes plots with facets across F_hist, environmental effect size, and seasonal misspecification
-results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) # Fmsy Fhist, no misspecification
+##### Final data manipulations to 1) ensure all OM/EM pairs have 50 simulations and 2) generate summary plots across seasonal misspecifications and F histories
+### 1A: Run & process additional simulations for OM 247 & 376
+
+### 1B: Remove extra simulations for OM 19 & 36
+# Remove extra simulations from OM 19 & 36
+checkHL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>% filter(Year == 40) 
+keep36 <- checkHL %>% filter(OMshortName == 36) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
+only36_BOTH_HL <- semi_join(results_BOTH_HL, keep36, by = "seed") # Pull out 50 unique simulations
+only36_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+only36_ONE_HL <- semi_join(results_ONE_HL, keep36, by = "seed") # Pull out 50 unique simulations
+only36_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+only36_NONE_HL <- semi_join(results_NONE_HL, keep36, by = "seed") # Pull out 50 unique simulations
+only36_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+
+keep19 <- checkHL %>% filter(OMshortName == 19) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
+only19_BOTH_HL <- semi_join(results_BOTH_HL, keep19, by = "seed") # Pull out 50 unique simulations
+only19_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep19, by = "seed") # %>% group_by(seed) %>% count(seed) # will have n=160 if 4 EMs*40 years of data = 1 simulation per seed
+only19_ONE_HL <- semi_join(results_ONE_HL, keep19, by = "seed") # Pull out 50 unique simulations
+only19_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep19, by = "seed")
+only19_NONE_HL <- semi_join(results_NONE_HL, keep19, by = "seed") # Pull out 50 unique simulations
+only19_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep19, by = "seed")
+
+
+results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) %>% # Fmsy Fhist, no misspecification
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_NONE_Fmsy, only19_NONE_Fmsy)  # Re-add only 50 simulations for OM 19 & 36
 simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
 plot_NONE_Fmsy <- full_join(results_NONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
-  dplyr::summarize(seed = unique(seed), sim = unique(sim), Fhist = unique(F_hist), ageComp_sig = unique(ageComp_sig), log_catch_sig = unique(log_catch_sig), log_index_sig = unique(log_index_sig),
-                   OM_ecov_effect = unique(OM_ecov_effect), OM_ecov_process_cor = unique(OM_ecov_process_cor), OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig), OM_ecov_process_sig = unique(OM_ecov_process_sig), OMshortName = unique(OMshortName),
-                   EM_miss_q = unique(EM_miss_q), EM_miss_season = unique(EM_miss_season), EMshortName = unique(EMshortName),
-                   EM_MohnsRho_SSB = unique(EM_MohnsRho_SSB), EM_MohnsRho_F = unique(EM_MohnsRho_F), EM_MohnsRho_R = unique(EM_MohnsRho_R), 
-                   convergeRate = unique(convergeRate),
-                   relSSBMSY = unique(relSSBMSY), relFMSY = unique(relFMSY), relMSY = unique(relMSY),
-                   EM_ecovBeta_ind1 = unique(EM_ecovBeta_ind1), EM_ecovBeta_ind2 = unique(EM_ecovBeta_ind2)) # EM beta parameter for index 1&2
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,
+         relSSB, relF, relR)
 
-results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds")) # H-L Fhist, no misspecification
-results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) # Fmsy Fhist, one season misspecified
-results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds")) # H-L Fhist, one season misspecified
-results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) # Fmsy Fhist, both seasons misspecified
-results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds")) # H-L Fhist, both seasons misspecified
+results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds")) %>% # HL Fhist, no misspecification
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_NONE_HL, only19_NONE_HL)  # Re-add only 50 simulations for OM 19 & 36
+simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+plot_NONE_HL <- full_join(results_NONE_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,
+         relSSB, relF, relR)
 
+results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) %>% # Fmsy Fhist, one season misspecified
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_ONE_Fmsy, only19_ONE_Fmsy)  # Re-add only 50 simulations for OM 19 & 36
+simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+plot_ONE_Fmsy <- full_join(results_ONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,
+         relSSB, relF, relR)
 
+results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds")) %>% # HL Fhist, one season misspecified
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_ONE_HL, only19_ONE_HL)  # Re-add only 50 simulations for OM 19 & 36
+simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+plot_ONE_HL <- full_join(results_ONE_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,
+         relSSB, relF, relR)
+
+results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) %>% # Fmsy Fhist, both seasons misspecified
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_BOTH_Fmsy, only19_BOTH_Fmsy)  # Re-add only 50 simulations for OM 19 & 36
+simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+plot_BOTH_Fmsy <- full_join(results_BOTH_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,
+         relSSB, relF, relR)
+
+results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds")) %>% # HL Fhist, both seasons misspecified
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_BOTH_HL, only19_BOTH_HL) # Re-add only 50 simulations for OM 19 & 36
+simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+plot_BOTH_HL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,
+         relSSB, relF, relR)
+
+results_all <- rbind(plot_NONE_Fmsy, plot_NONE_HL, plot_ONE_Fmsy, plot_ONE_HL, plot_BOTH_Fmsy, plot_BOTH_HL)
+
+### 2) Amanda makes plots with facets across F_hist, environmental effect size, and seasonal misspecification
+## Convergence overview
+overview_convergence <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = convergeRate, fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Convergence rate")
+ggsave(overview_convergence, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_convergence.png"), width = 25)
+
+## Mohn's rho overviews
+overview_mohnsRho_F <- results_all %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_MohnsRho_F), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Mohn's Rho: F")
+ggsave(overview_mohnsRho_F, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_mohnsRho_F.png"), width = 15, height = 5)
+
+overview_mohnsRho_R <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_MohnsRho_R), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Mohn's Rho: R")
+ggsave(overview_mohnsRho_R, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_mohnsRho_R.png"), width = 15, height = 5)
+
+overview_mohnsRho_SSB <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_MohnsRho_SSB), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Mohn's Rho: SSB")
+ggsave(overview_mohnsRho_SSB, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_mohnsRho_SSB.png"), width = 15, height = 5)
+
+## Reference point overviews
+overview_relSSBMSY <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relSSBMSY), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM SSBmsy ratio")
+ggsave(overview_relSSBMSY, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relSSBMSY.png"), width = 15, height = 5)
+
+overview_relMSY <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relMSY), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM MSY ratio")
+ggsave(overview_relMSY, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relMSY.png"), width = 15, height = 5)
+
+overview_relFMSY <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relFMSY), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(Fhist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM FMSY ratio")
+ggsave(overview_relFMSY, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relFMSY.png"), width = 15, height = 5)
+
+## Terminal SSB/F/R summary plots
 
 
 
