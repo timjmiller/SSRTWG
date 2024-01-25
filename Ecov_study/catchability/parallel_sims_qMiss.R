@@ -838,12 +838,12 @@ plotResults(results = results, convergedONLY = TRUE, outfile = path)
 ##### Extra plots
 ### Catch/Index/AIC data for Alex
 # First pick a F_hist/seasonal misspecification pair for your results
-results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) # Fmsy Fhist, no misspecification
-results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds")) # H-L Fhist, no misspecification
-results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) # Fmsy Fhist, one season misspecified
-results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds")) # H-L Fhist, one season misspecified
-results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) # Fmsy Fhist, both seasons misspecified
-results <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds")) # H-L Fhist, both seasons misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_NONE_Fmsy.Rds")) # Fmsy Fhist, no misspecification
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_NONE_HL.Rds")) # H-L Fhist, no misspecification
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_ONE_Fmsy.Rds")) # Fmsy Fhist, one season misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_ONE_HL.Rds")) # H-L Fhist, one season misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_BOTH_Fmsy.Rds")) # Fmsy Fhist, both seasons misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_BOTH_HL.Rds")) # H-L Fhist, both seasons misspecified
 
 # Pull out the AIC and simulation settings for each simulation (1 entry per simulation) 
 results_AIC <- results %>% filter(EM_converged == TRUE) %>% # Only plot models that converged
@@ -910,16 +910,15 @@ supplementFiles <- c(here::here("Ecov_study/catchability/Results/OM_247/simWHAM_
                      here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-36.333031.RData"),
                      here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-55.503308.RData"))
 postprocess_simTestWHAM(filenames = supplementFiles, outdir = paste0(here::here("Ecov_study/catchability/Results/supplementSims")))
-maxSim <- 
 
-  ## Renumber sims
-  aggPerfMet <- NULL
+## Renumber sims
+aggPerfMet <- NULL
 # Read in RDS file
-perfMet <- readRDS(file = here::here(filenames[ifile]))
+perfMet <- readRDS(file = here::here("Ecov_study/catchability/Results/supplementSims","perfMet_2024-01-25_02-55-05.916451.RDS"))
 # ID number of sims to append
 nsim <- perfMet$sim %>% unique() %>% length()
 # ID last sim number in aggPerfMet 
-lastsim <- manualLast #!!! need to provide this based on current number of sims
+lastsim <- 231000 # Slightly higher than max sim from previous file just to leave a buffer, not an issue as long as it is unique
 
 # New sim numbers
 newSim <- lastsim + 1:nsim
@@ -929,48 +928,42 @@ for(isim in 1:nsim){
 }
 # Append newly renumbered simulations to aggPerfMet storage
 aggPerfMet <- rbind(aggPerfMet, perfMet)
-# Save results by seasonal misspecification 
+# Save results by seasonal misspecification (HL files will be empty since we only added extra sims for Fmsy OMs)
 timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
-supplement_NONE_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
-supplement_NONE_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
-supplement_ONE_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
-supplement_ONE_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
-supplement_BOTH_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
-supplement_BOTH_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
-
-
-
-
-
-
+supplement_NONE_HL <- aggPerfMet %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+supplement_NONE_Fmsy <- aggPerfMet %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+supplement_ONE_HL <- aggPerfMet %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+supplement_ONE_Fmsy <- aggPerfMet %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+supplement_BOTH_HL <- aggPerfMet %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+supplement_BOTH_Fmsy <- aggPerfMet %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
 
 
 ### 1B: Remove extra simulations for OM 19 & 36
-# Remove extra simulations from OM 19 & 36
-results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds"))  # Fmsy Fhist, no misspecification
-simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
-convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
-convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# Remove extra simulations from OM 19 & 36 (these are both HL models so no need to process for Fmsy)
+# results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds"))  # Fmsy Fhist, no misspecification
+# simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
 
 results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds"))  # HL Fhist, no misspecification
 simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
 
-results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds"))  # Fmsy Fhist, one season misspecified
-simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
-convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
-convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds"))  # Fmsy Fhist, one season misspecified
+# simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
 
 results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds"))  # HL Fhist, one season misspecified
 simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
 
-results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds"))  # Fmsy Fhist, both seasons misspecified
-simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
-convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
-convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds"))  # Fmsy Fhist, both seasons misspecified
+# simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
 
 results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds"))  # HL Fhist, both seasons misspecified
 simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
@@ -980,28 +973,29 @@ convergeRate <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMsho
 checkHL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>% filter(Year == 40) 
 keep36 <- checkHL %>% filter(OMshortName == 36) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
 only36_BOTH_HL <- semi_join(results_BOTH_HL, keep36, by = "seed") # Pull out 50 unique simulations
-only36_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+#only36_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
 only36_ONE_HL <- semi_join(results_ONE_HL, keep36, by = "seed") # Pull out 50 unique simulations
-only36_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+#only36_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
 only36_NONE_HL <- semi_join(results_NONE_HL, keep36, by = "seed") # Pull out 50 unique simulations
-only36_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+#only36_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
 
 keep19 <- checkHL %>% filter(OMshortName == 19) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
 only19_BOTH_HL <- semi_join(results_BOTH_HL, keep19, by = "seed") # Pull out 50 unique simulations
-only19_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep19, by = "seed") # %>% group_by(seed) %>% count(seed) # will have n=160 if 4 EMs*40 years of data = 1 simulation per seed
+#only19_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep19, by = "seed") # %>% group_by(seed) %>% count(seed) # will have n=160 if 4 EMs*40 years of data = 1 simulation per seed
 only19_ONE_HL <- semi_join(results_ONE_HL, keep19, by = "seed") # Pull out 50 unique simulations
-only19_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep19, by = "seed")
+#only19_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep19, by = "seed")
 only19_NONE_HL <- semi_join(results_NONE_HL, keep19, by = "seed") # Pull out 50 unique simulations
-only19_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep19, by = "seed")
+#only19_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep19, by = "seed")
 
 
+### Add supplemental data so 50 sims each
+supplement_NONE_Fmsy <- readRDS(file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
 results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) %>% # Fmsy Fhist, no misspecification
-  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
-  rbind(., only36_NONE_Fmsy, only19_NONE_Fmsy)  # Re-add only 50 simulations for OM 19 & 36
+  rbind(., supplement_NONE_Fmsy) # Add additional sims for OM 247 & 376
 simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
-saveRDS(results_NONE_Fmsy, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_NONE_Fmsy.RDS"))
+saveRDS(results_NONE_Fmsy, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_Fmsy.RDS"))
 plot_NONE_Fmsy <- full_join(results_NONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1021,7 +1015,7 @@ results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "
 simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
-saveRDS(results_NONE_HL, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_NONE_HL.RDS"))
+saveRDS(results_NONE_HL, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_HL.RDS"))
 plot_NONE_HL <- full_join(results_NONE_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1035,13 +1029,13 @@ plot_NONE_HL <- full_join(results_NONE_HL, convergeRate, by = c("OMshortName", "
          EM_ecovBeta_ind1, EM_ecovBeta_ind2,
          relSSB, relF, relR)
 
+supplement_ONE_Fmsy <- readRDS(file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
 results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) %>% # Fmsy Fhist, one season misspecified
-  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
-  rbind(., only36_ONE_Fmsy, only19_ONE_Fmsy)  # Re-add only 50 simulations for OM 19 & 36
+  rbind(., supplement_ONE_Fmsy) # Add additional sims for OM 247 & 376
 simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
-saveRDS(results_ONE_Fmsy, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_ONE_Fmsy.RDS"))
+saveRDS(results_ONE_Fmsy, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_Fmsy.RDS"))
 plot_ONE_Fmsy <- full_join(results_ONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1061,7 +1055,7 @@ results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "p
 simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
-saveRDS(results_ONE_HL, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_ONE_HL.RDS"))
+saveRDS(results_ONE_HL, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_HL.RDS"))
 plot_ONE_HL <- full_join(results_ONE_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1075,13 +1069,13 @@ plot_ONE_HL <- full_join(results_ONE_HL, convergeRate, by = c("OMshortName", "EM
          EM_ecovBeta_ind1, EM_ecovBeta_ind2,
          relSSB, relF, relR)
 
+supplement_BOTH_Fmsy <- readRDS(file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
 results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) %>% # Fmsy Fhist, both seasons misspecified
-  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
-  rbind(., only36_BOTH_Fmsy, only19_BOTH_Fmsy)  # Re-add only 50 simulations for OM 19 & 36
+  rbind(., supplement_BOTH_Fmsy) # Add additional sims for OM 247 & 376
 simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
-saveRDS(results_BOTH_Fmsy, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_BOTH_Fmsy.RDS"))
+saveRDS(results_BOTH_Fmsy, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_Fmsy.RDS"))
 plot_BOTH_Fmsy <- full_join(results_BOTH_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1101,7 +1095,7 @@ results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "
 simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
-saveRDS(results_BOTH_HL, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_BOTH_HL.RDS"))
+saveRDS(results_BOTH_HL, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_HL.RDS"))
 plot_BOTH_HL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
