@@ -3,9 +3,11 @@ ems <- c('em1','em2','em3')
 n_ems <- length(ems)
 n_oms <- 96
 #folder link to id
-dir <- '~/dropbox/working/state_space_assessments/cluster_download/results/'
+dir <- '~/dropbox/working/state_space_assessments/cluster_download/results_noSR//'
 
-df.oms          <- readRDS(file.path(here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+#df.oms          <- readRDS(file.path(here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.oms          <- readRDS(file.path(here(),"Ecov_study","recruitment_functions", "inputs", "df.oms_noSR.RDS"))
+n_oms <- nrow(df.oms)
 
 folders <- list.files(dir)
 
@@ -32,7 +34,7 @@ AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+4))
 colnames(AIC) <- c('sim',colnames(df.oms),'aic_pick','correct_form','correct_SR')
 
 k <- 1
-for(om in 1:96){
+for(om in 1:n_oms){
   print(paste0("OM = ",om))
   for(sim in 1:100){
     DAT <- sapply(1:4, function(em){
@@ -44,10 +46,14 @@ for(om in 1:96){
       }
       aic
     })
-    aic_pick <- which(DAT==min(DAT,na.rm=TRUE)) - 1
+    
+    em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
+                        df.ems$r_mod==df.oms$recruit_mod[om])
+    
+    aic_pick <- which(DAT==min(DAT,na.rm=TRUE))
     AIC[k,]  <- data.frame(sim=sim,df.oms[om,],aic_pick=aic_pick,
-                           correct_form=ifelse(aic_pick==df.oms$Ecov_how[om],1,0),
-                           correct_SR=ifelse(aic_pick%in%c(1,2,3),1,0))
+                           correct_form=ifelse(aic_pick==em_match,1,0))#,
+    #correct_SR=ifelse(aic_pick%in%c(1,2,3),1,0))
     k <- k + 1
   }  
 }

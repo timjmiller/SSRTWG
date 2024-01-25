@@ -85,11 +85,9 @@ conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
       "rec+1" = "R+S",
       "rec+M" = "R+M"
     ))
-  all_res_mod <- all_res_mod %>%
-    mutate(Fhist = recode(Fhist,
-      "H-MSY" = "High->FMSY",
-      "MSY" = "FMSY"
-    ))
+  all_res_mod <- all_res_mod %>% mutate(Fhist = recode(Fhist,
+      "H-MSY" = "2.5*F[MSY] %->% F[MSY]",
+      "MSY" = "F[MSY]"))
   all_res_mod <- all_res_mod %>%
     mutate(Ecov_re_sig = recode(Ecov_re_sig,
       "0.1" = "sigma[Ecov] == 0.1",
@@ -107,9 +105,8 @@ temp <- subset(all_res_mod, re_config == NAA_M_re)
 plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = Type3_p_pass, colour = EM_process_error)) + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
     facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
-      #labeller(EM_process_error = label_wrap_gen(width=15), Ecov_obs_sig = label_wrap_gen(width=10), obs_error = label_wrap_gen(width=10))) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(convergence: Good hessian)") + xlab(expression(beta[Ecov])) +
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(convergence: invertible Hessian)") + xlab(expression(beta[Ecov])) +
     labs(colour = "EM process error") + geom_errorbar(aes(ymin = Type3_ci_lo, ymax = Type3_ci_hi), width = .05, position = position_dodge(0.1)) + 
     geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red") + ggtitle(bquote(beta[M]==log(0.2)*","~beta[Ecov]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
 plt
@@ -119,9 +116,8 @@ all_res_mod <- conv_res_plotting_fn(conv_res, M_est = TRUE, Ecov_est = TRUE)
 plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = Type3_p_pass, colour = EM_process_error)) + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
     facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed)) +
-      #labeller(EM_process_error = label_wrap_gen(width=15), Ecov_obs_sig = label_wrap_gen(width=10), obs_error = label_wrap_gen(width=10))) + #, labeller = label_parsed) + 
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(convergence: Good hessian)") + xlab(expression(beta[Ecov])) +
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
+    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(convergence: invertible Hessian)") + xlab(expression(beta[Ecov])) +
     labs(colour = "EM process error") + geom_errorbar(aes(ymin = Type3_ci_lo, ymax = Type3_ci_hi), width = .05, position = position_dodge(0.1)) + 
     geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red") + ggtitle(bquote(beta[M]~estimated*","~beta[Ecov]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
 plt

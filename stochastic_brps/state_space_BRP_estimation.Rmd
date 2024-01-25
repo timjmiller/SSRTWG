@@ -1,0 +1,261 @@
+---
+title: "The nature of differences between analytic and projection-based equilibrium biomass reference points"
+author: "Timothy J. Miller^1^"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    toc: false
+    keep_tex: yes
+    fig_caption: yes
+    number_sections: yes
+    includes:
+      in_header: options.sty
+  bookdown::word_document2: default
+  bookdown::html_document2:
+    df_print: paged
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
+#knitr::opts_knit$set(root.dir = '../')
+library(knitr)
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(wham)
+#library(ggplotFL)
+library(viridis)
+```
+
+$^1$timothy.j.miller@noaa.gov, Northeast Fisheries Science Center, National Marine Fisheries Service, 166 Water Street, Woods Hole, MA 02543, USA\
+
+\pagebreak
+
+## Summary {-}
+
+Equilibrium biomass and harvest reference points can be determined from assessment output either using analytic methods or projections of the population for a sufficient number of years. These projections can be either deterministic or incorporate stochasticity of the recruitment and other process errors.
+
+Central tendencies of the stochastic projection for equilibrium SSB or harvest will not be equivalent to the values from analytic methods. The difference is a result of summing log-normal random variables across ages for the stochastic projection approach and inability to accurately estimate the central tendency of this resulting distribution.
+
+For models without stock-recruit functions, contributions to SSB for each age less than the plus group can be accurately estimated, but the plus group cannot because it is also a sum of lognormal random variables.
+
+All age-specific contributions are expected to be biased when a stock-recruit function is used because recruitment is then a function of SSB.
+
+Analogous bias in equilibrium harvest reference points is expected because it is a similar function of abundance at age.
+
+The bias would exist for either SPR- or MSY-based reference points because the same SSB/R or Y/R calculations are used with equilibrium recruitment.
+
+Using The bias.correct option to TMB::sdreport will improve the estimate of the biomass reference point, but the improvement becomes negligble as the marginal variance of the autoregressive processes increase. Furthermore, the standard error of the estimated biomass reference point is not reported.
+
+<!-- Estimating B0 instead of R0 will not help. -->
+
+
+## Introduction {-}
+
+Biomass and catch reference points are typically calculated using deterministic equations for spawning biomass and yield per recruit or making long term population projections holding all population and fishing attributes constant. With no stochasticity in recruitment or other processes, these two approaches will produce equivalent results. However, uncertainty in recruitment and possibly other processes are often included in projection methods. When stochasticity is included, the SSB or catch in the long term projection at say year 100, will be random variable that represents the possible SSB or catch that could be realized in any given year under constant mortality rates. The central tendency (i.e., mean or median) of that distribution is the reference point, but the variance of the estimated central tendency rather than that of the prediction of the SSB or catch in any given year, represents our uncertainty in the reference point resulting from observations and parameter estimation.
+
+For many stochastic systems we have analytic solutions for the attributes (e.g, mean, and variance) of the distribution of projected value. For example when recruitment is an AR1 process
+$$
+\log R_y = \mu(1-\rho) + \rho \log R_{y-1} + \epsilon_y
+$$
+where $\epsilon_y$ are iid $\text{N}(0,\sigma^2)$, then the distribution of $\log R_y$ in any given year (the marginal distribution) is
+$$
+\log R_y \sim \text{N}\left(\mu, \frac{\sigma^2}{1-\rho^2}\right)
+$$
+Similar analytic results exist for the marginal distributions of abundance of other age classes when autoregressive processes are assumed. If equilibrium recruitment was a reference point we would be interested in the uncertainty of the estimate $\hat \mu$ rather than the variability of recruitment in any arbitrary year. The uncertainty in the estimate of the mean $\mu$ would be a function of the observed data and generally much more precise than the marginal distribution of yearly recruitment.  
+
+However, spawning biomass is complex functions of abundance at age. In projections, they are sums of scaled estimates of abundance at age
+$$
+\text{SSB}_y = \sum^A_{a=1} N_{y,a} f_{y,a} e^{-Z_{y,a} \phi}
+$$
+where $Z_{y,a}$ is the total mortality rate, $f_{y,a}$ is the fecundity at age (typically the product of biomass and proportion mature), $\phi$ is the fraction of year elapsed prior to spawning. 
+
+<!--
+Catch is a similar sum of age-specific products of abundance, mortality, and biomass
+$$
+\text{Catch}_y = \sum^A_{a=1} N_{y,a} \frac{F_{y,a}}{Z_{y,a}}\left(1-e^{-Z_{y,a}}\right)w_{y,a}.
+$$
+-->
+
+Here we show that unbiased analytic or model-based estimation of the mean or median total biomass of stochastic projections assuming equilibrium conditions (i.e, temporally constant parameters) is not generally possible. However, it is possible to accurately estimate the age-specific components of the biomass for ages less than the plus group.
+
+
+## Methods {-}
+
+For the general state-space model with random effects at all ages, the log-abundance at age is normally distributed
+$$\log N_{a,y} = \log R_{y-a+1} + \sum^{a-1}_{i = 1}\left( \log S_{i,y-a+i} + \epsilon_{i+1,y-a+i+1}\right)$$
+for ages less than the plus group $a<A$. The log-SSB at age just adds another "constant" $\log\left(\phi_{a,y}\right)$ for survival up to spawning, maturity, and weight at age,
+$$\log \text{SSB}_{a,y} = \log \phi_{a,y} + \log R_{y-a+1} + \sum^{a-1}_{i = 1}\left( \log S_{i,y-a+i} + \epsilon_{i+1,y-a+i+1}\right)$$
+which is also log-normal. The log-SSB contribution from the plus group is
+$$
+\log\text{SSB}_{A,y} = \log \phi_{a,y} +\log\left(N_{A-1,y-1} S_{A-1,y-1} + N_{A,y-1} S_{A,y-1}\right) +\epsilon_{A,y}
+$$
+which, conditional on the abundance at age in the previous time step, is log-normally distributed, but marginally the abundances at age are also log-normal RV which are summed for abundance at the current time step.
+
+### Bias-corrected equilibrium calculations {-}
+
+The stochastic SSB/R for ages less than the plus group when $S_{a,y}$ and $\phi_{a,y}$ are time-invariant is
+
+$$\log \text{SSB}_{a,y} - \log R_{y-a+1} = \log \phi_{a} + \sum^{a-1}_{i = 1} \left(\log S_{i} + \epsilon_{i}\right)$$
+where $\epsilon_{i} \sim \text{N}\left(0,V_i\right)$ and
+$$
+V_i = \frac{\sigma_i^2}{(1-\rho_{\text{age}})^2(1-\rho_{\text{year}})^2}
+$$
+Although there may be correlation of the epsilon terms (e.g., a 2DAR1 structure is assumed), the age specific components are exchangable across years under equilibrium conditions and they can be treated independently. In such case, conditional on recruitment, the expectation of SSB/R at age is
+\begin{equation}\label{bcssbpr}
+E((SSB/R)_a) = \phi_a \left(\prod_{i=1}^{a-1} S_i\right) E\left(e^{\sum_{i=1}^{a-1} \epsilon_i}\right)=\phi_a \left(\prod_{i=1}^{a-1} S_i\right) e^{\frac{1}{2}\sum_{i=1}^{a-1} V_i}
+\end{equation}
+
+<!-- 
+Equilibruim yield per recruit given F is calculated as
+$$
+ \widetilde Y(F) = \sum^{A}_{a=1} C_a S_a(F) E_a(F) D_a(F)
+$$
+where $C_a$ is the catch weight at age, $D_a(F) = 1 - e^{-Z_a(F)}$, and
+$$
+E_a(F) =\frac{F s_a}{Z_a(F)}.
+$$
+
+When abundance at age is bias-corrected, the age-specific components for ages less than the plus group can be unbiasedly estimated by multiplying be 
+$$
+e^{-\frac{1}{2}V_a}
+$$
+where $V_a$ is the marginal variance of the process error for age $a$
+$$
+V_a = \frac{\sigma_a^2}{(1-\rho_a^2)^2(1-\rho_y^2)}.
+$$
+The modifier is not needed for the first age class (recruitment) because it is divided out for the per recruit calculation.
+-->
+
+<!-- 
+
+We fit several models to observations on western Gulf of Maine Atlantic cod. First we fit the base model with alternative assumptions on bias-correction internal to the model: bias-correct both process errors and observation errors (default), bias-correct process errors only, bias-correct observation errors only, and no bias-correction. Each model assumed process errors on recruitment only or all numbers at age. For each process error structure there were models with either independent errors or ar1 correlation (yearly for recruitment only and 2D-AR1 (age and year) for all numbers at age). We also considered alternative assumptions of bias-correcting the process error models or not. 
+-->
+### Operating model {-}
+
+We projected a WGOM cod model similar to that accepted in the Atlantic cod research track peer review for 100 years assuming F equal to the deterministically determined F at 40% unfished SSB/R and at F = 0. The model assumed a 2DAR1 correlation structure for numbers at age. We simulated 1000 realizations of the process errors and associated model output in the projection period. We used a variant of the WHAM where many of the ADREPORTed variables were removed to facilitate more efficient use of the TMB::sdreport bias-correction feature.
+
+
+## Results {-}
+
+<!-- 
+
+### Process errors on both recruitment and survival {-}
+
+#### 2DAR1 correlation {-}
+-->
+
+From the simulations we can see that the mean and median recruitment can be accurately estimated without performing the stochastic projections (Fig. \@ref(fig:recruitment)). The predicted recruitment is the median and different than the estimated mean recruitment due to the bias-correction of the process errors in the WHAM model. The bias-correction calculates the mean recruitment in any given year $\widehat {E(R)} = e^{\widehat \mu + \sigma^2/2}$. The predicted recruitment matches the median of simulated values because the estimates of random effects are taken as the mode of the posterior distribution by TMB. The bias-correction available in TMB::sdreport provides a negatively biased estimate of mean recruitment.
+
+```{r recruitment, echo = FALSE, out.width="100%", fig.cap = "Alternative estimators for projected recruitment in the western Gulf of Maine Atlantic cod WHAM model. Simulation mean and median are that of annual recruitments across simulations. Also shown are the log-normal bias-corrected mean recruitment (hat E(R)), exponential of estimated log-recruit random effects (hat R), and both the exponential of the log-recruit estimate before (hat R (TMB b-c)) and after (exp(hat log R (TMB b-c))) reporting by TMB::sdreport with bias-correction."}
+knitr::include_graphics(here::here("compare_recruitment.png"))
+```
+
+However, neither mean or median spawning biomass can be accurately estimated using analytic methods or model output. When fishing mortality is set at $F_{40\%}$, the bias-corrected estimator provided by TMB::sdreport is similar to median SSB, but it is supposed to provide an estimate of mean SSB which is unstable but far greater (Fig. \@ref(fig:ssb)). The projections at $F = 0$ suggest the proximity of the bias-corrected estimator to SSB at $F=F_{40\%}$ is coincidence. 
+
+```{r ssb, echo = FALSE, out.width="100%", fig.cap = "Alternative estimators for projected spawning stock biomass (SSB) at $F=F_{40\\%}$ (left) or $F=0$ (right) in the western Gulf of Maine Atlantic cod model. Simulation mean and median are that of annual SSB across simulations. Also shown are the SSB calculated from log-normal bias-corrected mean numbers at age (f(hat E(NAA))), from exponential of estimated log-numbers at age random effects (f(hat NAA)), and from either the exponential of the log-SSB estimate before (hat SSB (TMB b-c)) and after (exp(hat log SSB (TMB b-c))) reporting by TMB::sdreport with bias-correction."}
+knitr::include_graphics(here::here("compare_ssb.png"))
+```
+
+<!-- 
+
+```{r ssb0, echo = FALSE, out.width="100%", fig.cap = "Projected spawning biomass for western Gulf of Maine Atlantic cod model with $F=0$ and 2dar1 correlation for all numbers at age random effects."}
+knitr::include_graphics(here::here("compare_ssb0.png"))
+```
+
+#### Uncorrelated random effects {-}
+
+When the Numbers at age random effects are uncorrelated, the differences still exist.
+
+### Process errors on recruitment {-}
+
+#### AR1 correlated random effects {-}
+
+When we have AR1 random effects only on recruitment, the differences still exist.
+
+#### Uncorrelated random effects {-}
+
+When we have AR1 random effects only on recruitment, the differences still exist.
+
+
+### Age composition of SSB in projections {-}
+-->
+
+By looking at age-specific components of projected SSB we can confirm that median SSB-at-age can only be estimated accurately for the ages prior to the plus group because the plus group is the only age class that is a sum of log-normal random variables (Fig. \@ref(fig:ssbaa)). Similarly, the cumulative sum of SSB at age can not be accurately estimated beyond age 1 because it is also the sum of log-normal random variables (Fig. \@ref(fig:cumssbaa)).
+
+<!-- 
+
+#### Process errors on both recruitment and survival {-}
+-->
+
+
+\begin{landscape}
+```{r ssbaa, echo = FALSE, out.width="100%", fig.cap = "Median annual spawning stock biomass at age projected at $F = F40\\%$ or $F=0$ across simulations from the western Gulf of Maine Atlantic cod model. Also shown are the SSB as a function of estimated abundance at age (estimated) and the equilibrium SSB calculated as the product of the estimated recruitment and equilibrium SSB/R with log-normal bias-correction (Rhat x SSB/R)."}
+knitr::include_graphics(here::here("compare_SSBAA_F40_at_age.png"))
+```
+\end{landscape}
+
+<!-- 
+
+Even when process errors are only on recruitment 
+
+only or all numbers at age and the correlation structure (iid or ar1) the median equilibrium spawning biomass at age can be accurately estimated for ages below the plus group (Figs. \@ref(fig:rec-iid-ssbaa) to \@ref(fig:rec-p1-2dar1-ssbaa)). The analytic and reported estimates of SSB are equivalent for all ages, but negatively biased for the plus group. The bias-corrected estimate of the equilibrium SSB in the plus group produced by TMB::sdreport is positively biased.
+
+\begin{landscape}
+```{r rec-iid-ssbaa, echo = FALSE, out.width="100%", fig.cap = "Spawning biomass at age at F40\\% for western Gulf of Maine Atlantic cod model with independent process errors only on recruitment."}
+knitr::include_graphics(here::here("compare_SSBAA_F40_at_age_rec_iid.png"))
+```
+\end{landscape}
+
+\begin{landscape}
+```{r rec-ar1-ssbaa, echo = FALSE, out.width="100%", fig.cap = "Spawning biomass at age at F40\\% for western Gulf of Maine Atlantic cod model with AR1 process errors only on recruitment."}
+knitr::include_graphics(here::here("compare_SSBAA_F40_at_age_rec.png"))
+```
+\end{landscape}
+
+-->
+
+\begin{landscape}
+```{r cumssbaa, echo = FALSE, out.width="100%", fig.cap = "Median cumulative (median(sum)) or cumulative median (sum(median) spawning biomass at age projected at $F = F40\\%$ or $F=0$ across simulations from the western Gulf of Maine Atlantic cod model. Also shown are the cumulative SSB as a function of estimated abundance at age (sum(estimated)) and the cumulative equilibrium SSB calculated as the product of the estimated recruitment and cumulative equilibrium SSB/R at age with log-normal bias-correction (sum(Rhat x SSB/R))."}
+knitr::include_graphics(here::here("compare_cumulative_SSBAA_F40_at_age.png"))
+```
+\end{landscape}
+
+<!-- 
+
+\begin{landscape}
+```{r rec-ar1-cumssbaa, echo = FALSE, out.width="100%", fig.cap = "Cumulative Spawning biomass at age at F40\\% for western Gulf of Maine Atlantic cod model with process errors only on recruitment."}
+knitr::include_graphics(here::here("compare_cumulative_SSBAA_F40_at_age_rec.png"))
+```
+\end{landscape}
+-->
+
+## Conclusions {-}
+
+Analytic estimates of biomass reference points, including are biased for the corresponding median simulated stochastic equilibrium values because the marginal distribution of the simulated values are the sums of log-normal random variables. We showed this for the marginal distribution of equilibrium SSB, and equilibrium SSB in the plus group. However, the median of the equilibrium SSB at each age less than the plus group can be accurately estimated. The demonstration presented assumes stochasticity on abundance at all ages, but this bias would also exist for models with stochasticity only in recruitment (e.g., traditional statistical catch at age models). However, bias in estimation of equilibrium SSB at all ages is expected when a stock-recruit function is used because all ages are then functions of SSB which is the sum of log-normal random variables. Corresponding results are also expected for catch reference points because they are analogous functions of log-normal random variables.
+
+Stochastic equilibrium SSB and catch appears to only be accurately estimated through simulation however determining the appropriate F to obtain the desired percentage of unfished SSB would require simulations to be completed at each F value external to the assessment model rather than internally. Therefore, the uncertainty in parameter estimates from the unprojected model would not be propagated.
+
+If accurate estimation of each of the age-specific components of the biomass or catch reference point is a sufficient goal, then an appropriate expansion of the age classes of the population should minimize any bias in SSB for the plus group.
+
+<!-- 
+
+* median SSB(F40)/SSB(F=0) is ~40\% when estimation uses bias-correct PE option
+* TMB::sdreport(bias.correct=T) provides accurate estimation of mean SSB at F40
+* no options provide accurate estimation of median projected SSB at F=0
+  * TMB::sdreport(bias.correct=T) provides better estimation than without
+  * State-space models should use this particularly for projected output that is a non-linear function of RE
+* State-space models should expand age structure for the population to minimize the effect of the plus group.
+  * For wham, the data do not have to be reformatted, just pool older ages to predict last age class in data.
+  * can use same WAA in data plus group for each of the model ages that it comprises.
+* RE on M, growth, or WAA could be even more problematic because of the non-linear effect on $\log N_{a,y}$ at each age
+
+Remaining issues
+
+* uncertainty and accurate estimation for the total SSB or catch reference point attributes remains a challenge when accounting for temporal stochasticity. 
+  * We can estimate the age-specific components below the plus group accurately.
+  * TMB::sdreport(bias.corect=TRUE) is also generally inaccurate. 
+  * Bias of age-specific components is expected when a stock-recruit function is assumed because the recruitments are then functions of log-normal variables.
+in projections are for predicting SSB in year $y$ not the median (or mean of the log SSB) of that distribution.
+* If the defined SPR at F depends on the uncertainty, then it is unknown how to calculate F at X%SPR internally.
+-->

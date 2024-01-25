@@ -8,6 +8,7 @@
 .Rproj.user
 *.RDS
 !Project_0/inputs/*.RDS
+!Ecov_study/recruitment_functions/inputs/*.RDS
 Project_0/hpcc_bash
 Project_0/paper/*.pdf
 misspecification_study/output
@@ -16,7 +17,8 @@ Ecov_study/recruitment/results*
 Ecov_study/recruitment/output*
 Ecov_study/recruitment/error*
 Ecov_study/recruitment_functions/results*
-Ecov_study/recruitment_functions/plots*
+!Ecov_study\recruitment_functions\results_beta_fix/*.RDS
+#Ecov_study/recruitment_functions/plots
 Ecov_study/mortality/untracked
 !Ecov_study/mortality/inputs/*.RDS
 /MSE/

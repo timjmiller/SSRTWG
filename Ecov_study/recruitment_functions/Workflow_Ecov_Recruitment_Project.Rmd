@@ -1,0 +1,98 @@
+---
+title: "Workflow for Ecov Recruitment Analysis"
+output: html_notebook
+---
+
+<!-- This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.  -->
+
+<!-- Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.  -->
+
+# Project 3 for the SSRTWG investingating the incorporation of environmental covariates into WHAM recruitment models.
+
+1. Create dataframes that have AIC info and convergence info: run **AIC_dataframe.R** to produce
+   + *AIC_all.RDS* contains AIC and convergence info for the best EM only (lowest AIC) per OM-Sim
+   + *AIC_weight.RDS* contains AIC, convergence, model rank, model weight, model probability info for all EMs per OM-Sim
+   + Runtime on Azure for unstandardized beta runs: Time difference of 4.075107 hours
+   + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+  
+2. Specify convergence tolerances/thresholds in **convergence_summaries.R**
+   + bad.grad.value : cut-off for identifying parameters with abs(gradient)>bad.grad.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
+   + bad.se.value : cut-off for identifying parameter where SE_par_max>bad.se.value (parameter with max value and 2nd max value as well as parameter name are saved, not *all* parameters in this category)
+   + the dataframe <span style="text-decoration:underline">om.fails.df</span>, read at top of file, is created in **find_failed_jobs_Azure.R** which is in recruitment_functions/code (1 directory up from /analysis)
+   + given this, output is produced using bad.grad.value and bad.se.value appended to plot and table names to identify the tolerances
+     + plots of number of bad models (from the best set, and from all EMs per OM-Sim)
+     + plots of parameters that failed the bad.grad or bad.se criteria
+   + Runtime is fast
+   + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+    
+3. Generate regression trees to characterize factors influencing model identifiability; run **AIC_regression.R**
+   + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
+   + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
+   + regression trees are done to determine factors associated with dAIC (difference in model AIC), Model probability (calculated from AIC weights), and AIC rank (models are ranked by integer with 1= lowest AIC, and 6=highest AIC per OM-Sim; if not all 6 EMs converged for this OM-Sim, then the highest AIC rank is the number of models converged)/ **<span style="color: red;">question: should i just look at dAIC for models with AIC rank >1? (because dAIC=0 when AIC rank = 1)</span>**
+   + Runtime is fast
+   + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+   
+4. Look at bias in SSB, Recr, Fbar **bias_assessment.R**
+   + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
+   + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
+   + regression trees are done to determine factors associated RE in recruitment, SSB, and Fbar
+      + looks like sigmaR is the only factor that matters for all 3 metrics
+      + this script produces plots summarizing relative error (RE) over all years, the last 10 years, and the final year
+   + Runtime is slooooow (and code is inefficient--feel free to tighten it up)
+   + **<span style="color: blue;">STATUS: done for beta unstandardized; </span>**
+
+5. Look at bias in parameter estimates **bias_parameters.R**
+   + specify gradient and SE tolerance at top (these were appended to AIC dataframe outputs in the step above)
+   + specify results directory (where runs are), directory where to save plots, and a suffix to append at end of file name (to distinguish plots for different cases)
+   + SR_a, SR_b, sigmaR, rho_R, sigmaEcov, rho_Ecov
+   + also grabbing catchability (logit_q), selectivity (logit_selpars), catch_paa_pars, and index_paa_pars parameters so i don't have to pass through results again
+   + all Truth values also grabbed, RE calculated and plotted based on factors from regression trees
+   + Runtime 1.17 hours
+   + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
+   
+6. Look at retrospective bias **mohns_rho_analysis.R**
+   + this calculates mohn's rho for user-specified number of peels
+   + regression tree and plots for SSB, Fbar, Recruitment and also for recruitment random effects
+   + Runtime 2 * 1.6 hours
+   + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
+
+7. Cleaning up script **compare_RE_SD_projections.R**
+   + evaluates relative error and log_sd (CV) in projections between peel 10 and truth for recruitment, catch, and ssb
+   + summarizes over all 10 years in the projection, and also over just the first 3 years
+   + turns out no OM factors made a difference; pretty boring
+   + Runtime 1.6 hours
+   + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
+
+  
+
+
+-----
+
+# Figures and Tables
+
++ SSRTWG/Ecov_study/recruitment_functions/plots_beta_fix
++ SSRTWG/Ecov_study/recruitment_functions/tables
+
+-----
+
+
+
+<!-- ![Number of bad models among the set of 'best' (lowest) AIC per OM-Sim ](figures/img.png) -->
+
+<!-- ![Parameters with largest gradient or SE ](figures/img.png) -->
+
+
+
+
+
+
+
+<!-- ```{r} -->
+<!-- plot(cars) -->
+<!-- ``` -->
+
+<!-- Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*. -->
+
+<!-- When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file). -->
+
+<!-- The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed. -->
