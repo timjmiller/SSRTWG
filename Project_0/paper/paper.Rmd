@@ -56,6 +56,16 @@ $^1$corresponding author: timothy.j.miller@noaa.gov, Northeast Fisheries Science
 
 \pagebreak
 
+## Abstract {-}
+
+<!-- note CJFAS abstract word limit 175, so I have drafted a shorter summary here -->
+
+Random effects can be included in state-space assessment models on many processes and in many ways, and guidance is needed on statistical reliability and model selection criteria. We simulated 72 operating models with varying fishing history, observation error uncertainty, and process error magnitude, correlation, and source (recruitment, survival, fishery selectivity, catchability, and natural mortality). We fit estimating models with different assumptions on the process error source, whether (mean) natural mortality was estimated, and whether a stock-recruit relationship was estimated. 
+
+Models that assumed the correct process error source had high convergence and low bias. Bias was also low under most process error assumptions when there was contrast in fishing pressure. Stock-recruitment parameters were only reliably estimated in ideal situations. Marginal AIC most accurately distinguished process errors on recruitment, survival, and selectivity, as well as larger magnitude process errors of other types. Retrospective patterns were generally weak except for recruitment when observation error was high, even with the correct process error assumptions. When models did exhibit some retrospective pattern, estimating natural mortality often removed it.
+
+\pagebreak
+
 ## Summary {-}
 
 We conducted a simulation study where we simulated process errors and observations for 72 operating models with alternative assumptions about fishing history, degree of uncertainty in index and age composition observations, type (recruitment, survival, fishery selectivity, catchability and natural mortality), degree of variation, and correlation of process errors. We fit 20 different estimating models to each of 100 simulated set of observations with alternative assumptions type and correlation structure of process errors, (mean) natural mortality was known or estimated, and a B-H stock recruit relationship was assumed or not.
@@ -70,12 +80,11 @@ Bias in spawning stock biomass estimation was generally low for estimating model
 
 Retrospective patterns were generally weak for all estimation models regardless of the true source of process error, but they can be expected for recruitment even for the correct process error assumptions when observation error is high. When models did exhibit some retrospective pattern, estimating the mean natural mortality rate tended to remove it.
 
-
 \pagebreak
 
 # Introduction {-}
 
-Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada, and the Northeast US \citep{nielsenberg14,cadigan16,stockmiller21}. State-space approaches that use random effects to parameterize process errors is considered best practice and a requirement for the next generation of stock assessment models \citep{hoyleetal22, punt23}.
+Application of state-space models in fisheries stock assessment and management has expanded dramatically within ICES, Canada, and the Northeast US \citep{nielsenberg14,cadigan16,pedersenberg17,stockmiller21}. State-space approaches that use random effects to parameterize process errors is considered best practice and a requirement for the next generation of stock assessment models \citep{hoyleetal22, punt23}.
 
 Much is known about the reliability of state-space models that are linear or Gaussian \citep{aeberhardetal18}, but applications in fisheries management are nonlinear and typically include multiple types of observations with varying distributional assumptions. Furthermore, there is a wide range of potential random effects structures and model parameters that can be treated as random effects in assessment models. We know relatively little about the factors affecting statistical reliability of such models or the ability of information criteria to distinguish among such alternative structures. 
 
