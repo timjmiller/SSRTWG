@@ -912,25 +912,25 @@ supplementFiles <- c(here::here("Ecov_study/catchability/Results/OM_247/simWHAM_
 postprocess_simTestWHAM(filenames = supplementFiles, outdir = paste0(here::here("Ecov_study/catchability/Results/supplementSims")))
 maxSim <- 
 
-## Renumber sims
+  ## Renumber sims
   aggPerfMet <- NULL
-    # Read in RDS file
-    perfMet <- readRDS(file = here::here(filenames[ifile]))
+# Read in RDS file
+perfMet <- readRDS(file = here::here(filenames[ifile]))
 # ID number of sims to append
-        nsim <- perfMet$sim %>% unique() %>% length()
-        # ID last sim number in aggPerfMet 
-        lastsim <- manualLast #!!! need to provide this based on current number of sims
-        
-        # New sim numbers
-        newSim <- lastsim + 1:nsim
-        # Replace old sim numbers with new sim numbers
-        for(isim in 1:nsim){
-          perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
-        }
-        # Append newly renumbered simulations to aggPerfMet storage
-        aggPerfMet <- rbind(aggPerfMet, perfMet)
-  # Save results by seasonal misspecification 
-  timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+nsim <- perfMet$sim %>% unique() %>% length()
+# ID last sim number in aggPerfMet 
+lastsim <- manualLast #!!! need to provide this based on current number of sims
+
+# New sim numbers
+newSim <- lastsim + 1:nsim
+# Replace old sim numbers with new sim numbers
+for(isim in 1:nsim){
+  perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
+}
+# Append newly renumbered simulations to aggPerfMet storage
+aggPerfMet <- rbind(aggPerfMet, perfMet)
+# Save results by seasonal misspecification 
+timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
 supplement_NONE_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
 supplement_NONE_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
 supplement_ONE_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
@@ -947,6 +947,11 @@ supplement_BOTH_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchabilit
 
 ### 1B: Remove extra simulations for OM 19 & 36
 # Remove extra simulations from OM 19 & 36
+results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds"))  # HL Fhist, both seasons misspecified
+simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
 checkHL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>% filter(Year == 40) 
 keep36 <- checkHL %>% filter(OMshortName == 36) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
 only36_BOTH_HL <- semi_join(results_BOTH_HL, keep36, by = "seed") # Pull out 50 unique simulations
@@ -1080,6 +1085,7 @@ plot_BOTH_HL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "
          relSSB, relF, relR)
 
 results_all <- rbind(plot_NONE_Fmsy, plot_NONE_HL, plot_ONE_Fmsy, plot_ONE_HL, plot_BOTH_Fmsy, plot_BOTH_HL)
+saveRDS(results_all, file = here::here("Ecov_study/catchability/Results/supplementSims/supplementedFullResults.rds"))
 
 ### 2) Amanda makes plots with facets across F_hist, environmental effect size, and seasonal misspecification
 ## Convergence overview
