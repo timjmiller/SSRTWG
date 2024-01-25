@@ -947,6 +947,31 @@ supplement_BOTH_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchabilit
 
 ### 1B: Remove extra simulations for OM 19 & 36
 # Remove extra simulations from OM 19 & 36
+results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds"))  # Fmsy Fhist, no misspecification
+simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds"))  # HL Fhist, no misspecification
+simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds"))  # Fmsy Fhist, one season misspecified
+simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds"))  # HL Fhist, one season misspecified
+simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds"))  # Fmsy Fhist, both seasons misspecified
+simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
 results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds"))  # HL Fhist, both seasons misspecified
 simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
@@ -976,6 +1001,7 @@ results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results",
 simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+saveRDS(results_NONE_Fmsy, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_NONE_Fmsy.RDS"))
 plot_NONE_Fmsy <- full_join(results_NONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -995,6 +1021,7 @@ results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "
 simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+saveRDS(results_NONE_HL, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_NONE_HL.RDS"))
 plot_NONE_HL <- full_join(results_NONE_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1014,6 +1041,7 @@ results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", 
 simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+saveRDS(results_ONE_Fmsy, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_ONE_Fmsy.RDS"))
 plot_ONE_Fmsy <- full_join(results_ONE_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1033,6 +1061,7 @@ results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "p
 simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+saveRDS(results_ONE_HL, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_ONE_HL.RDS"))
 plot_ONE_HL <- full_join(results_ONE_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1052,6 +1081,7 @@ results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results",
 simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+saveRDS(results_BOTH_Fmsy, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_BOTH_Fmsy.RDS"))
 plot_BOTH_Fmsy <- full_join(results_BOTH_Fmsy, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
@@ -1071,6 +1101,7 @@ results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "
 simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
 convergeRate <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+saveRDS(results_BOTH_HL, here::here("Ecov_study/catchability/Results/aggregatePlots/fullResults_BOTH_HL.RDS"))
 plot_BOTH_HL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>%
   filter(EM_converged == TRUE) %>% 
   group_by(sim) %>%
