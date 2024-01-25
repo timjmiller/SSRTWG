@@ -865,6 +865,85 @@ results %>% filter(Year == 40) %>% select(OM_Catch, EM_Catch,
 
 ##### Final data manipulations to 1) ensure all OM/EM pairs have 50 simulations and 2) generate summary plots across seasonal misspecifications and F histories
 ### 1A: Run & process additional simulations for OM 247 & 376
+## Run supplemental simulations in parallel 
+registerDoParallel(25) 
+subsetOM <- OMsetup %>% filter(OMname== 247) # 2 sim missing
+subsetOM <- OMsetup %>% filter(OMname == 376) # 10 sim missing
+subsetEM <- EMsetup 
+# Run simulation tests
+for(iom in 1:nrow(subsetOM)){  # Loop over OMs
+  # Pull OM
+  testOM <- readRDS(here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]), paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
+  # Pull EM
+  EM_BOTH_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[5, "miss_season"], "_missQ_", subsetEM[5, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[6, "miss_season"], "_missQ_", subsetEM[6, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[7, "miss_season"], "_missQ_", subsetEM[7, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[8, "miss_season"], "_missQ_", subsetEM[8, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[9, "miss_season"], "_missQ_", subsetEM[9, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[10, "miss_season"], "_missQ_", subsetEM[10, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[11, "miss_season"], "_missQ_", subsetEM[11, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[12, "miss_season"], "_missQ_", subsetEM[12, "miss_q"]), "EMinput.Rds"))
+  
+  # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+  foreach(isim = 1:1) %dopar% { # Supplemental sims for OM 247
+#  foreach(isim = 1:1) %dopar% { # Supplemental sims for OM 376
+    simTestWHAM(nsim = 2,
+                OM = testOM,
+                inputEMlist = list(EM_BOTH_NoEcov, EM_ONE_NoEcov, EM_NONE_NoEcov,
+                                   EM_BOTH_Ecov, EM_ONE_Ecov, EM_NONE_Ecov,
+                                   EM_BOTH_qRand, EM_ONE_qRand, EM_NONE_qRand,
+                                   EM_BOTH_qRandEcov, EM_ONE_qRandEcov, EM_NONE_qRandEcov), # Run all EMs fit to same OM data
+                outdir = omdir) # Save in OM directory
+  } # End foreach loop over sims
+} # End loop over OMs
+
+## Post-process results & renumber sims
+supplementFiles <- c(here::here("Ecov_study/catchability/Results/OM_247/simWHAM_2_nsim_OM_247_0.1_0.5_0.1_0_Fmsy_0.3_0.4_0.1_OM_2024-01-25_02-25-01.576569.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-47-30.725459.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-23.807626.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-25.743862.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-36.333031.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-55.503308.RData"))
+postprocess_simTestWHAM(filenames = supplementFiles, outdir = paste0(here::here("Ecov_study/catchability/Results/supplementSims")))
+maxSim <- 
+
+## Renumber sims
+  aggPerfMet <- NULL
+    # Read in RDS file
+    perfMet <- readRDS(file = here::here(filenames[ifile]))
+# ID number of sims to append
+        nsim <- perfMet$sim %>% unique() %>% length()
+        # ID last sim number in aggPerfMet 
+        lastsim <- manualLast #!!! need to provide this based on current number of sims
+        
+        # New sim numbers
+        newSim <- lastsim + 1:nsim
+        # Replace old sim numbers with new sim numbers
+        for(isim in 1:nsim){
+          perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
+        }
+        # Append newly renumbered simulations to aggPerfMet storage
+        aggPerfMet <- rbind(aggPerfMet, perfMet)
+  # Save results by seasonal misspecification 
+  timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+supplement_NONE_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+supplement_NONE_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+supplement_ONE_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+supplement_ONE_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+supplement_BOTH_HL <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+supplement_BOTH_Fmsy <- readRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+
+
+
+
+
+
+
 
 ### 1B: Remove extra simulations for OM 19 & 36
 # Remove extra simulations from OM 19 & 36
