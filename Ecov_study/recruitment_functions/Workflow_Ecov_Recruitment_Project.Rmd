@@ -56,10 +56,12 @@ output: html_notebook
    + Runtime 2 * 1.6 hours
    + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
 
-7. Cleaning up script **compare_projections.R**
-   + evaluates relative error in projections between peel 10 and truth ...
-   + Runtime ...
-   + **<span style="color: blue;">STATUS: pending... beta unstandardized; </span>**
+7. Cleaning up script **compare_RE_SD_projections.R**
+   + evaluates relative error and log_sd (CV) in projections between peel 10 and truth for recruitment, catch, and ssb
+   + summarizes over all 10 years in the projection, and also over just the first 3 years
+   + turns out no OM factors made a difference; pretty boring
+   + Runtime 1.6 hours
+   + **<span style="color: blue;">STATUS: done beta unstandardized; </span>**
 
   
 
