@@ -5,9 +5,7 @@ output:
     df_print: paged
 ---
  Note: you can view this as a rendered html file, just click on the file and when it opens (as raw source code) just pre-pend this in front of the url: https://htmlpreview.github.io/?
-<!-- This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.  -->
 
-<!-- Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.  -->
 
 # Project 3 for the SSRTWG investingating the incorporation of environmental covariates into WHAM recruitment models.
 
