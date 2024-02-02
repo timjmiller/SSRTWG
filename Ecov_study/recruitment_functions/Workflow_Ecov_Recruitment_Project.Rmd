@@ -1,13 +1,15 @@
 ---
 title: "Workflow for Ecov Recruitment Analysis"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
+ Note: you can view this as a rendered html file, just click on the file and when it opens (as raw source code) just pre-pend this in front of the url: https://htmlpreview.github.io/?
 
-<!-- This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.  -->
-
-<!-- Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.  -->
 
 # Project 3 for the SSRTWG investingating the incorporation of environmental covariates into WHAM recruitment models.
+
+## View html version <a href="https://htmlpreview.github.io/?https://github.com/timjmiller/SSRTWG/blob/main/Ecov_study/recruitment_functions/Workflow_Ecov_Recruitment_Project.html"> here</a>.
 
 1. Create dataframes that have AIC info and convergence info: run **AIC_dataframe.R** to produce
    + *AIC_all.RDS* contains AIC and convergence info for the best EM only (lowest AIC) per OM-Sim

@@ -164,6 +164,8 @@ sd.catch.sims  <- matrix(NA, nrow=n_sims*nyears, ncol=n_proj)
 
 # create objects to store AIC and convergence ====
 # (not done)
+
+
 t1 <- Sys.time()
 k <- 1
 kdf <- 1
@@ -291,6 +293,17 @@ saveRDS(sd.recr.df, file.path(here::here(),'Ecov_study','recruitment_functions',
 saveRDS(sd.ssb.df, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("sd.ssb.proj.df", plot.suffix, ".RDS") ) )
 saveRDS(sd.catch.df, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("sd.catch.proj.df", plot.suffix, ".RDS") ) )
 
+########################################################################
+# read in RDS if already exist ==================
+re.recr.df<- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.recr.proj.df", plot.suffix, ".RDS") ) )
+re.ssb.df<- readRDS( file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("re.ssb.proj.df", plot.suffix, ".RDS") ) )
+re.catch.df<- readRDS( file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("re.catch.proj.df", plot.suffix, ".RDS") ) )
+
+
+sd.recr.df<- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "sd.recr.proj.df", plot.suffix, ".RDS") ) )
+sd.ssb.df<- readRDS( file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("sd.ssb.proj.df", plot.suffix, ".RDS") ) )
+sd.catch.df<- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("sd.catch.proj.df", plot.suffix, ".RDS") ) )
+########################################################################
 
 
 df.oms2 <- as_tibble(cbind(OM=seq(1,256), df.oms)) 
@@ -785,7 +798,7 @@ sd.rec.proj.plot <- ggplot(sd.rec.sum, aes(x=EM_mod, y=median, col=as.factor(mod
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('SD (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('CV (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(sd.rec.proj.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('sd.rec.proj.plot', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -856,7 +869,7 @@ sd.ssb.proj.plot <- ggplot(sd.ssb.sum, aes(x=EM_mod, y=median, col=as.factor(mod
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('SD (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('CV (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(sd.ssb.proj.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('sd.ssb.proj.plot', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -926,7 +939,7 @@ sd.catch.proj.plot <- ggplot(sd.catch.sum, aes(x=EM_mod, y=median, col=as.factor
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('SD (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('CV (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(sd.catch.proj.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('sd.catch.proj.plot', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1116,7 +1129,7 @@ re.rec.proj.plot3yr <- ggplot(re.rec.sum3yr, aes(x=EM_mod, y=median, col=as.fact
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('RE (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('RE (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(re.rec.proj.plot3yr, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('re.rec.proj.plot3yr', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1139,7 +1152,7 @@ re.rec.proj.plot3yr.ylim <- ggplot(re.rec.sum3yr, aes(x=EM_mod, y=median, col=as
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('RE (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('RE (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(re.rec.proj.plot3yr.ylim, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('re.rec.proj.plot3yr.ylim', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1162,7 +1175,7 @@ sd.rec.proj.plot3yr <- ggplot(sd.rec.sum3yr, aes(x=EM_mod, y=median, col=as.fact
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('SD (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('CV (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(sd.rec.proj.plot3yr, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('sd.rec.proj.plot3yr', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1187,7 +1200,7 @@ re.ssb.proj.plot3yr <- ggplot(re.ssb.sum3yr, aes(x=EM_mod, y=median, col=as.fact
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('RE (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('RE (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(re.ssb.proj.plot3yr, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('re.ssb.proj.plot3yr', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1210,7 +1223,7 @@ re.ssb.proj.plot3yr.ylim <- ggplot(re.ssb.sum3yr, aes(x=EM_mod, y=median, col=as
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('RE (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('RE (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(re.ssb.proj.plot3yr.ylim, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('re.ssb.proj.plot3yr.ylim', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1233,7 +1246,7 @@ sd.ssb.proj.plot3yr <- ggplot(sd.ssb.sum3yr, aes(x=EM_mod, y=median, col=as.fact
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('SD (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('CV (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(sd.ssb.proj.plot3yr, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('sd.ssb.proj.plot3yr', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1258,7 +1271,7 @@ re.catch.proj.plot3yr <- ggplot(re.catch.sum3yr, aes(x=EM_mod, y=median, col=as.
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('RE (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('RE (acrossfirst 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(re.catch.proj.plot3yr, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('re.catch.proj.plot3yr', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1281,7 +1294,7 @@ re.catch.proj.plot3yr.ylim <- ggplot(re.catch.sum3yr, aes(x=EM_mod, y=median, co
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('RE (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('RE (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(re.catch.proj.plot3yr.ylim, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('re.catch.proj.plot3yr.ylim', plot.suffix, '.png') ),  height=7, width=12)
 
 
@@ -1303,7 +1316,7 @@ sd.catch.proj.plot3yr <- ggplot(sd.catch.sum3yr, aes(x=EM_mod, y=median, col=as.
   theme(legend.text = element_text(colour="black", size = 14, face = "bold")) +
   scale_color_discrete(labels = c("OM != EM", "OM = EM")) +
   guides(col=guide_legend(title=NULL)) +
-  ggtitle('SD (across all 10 yrs of projection), 3 different Ecov assumptions in projections')
+  ggtitle('CV (across first 3 yrs of projection), 3 different Ecov assumptions in projections')
 ggsave(sd.catch.proj.plot3yr, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('sd.catch.proj.plot3yr', plot.suffix, '.png') ),  height=7, width=12)
 
 
