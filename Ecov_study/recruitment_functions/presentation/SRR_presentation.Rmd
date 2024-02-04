@@ -1,0 +1,88 @@
+---
+title: "TORs2 and 3"
+output: beamer_presentation
+slide_level: 3
+theme: "Darmstadt"
+logo: WHOI_NOAA_logo_smaller.png
+date: "2024-02-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio
+
+* need to make the logo smaller on title and content slides (put it in the footer)
+
+<!-- This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
+
+<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. -->
+
+## Outline
+
+- 'Stock' parameters
+- Fishery and index Parameters
+- OM factors and simulated data examples
+- EM models
+- Beta standardization
+- Analysis & Results
+- Conclusions
+- Future Work
+
+## Stock parameters
+
+- make some plots of maturity at age, weight at age, true deterministic SRR
+
+
+## Fishery and index parameters
+
+-- make some plots of fishery and index selectivity at age, q-index
+
+
+
+## OM factors and simulated data examples
+
+- make some plots to illustrate OM inputs and resulting simulated data generated
+
+## EM models
+
+- simple table listing EMs
+
+
+## Couple of slides for Beta standardization
+
+- greg's plots
+
+
+## Analysis
+
+\begin{enumerate}
+  \item Convergence of the estimating models
+  \item Model identifiability of an underlying stock recruitment model and/or an underlying relationship
+   between environmental covariate 
+  \item $\delta$AIC and model probability
+  \item Assessment error (recruitment, spawning stock biomass, and Fbar)
+  \item Bias of estimated parameters
+  \item Mohn's $\rho$
+  \item Projection performance relative to assumptions about the environmental covariate
+\end{enumerate}
+
+
+
+
+
+
+
+<!-- ```{r cars, echo = TRUE} -->
+<!-- summary(cars) -->
+<!-- ``` -->
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
