@@ -2,9 +2,12 @@
 title: "TORs2 and 3"
 output: beamer_presentation
 fig_caption: FALSE
-slide_level: 3
-theme: "Darmstadt"
-titlegraphic: WHOI_NOAA_logo_smaller.png
+theme: "Singapore"
+slide-level: 3
+# titlegraphic: WHOI_NOAA_logo_smaller.png
+header-includes: 
+- \addtobeamertemplate{title page}{\centering \includegraphics[width=16.5cm]{WHOI_NOAA_logo_smaller.png}\par }{}
+classoption: "aspectratio=169"
 date: "`r Sys.Date()`"
 ---
 
@@ -12,15 +15,29 @@ date: "`r Sys.Date()`"
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+# TORs
+
+
+## TOR 2
+
+- paste TOR2 
+
+## TOR3 
+
+- paste TOR3
+
+
 ## R Markdown
 
 If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio
 
-* need to make the logo smaller on title and content slides (put it in the footer)
+<!-- * need to make the logo smaller on title and content slides (put it in the footer) -->
 
 <!-- This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
 
 <!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. -->
+
+# Background
 
 ## Outline
 
@@ -32,6 +49,9 @@ If you have trouble knitting this file, check out this page: https://stackoverfl
 - Analysis & Results
 - Conclusions
 - Future Work
+
+
+# Inputs
 
 ## Stock parameters for generic gadid
 
@@ -106,19 +126,20 @@ k= gf_selectivity$initial_pars[[1]][2]
 sel.tmp <- 1.0/(1.0 + exp(-(seq(1, om.data$n_ages) - a50)/k))
 sel <- sel.tmp/sel.tmp[om.data$n_ages]
 fish.sel <- as_tibble(cbind(Age=seq(1, om.data$n_ages), Sel=sel))
-ggplot(fish.sel, aes(x=Age, y=Sel)) + 
+ggplot(fish.sel, aes(x=Age, y=Sel)) +
   geom_line(color='green4', linewidth=1) +
   geom_point(color='green4', size=2.5) +
   ylab('Fishery Selectivity at Age') +
-  theme(axis.text.x = element_text(size = 15))   + 
-  theme(axis.text.y = element_text(size = 15))  + 
-  theme(axis.title.y = element_text(size = 16))  + 
-  theme(axis.title.x = element_text(size = 16))  
-  
-  
+  theme(axis.text.x = element_text(size = 15))   +
+  theme(axis.text.y = element_text(size = 15))  +
+  theme(axis.title.y = element_text(size = 16))  +
+  theme(axis.title.x = element_text(size = 16))
+
+
 
 ```
 
+# OM
 
 ## OM factors and simulated data examples
 
@@ -129,6 +150,14 @@ ggplot(fish.sel, aes(x=Age, y=Sel)) +
 
 - make some plots to illustrate OM inputs and resulting simulated data generated
 - looks like i can have multiple bullets below a figure
+
+
+## Couple of slides for Beta standardization
+
+- greg's plots
+
+
+# EM
 
 ## EM models
 
@@ -146,28 +175,61 @@ em_tib <- as_tibble(df.ems) %>%
 
    knitr::kable(em_tib)
   # print(em_tib)
-  
+
 
 ```
 
 
-## Couple of slides for Beta standardization
-
-- greg's plots
 
 
-## Analysis
+# Analysis & Results
+
+## Analyses
 
 \begin{enumerate}
   \item Convergence of the estimating models
   \item Model identifiability of an underlying stock recruitment model and/or an underlying relationship
-   between environmental covariate 
-  \item $\delta$AIC and model probability
+   between environmental covariate
+  \item $\Delta$AIC and model probability
   \item Assessment error (recruitment, spawning stock biomass, and Fbar)
   \item Bias of estimated parameters
   \item Mohn's $\rho$
   \item Projection performance relative to assumptions about the environmental covariate
 \end{enumerate}
+
+
+## Convergence
+
+## Model Identifiability
+
+##  $\Delta$AIC and model probability
+
+## Assessment error (recruitment, spawning stock biomass, and Fbar)
+
+## Bias of estimated parameters
+
+## Mohn's $\rho$
+
+## Projection performance relative to assumptions about the environmental covariate
+
+
+# Conclusions
+
+## Take-aways
+- These are the take-aways (copy from WP)
+
+# Future Work
+
+## List of what's next
+ 
+- This is what we suggest for follow-up
+
+---
+
+Acknowledgements
+
+- This work could not have been completed without the use of Azure computing (NOAA) and MIT (... greg to fill in)
+- We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
 
 
 
@@ -179,9 +241,9 @@ em_tib <- as_tibble(df.ems) %>%
 <!-- summary(cars) -->
 <!-- ``` -->
 
-## Slide with Plot
+<!-- ## Slide with Plot -->
 
-```{r pressure}
-plot(pressure)
-```
+<!-- ```{r pressure} -->
+<!-- plot(pressure) -->
+<!-- ``` -->
 
