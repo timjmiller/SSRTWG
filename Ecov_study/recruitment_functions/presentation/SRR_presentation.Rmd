@@ -108,19 +108,36 @@ ind.q <-  unique((q.lo + q.hi/(1 + exp(-1*naa_om_inputs[[1]]$par$logit_q)) ))
 # OM
 
 ## OM factors and simulated data examples
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
 
-<!-- -- example chunk to include figure from file -->
-```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='50%', fig.align='center'}
- knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') )
+
+df.oms    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
+
+om.table <- cbind( unique(df.oms$Fhist), unique(df.oms$R_sig), unique(df.oms$NAA_cor), unique(df.oms$Ecov_effect), unique(df.oms$Ecov_re_cor), unique(df.oms$obs_error)  )
+colnames(om.table) <- c('Fhistory', 'R_sigma', 'R_cor', 'Ecov_effect', 'Ecov_cor', 'Obs_error')
+   knitr::kable(om.table)
+ 
+
+```
+- These levels were combined factorially with 4 stock recruit models (all Beverton-Holt) for 256 different OM
+- Factors that did not vary were the observation and process error of the Ecov (bot fixed at 0.1)
+
+## Beverton-Holt functional (1 with no Ecov effect, 3 with effect)
+
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'paper', 'dRdX_1RdRdx.pdf') )
 ```
 
-- make some plots to illustrate OM inputs and resulting simulated data generated
-- looks like i can have multiple bullets below a figure
+## Beta standardization
 
 
-## Couple of slides for Beta standardization
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'paper', 'dRdX.pdf') )
+```
 
-- greg's plots
+## Some Example OM Simulated Data (100 data sets for each OM)
+- still need to make this
 
 
 <!-- ==================================================================================== -->
@@ -129,8 +146,10 @@ ind.q <-  unique((q.lo + q.hi/(1 + exp(-1*naa_om_inputs[[1]]$par$logit_q)) ))
 
 ## EM models
 
-- simple bullets above table
-- we only have 6 EMs that were considered
+- All OMs used Beverton-Holt stock recruit relationship (SRR)
+- For the EMs, we also fit a mean SRR with random effects
+- There were 6 total EMs fit to each simulated data set (100) for all 256 OMs 
+- 153,600 fitted models X 2 for $\beta$ unstandardized and $\beta$ standardized cases
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
 
@@ -139,7 +158,11 @@ df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions
 
 em_tib <- as_tibble(df.ems) %>%
   mutate(SR=ifelse(r_mod==2, 'Mean', 'BH')) %>%
-  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,6))
+  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,6)) %>%
+  rename(Ecov_how=ecov_how, SRR=SR) %>%
+  mutate(Ecov=c('None', 'Controlling', 'None', 'Controlling', 'Limiting', 'Masking' )) %>%
+  relocate(EM, SRR, Ecov_how, Ecov, EM_mod) %>%
+  select(-r_mod) 
 
    knitr::kable(em_tib)
   # print(em_tib)
@@ -222,14 +245,8 @@ Acknowledgements
 
 <!-- If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio -->
 
-
-<!-- ```{r cars, echo = TRUE} -->
-<!-- summary(cars) -->
-<!-- ``` -->
-
-<!-- ## Slide with Plot -->
-
-<!-- ```{r pressure} -->
-<!-- plot(pressure) -->
+<!-- <!-- -- example chunk to include figure from file --> -->
+<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='50%', fig.align='center'} -->
+<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') ) -->
 <!-- ``` -->
 
