@@ -274,7 +274,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 Acknowledgements
 
-- This work could not have been completed without the use of Azure computing (NOAA) and MIT (... greg to fill in)
+- This work could not have been completed without the use of Azure computing (NOAA) and the MIT engaging cluster (courtesy of Chris Hill)
 - We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
 
 
