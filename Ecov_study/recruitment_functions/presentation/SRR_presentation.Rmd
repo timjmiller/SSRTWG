@@ -13,6 +13,7 @@ header-includes:
 classoption: "aspectratio=169"
 date: "`r Sys.Date()`"
 ---
+
 # Background
 
 ## Introduction 
@@ -20,6 +21,7 @@ date: "`r Sys.Date()`"
 - State Space Research Track Working Group (SSRTWG) is investigating performance of the Woods Hole Assessment Model (WHAM)
 - Simulation studies with data generated from operating models (OMs), then fit with a series of estimation models (EMs)
 - This framework allows us to evaluate how the EM fits compare to the known OM "true values", evaluate model selection, bias, precision, etc.
+
 
 ## Terms of Reference (TORs) Addressed 
 
@@ -119,17 +121,20 @@ colnames(om.table) <- c('Fhistory', 'R_sigma', 'R_cor', 'Ecov_effect', 'Ecov_cor
  
 
 ```
+
 - These levels were combined factorially with 4 stock recruit models (all Beverton-Holt) for 256 different OM
 - Factors that did not vary were the observation and process error of the Ecov (bot fixed at 0.1)
 
-## Beverton-Holt functional (1 with no Ecov effect, 3 with effect)
+
+## OM factor: Beverton-Holt functional (1 with no Ecov effect, 3 with effect)
 
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'paper', 'dRdX_1RdRdx.pdf') )
 ```
 
-## Beta standardization
+
+## OM factor: Beta standardization
 
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
@@ -189,8 +194,48 @@ em_tib <- as_tibble(df.ems) %>%
   \item Projection performance relative to assumptions about the environmental covariate
 \end{enumerate}
 
+- 
+- Results will be shown for $\beta$ unstandardized case, because $\beta$ standardization had no appreciable effect
 
-## Convergence
+
+## Crashes
+
+- ~3.3-3.5% crashes, typically for Ecov=Masking ("BH_4") and $\sigma_{R}$=0.1
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'crashed.models.plot_beta_fix.png') )
+```
+
+
+## Convergence Criteria
+
+\begin{enumerate}
+ \item the optimization routine (stats::nlminb) completed without error
+ \item the stats::nlminb convergence flag = 0 indicated successful convergence
+ \item the maximum absolute value of the gradient of the log-likelihood is < 1e-6
+ \item TMB::sdreport provided non-NA values for all fixed effects standard errors
+ \item TMB::sdreport provided all standard errors < 100
+\end{enumerate}
+
+- Models not satisfying all of these conditions were dropped from Results summaries
+
+
+
+## Unconverged Models (from EM having'best' EM per OM-Simulation)
+
+
+
+## Unconverged Models (considering all EMs per OM-Simulation)
+
+
+
+## Unconverged Model - The Offending Parameters 
+
+
+
+## Unconverged Model - Even More Offending Parameters 
+
+
+
 
 ## Model Identifiability
 
@@ -216,7 +261,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 # Future Work
 
-## List of what's next
+## Recommendations for further analyses
  
 - This is what we suggest for follow-up
 - Note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference from results in WP1
