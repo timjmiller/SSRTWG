@@ -1,48 +1,38 @@
 ---
-title: "TORs2 and 3"
+title: "Identification and performance of stock-recruitment functions in state
+space assessment models"
+subtitle: Working Paper 1
+author: Greg Britten, Liz Brooks, Tim Miller
 output: beamer_presentation
 fig_caption: FALSE
 theme: "Singapore"
 slide-level: 3
 # titlegraphic: WHOI_NOAA_logo_smaller.png
 header-includes: 
-- \addtobeamertemplate{title page}{\centering \includegraphics[width=16.5cm]{WHOI_NOAA_logo_smaller.png}\par }{}
+- \addtobeamertemplate{title page}{\centering \includegraphics[width=9.5cm]{WHOI_NOAA_logo_smaller.png}\par }{}
 classoption: "aspectratio=169"
 date: "`r Sys.Date()`"
 ---
-
-```{r setup, echo=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
-
-# TORs
-
-
-## TOR 2
-
-- paste TOR2 
-
-## TOR3 
-
-- paste TOR3
-
-
-## R Markdown
-
-If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio
-
-<!-- * need to make the logo smaller on title and content slides (put it in the footer) -->
-
-<!-- This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
-
-<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. -->
-
 # Background
+
+## Introduction 
+
+- State Space Research Track Working Group (SSRTWG) is investigating performance of the Woods Hole Assessment Model (WHAM)
+- Simulation studies with data generated from operating models (OMs), then fit with a series of estimation models (EMs)
+- This framework allows us to evaluate how the EM fits compare to the known OM "true values", evaluate model selection, bias, precision, etc.
+
+## Terms of Reference (TORs) Addressed 
+
+- TOR 2: Investigate the efficacy of estimating stock-recruit functions within state-space models and their utility in generating scientific advice. 
+
+- TOR 3: Develop guidelines for including ecosystem and environmental effects in assessment models and how to treat them for generating biological reference points and scientific advice.
+
+
+
 
 ## Outline
 
-- 'Stock' parameters
-- Fishery and index Parameters
+- 'Stock' parameters, fishery and index parameters
 - OM factors and simulated data examples
 - EM models
 - Beta standardization
@@ -51,76 +41,37 @@ If you have trouble knitting this file, check out this page: https://stackoverfl
 - Future Work
 
 
+<!-- ==================================================================================== -->
+
 # Inputs
 
 ## Stock parameters for generic gadid
 
-```{r , echo=FALSE, message=FALSE, warnings=FALSE, results='hide'}
-library(patchwork)
-library(tidyverse)
-library(wham)
-naa_om_inputs <- readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
-om.data <- naa_om_inputs[[1]]$data
-mat.waa <- as_tibble(cbind(Age=seq(1, om.data$n_ages), WAA=om.data$waa[1,1,], Mat = om.data$mature[1,] ))
-temp <- fit_wham(naa_om_inputs[[1]], do.fit = FALSE, MakeADFun.silent = TRUE)
-SRab <- exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
-srr <- as_tibble(cbind(SSB=seq(0,3.5e5, length=1000), Recruits= (SRab[1]*seq(0,3.5e5, length=1000)/(1+SRab[2]*seq(0,3.5e5, length=1000)) )  ))
-
-mat.plot <- ggplot(mat.waa, aes(x=Age, y=Mat)) +
-  geom_line(linewidth=1) +
-  geom_point(size=2.5) +
-  ylab('Maturity at age') +
-  scale_x_continuous(breaks=mat.waa$Age, labels=as.character(mat.waa$Age))+
-  theme(axis.text.x = element_text(size = 15))   + 
-  theme(axis.text.y = element_text(size = 15)) +
-  theme(axis.title.x = element_text(size = 16))   + 
-  theme(axis.title.y = element_text(size = 16))  
-ggsave(mat.plot, filename=file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation','plots', 
-                           'mat.plot.png'), height=3, width=4)
-waa.plot <- ggplot(mat.waa, aes(x=Age, y=WAA)) +
-  geom_line(linewidth=1, color='blue') +
-  geom_point(size=2.5, color='blue') +
-  ylab('Weight at age (SSB and Catch)') +
-  scale_x_continuous(breaks=mat.waa$Age, labels=as.character(mat.waa$Age))  +
-  theme(axis.text.x = element_text(size = 15))   + 
-  theme(axis.text.y = element_text(size = 15))  + 
-  theme(axis.title.y = element_text(size = 16))  + 
-  theme(axis.title.x = element_text(size = 16))  
-ggsave(waa.plot, filename=file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation','plots', 
-                           'waa.plot.png'), height=3, width=4)
-
-srr.plot <- ggplot(srr, aes(x=SSB, y=Recruits)) +
-  geom_line(linewidth=1, color='red')  +
-  theme(axis.text.x = element_text(size = 15))   + 
-  theme(axis.text.y = element_text(size = 15))  + 
-  theme(axis.title.y = element_text(size = 16))  + 
-  theme(axis.title.x = element_text(size = 16))  
-  # geom_point(size=2.5, color='blue') +
-  # ylab('Weight at age (SSB and Catch)')
-ggsave(srr.plot, filename=file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation','plots', 
-                           'srr.plot.png'), height=3, width=8)
-
-
-bio.plot <- (mat.plot|waa.plot)/srr.plot
-# ggsave(bio.plot, filename=file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation','plots', 'bio.plot.png'),  height=7, width=8)
-
-plot(bio.plot)
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'plots', 'bio.plot.png') )
 ```
-<!-- knitr::include_graphics("bio.plot.png") -->
-<!-- \includegraphics{file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation','plots', 'bio.plot.pdf')} -->
-<!-- - make some plots of maturity at age, weight at age, true deterministic SRR -->
+
+- Natural mortality = 0.2 at all ages
+- Maturity, weight, natural mortality are time-invariant
+
 
 
 ## Fishery and index parameters
 
 <!-- -- example chunk to include figure from file -->
-```{r,  echo=FALSE, message=FALSE, warnings=FALSE, results='hide', out.width='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE, results='hide', out.width='60%', fig.align='center'}
+library(tidyverse)
+library(wham)
+naa_om_inputs <- readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+om.data <- naa_om_inputs[[1]]$data
+
 gf_info = make_basic_info()
 
 #selectivity is not changing
 gf_selectivity <- list(model       =c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
                        initial_pars=rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
 
+#fishery
 a50 = gf_selectivity$initial_pars[[1]][1]
 k= gf_selectivity$initial_pars[[1]][2]
 sel.tmp <- 1.0/(1.0 + exp(-(seq(1, om.data$n_ages) - a50)/k))
@@ -135,16 +86,31 @@ ggplot(fish.sel, aes(x=Age, y=Sel)) +
   theme(axis.title.y = element_text(size = 16))  +
   theme(axis.title.x = element_text(size = 16))
 
+#index-1 and index-2 have same selectivity as fleet (why?!)
+# a50.i1 = gf_selectivity$initial_pars[[2]][1]
+# k.i1 = gf_selectivity$initial_pars[[2]][2]
+# 
+# a50.i2 = gf_selectivity$initial_pars[[2]][1]
+# k.i2 = gf_selectivity$initial_pars[[2]][2]
+
+ind.time <- naa_om_inputs[[1]]$data$fracyr_indices[1,]
+q.hi <- (naa_om_inputs[[1]]$data$q_upper)
+q.lo <- (naa_om_inputs[[1]]$data$q_lower)
+ind.q <-  unique((q.lo + q.hi/(1 + exp(-1*naa_om_inputs[[1]]$par$logit_q)) ))
 
 
 ```
+- two fishery independent indices were also generated, taking place at `r ind.time` yr
+- catchability for both indices was `r ind.q `; selectivity was same as fishery
+
+<!-- ==================================================================================== -->
 
 # OM
 
 ## OM factors and simulated data examples
 
 <!-- -- example chunk to include figure from file -->
-```{r, out.width='25%', fig.align='center'}
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='50%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') )
 ```
 
@@ -156,6 +122,8 @@ ggplot(fish.sel, aes(x=Age, y=Sel)) +
 
 - greg's plots
 
+
+<!-- ==================================================================================== -->
 
 # EM
 
@@ -181,6 +149,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 
+<!-- ==================================================================================== -->
 
 # Analysis & Results
 
@@ -213,6 +182,10 @@ em_tib <- as_tibble(df.ems) %>%
 ## Projection performance relative to assumptions about the environmental covariate
 
 
+
+
+<!-- ==================================================================================== -->
+
 # Conclusions
 
 ## Take-aways
@@ -223,6 +196,11 @@ em_tib <- as_tibble(df.ems) %>%
 ## List of what's next
  
 - This is what we suggest for follow-up
+- Note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference from results in WP1
+
+
+
+<!-- ==================================================================================== -->
 
 ---
 
@@ -232,9 +210,17 @@ Acknowledgements
 - We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
 
 
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='35%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'abacus_crop.jpg') )
+```
 
 
+<!-- ==================================================================================== -->
 
+
+<!-- ## R Markdown -->
+
+<!-- If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio -->
 
 
 <!-- ```{r cars, echo = TRUE} -->
