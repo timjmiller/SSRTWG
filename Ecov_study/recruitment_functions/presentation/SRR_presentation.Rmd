@@ -1,0 +1,297 @@
+---
+title: "Identification and performance of stock-recruitment functions in state
+space assessment models"
+subtitle: Working Paper 1
+author: Greg Britten, Liz Brooks, Tim Miller
+output: beamer_presentation
+fig_caption: FALSE
+theme: "Singapore"
+slide-level: 3
+# titlegraphic: WHOI_NOAA_logo_smaller.png
+header-includes: 
+- \addtobeamertemplate{title page}{\centering \includegraphics[width=9.5cm]{WHOI_NOAA_logo_smaller.png}\par }{}
+classoption: "aspectratio=169"
+date: "`r Sys.Date()`"
+---
+
+# Background
+
+## Introduction 
+
+- State Space Research Track Working Group (SSRTWG) is investigating performance of the Woods Hole Assessment Model (WHAM)
+- Simulation studies with data generated from operating models (OMs), then fit with a series of estimation models (EMs)
+- This framework allows us to evaluate how the EM fits compare to the known OM "true values", evaluate model selection, bias, precision, etc.
+
+
+## Terms of Reference (TORs) Addressed 
+
+- TOR 2: Investigate the efficacy of estimating stock-recruit functions within state-space models and their utility in generating scientific advice. 
+
+- TOR 3: Develop guidelines for including ecosystem and environmental effects in assessment models and how to treat them for generating biological reference points and scientific advice.
+
+
+
+
+## Outline
+
+- 'Stock' parameters, fishery and index parameters
+- OM factors and simulated data examples
+- EM models
+- Beta standardization
+- Analysis & Results
+- Conclusions
+- Future Work
+
+
+<!-- ==================================================================================== -->
+
+# Inputs
+
+## Stock parameters for generic gadid
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'plots', 'bio.plot.png') )
+```
+
+- Natural mortality = 0.2 at all ages
+- Maturity, weight, natural mortality are time-invariant
+
+
+
+## Fishery and index parameters
+
+<!-- -- example chunk to include figure from file -->
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE, results='hide', out.width='60%', fig.align='center'}
+library(tidyverse)
+library(wham)
+naa_om_inputs <- readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
+om.data <- naa_om_inputs[[1]]$data
+
+gf_info = make_basic_info()
+
+#selectivity is not changing
+gf_selectivity <- list(model       =c(rep("logistic", gf_info$n_fleets),rep("logistic", gf_info$n_indices)),
+                       initial_pars=rep(list(c(5,1)), gf_info$n_fleets + gf_info$n_indices)) #fleet, index
+
+#fishery
+a50 = gf_selectivity$initial_pars[[1]][1]
+k= gf_selectivity$initial_pars[[1]][2]
+sel.tmp <- 1.0/(1.0 + exp(-(seq(1, om.data$n_ages) - a50)/k))
+sel <- sel.tmp/sel.tmp[om.data$n_ages]
+fish.sel <- as_tibble(cbind(Age=seq(1, om.data$n_ages), Sel=sel))
+ggplot(fish.sel, aes(x=Age, y=Sel)) +
+  geom_line(color='green4', linewidth=1) +
+  geom_point(color='green4', size=2.5) +
+  ylab('Fishery Selectivity at Age') +
+  theme(axis.text.x = element_text(size = 15))   +
+  theme(axis.text.y = element_text(size = 15))  +
+  theme(axis.title.y = element_text(size = 16))  +
+  theme(axis.title.x = element_text(size = 16))
+
+#index-1 and index-2 have same selectivity as fleet (why?!)
+# a50.i1 = gf_selectivity$initial_pars[[2]][1]
+# k.i1 = gf_selectivity$initial_pars[[2]][2]
+# 
+# a50.i2 = gf_selectivity$initial_pars[[2]][1]
+# k.i2 = gf_selectivity$initial_pars[[2]][2]
+
+ind.time <- naa_om_inputs[[1]]$data$fracyr_indices[1,]
+q.hi <- (naa_om_inputs[[1]]$data$q_upper)
+q.lo <- (naa_om_inputs[[1]]$data$q_lower)
+ind.q <-  unique((q.lo + q.hi/(1 + exp(-1*naa_om_inputs[[1]]$par$logit_q)) ))
+
+
+```
+- two fishery independent indices were also generated, taking place at `r ind.time` yr
+- catchability for both indices was `r ind.q `; selectivity was same as fishery
+
+<!-- ==================================================================================== -->
+
+# OM
+
+## OM factors and simulated data examples
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
+
+
+df.oms    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.oms.RDS"))
+
+om.table <- cbind( unique(df.oms$Fhist), unique(df.oms$R_sig), unique(df.oms$NAA_cor), unique(df.oms$Ecov_effect), unique(df.oms$Ecov_re_cor), unique(df.oms$obs_error)  )
+colnames(om.table) <- c('Fhistory', 'R_sigma', 'R_cor', 'Ecov_effect', 'Ecov_cor', 'Obs_error')
+   knitr::kable(om.table)
+ 
+
+```
+
+- These levels were combined factorially with 4 stock recruit models (all Beverton-Holt) for 256 different OM
+- Factors that did not vary were the observation and process error of the Ecov (bot fixed at 0.1)
+
+
+## OM factor: Beverton-Holt functional (1 with no Ecov effect, 3 with effect)
+
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'paper', 'dRdX_1RdRdx.pdf') )
+```
+
+
+## OM factor: Beta standardization
+
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'paper', 'dRdX.pdf') )
+```
+
+## Some Example OM Simulated Data (100 data sets for each OM)
+- still need to make this
+
+
+<!-- ==================================================================================== -->
+
+# EM
+
+## EM models
+
+- All OMs used Beverton-Holt stock recruit relationship (SRR)
+- For the EMs, we also fit a mean SRR with random effects
+- There were 6 total EMs fit to each simulated data set (100) for all 256 OMs 
+- 153,600 fitted models X 2 for $\beta$ unstandardized and $\beta$ standardized cases
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
+
+
+df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
+
+em_tib <- as_tibble(df.ems) %>%
+  mutate(SR=ifelse(r_mod==2, 'Mean', 'BH')) %>%
+  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,6)) %>%
+  rename(Ecov_how=ecov_how, SRR=SR) %>%
+  mutate(Ecov=c('None', 'Controlling', 'None', 'Controlling', 'Limiting', 'Masking' )) %>%
+  relocate(EM, SRR, Ecov_how, Ecov, EM_mod) %>%
+  select(-r_mod) 
+
+   knitr::kable(em_tib)
+  # print(em_tib)
+
+
+```
+
+
+
+<!-- ==================================================================================== -->
+
+# Analysis & Results
+
+## Analyses
+
+\begin{enumerate}
+  \item Convergence of the estimating models
+  \item Model identifiability of an underlying stock recruitment model and/or an underlying relationship
+   between environmental covariate
+  \item $\Delta$AIC and model probability
+  \item Assessment error (recruitment, spawning stock biomass, and Fbar)
+  \item Bias of estimated parameters
+  \item Mohn's $\rho$
+  \item Projection performance relative to assumptions about the environmental covariate
+\end{enumerate}
+
+- 
+- Results will be shown for $\beta$ unstandardized case, because $\beta$ standardization had no appreciable effect
+
+
+## Crashes
+
+- ~3.3-3.5% crashes, typically for Ecov=Masking ("BH_4") and $\sigma_{R}$=0.1
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'crashed.models.plot_beta_fix.png') )
+```
+
+
+## Convergence Criteria
+
+\begin{enumerate}
+ \item the optimization routine (stats::nlminb) completed without error
+ \item the stats::nlminb convergence flag = 0 indicated successful convergence
+ \item the maximum absolute value of the gradient of the log-likelihood is < 1e-6
+ \item TMB::sdreport provided non-NA values for all fixed effects standard errors
+ \item TMB::sdreport provided all standard errors < 100
+\end{enumerate}
+
+- Models not satisfying all of these conditions were dropped from Results summaries
+
+
+
+## Unconverged Models (from EM having'best' EM per OM-Simulation)
+
+
+
+## Unconverged Models (considering all EMs per OM-Simulation)
+
+
+
+## Unconverged Model - The Offending Parameters 
+
+
+
+## Unconverged Model - Even More Offending Parameters 
+
+
+
+
+## Model Identifiability
+
+##  $\Delta$AIC and model probability
+
+## Assessment error (recruitment, spawning stock biomass, and Fbar)
+
+## Bias of estimated parameters
+
+## Mohn's $\rho$
+
+## Projection performance relative to assumptions about the environmental covariate
+
+
+
+
+<!-- ==================================================================================== -->
+
+# Conclusions
+
+## Take-aways
+- These are the take-aways (copy from WP)
+
+# Future Work
+
+## Recommendations for further analyses
+ 
+- This is what we suggest for follow-up
+- Note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference from results in WP1
+
+
+
+<!-- ==================================================================================== -->
+
+---
+
+Acknowledgements
+
+- This work could not have been completed without the use of Azure computing (NOAA) and the MIT engaging cluster (courtesy of Chris Hill)
+- We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
+
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='35%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'abacus_crop.jpg') )
+```
+
+
+<!-- ==================================================================================== -->
+
+
+<!-- ## R Markdown -->
+
+<!-- If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio -->
+
+<!-- <!-- -- example chunk to include figure from file --> -->
+<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='50%', fig.align='center'} -->
+<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') ) -->
+<!-- ``` -->
+
