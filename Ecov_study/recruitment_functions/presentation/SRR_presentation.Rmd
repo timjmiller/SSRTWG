@@ -86,7 +86,8 @@ ggplot(fish.sel, aes(x=Age, y=Sel)) +
   theme(axis.text.x = element_text(size = 15))   +
   theme(axis.text.y = element_text(size = 15))  +
   theme(axis.title.y = element_text(size = 16))  +
-  theme(axis.title.x = element_text(size = 16))
+  theme(axis.title.x = element_text(size = 16)) +
+  scale_x_continuous(breaks=fish.sel$Age, labels=as.character(fish.sel$Age)) 
 
 #index-1 and index-2 have same selectivity as fleet (why?!)
 # a50.i1 = gf_selectivity$initial_pars[[2]][1]
@@ -194,8 +195,9 @@ em_tib <- as_tibble(df.ems) %>%
   \item Projection performance relative to assumptions about the environmental covariate
 \end{enumerate}
 
-- 
+
 - Results will be shown for $\beta$ unstandardized case, because $\beta$ standardization had no appreciable effect
+- Most results summarized by relative error (RE): (Est-True)/True
 
 
 ## Crashes
@@ -221,14 +223,28 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 ## Unconverged Models (from EM having'best' EM per OM-Simulation)
+ 
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad.mods_lowestAIC.plot_grad_6_SE_100_beta_fix.png') )
+```
 
 
 
 ## Unconverged Models (considering all EMs per OM-Simulation)
 
 
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad.mods_all_grad_6_SE_100_beta_fix.plot.png') )
+```
+
+
 
 ## Unconverged Model - The Offending Parameters 
+
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad_par_N_barplot_grad_6_SE_100_beta_fix.png') )
+```
 
 
 
@@ -236,18 +252,243 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad_par_2nd_N_barplot_grad_6_SE_100_beta_fix.png') )
+```
 
-## Model Identifiability
 
-##  $\Delta$AIC and model probability
+ 
+## Model Identifiability - Marginal barplots for SRR
+ - Marginal univariate model selection results for whether an SRR relationship was correctly
+identified (indicated by dark shaded regions)
 
-## Assessment error (recruitment, spawning stock biomass, and Fbar)
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'raw_boxplots_SR_beta_fix.pdf') )
+```
 
-## Bias of estimated parameters
+
+## Model Identifiability - Marginal barplots for Ecov_how
+ - Marginal univariate model selection results for whether an Ecov was correctly identified (indicated by dark shaded regions)
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'raw_boxplots_Ecov_beta_fix.pdf') )
+```
+
+ 
+## Model Identifiability - Marginal barplots for both SRR & Ecov_how
+ - Marginal univariate model selection results for whether the SRR AND Ecov were both correctly identified (indicated by dark shaded regions)
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'raw_boxplots_form_beta_fix.pdf') )
+```
+
+
+## Model Identifiability - Effect size
+ - Effect sizes for proportion correctly identified using a binomial generalized linear model and a
+binomial generalized linear mixed model with simulation random number seed as a random intercept
+
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'effect_size_glm_glmm_beta_fix.pdf') )
+```
+
+
+## Model Identifiability - Classification tree for identifying EM = OM
+ - Classification tree analysis of model selection results, with default settings in R package 'rpart'. The complexity parameter is set at cp = 0.01, which represents the minimum classification improvement required for any split.
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_best_beta_fix.pdf') )
+  ```
+  
+  
+
+##  $\Delta$AIC and model probability - Classification tree
+ - Classification tree analysis of for the difference in AIC among EMs, the rank of EMs, and the model probability of EMs (calculated from Akaike weights).
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_prob_beta_fix.pdf') )
+  ```
+  
+
+##  $\Delta$AIC  - Median and 95% probability interval
+ - Median difference in AIC (filled circle) with 2.5th and 97.5th percentiles; horizontal line at 2 for reference
+
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_dAIC.ylim_beta_fix.png') )
+  ```
+
+##  Model probability  - Median and 95% probability interval
+ - Median model probability (filled circle) with 2.5th and 97.5th percentiles; horizontal line at 0.5 for reference
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') )
+  ```
+
+
+
+
+## Assessment error - Recruitment (all years)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
+  ```
+
+
+## Assessment error - Recruitment (last 10 years)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.last.10.plot_beta_fix.png') )
+  ```
+
+
+
+## Assessment error - Recruitment (terminal year)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.last.yr.plot_beta_fix.png') )
+  ```
+
+
+
+## Assessment error - Spawning Stock Biomass (all years)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.all.yrs.plot_beta_fix.png') )
+  ```
+
+
+## Assessment error - Spawning Stock Biomass (terminal year)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.last.yr.plot_beta_fix.png') )
+  ```
+
+
+
+
+## Assessment error - Fbar (all years)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.all.yrs.plot_beta_fix.png') )
+  ```
+
+
+## Assessment error - Fbar (terminal year)
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.last.yr.plot_beta_fix.png') )
+  ```
+
+
+
+## Effect size for Relative error in Recruitment
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'effect_size_glm_glmm_recr_re_beta_fix.pdf') )
+```
+
+## Effect size for Relative error in SSB
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'effect_size_glm_glmm_ssb_re_beta_fix.pdf') )
+```
+
+ 
+ ## Effect size for Relative error in Fbar
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'effect_size_glm_glmm_fbar_re_beta_fix.pdf') )
+```
+
+
+
+
+# Alert
+## Is everybody still awake?
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'asleep_keyboard.jpg') )
+  ```
+
+
+
+# Results
+
+## Bias of estimated parameters - Ecov $\beta$
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov_beta.plot_beta_fix.png') )
+  ```
+
+
+## Bias of estimated parameters - Ecov mean
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.mean.plot_beta_fix.png') )
+  ```
+
+
+## Bias of estimated parameters - $\rho_{Ecov}$
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.rho.plot.ylim_beta_fix.png') )
+  ```
+
+## Bias of estimated parameters - $\sigma_{Ecov}$
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov_beta.plot_beta_fix.png') )
+  ```
+
+## Bias of estimated parameters - SRR a
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.mean_rec1.plot.ylim_beta_fix.png') )
+  ```
+
+## Bias of estimated parameters - SRR b
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.mean_rec2.plot.ylim_beta_fix.png') )
+  ```
+
+## Bias of estimated parameters - $\sigma_{R}$
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_sigma.plot.ylim_beta_fix.png') )
+  ```
+
+
+## Bias of estimated parameters - $\rho_{R}$
+- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_cor.plot_beta_fix.png') )
+  ```
+
+
+
 
 ## Mohn's $\rho$
 
-## Projection performance relative to assumptions about the environmental covariate
+## Projections: Specifications and Ecov assumptions 
+
+## Projection performance relative to assumptions about the Ecov
 
 
 
@@ -257,7 +498,13 @@ em_tib <- as_tibble(df.ems) %>%
 # Conclusions
 
 ## Take-aways
-- These are the take-aways (copy from WP)
+
+- Stock-recruitment model identification was poor, requiring unrealistic OM scenarios
+
+- EMs with only recruitment random effects generally performed similarly well as OM=EM, including for cases with an SR relationship and/or an ecov effect
+
+- In conclusion, we recommend recruitment random effects from a mean SRR as the default EM in WHAM
+
 
 # Future Work
 
@@ -274,7 +521,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 Acknowledgements
 
-- This work could not have been completed without the use of Azure computing (NOAA) and the MIT engaging cluster (courtesy of Chris Hill)
+- This work could not have been completed without support from the Microsoft Cooperative Research and Development Agreement (CRADA) and NOAA's National Cloud Program Office (OCIO), as well as MIT (... greg to fill in)
 - We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
 
 
