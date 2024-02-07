@@ -1502,3 +1502,31 @@ relError_Fmsy <- plot_Fmsy %>%
        y = "Relative error in FMSY")
 ggsave(relError_Fmsy, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "relError_Fmsy.png"), width = 15, height = 5)
 
+# Example covariate
+load("~/SSRTWG/Ecov_study/catchability/Results/OM_336/simWHAM_2_nsim_OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1_OM_2024-01-15_04-10-12.266391.RData")
+plotEcov <- cbind(results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_obs, 
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[2]]$dataOM$Ecov_obs,
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_year) %>% 
+  as.data.frame() %>%
+  pivot_longer(cols = c(V1, V2), values_to = "covariate", names_to = "sim", names_prefix = "V")
+
+plotEcov %>% 
+  ggplot() + 
+  geom_line(aes(y=covariate, x=V3, col = sim))  + 
+  ylab("Environmental covariate") + 
+  xlab("Year")
+
+
+Ecov_mean_trend <- seq(0, 5, by = 5/39)
+plotEcov <- cbind(results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_obs+Ecov_mean_trend, 
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[2]]$dataOM$Ecov_obs+Ecov_mean_trend,
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_year) %>% 
+  as.data.frame() %>%
+  pivot_longer(cols = c(V1, V2), values_to = "covariate", names_to = "sim", names_prefix = "V")
+
+plotEcov %>% 
+  ggplot() + 
+  geom_line(aes(y=covariate, x=V3, col = sim))  + 
+  ylab("Environmental covariate") + 
+  xlab("Year")
+
