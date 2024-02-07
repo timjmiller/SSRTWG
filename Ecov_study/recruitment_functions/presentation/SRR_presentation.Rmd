@@ -14,9 +14,9 @@ classoption: "aspectratio=169"
 date: "`r Sys.Date()`"
 ---
 
-# Background
+# Intro
 
-## Introduction 
+## Background 
 
 - State Space Research Track Working Group (SSRTWG) is investigating performance of the Woods Hole Assessment Model (WHAM)
 - Simulation studies with data generated from operating models (OMs), then fit with a series of estimation models (EMs)
@@ -156,6 +156,19 @@ rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_fu
 ## Some Example OM Simulated Data (100 data sets for each OM)
 - still need to make this
 
+
+
+<!-- ==================================================================================== -->
+
+# Sims
+## Simulated Data Examples - Type 1
+- plots
+
+## Simulated Data Examples - Type 2
+- plots
+
+## Simulated Data Examples - Type 3
+- plots
 
 <!-- ==================================================================================== -->
 
@@ -301,7 +314,7 @@ identified (indicated by dark shaded regions)
 binomial generalized linear mixed model with simulation random number seed as a random intercept
 
 
-```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='60%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'effect_size_glm_glmm_beta_fix.pdf') )
 ```
 
@@ -331,7 +344,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - EM models on the x-axis
 - Blue indicates EM=OM (diagonal of first 4 columns w/in facet blocks), incorrect EMs in red
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='65%', fig.align='center'}
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='60%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
   ```
 
@@ -381,7 +394,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Spawning Stock Biomass (all years)
-- Median unbiased, $\sigma_{R}$ determined quantile range
+- Median unbiased
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.all.yrs.plot_beta_fix.png') )
@@ -399,7 +412,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Fbar (all years)
-- Median unbiased, $\sigma_{R}$ determined quantile range
+- Median unbiased
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.all.yrs.plot_beta_fix.png') )
@@ -437,7 +450,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 
-# Alert
+# !!
 ## Is everybody still awake?
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'asleep_keyboard.jpg') )
@@ -449,7 +462,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 ## Bias of estimated parameters - Ecov $\beta$
 
-- Limiting and Masking had worst performance (BH_3 and BH_4)
+- Huge quartile ranges; Limiting and Masking had worst performance (BH_3 and BH_4)
 
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
@@ -555,7 +568,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 ## Projections: Specifications and Ecov assumptions 
 - Projections were made from the 10th peel of each fitted model (Terminal year - 10)
-- A 5-year average of maturity, weight at age, and selectivity specified (time-invariant anyway)
+- A 5-year average of maturity, weight at age, and selectivity specified (time-invariant)
 - F in the projection was set at the true OM F value
 - The environmental index was treated 3 ways
 
@@ -682,14 +695,30 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 - EMs with mean SRR and recruitment random effects generally performed similarly well as OM=EM, including for cases with an SR relationship and/or an ecov effect
 
-- In conclusion, we recommend recruitment random effects from a mean SRR as the default EM in WHAM
+- In conclusion, we recommend recruitment random effects (ar1) from a mean SRR (recruit_model=2) as the default EM in WHAM
 
 
 # Future Work
 
-## Recommendations for further analyses
+## Further analyses (already investigated, see Appendix for WP-1)
  
-- In WP-1, we recommended exploring additional levels of $\sigma_{R}$=0.5; however, we note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference 
+- In WP-1, we recommended exploring additional levels of $\sigma_{R}$=0.5; however, we note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference (only success at unrealistic $\sigma_{R}$=0.1)
+
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_best_beta_fix.pdf') )
+```
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_384', 'reg_tree_AIC_best_beta_fix_384.pdf') )
+```
+
+## Recommendations for future research
+- Additional fishing histories, including some that include years with F < $F_{MSY}$
+- Recruitment random effect trends
+- Ecov models with trends or AR(2) dynamics
+- Multivariate ecov processes
+- Ecov processes affecting multiple stock parameters, or multiple Ecov processes affecting recruitment (simultaneous or sequential)
 
 
 
@@ -699,7 +728,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 Acknowledgements
 
-- This work could not have been completed without support from the Microsoft Cooperative Research and Development Agreement (CRADA) and NOAA's National Cloud Program Office (OCIO), as well as MIT (... greg to fill in)
+- This work could not have been completed without access to high performance computing resources from the Microsoft Cooperative Research and Development Agreement (CRADA) and NOAA's National Cloud Program Office (OCIO), and the MIT Office of Research Computing and Data
 - We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
 
 
