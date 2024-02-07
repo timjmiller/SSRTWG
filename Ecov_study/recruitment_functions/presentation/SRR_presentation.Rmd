@@ -110,7 +110,7 @@ ind.q <-  unique((q.lo + q.hi/(1 + exp(-1*naa_om_inputs[[1]]$par$logit_q)) ))
 
 # OM
 
-## OM factors and simulated data examples
+## OM factors 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
 
 
@@ -125,6 +125,17 @@ colnames(om.table) <- c('Fhistory', 'R_sigma', 'R_cor', 'Ecov_effect', 'Ecov_cor
 
 - These levels were combined factorially with 4 stock recruit models (all Beverton-Holt) for 256 different OM
 - Factors that did not vary were the observation and process error of the Ecov (bot fixed at 0.1)
+
+
+## OM factor for Recruitment variability (R_sig) relative to recent assessments
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
+
+rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_functions", "tables", "sigmaR_assessment_estimates.csv"), header=TRUE)
+
+   knitr::kable(rsig.assmt )
+ 
+```
+
 
 
 ## OM factor: Beverton-Holt functional (1 with no Ecov effect, 3 with effect)
@@ -158,9 +169,10 @@ colnames(om.table) <- c('Fhistory', 'R_sigma', 'R_cor', 'Ecov_effect', 'Ecov_cor
 - 153,600 fitted models X 2 for $\beta$ unstandardized and $\beta$ standardized cases
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE}
-
+library(tidyverse)
 
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
+df.ems2 <- cbind(EM=seq(1,6), df.ems)
 
 em_tib <- as_tibble(df.ems) %>%
   mutate(SR=ifelse(r_mod==2, 'Mean', 'BH')) %>%
@@ -203,6 +215,7 @@ em_tib <- as_tibble(df.ems) %>%
 ## Crashes
 
 - ~3.3-3.5% crashes, typically for Ecov=Masking ("BH_4") and $\sigma_{R}$=0.1
+- most problematic for Masking (BH_4) and exacerbated by $\sigma_{R}$=0.1
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'crashed.models.plot_beta_fix.png') )
 ```
@@ -223,7 +236,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 ## Unconverged Models (from EM having'best' EM per OM-Simulation)
- 
+- most problematic for $\sigma_{R}$=0.1; BH with no Ecov and high fishing contrast (H-MSY) and mean SRR with no contrast (MSY)
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad.mods_lowestAIC.plot_grad_6_SE_100_beta_fix.png') )
 ```
@@ -231,7 +244,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 ## Unconverged Models (considering all EMs per OM-Simulation)
-
+- most problematic for Beverton-Holt SRR, worse with no contrast in fishing history (MSY)
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad.mods_all_grad_6_SE_100_beta_fix.plot.png') )
@@ -240,7 +253,7 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 ## Unconverged Model - The Offending Parameters 
-
+- the SRR recruitment parameters led to most convergence failures
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad_par_N_barplot_grad_6_SE_100_beta_fix.png') )
@@ -248,9 +261,9 @@ em_tib <- as_tibble(df.ems) %>%
 
 
 
-## Unconverged Model - Even More Offending Parameters 
+## Unconverged Model - Second Most Offending Parameters 
 
-
+- the Ecov parameters led to the second most convergence failures
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad_par_2nd_N_barplot_grad_6_SE_100_beta_fix.png') )
@@ -301,7 +314,6 @@ binomial generalized linear mixed model with simulation random number seed as a 
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_best_beta_fix.pdf') )
   ```
   
-  
 
 ##  $\Delta$AIC and model probability - Classification tree
  - Classification tree analysis of for the difference in AIC among EMs, the rank of EMs, and the model probability of EMs (calculated from Akaike weights).
@@ -311,19 +323,29 @@ binomial generalized linear mixed model with simulation random number seed as a 
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_prob_beta_fix.pdf') )
   ```
   
+  
+
+## Results layout (example)
+- Plots show median relative error (filled circle) with 2.5th and 97.5th percentiles
+- OM factors as facets (top and right side)
+- EM models on the x-axis
+- Blue indicates EM=OM (diagonal of first 4 columns w/in facet blocks), incorrect EMs in red
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='65%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
+  ```
+
+
 
 ##  $\Delta$AIC  - Median and 95% probability interval
- - Median difference in AIC (filled circle) with 2.5th and 97.5th percentiles; horizontal line at 2 for reference
-
-
+- Smaller $\Delta$AIC when $\sigma_{R}$ is larger
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_dAIC.ylim_beta_fix.png') )
   ```
 
 ##  Model probability  - Median and 95% probability interval
- - Median model probability (filled circle) with 2.5th and 97.5th percentiles; horizontal line at 0.5 for reference
-
+- True OMs receive more probability with $\sigma_{R}$=0.1 and high fishing contrast; otherwise, mean SRR received more probability
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') )
@@ -331,10 +353,8 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 
-
 ## Assessment error - Recruitment (all years)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
-
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
@@ -342,7 +362,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Recruitment (last 10 years)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
@@ -352,7 +372,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Recruitment (terminal year)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.last.yr.plot_beta_fix.png') )
@@ -361,7 +381,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Spawning Stock Biomass (all years)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.all.yrs.plot_beta_fix.png') )
@@ -369,7 +389,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Spawning Stock Biomass (terminal year)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.last.yr.plot_beta_fix.png') )
@@ -379,7 +399,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Fbar (all years)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.all.yrs.plot_beta_fix.png') )
@@ -387,7 +407,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Assessment error - Fbar (terminal year)
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Median unbiased, $\sigma_{R}$ determined quantile range
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.last.yr.plot_beta_fix.png') )
@@ -428,7 +448,8 @@ binomial generalized linear mixed model with simulation random number seed as a 
 # Results
 
 ## Bias of estimated parameters - Ecov $\beta$
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+
+- Limiting and Masking had worst performance (BH_3 and BH_4)
 
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
@@ -437,46 +458,47 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Bias of estimated parameters - Ecov mean
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Larger quantile range when Ecov correlation is high (0.8)
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.mean.plot_beta_fix.png') )
   ```
 
 
 ## Bias of estimated parameters - $\rho_{Ecov}$
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Well estimated when Ecov correlation was high (0.8)
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.rho.plot.ylim_beta_fix.png') )
   ```
 
 ## Bias of estimated parameters - $\sigma_{Ecov}$
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Positively biased when Ecov correlation is high (0.8)
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
-  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov_beta.plot_beta_fix.png') )
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.sigma.plot_beta_fix.png') )
   ```
 
 ## Bias of estimated parameters - SRR a
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Unbiased when $\sigma_{R}$ =0.1 and high fishing contrast; otherwise biased +/- 0.2 (BH_4 could be much worse)
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.mean_rec1.plot.ylim_beta_fix.png') )
   ```
 
 ## Bias of estimated parameters - SRR b
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Unbiased when $\sigma_{R}$ =0.1 and high fishing contrast; otherwise biased +/- 0.2 (BH_4 could be much worse)
+
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.mean_rec2.plot.ylim_beta_fix.png') )
   ```
 
 ## Bias of estimated parameters - $\sigma_{R}$
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
+- Bias pattern mirroring between $\sigma_{R}$ and correlation
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_sigma.plot.ylim_beta_fix.png') )
   ```
 
 
 ## Bias of estimated parameters - $\rho_{R}$
-- Median relative error (filled circle) with 2.5th and 97.5th percentiles
-
+- Bias pattern mirroring between $\sigma_{R}$ and correlation
+- For most informative case (H-MSY, $\sigma_{R}$=0.1, low recruitment correlation), mean SRR has large positive bias
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_cor.plot_beta_fix.png') )
   ```
@@ -484,13 +506,170 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 
-## Mohn's $\rho$
+## Mohn's $\rho$ - Recruitment (7 year peel)  
+- Missing symbol indicates failed peels for one or more EM fits
+- $\sigma_{R}$ and observation error were influential factors
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'recr.rho_beta_fix.png') )
+  ```
+
+## Mohn's $\rho$ - SSB  (7 year peel)   
+- observation error was influential factor 
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'ssb.rho_beta_fix.png') )
+  ```
+
+
+## Mohn's $\rho$ - Fbar  (7 year peel) 
+- observation error was influential factor 
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'fbar.rho_beta_fix.png') )
+  ```
+
+
+## Mohn's $\rho$ - Classification Tree for Recruitment, SSB, Fbar
+-
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_Rho_beta_fix.pdf') )
+  ```
+
+
+
+## Mohn's $\rho$ - Random Effects on Recruitment (7 year peel)
+- Negative bias when $\sigma_{R}$ is low
+- Expected worse $\rho$ from incorrect EM, but was not the case 
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'recr.dev.rho_beta_fix.png') )
+  ```
+
+## Mohn's $\rho$ - Classification Tree for Random Effects on Recruitment
+
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_Rdev_retro_beta_fix.pdf') )
+  ```
 
 ## Projections: Specifications and Ecov assumptions 
+- Projections were made from the 10th peel of each fitted model (Terminal year - 10)
+- A 5-year average of maturity, weight at age, and selectivity specified (time-invariant anyway)
+- F in the projection was set at the true OM F value
+- The environmental index was treated 3 ways
 
-## Projection performance relative to assumptions about the Ecov
+    \begin{enumerate}
+      \item A 5-year average of the most recent index value was held constant in the 10 year projection ('Avg5yr')
+      \item The estimated process continued in the 10 year projection ('Continue')
+      \item The observed environmental index was specified in the 10 year projection ('ObsEcov') 
+    \end{enumerate}
+
+- Projected Recruitment, SSB, and Catch were compared to the true OM values in the projection
 
 
+## Projection performance - Relative Error Recruitment (first 3 years)
+- Minimal bias (median at most -0.1 for mean SRR)
+- Quantile range much larger for BH
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.proj.plot_beta_fix.png') )
+    ```
+    
+## Projection performance - Relative Error Recruitment (all 10 years)
+- Minimal bias (median at most -0.1 for mean SRR)
+- Quantile range much larger for BH
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.proj.plot_beta_fix.png') )
+  ```
+
+## Projection performance - Recruitment Uncertainty (first 3 years)
+- CV slightly lower for mean SRR, usually narrower quantile range
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.rec.proj.plot3yr_beta_fix.png') )
+    ```
+    
+## Projection performance - Recruitment Uncertainty (all 10 years)
+- CV slightly lower for mean SRR, usually narrower quantile range
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.rec.proj.plot_beta_fix.png') )
+  ```
+  
+
+
+
+
+## Projection performance - Relative Error SSB (first 3 years)
+- Minimal bias (median at most -0.1 for mean SRR)
+- Quantile range much larger for BH
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.proj.plot_beta_fix.png') )
+    ```
+    
+## Projection performance - Relative Error SSB (all 10 years)
+- Minimal bias (median at most -0.1 for mean SRR)
+- Quantile range much larger for BH
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.proj.plot_beta_fix.png') )
+  ```
+
+## Projection performance - SSB Uncertainty (first 3 years)
+- CV slightly lower for mean SRR, usually narrower quantile range
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.ssb.proj.plot3yr_beta_fix.png') )
+    ```
+    
+## Projection performance - SSB Uncertainty (all 10 years)
+- CV slightly lower for mean SRR, usually narrower quantile range
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.ssb.proj.plot_beta_fix.png') )
+  ```
+  
+  
+  
+## Projection performance - Relative Error Catch (first 3 years)
+- Minimal bias (median at most -0.1 for mean SRR)
+- Quantile range much larger for BH
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.catch.proj.plot_beta_fix.png') )
+    ```
+    
+## Projection performance - Relative Error Catch (all 10 years)
+- Minimal bias (median at most -0.1 for mean SRR)
+- Quantile range much larger for BH
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.catch.proj.plot_beta_fix.png') )
+  ```
+
+## Projection performance - Catch Uncertainty (first 3 years)
+- CV slightly lower for mean SRR, usually narrower quantile range
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.catch.proj.plot3yr_beta_fix.png') )
+    ```
+    
+## Projection performance - Catch Uncertainty (all 10 years)
+- CV slightly lower for mean SRR, usually narrower quantile range
+
+ ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.catch.proj.plot_beta_fix.png') )
+  ```
+  
+
+## Projection Summary
+- Minimal difference in median bias
+- Recruitment is highly uncertain in projections, exacerbated by length of projection
+- SSB and Catch also show increased uncertainty in longer projections
+- Long projections are expected to be very imprecise, recommend shorter projections
+- Tighter quantile range and slightly lower CV for mean SRR
 
 
 <!-- ==================================================================================== -->
@@ -501,7 +680,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 - Stock-recruitment model identification was poor, requiring unrealistic OM scenarios
 
-- EMs with only recruitment random effects generally performed similarly well as OM=EM, including for cases with an SR relationship and/or an ecov effect
+- EMs with mean SRR and recruitment random effects generally performed similarly well as OM=EM, including for cases with an SR relationship and/or an ecov effect
 
 - In conclusion, we recommend recruitment random effects from a mean SRR as the default EM in WHAM
 
@@ -510,8 +689,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 ## Recommendations for further analyses
  
-- This is what we suggest for follow-up
-- Note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference from results in WP1
+- In WP-1, we recommended exploring additional levels of $\sigma_{R}$=0.5; however, we note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference 
 
 
 
