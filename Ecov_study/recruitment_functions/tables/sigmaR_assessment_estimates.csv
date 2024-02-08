@@ -1,0 +1,14 @@
+Stock,SRR,Recr_RE,Rec_Cor,sigmaR,sigmaNAA,rho_age,rho_year
+GB.Haddock,mean,rec+1,2dar1,1.64,0.38,0.15,0.28
+Redfish,BH,rec,iid,1.4,NA,0,0
+GB.Cod,mean,rec+1,iid,1.25,0.52,0,0
+GM.Haddock,mean,rec+1,2dar1,1.06,0.35,0.32,0.52
+Mackerel,random.walk,rec+1,2dar1,0.92,0.49,0.5,-0.11
+N.Black.Sea.Bass,mean,rec+1,2dar1,0.74,0.81,0.08,0.26
+GM.Cod,mean,rec+1,2dar1,0.68,0.25,0.34,0.7
+SNE.Cod,BH,rec,iid,0.6,NA,0,0
+Plaice,mean,rec+1,iid,0.51,0.29,0,0
+S.Black.Sea.Bass,mean,rec+1,2dar1,0.51,0.6,-0.13,0.33
+GB.Winter.Flounder,mean,rec+1,2dar1,0.34,0.19,0.63,0.69
+Bluefish,mean,rec+1,2dar1,0.33,0.16,-0.2,0.77
+Butterfish,mean,rec+1,ar1,0.3,0.25,0,0.18
