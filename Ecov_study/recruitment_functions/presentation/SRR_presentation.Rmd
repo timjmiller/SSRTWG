@@ -153,22 +153,41 @@ rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_fu
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'paper', 'dRdX.pdf') )
 ```
 
-## Some Example OM Simulated Data (100 data sets for each OM)
-- still need to make this
-
-
 
 <!-- ==================================================================================== -->
 
 # Sims
 ## Simulated Data Examples - Type 1
-- plots
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'recruit_ecov.pdf') )
+```
 
-## Simulated Data Examples - Type 2
-- plots
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='50%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'stock_recruit_no_ecov.pdf') )
+```
 
-## Simulated Data Examples - Type 3
-- plots
+
+## Simulated Data Examples - Recruitment Timeseries
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='90%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'Rec_sims.png') )
+```
+
+<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='40%', fig.align='center'} -->
+<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'om_57.59.61.63.121.123.125.127.185.187.189.191.249.251.253.255._Recr.plot.png') ) -->
+<!-- ``` -->
+
+
+## Simulated Data Examples - SSB Timeseries
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='90%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'SSB_sims.png') )
+```
+
+<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='40%', fig.align='center'} -->
+<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'om_57.59.61.63.121.123.125.127.185.187.189.191.249.251.253.255._SSB.png') ) -->
+<!-- ``` -->
+
+
+
 
 <!-- ==================================================================================== -->
 
