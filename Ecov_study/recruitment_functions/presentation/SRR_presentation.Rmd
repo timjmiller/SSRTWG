@@ -157,7 +157,7 @@ rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_fu
 <!-- ==================================================================================== -->
 
 # Sims
-## Simulated Data Examples - Type 1
+## Simulated Data Examples - Ecov and SRR 
 ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'recruit_ecov.pdf') )
 ```
@@ -172,9 +172,6 @@ rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_fu
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'Rec_sims.png') )
 ```
 
-<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='40%', fig.align='center'} -->
-<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'om_57.59.61.63.121.123.125.127.185.187.189.191.249.251.253.255._Recr.plot.png') ) -->
-<!-- ``` -->
 
 
 ## Simulated Data Examples - SSB Timeseries
@@ -182,10 +179,11 @@ rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_fu
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'SSB_sims.png') )
 ```
 
-<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='40%', fig.align='center'} -->
-<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'om_57.59.61.63.121.123.125.127.185.187.189.191.249.251.253.255._SSB.png') ) -->
-<!-- ``` -->
 
+## Simulated Data Examples - Catch Timeseries
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='90%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'Catch_sims.png') )
+```
 
 
 
@@ -724,18 +722,18 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - In WP-1, we recommended exploring additional levels of $\sigma_{R}$=0.5; however, we note that WP1-Appendix looked at $\sigma_{R}$=0.5 and found no difference (only success at unrealistic $\sigma_{R}$=0.1)
 
 
-```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='35%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_best_beta_fix.pdf') )
 ```
 
-```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='35%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_384', 'reg_tree_AIC_best_beta_fix_384.pdf') )
 ```
 
 ## Recommendations for future research
 - Additional fishing histories, including some that include years with F < $F_{MSY}$
 - Recruitment random effect trends
-- Ecov models with trends or AR(2) dynamics
+- Ecov models with stronger effects, trends, or AR(2) dynamics
 - Multivariate ecov processes
 - Ecov processes affecting multiple stock parameters, or multiple Ecov processes affecting recruitment (simultaneous or sequential)
 
