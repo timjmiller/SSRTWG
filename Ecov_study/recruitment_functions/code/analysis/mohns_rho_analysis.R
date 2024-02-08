@@ -128,7 +128,9 @@ t2-t1
 # Time difference of 1.668574 hours (gregs runs)
 saveRDS(randeff.peels, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('randeff.peels', plot.suffix, '.RDS') ) )
 
+#Read RDS if already created
 
+randeff.peels<-readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('randeff.peels', plot.suffix, '.RDS') ) )
 
 # df.names <- row.names(rho.peels[[1]][[1]])
 # rho.df <-(sapply(rho.peels, function(x)  unlist(x)) )
@@ -238,6 +240,9 @@ rho.tib <- as_tibble(rho.df2) %>%
 
 saveRDS(rho.tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.SSB.Fbar.Recr', plot.suffix, '.RDS') ) )
 
+## READ in RDS if already created ====
+rho.tib <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.SSB.Fbar.Recr', plot.suffix, '.RDS') ) )
+
 # look at regression trees for explanatory factors ====
 library(rpart.plot)
 
@@ -247,7 +252,7 @@ rho.tib$Ecov_how    <- factor(rho.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov
 rho.tib$NAA_cor     <- factor(rho.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 rho.tib$Fhist       <- factor(rho.tib$Fhist,labels=c("H-MSY","MSY") ) 
 rho.tib$Ecov_re_cor <- factor(rho.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-rho.tib$obs_error   <- factor(rho.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+rho.tib$obs_error   <- factor(rho.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 rho.tib$mod.match <- factor(rho.tib$mod.match, labels=c('1', '0'))
 
 # regression tree for mohn's rho ======================================
@@ -385,6 +390,10 @@ rho.randeff.tib <- as_tibble(rho.randeff.df2) %>%
 
 saveRDS(rho.randeff.tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.Recr_devs', plot.suffix, '.RDS') ) )
 
+## Read RDS if already created ====
+rho.randeff.tib <- readRDS( file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rho.Recr_devs', plot.suffix, '.RDS') ) )
+
+
 # look at regression trees for explanatory factors ====
 library(rpart.plot)
 
@@ -394,7 +403,7 @@ rho.randeff.tib$Ecov_how    <- factor(rho.randeff.tib$Ecov_how,labels=c("Ecov_0"
 rho.randeff.tib$NAA_cor     <- factor(rho.randeff.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 rho.randeff.tib$Fhist       <- factor(rho.randeff.tib$Fhist,labels=c("H-MSY","MSY") ) 
 rho.randeff.tib$Ecov_re_cor <- factor(rho.randeff.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-rho.randeff.tib$obs_error   <- factor(rho.randeff.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+rho.randeff.tib$obs_error   <- factor(rho.randeff.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 rho.randeff.tib$mod.match <- factor(rho.randeff.tib$mod.match, labels=c('1', '0'))
 
 # regression tree  ======================================

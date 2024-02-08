@@ -3,17 +3,22 @@ library(tidyverse)
 library(rpart)
 library(rpart.plot)
 
-res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
-res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
-plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
-plot.suffix <- '_beta_fix' 
+#res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
+res.path <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
+# res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+res.dir <- 'results_beta_fix_384'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+# plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.dir <- 'plots_beta_fix_384'    # 'plots_lizruns'  'plots_beta_fix'  
+# table.dir <- 'tables_beta_fix'   # 'results'     'results_beta_fix'
+table.dir <- 'tables_beta_fix_384'   # 'results'     'results_beta_fix'
+plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
 
 ## specify bad.grad.label and bad.se.value (these are the thresholds set in convergence_summaries.R to determine convergence) 
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
 bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
-df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.384.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
@@ -26,7 +31,8 @@ conv.runs <- conv.runs %>%
 
 n_oms <- nrow(df.oms)
 n_ems <- nrow(df.ems)
-n_sims <- 100
+# n_sims <- 100
+n_sims <- 50
 nyears <- 40
 
 n.conv.runs <- nrow(conv.runs)
@@ -64,11 +70,16 @@ for(irun in 1:n.conv.runs) {    #   1:n.conv.runs
    true_mat_yearly[((k-1)*nyears+1):(k*nyears),1:16] <- cbind(rep(conv.runs$OM[irun], nyears), rep(conv.runs$Sim[irun], nyears), rep(conv.runs$EM[irun], nyears),   seq(year1, (year1+nyears-1)), exp(dat$truth$log_FXSPR), exp(dat$truth$log_Y_FXSPR), exp(dat$truth$log_SSB_FXSPR), exp(dat$truth$log_SPR0), exp(dat$truth$log_SPR_FXSPR), exp(dat$truth$log_SR_a),  exp(dat$truth$log_SR_b), exp(dat$truth$log_FMSY), exp(dat$truth$log_SSB_MSY), exp(dat$truth$log_YPR_MSY), exp(dat$truth$log_SPR_MSY), exp(dat$truth$log_R_MSY) )
     
    
-    # grab parameters that aren't annual values
-    par_mat[k, 13:39] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$fit$rep$mean_rec_pars[1]), ifelse(conv.runs$EM[irun]>2, exp(dat$fit$rep$mean_rec_pars[2]), NA), exp(dat$fit$rep$log_FXSPR_static), exp(dat$fit$rep$log_Y_FXSPR_static), exp(dat$fit$rep$log_SSB_FXSPR_static), exp(dat$fit$rep$log_SPR0_static), exp(dat$fit$rep$log_SPR_FXSPR_static), dat$fit$rep$q[nyears, 1], dat$fit$rep$q[nyears, 2], exp(dat$fit$sdrep$Estimate_par$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$trans_NAA_rho[2])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,11])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,12])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,11])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,12])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,11])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,12])) ),  dat$fit$sdrep$Estimate_par$catch_paa_pars[1,1], dat$fit$sdrep$Estimate_par$index_paa_pars[1,1], dat$fit$sdrep$Estimate_par$index_paa_pars[2,1], dat$fit$sdrep$Estimate_par$Ecov_beta[[1]], exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[1,1]), exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[2,1]), (-1 + 2/(1 + exp(-dat$fit$sdrep$Estimate_par$Ecov_process_pars[3,1])) ) )
+    # # grab parameters that aren't annual values
+    # par_mat[k, 13:39] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$fit$rep$mean_rec_pars[1]), ifelse(conv.runs$EM[irun]>2, exp(dat$fit$rep$mean_rec_pars[2]), NA), exp(dat$fit$rep$log_FXSPR_static), exp(dat$fit$rep$log_Y_FXSPR_static), exp(dat$fit$rep$log_SSB_FXSPR_static), exp(dat$fit$rep$log_SPR0_static), exp(dat$fit$rep$log_SPR_FXSPR_static), dat$fit$rep$q[nyears, 1], dat$fit$rep$q[nyears, 2], exp(dat$fit$sdrep$Estimate_par$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$trans_NAA_rho[2])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,11])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,12])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,11])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,12])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,11])) ), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,12])) ),  dat$fit$sdrep$Estimate_par$catch_paa_pars[1,1], dat$fit$sdrep$Estimate_par$index_paa_pars[1,1], dat$fit$sdrep$Estimate_par$index_paa_pars[2,1], dat$fit$sdrep$Estimate_par$Ecov_beta[[1]], exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[1,1]), exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[2,1]), (-1 + 2/(1 + exp(-dat$fit$sdrep$Estimate_par$Ecov_process_pars[3,1])) ) )
+ # fixing logit_selpars transformation
+    par_mat[k, 13:39] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$fit$rep$mean_rec_pars[1]), ifelse(conv.runs$EM[irun]>2, exp(dat$fit$rep$mean_rec_pars[2]), NA), exp(dat$fit$rep$log_FXSPR_static), exp(dat$fit$rep$log_Y_FXSPR_static), exp(dat$fit$rep$log_SSB_FXSPR_static), exp(dat$fit$rep$log_SPR0_static), exp(dat$fit$rep$log_SPR_FXSPR_static), dat$fit$rep$q[nyears, 1], dat$fit$rep$q[nyears, 2], exp(dat$fit$sdrep$Estimate_par$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$trans_NAA_rho[2])) ), (0 + 10/(1 + exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[1,11])) ), (0 +10/(1 + exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[1,12])) ), (0 + 10/(1 + exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[2,11])) ), (0 + 10/(1 + exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[2,12])) ), (0 + 10/(1 + exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[3,11])) ), (0 + 10/(1 + exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[3,12])) ),  dat$fit$sdrep$Estimate_par$catch_paa_pars[1,1], dat$fit$sdrep$Estimate_par$index_paa_pars[1,1], dat$fit$sdrep$Estimate_par$index_paa_pars[2,1], dat$fit$sdrep$Estimate_par$Ecov_beta[[1]], exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[1,1]), exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[2,1]), (-1 + 2/(1 + exp(-dat$fit$sdrep$Estimate_par$Ecov_process_pars[3,1])) ) )
     
    
-    true_mat[k, 1:27] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$truth$mean_rec_pars[1]), exp(dat$truth$mean_rec_pars[2]), exp(dat$truth$log_FXSPR_static), exp(dat$truth$log_Y_FXSPR_static), exp(dat$truth$log_SSB_FXSPR_static), exp(dat$truth$log_SPR0_static), exp(dat$truth$log_SPR_FXSPR_static), dat$truth$q[nyears,1], dat$truth$q[nyears,2], exp(dat$truth$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$truth$trans_NAA_rho[2])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[1,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[1,12])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[2,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[2,12])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[3,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[3,12])) ), dat$truth$catch_paa_pars[1,1], dat$truth$index_paa_pars[1,1], dat$truth$index_paa_pars[2,1], dat$truth$Ecov_beta[[1]], exp(dat$truth$Ecov_process_pars[1,1]), exp(dat$truth$Ecov_process_pars[2,1] ), (-1 + 2/(1 + exp(-dat$truth$Ecov_process_pars[3,1])) )  )
+    # true_mat[k, 1:27] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$truth$mean_rec_pars[1]), exp(dat$truth$mean_rec_pars[2]), exp(dat$truth$log_FXSPR_static), exp(dat$truth$log_Y_FXSPR_static), exp(dat$truth$log_SSB_FXSPR_static), exp(dat$truth$log_SPR0_static), exp(dat$truth$log_SPR_FXSPR_static), dat$truth$q[nyears,1], dat$truth$q[nyears,2], exp(dat$truth$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$truth$trans_NAA_rho[2])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[1,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[1,12])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[2,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[2,12])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[3,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[3,12])) ), dat$truth$catch_paa_pars[1,1], dat$truth$index_paa_pars[1,1], dat$truth$index_paa_pars[2,1], dat$truth$Ecov_beta[[1]], exp(dat$truth$Ecov_process_pars[1,1]), exp(dat$truth$Ecov_process_pars[2,1] ), (-1 + 2/(1 + exp(-dat$truth$Ecov_process_pars[3,1])) )  )
+    # fixing logit_selpars transformation
+    true_mat[k, 1:27] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$truth$mean_rec_pars[1]), exp(dat$truth$mean_rec_pars[2]), exp(dat$truth$log_FXSPR_static), exp(dat$truth$log_Y_FXSPR_static), exp(dat$truth$log_SSB_FXSPR_static), exp(dat$truth$log_SPR0_static), exp(dat$truth$log_SPR_FXSPR_static), dat$truth$q[nyears,1], dat$truth$q[nyears,2], exp(dat$truth$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$truth$trans_NAA_rho[2])) ), (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[1,11])) ), (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[1,12])) ), (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[2,11])) ), (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[2,12])) ), (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[3,11])) ), (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[3,12])) ), dat$truth$catch_paa_pars[1,1], dat$truth$index_paa_pars[1,1], dat$truth$index_paa_pars[2,1], dat$truth$Ecov_beta[[1]], exp(dat$truth$Ecov_process_pars[1,1]), exp(dat$truth$Ecov_process_pars[2,1] ), (-1 + 2/(1 + exp(-dat$truth$Ecov_process_pars[3,1])) )  )    
+    
   }  #end class(dat) check
   if( k %% ten.pct==0)  print(paste0('k = ', k, ' out of ', n.conv.runs, ' at ', Sys.time() ) )
   k=k+1
@@ -77,9 +88,9 @@ for(irun in 1:n.conv.runs) {    #   1:n.conv.runs
 t2 <- Sys.time()
 t2-t1  # Time difference of 2.479192 mins  ; session memory 1.1 GB (from liz runs, RDS w/o peels)
        # Time difference of 1.173523 hours (greg's runs w/ peels; 1.8 GB session memory)
+# Time difference of 3.728856 mins  (liz 384)
 
-
-df.oms2 <- as_tibble(cbind(OM=seq(1,256), df.oms)) 
+df.oms2 <- as_tibble(cbind(OM=seq(1,nrow(df.oms)), df.oms)) 
 df.ems2 <- cbind(EM=seq(1,6), df.ems)
 colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod")
 em_tib <- as_tibble(df.ems2) %>%
@@ -154,7 +165,7 @@ RE.par.sum
 # okayyyyyyy.... need to fix the selpars, given below from tim:     ====
 # selpars are transformed like that with k = 1, but the bounds are defined in data$selpars_lower, data$selpars_upper:
 #   lower + (upper-lower)/(1+exp(-x))
-write.csv(RE.par.sum,file=file.path(here(),'Ecov_study','recruitment_functions','tables', paste0("RelativeError.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
+write.csv(RE.par.sum,file=file.path(here(),'Ecov_study','recruitment_functions',table.dir, paste0("RelativeError.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
 
 
 par_mat_yearly_tib <- as_tibble(par_mat_yearly) %>%
@@ -181,57 +192,57 @@ unique(true_mat_tib$True.mean_rec1)
 
 
 # analysis for factors influencing RE ====
-par_mat_tib$R_sig <- factor(par_mat_tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
+par_mat_tib$R_sig <- factor(par_mat_tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
 par_mat_tib$Ecov_effect <- factor(par_mat_tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
 par_mat_tib$Ecov_how    <- factor(par_mat_tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
 par_mat_tib$NAA_cor     <- factor(par_mat_tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 par_mat_tib$Fhist       <- factor(par_mat_tib$Fhist,labels=c("H-MSY","MSY") ) 
 par_mat_tib$Ecov_re_cor <- factor(par_mat_tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-par_mat_tib$obs_error   <- factor(par_mat_tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+par_mat_tib$obs_error   <- factor(par_mat_tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 # regression tree for correct form (or SR or Ecov) ======================================
 rf_RE.SRa   <- rpart(RE.mean_rec1   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib[par_mat_tib$EM>2,], control=rpart.control(cp=0.01)) # *** only EM>2 ====
 imp.var <- rf_RE.SRa$frame[rf_RE.SRa$frame$var != '<leaf>',]
 nodes_RE.SRa <- unique(imp.var[,1])
 nodes_RE.SRa
-# nothing   
+# nothing   # still nothing (liz 384)
 
 rf_RE.SRb   <- rpart(RE.mean_rec2   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib[par_mat_tib$EM>2,], control=rpart.control(cp=0.01)) # *** only EM>2 ====
 imp.var <- rf_RE.SRb$frame[rf_RE.SRb$frame$var != '<leaf>',]
 nodes_RE.SRb <- unique(imp.var[,1])
 nodes_RE.SRb
-# nothing 
+# nothing   # still nothing (liz 384)
 
 rf_RE.NAA_sigma   <- rpart(RE.NAA_sigma   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib, control=rpart.control(cp=0.01)) 
 imp.var <- rf_RE.NAA_sigma$frame[rf_RE.NAA_sigma$frame$var != '<leaf>',]
 nodes_RE.NAA_sigma <- unique(imp.var[,1])
 nodes_RE.NAA_sigma
-# "NAA_cor"   
+# "NAA_cor"     # NAA_cor (liz 384)
 
 
 rf_RE.NAA_rho   <- rpart(RE.NAA_rho   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib, control=rpart.control(cp=0.01))
 imp.var <- rf_RE.NAA_rho$frame[rf_RE.NAA_rho$frame$var != '<leaf>',]
 nodes_RE.NAA_rho <- unique(imp.var[,1])
 nodes_RE.NAA_rho
-# "Fhist"   "R_sig"   "NAA_cor"   
+# "Fhist"   "R_sig"   "NAA_cor"   #  nothing (liz 384)
 
 rf_RE.Ecov_process_pars1   <- rpart(RE.Ecov_process_pars1   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib, control=rpart.control(cp=0.01))
 imp.var <- rf_RE.Ecov_process_pars1$frame[rf_RE.Ecov_process_pars1$frame$var != '<leaf>',]
 nodes_RE.Ecov_process_pars1 <- unique(imp.var[,1])
 nodes_RE.Ecov_process_pars1
-# nothing
+# nothing  # still nothing (liz 384)
 
 rf_RE.Ecov_process_pars2   <- rpart(RE.Ecov_process_pars2   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib, control=rpart.control(cp=0.01))
 imp.var <- rf_RE.Ecov_process_pars2$frame[rf_RE.Ecov_process_pars2$frame$var != '<leaf>',]
 nodes_RE.Ecov_process_pars2 <- unique(imp.var[,1])
 nodes_RE.Ecov_process_pars2
-# "Ecov_re_cor"
+# "Ecov_re_cor"  # "Ecov_re_cor" (liz 384)
 
 rf_RE.Ecov_process_pars3   <- rpart(RE.Ecov_process_pars3   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=par_mat_tib, control=rpart.control(cp=0.01))
 imp.var <- rf_RE.Ecov_process_pars3$frame[rf_RE.Ecov_process_pars3$frame$var != '<leaf>',]
 nodes_RE.Ecov_process_pars3 <- unique(imp.var[,1])
 nodes_RE.Ecov_process_pars3
-# nothing
+# nothing  # "Ecov_re_cor" (liz 384)
 
 
 # plot the regression trees that showed some factor sensitivity ====
@@ -607,3 +618,4 @@ RE.Ecov.rho.plot.ylim <- ggplot(par_Ecov3_sum, aes(x=EM_mod, y=median.RE.Ecov_pr
   ggtitle('RE in Ecov process autocorrelation')
 ggsave(RE.Ecov.rho.plot.ylim, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0('RE.Ecov.rho.plot.ylim', plot.suffix, '.png') ),  height=8, width=14)
 
+# i think i need a plot for beta?

@@ -3,10 +3,14 @@ library(tidyverse)
 library(rpart)
 
 
-# res.dir <- file.path(here::here(), "Ecov_study","recruitment_functions", "results")
-res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
-res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
-plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
+#res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
+res.path <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
+# res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+res.dir <- 'results_beta_fix_384'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+# plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.dir <- 'plots_beta_fix_384'    # 'plots_lizruns'  'plots_beta_fix'  
+# table.dir <- 'tables_beta_fix'   # 'results'     'results_beta_fix'
+table.dir <- 'tables_beta_fix_384'   # 'results'     'results_beta_fix'
 plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
 
 ## specify bad.grad.label and bad.se.value (these are the thresholds set in convergence_summaries.R to determine convergence) 
@@ -15,24 +19,17 @@ bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[
 bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
 
-df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.384.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
-#no.conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions','plots_lizruns', "no.conv.runs.RDS") )
 conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
-# conv.runs <- no.conv.runs %>%
-#   rename(Sim=sim) %>%
-#   mutate(ok.run =(bad.opt+ bad.conv+ bad.sdrep+ bad.grad+ bad.se.big) ) %>%
-#   replace_na(list(ok.run=1)) %>%
-#   relocate(OM, EM, Sim, ok.run, bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big) %>%
-#   filter(ok.run==0)  # drop unconverged runs
 
 n_oms <- nrow(df.oms)
 n_ems <- nrow(df.ems)
-n_sims <- 100
+# n_sims <- 100
+n_sims <- 50
 nyears <- 40
 
-#n.conv.runs <- nrow(conv.runs)
 
 
 t1 <- Sys.time()
@@ -54,11 +51,14 @@ re.recr <- lapply(1:n_oms,function(om){  #produces list of length n_oms with lis
 })
 t2 <- Sys.time()
 t2-t1   #Time difference of 17.66439 mins (lizruns); Time difference of 2.353031 hours (gregruns)
+#Time difference Time difference of 4.853866 mins  (liz 384)
 
+# SAVE 
 saveRDS(re.recr,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.recr', plot.suffix, '.RDS') ) )
+# READ in if already run
 re.recr <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.recr', plot.suffix, '.RDS') ) )
 
-t1 <- Sys.time()
+t3 <- Sys.time()
 re.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims ***except sometimes the matrix is a list instead of a matrix!
   print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
@@ -72,12 +72,15 @@ re.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list
     })
   })
 })
-t2 <- Sys.time()
-t2-t1  # Time difference of 1.764071 hours
+t4 <- Sys.time()
+t4-t3  # Time difference of 1.764071 hours
+# Time difference of 4.315495 mins (liz 384)
+# SAVE
 saveRDS(re.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.ssb', plot.suffix, '.RDS') ) )
+# READ in if already run
 re.ssb <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.ssb', plot.suffix, '.RDS') ) )
 
-t1 <- Sys.time()
+t5 <- Sys.time()
 re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
   print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
@@ -92,9 +95,12 @@ re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with lis
     })
   })
 })
-t2 <- Sys.time()
-t2-t1 # Time difference of 1.781398 hours
+t6 <- Sys.time()
+t6-t5 # Time difference of 1.781398 hours
+# Time difference of 4.261277 mins (liz 384)
+#SAVE
 saveRDS(re.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+# READ in if already run
 re.fbar <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ) )
 
 
@@ -191,7 +197,9 @@ kdf <- 1
   } #iom loop
 t2 <- Sys.time()
 t2-t1  # Time difference of 1.623663 hours
+# Time difference of 4.518196 mins (liz 384)
 
+# SAVE 
 saveRDS(re.recr.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.recr", plot.suffix, ".df.RDS") ) )
 saveRDS(re.ssb.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.ssb", plot.suffix, ".df.RDS") ) )
 saveRDS(re.fbar.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.fbar", plot.suffix, ".df.RDS") ) )
@@ -205,10 +213,12 @@ saveRDS(re.fbar.df, file.path( here::here(),'Ecov_study','recruitment_functions'
 re.recr.df <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.recr", plot.suffix, ".df.RDS") ) )
 re.ssb.df <- readRDS(  file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.ssb", plot.suffix, ".df.RDS") )  )
 re.fbar.df <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "re.fbar", plot.suffix, ".df.RDS") )  )
+####################################################################################
+####################################################################################
 
 
 
-df.oms2 <- as_tibble(cbind(OM=seq(1,256), df.oms)) 
+df.oms2 <- as_tibble(cbind(OM=seq(1,nrow(df.oms)), df.oms)) 
 df.ems2 <- cbind(EM=seq(1,6), df.ems)
 colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod") 
 em_tib <- as_tibble(df.ems2) %>%
@@ -248,28 +258,31 @@ re.fbar.tib <- as_tibble(re.fbar.df) %>%
 
 
 
-re.rec.tib$R_sig <- factor(re.rec.tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
+re.rec.tib$R_sig <- factor(re.rec.tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
 re.rec.tib$Ecov_effect <- factor(re.rec.tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
 re.rec.tib$Ecov_how    <- factor(re.rec.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
-re.rec.tib$NAA_cor     <- factor(re.rec.tib$NAA_cor,labels=c("L","H"))
+re.rec.tib$NAA_cor     <- factor(re.rec.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 re.rec.tib$Fhist       <- factor(re.rec.tib$Fhist,labels=c("H-MSY","MSY") ) 
-re.rec.tib$Ecov_re_cor <- factor(re.rec.tib$Ecov_re_cor,labels=c("L","H"))
+re.rec.tib$Ecov_re_cor <- factor(re.rec.tib$Ecov_re_cor,labels=c("Ecor_L","Ecor_H"))
+re.rec.tib$obs_error <- factor(re.rec.tib$obs_error,labels=c("Obs_H","Obs_L"))
 
 
-re.ssb.tib$R_sig <- factor(re.ssb.tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
+re.ssb.tib$R_sig <- factor(re.ssb.tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
 re.ssb.tib$Ecov_effect <- factor(re.ssb.tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
 re.ssb.tib$Ecov_how    <- factor(re.ssb.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
-re.ssb.tib$NAA_cor     <- factor(re.ssb.tib$NAA_cor,labels=c("L","H"))
+re.ssb.tib$NAA_cor     <- factor(re.ssb.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 re.ssb.tib$Fhist       <- factor(re.ssb.tib$Fhist,labels=c("H-MSY","MSY") ) 
-re.ssb.tib$Ecov_re_cor <- factor(re.ssb.tib$Ecov_re_cor,labels=c("L","H"))
+re.ssb.tib$Ecov_re_cor <- factor(re.ssb.tib$Ecov_re_cor,labels=c("Ecor_L","Ecor_H"))
+re.ssb.tib$obs_error <- factor(re.ssb.tib$obs_error,labels=c("Obs_H","Obs_L"))
 
 
-re.fbar.tib$R_sig <- factor(re.fbar.tib$R_sig,labels = c("Rsig_0.1","Rsig_1.0"))
+re.fbar.tib$R_sig <- factor(re.fbar.tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
 re.fbar.tib$Ecov_effect <- factor(re.fbar.tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
 re.fbar.tib$Ecov_how    <- factor(re.fbar.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
-re.fbar.tib$NAA_cor     <- factor(re.fbar.tib$NAA_cor,labels=c("L","H"))
+re.fbar.tib$NAA_cor     <- factor(re.fbar.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 re.fbar.tib$Fhist       <- factor(re.fbar.tib$Fhist,labels=c("H-MSY","MSY") ) 
-re.fbar.tib$Ecov_re_cor <- factor(re.fbar.tib$Ecov_re_cor,labels=c("L","H"))
+re.fbar.tib$Ecov_re_cor <- factor(re.fbar.tib$Ecov_re_cor,labels=c("Ecor_L","Ecor_H"))
+re.fbar.tib$obs_error <- factor(re.fbar.tib$obs_error,labels=c("Obs_H","Obs_L"))
 
 
 ####################################################################################
@@ -278,66 +291,75 @@ re.fbar.tib$Ecov_re_cor <- factor(re.fbar.tib$Ecov_re_cor,labels=c("L","H"))
 
 # recr ====
   
-rf_recr_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib, control=rpart.control(cp=0.01))
+rf_recr_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.rec.tib, control=rpart.control(cp=0.01))
 imp.var <- rf_recr_all.yrs$frame[rf_recr_all.yrs$frame$var != '<leaf>',]
 nodes_recr_all.yrs <- unique(imp.var[,1])
-# nothing
+nodes_recr_all.yrs
+# nothing  # "obs_error" (liz 384)
 
 
-rf_recr_last10.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>30,], control=rpart.control(cp=0.01))
+rf_recr_last10.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.rec.tib[re.rec.tib$Year>30,], control=rpart.control(cp=0.01))
 imp.var <- rf_recr_last10.yrs$frame[rf_recr_last10.yrs$frame$var != '<leaf>',]
 nodes_recr_last10.yrs <- unique(imp.var[,1])
-# "R_sig"
+nodes_recr_last10.yrs
+# "R_sig"  # "obs_error" "R_sig" (liz 384)
 
-rf_recr_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
+rf_recr_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.rec.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
 imp.var <- rf_recr_final.yrs$frame[rf_recr_final.yrs$frame$var != '<leaf>',]
 nodes_recr_final.yrs <- unique(imp.var[,1])
-# nothing
+nodes_recr_final.yrs
+# nothing   # "obs_error" "R_sig" (liz 384)
 
 
 # ssb ====
 
-rf_ssb_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib, control=rpart.control(cp=0.01))
+rf_ssb_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.ssb.tib, control=rpart.control(cp=0.01))
 imp.var <- rf_ssb_all.yrs$frame[rf_ssb_all.yrs$frame$var != '<leaf>',]
 nodes_ssb_all.yrs <- unique(imp.var[,1])
-# nothing
+nodes_ssb_all.yrs
+# nothing  # (liz 384)
 
 
-rf_ssb_last10.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>30,], control=rpart.control(cp=0.01))
+rf_ssb_last10.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.ssb.tib[re.rec.tib$Year>30,], control=rpart.control(cp=0.01))
 imp.var <- rf_ssb_last10.yrs$frame[rf_ssb_last10.yrs$frame$var != '<leaf>',]
 nodes_ssb_last10.yrs <- unique(imp.var[,1])
-# "R_sig"
+nodes_ssb_last10.yrs
+# nothing   # nothing (liz 384)
 
-rf_ssb_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
+rf_ssb_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.ssb.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
 imp.var <- rf_ssb_final.yrs$frame[rf_ssb_final.yrs$frame$var != '<leaf>',]
 nodes_ssb_final.yrs <- unique(imp.var[,1])
-# nothing
+nodes_ssb_final.yrs
+# nothing  #  nothing  (liz 384)
 
 
 # fbar ====
 
-rf_fbar_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib, control=rpart.control(cp=0.01))
+rf_fbar_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.fbar.tib, control=rpart.control(cp=0.01))
 imp.var <- rf_fbar_all.yrs$frame[rf_fbar_all.yrs$frame$var != '<leaf>',]
 nodes_fbar_all.yrs <- unique(imp.var[,1])
-# nothing
+nodes_fbar_all.yrs
+# nothing   #  nothing  (liz 384)
 
 
-rf_fbar_last10.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>30,], control=rpart.control(cp=0.01))
+rf_fbar_last10.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.fbar.tib[re.rec.tib$Year>30,], control=rpart.control(cp=0.01))
 imp.var <- rf_fbar_last10.yrs$frame[rf_fbar_last10.yrs$frame$var != '<leaf>',]
 nodes_fbar_last10.yrs <- unique(imp.var[,1])
-# "R_sig"
+nodes_fbar_last10.yrs
+# nothing   #  nothing  (liz 384)
 
-rf_fbar_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=re.rec.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
+rf_fbar_final.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.fbar.tib[re.rec.tib$Year>39,], control=rpart.control(cp=0.01))
 imp.var <- rf_fbar_final.yrs$frame[rf_fbar_final.yrs$frame$var != '<leaf>',]
 nodes_fbar_final.yrs <- unique(imp.var[,1])
-# "R_sig"
+nodes_fbar_final.yrs
+# nothing   #  nothing  (liz 384)
 
 
 #################################################
 # summarize  all years  ====
 
 re.rec.sum <- re.rec.tib %>%
-  group_by( R_sig, Ecov_how, EM, mod.match ) %>%
+  group_by( obs_error, R_sig, Ecov_how, EM, mod.match ) %>%
   # group_by( Fhist, R_sig, Ecov_effect, Ecov_how, EM, mod.match ) %>%
   summarise(median.re=median(RE), var.re=var(RE), across(RE, list(p2.5=~quantile(.,probs=0.0275 ),
                                                              p97.5=~quantile(.,probs=0.975)) )
@@ -369,7 +391,7 @@ re.fbar.sum <- re.fbar.tib %>%
 
 re.rec.sum.last.10 <- re.rec.tib %>%
   filter(Year>30) %>%
-  group_by(  R_sig,  Ecov_how, EM, mod.match ) %>%
+  group_by( obs_error, R_sig,  Ecov_how, EM, mod.match ) %>%
   # group_by( Fhist, R_sig, Ecov_effect, Ecov_how, EM, mod.match ) %>%
   summarise(median.re=median(RE), var.re=var(RE), across(RE, list(p2.5=~quantile(.,probs=0.0275 ),
                                                                   p97.5=~quantile(.,probs=0.975)) )
@@ -404,7 +426,7 @@ re.fbar.sum.last.10 <- re.fbar.tib %>%
 
 re.rec.sum.last.yr <- re.rec.tib %>%
   filter(Year==40) %>%
-  group_by( R_sig, Ecov_how, EM, mod.match ) %>%
+  group_by(obs_error, R_sig, Ecov_how, EM, mod.match ) %>%
   # group_by( Fhist, R_sig, Ecov_effect, Ecov_how, EM, mod.match ) %>%
   summarise(median.re=median(RE), var.re=var(RE), across(RE, list(p2.5=~quantile(.,probs=0.0275 ),
                                                                   p97.5=~quantile(.,probs=0.975)) )
@@ -440,7 +462,8 @@ re.fbar.sum.last.yr <- re.fbar.tib %>%
 # RE Plots  ====
 
 re.rec.all.yrs.plot <- ggplot(re.rec.sum, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
-  facet_grid(Ecov_how ~    R_sig  ) +
+  facet_grid(Ecov_how ~  obs_error +  R_sig  ) +
+  # facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
   geom_point(size=2.5) +
   geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
@@ -506,7 +529,8 @@ ggsave(re.fbar.all.yrs.plot, filename=file.path(here(),'Ecov_study','recruitment
 
 # last 10 years ====
 re.rec.last.10.plot <- ggplot(re.rec.sum.last.10, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
-  facet_grid(Ecov_how ~    R_sig  ) +
+  facet_grid(Ecov_how ~ obs_error +   R_sig  ) +
+  # facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
   geom_point(size=2.5) +
   geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +
@@ -576,7 +600,8 @@ ggsave(re.fbar.last.10.plot, filename=file.path(here(),'Ecov_study','recruitment
 
 # last year ====
 re.rec.last.yr.plot <- ggplot(re.rec.sum.last.yr, aes(x=EM_mod, y=median.re, col=as.factor(mod.match) )) +
-  facet_grid(Ecov_how ~    R_sig  ) +
+  facet_grid(Ecov_how ~ obs_error +  R_sig  ) +
+  # facet_grid(Ecov_how ~    R_sig  ) +
   # facet_grid(R_sig+Ecov_how ~ Fhist+Ecov_effect     ) +
   geom_point(size=2.5) +
   geom_hline(yintercept=0.0, col='#111111dd', linewidth=0.5) +

@@ -157,14 +157,20 @@ rsig.assmt <- read.csv(file=file.path(here::here(),"Ecov_study", "recruitment_fu
 <!-- ==================================================================================== -->
 
 # Sims
-## Simulated Data Examples - Ecov and SRR 
-```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'}
- knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'recruit_ecov.pdf') )
+## Simulated Data Examples - Ecov and SRR  recruit_ecov_SRR_noecov
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='95%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'recruit_ecov_SRR_noecov.png') )
 ```
 
-```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='50%', fig.align='center'}
- knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'stock_recruit_no_ecov.pdf') )
-```
+
+ <!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='40%', fig.align='center'} -->
+ <!-- knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'recruit_ecov.pdf') ) -->
+<!-- ``` -->
+
+<!--  ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='50%', fig.align='center'} -->
+<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'stock_recruit_no_ecov.pdf') ) -->
+<!-- ``` -->
 
 
 ## Simulated Data Examples - Recruitment Timeseries
@@ -359,7 +365,8 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Plots show median relative error (filled circle) with 2.5th and 97.5th percentiles
 - OM factors as facets (top and right side)
 - EM models on the x-axis
-- Blue indicates EM=OM (diagonal of first 4 columns w/in facet blocks), incorrect EMs in red
+- Blue indicates EM=OM (diagonal of first 4 columns w/in facet blocks)
+- Incorrect EMs in red
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='60%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
@@ -695,7 +702,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
   
 
 ## Projection Summary
-- Minimal difference in median bias
+- Minimal difference in median bias (median at most -0.1 for mean SRR)
 - Recruitment is highly uncertain in projections, exacerbated by length of projection
 - SSB and Catch also show increased uncertainty in longer projections
 - Long projections are expected to be very imprecise, recommend shorter projections
@@ -734,7 +741,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Additional fishing histories, including some that include years with F < $F_{MSY}$
 - Recruitment random effect trends
 - Ecov models with stronger effects, trends, or AR(2) dynamics
-- Multivariate ecov processes
+- Multivariate Ecov processes
 - Ecov processes affecting multiple stock parameters, or multiple Ecov processes affecting recruitment (simultaneous or sequential)
 
 
@@ -749,7 +756,7 @@ Acknowledgements
 - We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
 
 
-```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='35%', fig.align='center'}
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='50%', fig.align='center'}
  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'abacus_crop.jpg') )
 ```
 

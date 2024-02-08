@@ -336,7 +336,7 @@ re.rec.tib$Ecov_how    <- factor(re.rec.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1"
 re.rec.tib$NAA_cor     <- factor(re.rec.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 re.rec.tib$Fhist       <- factor(re.rec.tib$Fhist,labels=c("H-MSY","MSY") ) 
 re.rec.tib$Ecov_re_cor <- factor(re.rec.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-re.rec.tib$obs_error   <- factor(re.rec.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+re.rec.tib$obs_error   <- factor(re.rec.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 
 ## log_sd (sd)
@@ -355,7 +355,7 @@ sd.rec.tib$Ecov_how    <- factor(sd.rec.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1"
 sd.rec.tib$NAA_cor     <- factor(sd.rec.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 sd.rec.tib$Fhist       <- factor(sd.rec.tib$Fhist,labels=c("H-MSY","MSY") ) 
 sd.rec.tib$Ecov_re_cor <- factor(sd.rec.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-sd.rec.tib$obs_error   <- factor(sd.rec.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+sd.rec.tib$obs_error   <- factor(sd.rec.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 
 # %%%%%%%%%%%%%%%%%%%%%%
@@ -375,7 +375,7 @@ re.ssb.tib$Ecov_how    <- factor(re.ssb.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1"
 re.ssb.tib$NAA_cor     <- factor(re.ssb.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 re.ssb.tib$Fhist       <- factor(re.ssb.tib$Fhist,labels=c("H-MSY","MSY") ) 
 re.ssb.tib$Ecov_re_cor <- factor(re.ssb.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-re.ssb.tib$obs_error   <- factor(re.ssb.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+re.ssb.tib$obs_error   <- factor(re.ssb.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 
 
@@ -395,7 +395,7 @@ sd.ssb.tib$Ecov_how    <- factor(sd.ssb.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1"
 sd.ssb.tib$NAA_cor     <- factor(sd.ssb.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 sd.ssb.tib$Fhist       <- factor(sd.ssb.tib$Fhist,labels=c("H-MSY","MSY") ) 
 sd.ssb.tib$Ecov_re_cor <- factor(sd.ssb.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-sd.ssb.tib$obs_error   <- factor(sd.ssb.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+sd.ssb.tib$obs_error   <- factor(sd.ssb.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 
 
@@ -415,7 +415,7 @@ re.catch.tib$Ecov_how    <- factor(re.catch.tib$Ecov_how,labels=c("Ecov_0", "Eco
 re.catch.tib$NAA_cor     <- factor(re.catch.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 re.catch.tib$Fhist       <- factor(re.catch.tib$Fhist,labels=c("H-MSY","MSY") ) 
 re.catch.tib$Ecov_re_cor <- factor(re.catch.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-re.catch.tib$obs_error   <- factor(re.catch.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+re.catch.tib$obs_error   <- factor(re.catch.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 ## log_sd (sd)
 sd.catch.tib <- as_tibble(sd.catch.df)  %>%
@@ -433,7 +433,7 @@ sd.catch.tib$Ecov_how    <- factor(sd.catch.tib$Ecov_how,labels=c("Ecov_0", "Eco
 sd.catch.tib$NAA_cor     <- factor(sd.catch.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 sd.catch.tib$Fhist       <- factor(sd.catch.tib$Fhist,labels=c("H-MSY","MSY") ) 
 sd.catch.tib$Ecov_re_cor <- factor(sd.catch.tib$Ecov_re_cor,labels=c("EcovCor_L","EcovCor_H"))
-sd.catch.tib$obs_error   <- factor(sd.catch.tib$obs_error,labels=c("ObsErr_L","ObsErr_H"))
+sd.catch.tib$obs_error   <- factor(sd.catch.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 
 ## regression trees by projection method (recr) ====
@@ -1379,6 +1379,7 @@ proj.tib$Ecov_re_cor <- factor(proj.tib$Ecov_re_cor,labels=c("L","H"))
 proj.tib$NAA_cor     <- factor(proj.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
 proj.tib$Fhist       <- factor(proj.tib$Fhist,labels=c("H-MSY") ) 
 proj.tib$Ecov_re_cor <- factor(proj.tib$Ecov_re_cor,labels=c("Ecov_REcor_L","Ecov_REcor_H"))
+proj.tib$obs_error <- factor(proj.tib$obs_error,labels=c("ObsErr_H","ObsErr_L"))
 
 
 
