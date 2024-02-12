@@ -375,7 +375,8 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ##  $\Delta$AIC  - Median and 95% probability interval
-- Smaller $\Delta$AIC when $\sigma_{R}$ is larger
+- Smaller $\Delta$AIC for BH with high fishing contrast, low $\sigma_{R}$ (but not necessarily correct BH); $\Delta$AIC is larger for mean SRR in these cases
+- When $\sigma_{R}$ is larger and/or there is low contrast in fishing, the mean SRR is favored
 
  ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_dAIC.ylim_beta_fix.png') )
@@ -465,7 +466,7 @@ binomial generalized linear mixed model with simulation random number seed as a 
 ```
 
  
- ## Effect size for Relative error in Fbar
+## Effect size for Relative error in Fbar
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'effect_size_glm_glmm_fbar_re_beta_fix.pdf') )
