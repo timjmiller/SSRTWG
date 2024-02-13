@@ -248,6 +248,23 @@ em_tib <- as_tibble(df.ems) %>%
 - Most results summarized by relative error (RE): (Est-True)/True
 
 
+## Distribution of maximum(absolute value of gradient) (*new slide)
+- very few models dropped for this criterion
+- reference lines for -6 (solid) and 5,4,3,2 (exponent for power of 10)
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad.grad.dist_lowestAIC.plot_grad_6_SE_100_beta_fix.png') )
+```
+
+## Distribution of SE (*new slide)
+- very few models dropped for this criterion
+- mostly impacted mean SRR with no Ecov
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'bad.se.dist_lowestAIC.plot_grad_6_SE_100_beta_fix.png') )
+```
+
+
+
+
 ## Crashes
 
 - ~3.3-3.5% crashes, typically for Ecov=Masking ("BH_4") and $\sigma_{R}$=0.1
@@ -541,6 +558,19 @@ binomial generalized linear mixed model with simulation random number seed as a 
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_cor.plot_beta_fix.png') )
   ```
 
+##  Ability to separate sources of process error (*new slide)
+- Better performance when $\rho_{R}$ and $\rho_{Ecov}$ are similar
+- No effect of Fhist, $\sigma_{R}$ or Ecov form
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'process.error.ratio.est.plot_beta_fix.png') )
+```
+
+##  Ability to separate sources of process error (*new slide)
+- Better performance when $\rho_{R}$ and $\rho_{Ecov}$ are similar
+- No effect of Fhist, $\sigma_{R}$ or Ecov form
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'process.error.ratio.est.plot.ylim_beta_fix.png') )
+```
 
 
 
@@ -570,9 +600,9 @@ binomial generalized linear mixed model with simulation random number seed as a 
 ## Mohn's $\rho$ - Classification Tree for Recruitment, SSB, Fbar
 -
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_Rho_beta_fix.pdf') )
-  ```
+```
 
 
 
@@ -580,16 +610,17 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Negative bias when $\sigma_{R}$ is low
 - Expected worse $\rho$ from incorrect EM, but was not the case 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'recr.dev.rho_beta_fix.png') )
-  ```
+```
+
 
 ## Mohn's $\rho$ - Classification Tree for Random Effects on Recruitment
 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_Rdev_retro_beta_fix.pdf') )
-  ```
+```
 
 ## Projections: Specifications and Ecov assumptions 
 - Projections were made from the 10th peel of each fitted model (Terminal year - 10)
