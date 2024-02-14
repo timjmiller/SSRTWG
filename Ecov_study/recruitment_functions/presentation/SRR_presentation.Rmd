@@ -363,18 +363,18 @@ binomial generalized linear mixed model with simulation random number seed as a 
  - Classification tree analysis of model selection results, with default settings in R package 'rpart'. The complexity parameter is set at cp = 0.01, which represents the minimum classification improvement required for any split.
 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_best_beta_fix.pdf') )
-  ```
+```
   
 
 ##  $\Delta$AIC and model probability - Classification tree
  - Classification tree analysis of for the difference in AIC among EMs, the rank of EMs, and the model probability of EMs (calculated from Akaike weights).
 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_AIC_prob_beta_fix.pdf') )
-  ```
+```
   
   
 
@@ -385,9 +385,9 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Blue indicates EM=OM (diagonal of first 4 columns w/in facet blocks)
 - Incorrect EMs in red
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='60%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='60%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
-  ```
+```
 
 
 
@@ -395,60 +395,60 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Smaller $\Delta$AIC for BH with high fishing contrast, low $\sigma_{R}$ (but not necessarily correct BH); $\Delta$AIC is larger for mean SRR in these cases
 - When $\sigma_{R}$ is larger and/or there is low contrast in fishing, the mean SRR is favored
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_dAIC.ylim_beta_fix.png') )
-  ```
+```
 
 ##  Model probability  - Median and 95% probability interval
 - True OMs receive more probability with $\sigma_{R}$=0.1 and high fishing contrast; otherwise, mean SRR received more probability
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') )
-  ```
+```
 
 
 
 ## Assessment error - Recruitment (all years)
 - Median unbiased, $\sigma_{R}$ determined quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.all.yrs.plot_beta_fix.png') )
-  ```
+```
 
 
 ## Assessment error - Recruitment (last 10 years)
 - Median unbiased, $\sigma_{R}$ determined quantile range
 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.last.10.plot_beta_fix.png') )
-  ```
+```
 
 
 
 ## Assessment error - Recruitment (terminal year)
 - Median unbiased, $\sigma_{R}$ determined quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.last.yr.plot_beta_fix.png') )
-  ```
+```
 
 
 
 ## Assessment error - Spawning Stock Biomass (all years)
 - Median unbiased
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.all.yrs.plot_beta_fix.png') )
-  ```
+```
 
 
 ## Assessment error - Spawning Stock Biomass (terminal year)
 - Median unbiased, $\sigma_{R}$ determined quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.last.yr.plot_beta_fix.png') )
-  ```
+```
 
 
 
@@ -456,17 +456,17 @@ binomial generalized linear mixed model with simulation random number seed as a 
 ## Assessment error - Fbar (all years)
 - Median unbiased
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.all.yrs.plot_beta_fix.png') )
-  ```
+```
 
 
 ## Assessment error - Fbar (terminal year)
 - Median unbiased, $\sigma_{R}$ determined quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.fbar.last.yr.plot_beta_fix.png') )
-  ```
+```
 
 
 
@@ -494,9 +494,9 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 # !!
 ## Is everybody still awake?
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'asleep_keyboard.jpg') )
-  ```
+```
 
 
 
@@ -507,56 +507,56 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Huge quartile ranges; Limiting and Masking had worst performance (BH_3 and BH_4)
 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov_beta.plot_beta_fix.png') )
-  ```
+```
 
 
 ## Bias of estimated parameters - Ecov mean
 - Larger quantile range when Ecov correlation is high (0.8)
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.mean.plot_beta_fix.png') )
-  ```
+```
 
 
 ## Bias of estimated parameters - $\rho_{Ecov}$
 - Well estimated when Ecov correlation was high (0.8)
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.rho.plot.ylim_beta_fix.png') )
-  ```
+```
 
 ## Bias of estimated parameters - $\sigma_{Ecov}$
 - Positively biased when Ecov correlation is high (0.8)
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.Ecov.sigma.plot_beta_fix.png') )
-  ```
+```
 
 ## Bias of estimated parameters - SRR a
 - Unbiased when $\sigma_{R}$ =0.1 and high fishing contrast; otherwise biased +/- 0.2 (BH_4 could be much worse)
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.mean_rec1.plot.ylim_beta_fix.png') )
-  ```
+```
 
 ## Bias of estimated parameters - SRR b
 - Unbiased when $\sigma_{R}$ =0.1 and high fishing contrast; otherwise biased +/- 0.2 (BH_4 could be much worse)
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.mean_rec2.plot.ylim_beta_fix.png') )
-  ```
+```
 
 ## Bias of estimated parameters - $\sigma_{R}$
 - Bias pattern mirroring between $\sigma_{R}$ and correlation
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_sigma.plot.ylim_beta_fix.png') )
-  ```
+```
 
 
 ## Bias of estimated parameters - $\rho_{R}$
 - Bias pattern mirroring between $\sigma_{R}$ and correlation
 - For most informative case (H-MSY, $\sigma_{R}$=0.1, low recruitment correlation), mean SRR has large positive bias
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'RE.R_cor.plot_beta_fix.png') )
-  ```
+```
 
 ##  Ability to separate sources of process error (*new slide)
 - Better performance when $\rho_{R}$ and $\rho_{Ecov}$ are similar
@@ -577,24 +577,24 @@ binomial generalized linear mixed model with simulation random number seed as a 
 ## Mohn's $\rho$ - Recruitment (7 year peel)  
 - Missing symbol indicates failed peels for one or more EM fits
 - $\sigma_{R}$ and observation error were influential factors
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'recr.rho_beta_fix.png') )
-  ```
+```
 
 ## Mohn's $\rho$ - SSB  (7 year peel)   
 - observation error was influential factor 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'ssb.rho_beta_fix.png') )
-  ```
+```
 
 
 ## Mohn's $\rho$ - Fbar  (7 year peel) 
 - observation error was influential factor 
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'fbar.rho_beta_fix.png') )
-  ```
+```
 
 
 ## Mohn's $\rho$ - Classification Tree for Recruitment, SSB, Fbar
@@ -616,7 +616,6 @@ binomial generalized linear mixed model with simulation random number seed as a 
 
 
 ## Mohn's $\rho$ - Classification Tree for Random Effects on Recruitment
-
 
 ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'reg_tree_Rdev_retro_beta_fix.pdf') )
@@ -640,31 +639,31 @@ binomial generalized linear mixed model with simulation random number seed as a 
 ## Projection performance - Relative Error Recruitment (first 3 years)
 - Minimal bias (median at most -0.1 for mean SRR)
 - Quantile range much larger for BH
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
-  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.proj.plot_beta_fix.png') )
-    ```
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.proj.plot3yr_beta_fix.png') )
+```
     
 ## Projection performance - Relative Error Recruitment (all 10 years)
 - Minimal bias (median at most -0.1 for mean SRR)
 - Quantile range much larger for BH
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.rec.proj.plot_beta_fix.png') )
-  ```
+```
 
 ## Projection performance - Recruitment Uncertainty (first 3 years)
 - CV slightly lower for mean SRR, usually narrower quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.rec.proj.plot3yr_beta_fix.png') )
-    ```
+```
     
 ## Projection performance - Recruitment Uncertainty (all 10 years)
 - CV slightly lower for mean SRR, usually narrower quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.rec.proj.plot_beta_fix.png') )
-  ```
+```
   
 
 
@@ -674,31 +673,31 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Minimal bias (median at most -0.1 for mean SRR)
 - Quantile range much larger for BH
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
-  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.proj.plot_beta_fix.png') )
-    ```
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.proj.plot3yr_beta_fix.png') )
+```
     
 ## Projection performance - Relative Error SSB (all 10 years)
 - Minimal bias (median at most -0.1 for mean SRR)
 - Quantile range much larger for BH
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.ssb.proj.plot_beta_fix.png') )
-  ```
+```
 
 ## Projection performance - SSB Uncertainty (first 3 years)
 - CV slightly lower for mean SRR, usually narrower quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.ssb.proj.plot3yr_beta_fix.png') )
-    ```
+```
     
 ## Projection performance - SSB Uncertainty (all 10 years)
 - CV slightly lower for mean SRR, usually narrower quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.ssb.proj.plot_beta_fix.png') )
-  ```
+```
   
   
   
@@ -706,31 +705,31 @@ binomial generalized linear mixed model with simulation random number seed as a 
 - Minimal bias (median at most -0.1 for mean SRR)
 - Quantile range much larger for BH
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
-  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.catch.proj.plot_beta_fix.png') )
-    ```
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.catch.proj.plot3yr_beta_fix.png') )
+```
     
 ## Projection performance - Relative Error Catch (all 10 years)
 - Minimal bias (median at most -0.1 for mean SRR)
 - Quantile range much larger for BH
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 're.catch.proj.plot_beta_fix.png') )
-  ```
+```
 
 ## Projection performance - Catch Uncertainty (first 3 years)
 - CV slightly lower for mean SRR, usually narrower quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.catch.proj.plot3yr_beta_fix.png') )
-    ```
+```
     
 ## Projection performance - Catch Uncertainty (all 10 years)
 - CV slightly lower for mean SRR, usually narrower quantile range
 
- ```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
   knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'sd.catch.proj.plot_beta_fix.png') )
-  ```
+```
   
 
 ## Projection Summary

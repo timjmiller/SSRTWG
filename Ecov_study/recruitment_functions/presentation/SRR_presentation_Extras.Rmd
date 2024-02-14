@@ -1,0 +1,151 @@
+---
+title: "Identification and performance of stock-recruitment functions in state
+space assessment models - Extras"
+subtitle: Working Paper 1
+author: Greg Britten, Liz Brooks, Tim Miller
+output: beamer_presentation
+fig_caption: FALSE
+theme: "Singapore"
+slide-level: 3
+# titlegraphic: WHOI_NOAA_logo_smaller.png
+header-includes: 
+- \addtobeamertemplate{title page}{\centering \includegraphics[width=9.5cm]{WHOI_NOAA_logo_smaller.png}\par }{}
+classoption: "aspectratio=169"
+date: "`r Sys.Date()`"
+---
+
+# Extra Analyses - h, R0
+
+## Steepness (h) estimates
+
+- Estimates correspond to single ('static') a,b in the BH and 'static' replacement line 
+- Only unbiased with high fishing contrast and low $\sigma_{R}$
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'steepness.vio.plot_beta_fix.png') )
+```
+
+
+## Unexploited recruitment (R0) estimates
+
+- Estimates correspond to single ('static') a,b in the BH and 'static' replacement line  
+- Only unbiased at low $\sigma_{R}$; $\rho_{R}$ increases range of estimates
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'R0.vio.plot_beta_fix.png') )
+```
+
+## Unexploited SSB (SSB0) estimates
+
+- Estimates correspond to single ('static') a,b in the BH and 'static' replacement line  
+- Only unbiased at low $\sigma_{R}$; $\rho_{R}$ increases range of estimates
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'SSB0.vio.plot_beta_fix.png') )
+```
+
+<!-- ==================================================================================== -->
+
+# Extra Analyses - MSY
+
+## $SPR_{MSY}$ 
+- Median unbiased at low $\sigma_{R}$ and high contrast in fishing history
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'SPRmsy.vio.plot_beta_fix.png') )
+```
+
+
+## Relative Error in $SPR_{MSY}$ 
+- Median unbiased at low $\sigma_{R}$ and high contrast in fishing history
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'RE.SPRmsy.vioplot_beta_fix.png') )
+```
+
+
+## $F_{MSY}$ 
+- Median unbiased at low $\sigma_{R}$ and high contrast in fishing history
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'Fmsy.vio.plot_beta_fix.png') )
+```
+
+
+## Relative Error in $F_{MSY}$ 
+- Median unbiased at low $\sigma_{R}$ and high contrast in fishing history
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'RE.Fmsy.vioplot_beta_fix.png') )
+```
+
+
+## $SSB_{MSY}$ 
+- Median unbiased at low $\sigma_{R}$ 
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'SSBmsy.vio.plot_beta_fix.png') )
+```
+
+
+## Relative Error in $SSB_{MSY}$ 
+- Median unbiased at low $\sigma_{R}$ 
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'RE.SSBmsy.vioplot_beta_fix.png') )
+```
+
+## $MSY$ 
+- Median unbiased at low $\sigma_{R}$ 
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'MSY.vio.plot.ylim_beta_fix.png') )
+```
+
+
+## Relative Error in $MSY$ 
+- Median unbiased at low $\sigma_{R}$ 
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix_extra', 'RE.MSY.vioplot_beta_fix.png') )
+```
+
+
+<!-- ==================================================================================== -->
+
+# Extra Analyses - $\sigma_{R}$
+
+## $\sigma_{R}$ Estimates
+- Estimates not really larger for mean SRR; less bias with low $\rho_{R}$
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'Rsigma.plot_beta_fix.png') )
+```
+
+
+## $\sigma_{R}$ Estimates
+- Estimates not really larger for mean SRR; less bias with low $\rho_{R}$
+
+
+```{r,  echo=FALSE, message=FALSE, warnings=FALSE,  out.height='75%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'Rsigma.plot.ylim_beta_fix.png') )
+```
+<!-- ==================================================================================== -->
+
+---
+
+Acknowledgements
+
+- This work could not have been completed without access to high performance computing resources from the Microsoft Cooperative Research and Development Agreement (CRADA) and NOAA's National Cloud Program Office (OCIO), and the MIT Office of Research Computing and Data
+- We thank other members of the SSRTWG for thoughtful comments during earlier discussions and presentations of this work
+
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.height='50%', fig.align='center'}
+ knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'presentation', 'abacus_crop.jpg') )
+```
+
+
+<!-- ==================================================================================== -->
+
+
+<!-- ## R Markdown -->
+
+<!-- If you have trouble knitting this file, check out this page: https://stackoverflow.com/questions/67696286/error-generating-pdf-using-knitr-to-pdf-in-rstudio -->
+
+<!-- <!-- -- example chunk to include figure from file --> -->
+<!-- ```{r, echo=FALSE, message=FALSE, warnings=FALSE, out.width='50%', fig.align='center'} -->
+<!--  knitr::include_graphics(file.path(here::here(), 'Ecov_study','recruitment_functions', 'plots_beta_fix', 'model_probability_beta_fix.png') ) -->
+<!-- ``` -->
+
