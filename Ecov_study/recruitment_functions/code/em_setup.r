@@ -16,7 +16,7 @@ SRab = exp(c(temp$rep$log_SR_a[1], temp$rep$log_SR_b[1]))
 
 ##Estimating model inputs
 #Estimating model factors
-ecov_how <- c(0,1,2,4)
+ecov_how <- c(0,1,2)
 r_mod    <- c(2,3)
 
 #create data.frame defining estimation models data.fram

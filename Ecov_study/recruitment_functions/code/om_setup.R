@@ -28,12 +28,12 @@ Ecov_re_sig  <- c(0.1)
 obs_error    <- c("L","H")
 
 #variable factors
-R_sig       <- c(0.1,1.0)        #recruitment random effects sigma
-Fhist       <- c("H-MSY","MSY")  #fishing history
+R_sig       <- c(0.1,0.3,0.5,1.0)        #recruitment random effects sigma
+Fhist       <- c("H-MSY","MSY","L-H")  #fishing history
 NAA_cor     <- c(0.2,0.8)        #correlation of recruitment random effects
 Ecov_re_cor <- c(0.2,0.8)        #correlation of ecov random effects
 Ecov_effect <- c(0.1, 1.0)       #beta coefficients; need to modify according to functional form
-Ecov_how    <- c(0,1,2,4)          #ecov-recruiment functional form
+Ecov_how    <- c(0,1,2)          #ecov-recruiment functional form
 recruit_mod <- c(3)
 
 df.oms <- expand.grid(NAA_re = NAA_re,
@@ -110,10 +110,22 @@ for(i in 1:NROW(df.oms)){
   ecov_i$beta_vals = beta_vals_i
   
   Fhist. = "Fmsy"
-  if(df.oms$Fhist[i] == "H-MSY") Fhist. = "H-L"
-  max_mult = 2.5 # fishing at 2.5 x Fmsy
-  if(Fhist. == "Fmsy") max_mult = 1
-  min_mult = 1 # fishing at Fmsy
+  if(Fhist. == "Fmsy"){ 
+	max_mult = 1
+  	min_mult = 1 # fishing at Fmsy
+	}
+
+  if(df.oms$Fhist[i] == "H-MSY"){ 
+	Fhist. = "H-L"
+  	max_mult = 2.5 # fishing at 2.5 x Fmsy
+	}
+
+  if(df.oms$Fhist[i] == "L-H"){
+	Fhist. = "L-H"
+	min_mult = 0.25
+	max_mult = 1
+	}
+ 
   
   om_inputs[[i]] = make_om(Fhist       = Fhist., 
                            N1_state    = "overfished", 
