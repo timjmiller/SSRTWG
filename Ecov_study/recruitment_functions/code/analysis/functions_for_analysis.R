@@ -130,10 +130,10 @@ for(om in 1:nrow(df.oms)){
         aic
       } )
 
+    dat <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',1,'.RDS')) ),
+                    error = function(e) conditionMessage(e))
     ecov_slope <- NA
     if(class(dat)!='try-error' & class(dat)!='character'){
-      dat <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',1,'.RDS')) ),
-                      error = function(e) conditionMessage(e))
       ecov_sim <- dat$truth$Ecov_obs
       ecov_slope <- summary(lm(ecov_sim ~ I(1:40)))$coefficients[2,1]
     }
@@ -151,18 +151,18 @@ for(om in 1:nrow(df.oms)){
     }    )
     
     
-      em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
-                          df.ems$r_mod==df.oms$recruit_mod[om])                     #1 if ecov_how AND r_mod match for EM and OM
-      sr_good <- ifelse(df.ems$r_mod==df.oms$recruit_mod[om], 1, 0)   #1 if r_mod matches for EM and OM
-      ecov_good <- ifelse(df.ems$ecov_how==df.oms$Ecov_how[om], 1, 0) #1 if ecov_how matches for EM and OM
-      
-      aic_pick <- which(DAT==min(DAT,na.rm=TRUE))
-      aic_order <- match(seq(1,nrow(df.ems)), order(DAT) )  #gives rank of each EM
-      aic_next <- DAT[aic_order==1] - DAT[aic_order==2]  #what is dAIC between best and second best
-      aic_diffs <-  DAT - DAT[aic_order==1]  # dAIC for all EMs
-      aic_last <- max(aic_diffs)  #what is dAIC for worst model
-      
-      aic_weight <- exp(-0.5*aic_diffs)/sum(exp(-0.5*aic_diffs), na.rm=TRUE )
+        em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
+                            df.ems$r_mod==df.oms$recruit_mod[om])                     #1 if ecov_how AND r_mod match for EM and OM
+        sr_good <- ifelse(df.ems$r_mod==df.oms$recruit_mod[om], 1, 0)   #1 if r_mod matches for EM and OM
+        ecov_good <- ifelse(df.ems$ecov_how==df.oms$Ecov_how[om], 1, 0) #1 if ecov_how matches for EM and OM
+        
+        aic_pick <- which(DAT==min(DAT,na.rm=TRUE))
+        aic_order <- match(seq(1,nrow(df.ems)), order(DAT) )  #gives rank of each EM
+        aic_next <- DAT[aic_order==1] - DAT[aic_order==2]  #what is dAIC between best and second best
+        aic_diffs <-  DAT - DAT[aic_order==1]  # dAIC for all EMs
+        aic_last <- max(aic_diffs)  #what is dAIC for worst model
+        
+        aic_weight <- exp(-0.5*aic_diffs)/sum(exp(-0.5*aic_diffs), na.rm=TRUE )
     
     AIC[k,]  <- data.frame(sim=sim, df.oms[om,],aic_pick=aic_pick,
                            dAIC_next = round(aic_next,3), dAIC_last=round(aic_last,3),
