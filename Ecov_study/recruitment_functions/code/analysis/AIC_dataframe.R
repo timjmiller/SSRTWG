@@ -5,7 +5,8 @@ library(wham)
 #df.oms          <- readRDS(file.path(here(),"Ecov_study","recruitment_functions", "inputs", "df.oms_noSR.RDS"))
 source(file.path(here::here(), "Ecov_study","recruitment_functions", "code", "analysis", "functions_for_analysis.R" ) )
 
-res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
+#res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
+res.path <- file.path(here::here(),"Ecov_study","recruitment_functions","results")  # directory where simulation runs are (beta unstandardized)
 
 df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))

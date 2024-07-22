@@ -96,18 +96,18 @@ get_aic_convergence_info <- function(df.oms=NULL, df.ems=NULL, nsims=NULL, res.p
   
   if(!dir.exists(save.path))  dir.create(save.path)
   
-  nsim <-  nrow(df.oms)*nsims
-  nsim.all <- nrow(df.oms)*nrow(df.ems)*nsims
+  nsim <-  nrow(df.oms)*n_sims
+  nsim.all <- nrow(df.oms)*nrow(df.ems)*n_sims
   
   
-  AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+18))
+  AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+19))
   colnames(AIC) <- c('sim',colnames(df.oms),'aic_pick', 'daic_next', 'daic_last', 
                      'correct_form','correct_ecov', 'correct_SR', 'EM_ecov', 'EM_SR',
-                     "opt", "conv", "sdrep", "max_grad", "SE_par_max",  "SE_par_max_name",  "SE_par_max2",  "SE_par_max2_name", "max_grad_name")
+                     "opt", "conv", "sdrep", "max_grad", "SE_par_max",  "SE_par_max_name",  "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope")
   
-  AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(18+ncol(df.oms))) )
-  colnames(AIC_weight) <- c('sim','OM','EM', 'EM_ecov_how', 'EM_r_mod','AIC', 'dAIC', 'AIC_rank', 'Model_prob',
-                            "opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2",  "SE_par_max2_name", "max_grad_name" , colnames(df.oms))
+  AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(ncol(df.oms)+19)) )
+  colnames(AIC_weight) <- c('sim',colnames(df.oms),'OM','EM', 'EM_ecov_how', 'EM_r_mod','AIC', 'dAIC', 'AIC_rank', 'Model_prob',
+                            "opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope")
   
 
   
@@ -117,16 +117,26 @@ k <- 1
 for(om in 1:nrow(df.oms)){
   print(paste0("OM = ",om, " out of ", nrow(df.oms)))
     # get aic ====
-  for(sim in 1:nsims){
-      DAT <- sapply(1:nrow(df.ems), function(em){
-        dat <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS')) ),
-                        error = function(e) conditionMessage(e))
-        aic <- NA
+  for(sim in 1:n_sims){
+  print(paste0("SIM = ",sim, " out of 100"))
+    
+    DAT <- sapply(1:nrow(df.ems), function(em){
+      dat <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS')) ),
+                      error = function(e) conditionMessage(e))
+      aic <- NA
         if(class(dat)!='try-error' & class(dat)!='character'){
           if(length(dat$fit)>0) aic = 2*(as.numeric(dat$fit$opt$objective) + as.numeric(length(dat$fit$opt$par)) )
         }
         aic
       } )
+
+    ecov_slope <- NA
+    if(class(dat)!='try-error' & class(dat)!='character'){
+      dat <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',1,'.RDS')) ),
+                      error = function(e) conditionMessage(e))
+      ecov_sim <- dat$truth$Ecov_obs
+      ecov_slope <- summary(lm(ecov_sim ~ I(1:40)))$coefficients[2,1]
+    }
     
     # get convergence ====
     conv  <- sapply(1:nrow(df.ems), function(em) {
@@ -141,18 +151,18 @@ for(om in 1:nrow(df.oms)){
     }    )
     
     
-    em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
-                        df.ems$r_mod==df.oms$recruit_mod[om])                     #1 if ecov_how AND r_mod match for EM and OM
-    sr_good <- ifelse(df.ems$r_mod==df.oms$recruit_mod[om], 1, 0)   #1 if r_mod matches for EM and OM
-    ecov_good <- ifelse(df.ems$ecov_how==df.oms$Ecov_how[om], 1, 0) #1 if ecov_how matches for EM and OM
-    
-    aic_pick <- which(DAT==min(DAT,na.rm=TRUE))
-    aic_order <- match(seq(1,nrow(df.ems)), order(DAT) )  #gives rank of each EM
-    aic_next <- DAT[aic_order==1] - DAT[aic_order==2]  #what is dAIC between best and second best
-    aic_diffs <-  DAT - DAT[aic_order==1]  # dAIC for all EMs
-    aic_last <- max(aic_diffs)  #what is dAIC for worst model
-    
-    aic_weight <- exp(-0.5*aic_diffs)/sum(exp(-0.5*aic_diffs), na.rm=TRUE )
+      em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
+                          df.ems$r_mod==df.oms$recruit_mod[om])                     #1 if ecov_how AND r_mod match for EM and OM
+      sr_good <- ifelse(df.ems$r_mod==df.oms$recruit_mod[om], 1, 0)   #1 if r_mod matches for EM and OM
+      ecov_good <- ifelse(df.ems$ecov_how==df.oms$Ecov_how[om], 1, 0) #1 if ecov_how matches for EM and OM
+      
+      aic_pick <- which(DAT==min(DAT,na.rm=TRUE))
+      aic_order <- match(seq(1,nrow(df.ems)), order(DAT) )  #gives rank of each EM
+      aic_next <- DAT[aic_order==1] - DAT[aic_order==2]  #what is dAIC between best and second best
+      aic_diffs <-  DAT - DAT[aic_order==1]  # dAIC for all EMs
+      aic_last <- max(aic_diffs)  #what is dAIC for worst model
+      
+      aic_weight <- exp(-0.5*aic_diffs)/sum(exp(-0.5*aic_diffs), na.rm=TRUE )
     
     AIC[k,]  <- data.frame(sim=sim, df.oms[om,],aic_pick=aic_pick,
                            dAIC_next = round(aic_next,3), dAIC_last=round(aic_last,3),
@@ -160,7 +170,8 @@ for(om in 1:nrow(df.oms)){
                            correct_ecov = ecov_good[aic_pick],
                            correct_SR= sr_good[aic_pick],
                            EM_ecov=df.ems[aic_pick, 1], EM_SR = df.ems[aic_pick,2],
-                           conv=t(conv[, aic_pick]) )
+                           conv=t(conv[, aic_pick]),
+                           ecov_slope=as.numeric(ecov_slope))
 
     AIC_weight[(nrow(df.ems)*(k-1)+1):(nrow(df.ems)*k) , ] <- data.frame(sim=rep(sim,nrow(df.ems)), OM=rep(om, nrow(df.ems)), EM=seq(1,nrow(df.ems)), 
                                                    EM_ecov_how=df.ems[,1], 
