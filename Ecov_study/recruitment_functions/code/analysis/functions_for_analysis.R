@@ -1,6 +1,5 @@
 # functions used for analysis SSRTWG - Project 3 (Ecov & Recruitment)
 
-
 #=======================================================================================
 #   Grab Convergence Info ====
 #=======================================================================================
@@ -128,16 +127,18 @@ for(om in 1:nrow(df.oms)){
           if(length(dat$fit)>0) aic = 2*(as.numeric(dat$fit$opt$objective) + as.numeric(length(dat$fit$opt$par)) )
         }
         aic
-      } )
+      })
 
     dat <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',1,'.RDS')) ),
                     error = function(e) conditionMessage(e))
     ecov_slope <- NA
+    ssb_cv <- NA
     if(class(dat)!='try-error' & class(dat)!='character'){
-      ecov_sim <- dat$truth$Ecov_obs
+      ecov_sim   <- dat$truth$Ecov_obs
       ecov_slope <- summary(lm(ecov_sim ~ I(1:40)))$coefficients[2,1]
+      ssb_cv    <- sd(dat$truth$SSB)/mean(dat$truth$SSB)
     }
-    
+
     # get convergence ====
     conv  <- sapply(1:nrow(df.ems), function(em) {
       cc <- tryCatch(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS')) ),
@@ -148,8 +149,7 @@ for(om in 1:nrow(df.oms)){
         if(length(cc$fit)>0) conv.info = convergence_fn(cc) 
       }
       conv.info
-    }    )
-    
+    })
     
         em_match <- which(df.ems$ecov_how==df.oms$Ecov_how[om] &
                             df.ems$r_mod==df.oms$recruit_mod[om])                     #1 if ecov_how AND r_mod match for EM and OM
@@ -180,45 +180,10 @@ for(om in 1:nrow(df.oms)){
      k <- k + 1
      
     } # end sim loop
-  
-  } # end om loop (k)
-
-if (save.rds==T) {
-  saveRDS(AIC,file.path(save.path, paste0('AIC', save.suffix, '.rds')) )
-  saveRDS(AIC_weight,file.path(save.path, paste0('AIC_weight',  save.suffix,'.rds'))  )
-  
-}
-t2<- Sys.time() 
-print(paste0('This took ', (t2-t1)) )
+    if(save.rds==T){
+      saveRDS(AIC,file.path(save.path, paste0('AIC', save.suffix, '.rds')) )
+      saveRDS(AIC_weight,file.path(save.path, paste0('AIC_weight',  save.suffix,'.rds'))  )
+    }
+  } # end om loop
 } # end function
-
-
-#=======================================================================================
-#   Tally convergence  ====
-#=======================================================================================
-
-
-#=======================================================================================
-#   Calculate Relative Error  ====
-#=======================================================================================
-
-
-
-#=======================================================================================
-#   ...  ====
-#=======================================================================================
-
-
-
-#=======================================================================================
-#   ...  ====
-#=======================================================================================
-
-
-
-#=======================================================================================
-#   ...  ====
-#=======================================================================================
-
-
 
