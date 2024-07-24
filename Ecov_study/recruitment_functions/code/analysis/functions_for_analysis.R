@@ -99,19 +99,16 @@ get_aic_convergence_info <- function(df.oms=NULL, df.ems=NULL, nsims=NULL, res.p
   nsim.all <- nrow(df.oms)*nrow(df.ems)*n_sims
   
   
-  AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+19))
+  AIC           <- data.frame(matrix(nrow=nsim, ncol=ncol(df.oms)+20))
   colnames(AIC) <- c('sim',colnames(df.oms),'aic_pick', 'daic_next', 'daic_last', 
                      'correct_form','correct_ecov', 'correct_SR', 'EM_ecov', 'EM_SR',
-                     "opt", "conv", "sdrep", "max_grad", "SE_par_max",  "SE_par_max_name",  "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope")
+                     "opt", "conv", "sdrep", "max_grad", "SE_par_max",  "SE_par_max_name",  "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope","ssb_cv")
   
-  AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(ncol(df.oms)+19)) )
+  AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(ncol(df.oms)+20)) )
   colnames(AIC_weight) <- c('sim',colnames(df.oms),'OM','EM', 'EM_ecov_how', 'EM_r_mod','AIC', 'dAIC', 'AIC_rank', 'Model_prob',
-                            "opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope")
+                            "opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope","ssb_cv")
   
 
-  
- t1<- Sys.time() 
-  
 k <- 1
 for(om in 1:nrow(df.oms)){
   print(paste0("OM = ",om, " out of ", nrow(df.oms)))
@@ -171,12 +168,23 @@ for(om in 1:nrow(df.oms)){
                            correct_SR= sr_good[aic_pick],
                            EM_ecov=df.ems[aic_pick, 1], EM_SR = df.ems[aic_pick,2],
                            conv=t(conv[, aic_pick]),
-                           ecov_slope=as.numeric(ecov_slope))
+                           ecov_slope=as.numeric(ecov_slope),
+                           ssb_cv=as.numeric(ssb_cv))
 
-    AIC_weight[(nrow(df.ems)*(k-1)+1):(nrow(df.ems)*k) , ] <- data.frame(sim=rep(sim,nrow(df.ems)), OM=rep(om, nrow(df.ems)), EM=seq(1,nrow(df.ems)), 
-                                                   EM_ecov_how=df.ems[,1], 
-                                                   EM_r_mod= df.ems[,2],AIC=DAT, dAIC=aic_diffs, AIC_rank=aic_order,                                             Model_prob=aic_weight, conv=t(conv) , 
-                                                   do.call("rbind", replicate( nrow(df.ems), df.oms[om,], simplify = FALSE)) )
+    AIC_weight[(nrow(df.ems)*(k-1)+1):(nrow(df.ems)*k) , ] <- data.frame(sim=rep(sim,nrow(df.ems)), 
+                                                                         OM=rep(om, nrow(df.ems)), 
+                                                                         EM=seq(1,nrow(df.ems)), 
+                                                                         EM_ecov_how=df.ems[,1], 
+                                                                         EM_r_mod= df.ems[,2],
+                                                                         AIC=DAT, 
+                                                                         dAIC=aic_diffs, 
+                                                                         AIC_rank=aic_order,                                             
+                                                                         Model_prob=aic_weight, conv=t(conv) , 
+                                                                         do.call("rbind", replicate( nrow(df.ems), 
+                                                                                                     df.oms[om,], 
+                                                                                                     simplify = FALSE)),
+                                                                         ecov_slope=as.numeric(ecov_slope),
+                                                                         ssb_cv=as.numeric(ssb_cv))
      k <- k + 1
      
     } # end sim loop
