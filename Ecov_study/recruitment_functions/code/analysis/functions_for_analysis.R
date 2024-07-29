@@ -195,3 +195,26 @@ for(om in 1:nrow(df.oms)){
   } # end om loop
 } # end function
 
+
+##----------------------------------------------------------
+## PLOTTING
+##----------------------------------------------------------
+
+#plot effect sizes from linear model
+plotlm <- function(fit,add=FALSE,ylims,labels){
+  coef <- summary(fit)$coefficients[,1]
+  ses  <- summary(fit)$coefficients[,2]
+  n    <- length(coef)
+  if(add==FALSE){
+    #plot(1:n,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch=19,xaxt='n')
+    plot(1:n,coef,pch='-',xaxt='n',ylim=ylims,xlim=c(1,n+0.5))
+    segments(x0=1:n,x1=1:n,y0=coef-2*ses,y1=coef+2*ses)
+  }
+  if(add==TRUE){
+    points(1:n+0.25,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch='-',col='red')
+    segments(x0=1:n+0.25,x1=1:n+0.25,y0=coef-2*ses,y1=coef+2*ses,col='red')
+  }
+  abline(h=0,lty=2)
+  axis(side=1,at=1:n,labels=labels,las=2)
+}
+
