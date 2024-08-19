@@ -6,44 +6,42 @@ library('tidyverse')
 library('xtable')
 library(rpart)
 
-res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'
-plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
-plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
+res.dir     <- 'results'  # 'results'     'results_beta_fix'
+plot.dir    <- 'plots'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.suffix <- ''         # '_beta_fix'   '' 
 
 n.sims <- 100
 
-AIC_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC', plot.suffix, '.rds') ) )
-AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC_weight', plot.suffix, '.rds') ) )
-df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
-df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
-om.fails.df <- readRDS(file.path(here::here("Ecov_study", 'recruitment_functions', res.dir,'om.fails.df_beta_unstandardized.RDS') ) )
+AIC_all     <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC', plot.suffix, '.rds') ) )
+AIC_weight  <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC_weight', plot.suffix, '.rds') ) )
+df.oms      <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.ems      <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
+om.fails.df <- readRDS(file.path(here::here("Ecov_study", 'recruitment_functions', res.dir,'om.fails.df.RDS')))
 
 
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
-bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
+bad.se.value   <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
 # analyze AIC_all (info just saved for best model for given OM)  ====
 ## specify cut-off for non-converged runs for AIC_all ====
 # convergence IF opt == 1; conv ==0; sdrep==0; max_grad<max.grad.threshold; SE_par_max< not too big;
-bad.opt <- which(as.numeric(AIC_all$opt) != 1)
-bad.conv <- which(as.numeric(AIC_all$conv) !=0)
-bad.sdrep <- which(as.numeric(AIC_all$sdrep)>0)
-bad.grad <- which(as.numeric(AIC_all$max_grad)>bad.grad.value) 
+bad.opt    <- which(as.numeric(AIC_all$opt) != 1)
+bad.conv   <- which(as.numeric(AIC_all$conv) !=0)
+bad.sdrep  <- which(as.numeric(AIC_all$sdrep)>0)
+bad.grad   <- which(as.numeric(AIC_all$max_grad)>bad.grad.value) 
 bad.se.big <- which(as.numeric(AIC_all$SE_par_max)>bad.se.value ) #tim used 100, but threshold depends on scale of parameter (could refine this category to be parameter specific or try to specify threshold on relative scale? "CV-like"?)
-bad.se.na <- which( is.na(AIC_all$SE_par_max))
+bad.se.na  <- which( is.na(AIC_all$SE_par_max))
 
-bad.runs <- c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)
+bad.runs        <- c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)
 bad.runs.unique <- unique(c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na))
-length(bad.runs)
-length(unique(bad.runs))
-length(bad.opt)
-length(bad.conv)
-length(bad.sdrep)
-length(bad.grad)
-length(bad.se.big)
-
-
+#length(bad.runs)
+#length(unique(bad.runs))
+#length(bad.opt)
+#length(bad.conv)
+#length(bad.sdrep)
+#length(bad.grad)
+#length(bad.se.big)
 
 
 #characterize the bad.runs
@@ -56,9 +54,9 @@ AIC.bad <- as_tibble(AIC_all[bad.runs.unique,]) %>%
 AIC_best_conv.runs <- AIC_all[-bad.runs.unique,]
 saveRDS(AIC_best_conv.runs, file =  file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
-pct.converge <- nrow(AIC_best_conv.runs)/nrow(AIC_all)
+pct.converge      <- nrow(AIC_best_conv.runs)/nrow(AIC_all)
 pct.fail.converge <- 1-pct.converge
-n.bad.runs <- length(unique(bad.runs) )
+n.bad.runs        <- length(unique(bad.runs) )
 
 
 bad.mods.plot <- ggplot(AIC.bad, aes(x=EM_mod)) +
@@ -75,29 +73,27 @@ bad.mods.plot <- ggplot(AIC.bad, aes(x=EM_mod)) +
   labs(subtitle=paste0(100*round(pct.fail.converge,3), '% of lowest AIC model failed 1 or more convergence checks; max(abs(gradient)) > ', bad.grad.label, ' and/or par_SE > ', bad.se.value ))
 ggsave(bad.mods.plot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad.mods_lowestAIC.plot_grad_",bad.grad.label, "_SE_", bad.se.value, plot.suffix,".png") ),  height=7, width=12)
 
-
-
 # analyze AIC_weight (info for all OM - EM - Sim)  ====
 ## specify cut-off for non-converged runs for AIC_weight (same as for AIC_all) ====
 # convergence IF opt == 1; conv ==0; sdrep==0; max_grad<max.grad.threshold; SE_par_max< not too big;
 ## first, identify bad runs
-bad.opt <- which(as.numeric(AIC_weight$opt) != 1)  # 0
-bad.conv <- which(as.numeric(AIC_weight$conv) !=0)  #2178
-bad.sdrep <- which(as.numeric(AIC_weight$sdrep)>0)   #5703
-bad.grad <- which(as.numeric(AIC_weight$max_grad)>bad.grad.value) # 11,154             #tim used 1E-6
+bad.opt    <- which(as.numeric(AIC_weight$opt) != 1)  # 0
+bad.conv   <- which(as.numeric(AIC_weight$conv) !=0)  #2178
+bad.sdrep  <- which(as.numeric(AIC_weight$sdrep)>0)   #5703
+bad.grad   <- which(as.numeric(AIC_weight$max_grad)>bad.grad.value) # 11,154             #tim used 1E-6
 bad.se.big <- which(as.numeric(AIC_weight$SE_par_max)>bad.se.value ) # 3==>33,325       100==>19,613        #tim used 100
-bad.se.na <- which( is.na(AIC_weight$SE_par_max))  #1936
+bad.se.na  <- which( is.na(AIC_weight$SE_par_max))  #1936
 
-bad.runs <- c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)
+bad.runs   <- c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na)
 length(bad.runs)
 length(unique(bad.runs))
 bad.runs.unique <- unique(c(bad.opt, bad.conv, bad.sdrep, bad.grad, bad.se.big, bad.se.na))
 
 
 AIC_weight_conv.runs <- AIC_weight[-bad.runs.unique,]
-pct.converge<-nrow(AIC_weight_conv.runs)/nrow(AIC_weight)
-pct.fail.convg <- 1-pct.converge
-n.bad.runs <- length(unique(bad.runs) )
+pct.converge         <-nrow(AIC_weight_conv.runs)/nrow(AIC_weight)
+pct.fail.convg       <- 1-pct.converge
+n.bad.runs           <- length(unique(bad.runs) )
 saveRDS(AIC_weight_conv.runs, file =  file.path(here(),'Ecov_study','recruitment_functions', res.dir, paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix,".RDS")  ) )
 
 

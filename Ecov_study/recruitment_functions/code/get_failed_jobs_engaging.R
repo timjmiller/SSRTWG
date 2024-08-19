@@ -19,8 +19,8 @@ iter.fails <- c()
 fail.list <- list()
 
 for (i in 1:n.om) {
+print(i)
   sims.run <- list.files(file.path(here::here(),"Ecov_study", "recruitment_functions", "results", om.names[i]), pattern = ".RDS")
-  #sims.run <- list.files(paste0('~/dropbox/working/state_space_assessments/cluster_download/results/',om.names[i]))
   fails <- which((sim.names %in% sims.run)==FALSE)
   
   if(length(fails)==0) fail.list[[i]] <- NA
@@ -40,5 +40,15 @@ for (i in 1:n.om) {
   
 }
 
+###-make DF
+om.fails.df <- c()  #
+for(i in 1:nrow(df.oms)) {
+  if(is.na(fail.list[[i]][1])==FALSE) om.fails.df <- rbind(om.fails.df,
+                                                           cbind(OM=    rep(i, fail.list[[i]]$nfails), 
+                                                                 N.fail=rep(fail.list[[i]]$nfails, fail.list[[i]]$nfails), 
+                                                                 fail.list[[i]]$iter_em) )
+}
+
+saveRDS(om.fails.df, file.path(here::here("Ecov_study", 'recruitment_functions', 'results'),'om.fails.df.RDS'))
 
 
