@@ -1,11 +1,8 @@
 library(here)
 library(wham)
-#folder link to id
-# dir <- '~/dropbox/working/state_space_assessments/cluster_download/results_noSR//'
-#df.oms          <- readRDS(file.path(here(),"Ecov_study","recruitment_functions", "inputs", "df.oms_noSR.RDS"))
+
 source(file.path(here::here(), "Ecov_study","recruitment_functions", "code", "analysis", "functions_for_analysis.R" ) )
 
-#res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
 res.path    <- file.path(here::here(),"Ecov_study","recruitment_functions","results")  # directory where simulation runs are (beta unstandardized)
 save.path   <- file.path(here::here(),"Ecov_study",'recruitment_functions', 'results')  
 save.suffix <- ''

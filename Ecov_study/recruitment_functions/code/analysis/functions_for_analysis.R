@@ -177,11 +177,6 @@ for(om in 1:nrow(df.oms)){
                            ecov_slope=as.numeric(ecov_slope),
                            ssb_cv=as.numeric(ssb_cv))
 
-    AIC_weight  <- data.frame(matrix(nrow=nsim.all, ncol=(ncol(df.oms)+20)) )
-    colnames(AIC_weight) <- c('sim',colnames(df.oms),'OM','EM', 'EM_ecov_how', 'EM_r_mod','AIC', 'dAIC', 'AIC_rank', 'Model_prob',
-                              "opt", "conv", "sdrep", "max_grad", "SE_par_max", "SE_par_max_name", "SE_par_max2",  "SE_par_max2_name", "max_grad_name","ecov_slope","ssb_cv")
-    
-    
     AIC_weight[(nrow(df.ems)*(k-1)+1):(nrow(df.ems)*k), ] <- data.frame(sim=rep(sim,nrow(df.ems)), 
                                                                         do.call("rbind", replicate(nrow(df.ems), 
                                                                                                     df.oms[om,], 
