@@ -22,7 +22,7 @@ for (i in 1:n.om) {
 print(i)
   sims.run <- list.files(file.path(here::here(),"Ecov_study", "recruitment_functions", "results", om.names[i]), pattern = ".RDS")
   fails <- which((sim.names %in% sims.run)==FALSE)
-  
+print(fails)  
   if(length(fails)==0) fail.list[[i]] <- NA
   
   if(length(fails>0)) {
@@ -43,6 +43,7 @@ print(i)
 ###-make DF
 om.fails.df <- c()  #
 for(i in 1:nrow(df.oms)) {
+print(i)
   if(is.na(fail.list[[i]][1])==FALSE) om.fails.df <- rbind(om.fails.df,
                                                            cbind(OM=    rep(i, fail.list[[i]]$nfails), 
                                                                  N.fail=rep(fail.list[[i]]$nfails, fail.list[[i]]$nfails), 

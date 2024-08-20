@@ -131,8 +131,8 @@ saveRDS(conv.runs, file.path(here(),'Ecov_study','recruitment_functions', res.di
 
 
 
-df.oms2 <- as_tibble(cbind(OM=seq(1,256), df.oms)) 
-df.ems2 <- cbind(EM=seq(1,6), df.ems)
+df.oms2 <- as_tibble(cbind(OM=seq(1,nrow(df.oms)), df.oms)) 
+df.ems2 <- cbind(EM=seq(1,nrow(df.ems)), df.ems)
 colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod")
 em_tib <- as_tibble(df.ems2) %>%
   mutate(SR=ifelse(EM_r_mod==2, 'Mean', 'BH')) %>%
