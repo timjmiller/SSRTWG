@@ -8,17 +8,17 @@ library('tidyverse')
 ## specify bad.grad.label and bad.se.value (these are the thresholds set in convergence_summaries.R to determine convergence) 
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
-bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
+bad.se.value   <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
  
-res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
-plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
-plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
+res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+plot.dir    <- 'plots'    # 'plots_lizruns'  'plots_beta_fix'   
+plot.suffix <- ''      # '_beta_fix'   '' 
 
 
 
 ## get converged runs with these thresholds
-AIC_best <- readRDS( file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )  # EM with lowest AIC per OM-Sim (that converged)
+AIC_best   <- readRDS( file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_best_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )  # EM with lowest AIC per OM-Sim (that converged)
 AIC_weight <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ))  # info for all EMs per OM-Sim
 
 AIC_best_all <- readRDS(file.path(here(),'Ecov_study','recruitment_functions',res.dir,paste0('AIC', plot.suffix, '.rds')) )#includes non=converged runs
@@ -41,7 +41,7 @@ df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions
 
 em_tib <- as_tibble(df.ems) %>%
   mutate(SR=ifelse(r_mod==2, 'Mean', 'BH')) %>%
-  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,6))
+  mutate(EM_mod = paste0(SR, "_", ecov_how), EM=seq(1,5))
 
 ############################################################
 # Regression trees =====================
@@ -51,13 +51,23 @@ em_tib <- as_tibble(df.ems) %>%
 library(rpart.plot)
 
 # analysis for best model selected ====
-AIC_best$R_sig <- factor(AIC_best$R_sig,labels = c("L","H"))
-AIC_best$Ecov_effect <- factor(AIC_best$Ecov_effect,labels=c("L","H"))
-AIC_best$Ecov_how    <- factor(AIC_best$Ecov_how,labels=c("0", "1","2","4"))
-AIC_best$NAA_cor     <- factor(AIC_best$NAA_cor,labels=c("L","H"))
-AIC_best$Fhist       <- factor(AIC_best$Fhist,labels=c("H-MSY","MSY") ) 
-AIC_best$Ecov_re_cor <- factor(AIC_best$Ecov_re_cor,labels=c("L","H"))
-AIC_best$obs_error   <- factor(AIC_best$obs_error,labels=c("L","H"))
+AIC_best$obs_error   <- as.factor(AIC_best$obs_error)
+AIC_best$R_sig       <- as.factor(AIC_best$R_sig)
+AIC_best$Fhist       <- as.factor(AIC_best$Fhist)
+AIC_best$NAA_cor     <- as.factor(AIC_best$NAA_cor) 
+AIC_best$Ecov_re_cor <- as.factor(AIC_best$Ecov_re_cor) 
+AIC_best$Ecov_effect <- as.factor(AIC_best$Ecov_effect) 
+AIC_best$Ecov_how    <- as.factor(AIC_best$Ecov_how) 
+AIC_best$ssb_cv      <- factor(case_when(AIC_best$ssb_cv < mean(AIC_best$ssb_cv) - sd(AIC_best$ssb_cv) ~ 'L',
+                                    AIC_best$ssb_cv > mean(AIC_best$ssb_cv) + sd(AIC_best$ssb_cv) ~ "H",
+                                    TRUE ~ 'M')) 
+AIC_best$ssb_cv <- factor(AIC_best$ssb_cv,levels=c("L","M","H"))
+AIC_best$ecov_slope  <- as.factor(case_when(AIC_best$ecov_slope > mean(AIC_best$ecov_slope) + sd(AIC_best$ecov_slope) ~ "H",
+                                       AIC_best$ecov_slope < mean(AIC_best$ecov_slope) - sd(AIC_best$ecov_slope) ~ 'L',
+                                       TRUE ~ 'M'))
+AIC_best$ecov_slope <- factor(AIC_best$ecov_slope,levels=c("L","M","H"))
+
+
 
 # regression tree for correct form (or SR or Ecov) ======================================
 rf_SR   <- rpart(correct_SR   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + obs_error, data=AIC_best, control=rpart.control(cp=0.01))
@@ -93,13 +103,22 @@ dev.off()
 
 # regression tree for dAIC ======================================
 # analysis for best model selected ====
-AIC_weight$R_sig <- factor(AIC_weight$R_sig,labels = c("L","H"))
-AIC_weight$Ecov_effect <- factor(AIC_weight$Ecov_effect,labels=c("L","H"))
-AIC_weight$Ecov_how    <- factor(AIC_weight$Ecov_how,labels=c("0", "1","2","4"))
-AIC_weight$NAA_cor     <- factor(AIC_weight$NAA_cor,labels=c("L","H"))
-AIC_weight$Fhist       <- factor(AIC_weight$Fhist,labels=c("H-MSY","MSY") ) 
-AIC_weight$Ecov_re_cor <- factor(AIC_weight$Ecov_re_cor,labels=c("L","H"))
-AIC_weight$obs_error   <- factor(AIC_weight$obs_error,labels=c("L","H"))
+AIC_weight$obs_error   <- as.factor(AIC_weight$obs_error)
+AIC_weight$R_sig       <- as.factor(AIC_weight$R_sig)
+AIC_weight$Fhist       <- as.factor(AIC_weight$Fhist)
+AIC_weight$NAA_cor     <- as.factor(AIC_weight$NAA_cor) 
+AIC_weight$Ecov_re_cor <- as.factor(AIC_weight$Ecov_re_cor) 
+AIC_weight$Ecov_effect <- as.factor(AIC_weight$Ecov_effect) 
+AIC_weight$Ecov_how    <- as.factor(AIC_weight$Ecov_how) 
+AIC_weight$ssb_cv      <- factor(case_when(AIC_weight$ssb_cv < mean(AIC_weight$ssb_cv) - sd(AIC_weight$ssb_cv) ~ 'L',
+                                         AIC_weight$ssb_cv > mean(AIC_weight$ssb_cv) + sd(AIC_weight$ssb_cv) ~ "H",
+                                         TRUE ~ 'M')) 
+AIC_weight$ssb_cv <- factor(AIC_weight$ssb_cv,levels=c("L","M","H"))
+AIC_weight$ecov_slope  <- as.factor(case_when(AIC_weight$ecov_slope > mean(AIC_weight$ecov_slope) + sd(AIC_weight$ecov_slope) ~ "H",
+                                            AIC_weight$ecov_slope < mean(AIC_weight$ecov_slope) - sd(AIC_weight$ecov_slope) ~ 'L',
+                                            TRUE ~ 'M'))
+AIC_weight$ecov_slope <- factor(AIC_weight$ecov_slope,levels=c("L","M","H"))
+
 
 
 rf_dAIC <- rpart(dAIC ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how , data=AIC_weight, control=rpart.control(cp=0.01))

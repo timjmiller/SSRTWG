@@ -65,7 +65,7 @@ bad.mods.plot <- ggplot(AIC.bad, aes(x=EM_mod)) +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
   theme(strip.text = element_text(colour = 'black', size=12)) +
-  theme(axis.text.x = element_text(size = 10))   + 
+  theme(axis.text.x = element_text(size = 4))   + 
   theme(axis.text.y = element_text(size = 12)) +
   theme(axis.title.x = element_text(size = 13))   + 
   theme(axis.title.y = element_text(size = 13))   +
@@ -156,7 +156,7 @@ bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+
   theme(strip.text = element_text(colour = 'black', size=12)) +
-  theme(axis.text.x = element_text(size = 10))   + 
+  theme(axis.text.x = element_text(size = 4))   + 
   theme(axis.text.y = element_text(size = 12)) +
   theme(axis.title.x = element_text(size = 13))   + 
   theme(axis.title.y = element_text(size = 13))   +

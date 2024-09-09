@@ -208,17 +208,22 @@ for(om in 1:nrow(df.oms)){
 ##----------------------------------------------------------
 
 #plot effect sizes from linear model
-plotlm <- function(fit,add=FALSE,ylims,labels){
+plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE){
   coef <- summary(fit)$coefficients[,1]
   ses  <- summary(fit)$coefficients[,2]
   n    <- length(coef)
+  if(int==FALSE){
+    coef <- coef[2:n]
+    ses  <- ses[2:n]
+    n    <- n-1
+  }
   if(add==FALSE){
     #plot(1:n,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch=19,xaxt='n')
-    plot(1:n,coef,pch='-',xaxt='n',ylim=ylims,xlim=c(1,n+0.5))
+    plot(1:n,coef,pch=4,xaxt='n',ylim=ylims,xlim=c(1,n+0.5),cex=1)
     segments(x0=1:n,x1=1:n,y0=coef-2*ses,y1=coef+2*ses)
   }
   if(add==TRUE){
-    points(1:n+0.25,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch='-',col='red')
+    points(1:n+0.25,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch=4,col='red',cex=1)
     segments(x0=1:n+0.25,x1=1:n+0.25,y0=coef-2*ses,y1=coef+2*ses,col='red')
   }
   abline(h=0,lty=2)

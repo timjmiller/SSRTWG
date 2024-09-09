@@ -3,15 +3,12 @@ library(tidyverse)
 library(rpart)
 
 
-#res.path <- 'E:/results_beta_fix'  # directory where simulation runs are (beta unstandardized)
 res.path <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
-# res.dir <- 'results_beta_fix'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
-res.dir <- 'results_beta_fix_384'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
-# plot.dir <- 'plots_beta_fix'    # 'plots_lizruns'  'plots_beta_fix'   
-plot.dir <- 'plots_beta_fix_384'    # 'plots_lizruns'  'plots_beta_fix'  
+res.dir  <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+plot.dir <- 'plots'    # 'plots_lizruns'  'plots_beta_fix'  
 # table.dir <- 'tables_beta_fix'   # 'results'     'results_beta_fix'
-table.dir <- 'tables_beta_fix_384'   # 'results'     'results_beta_fix'
-plot.suffix <- '_beta_fix'      # '_beta_fix'   '' 
+table.dir <- 'tables'   # 'results'     'results_beta_fix'
+plot.suffix <- ''      # '_beta_fix'   '' 
 
 ## specify bad.grad.label and bad.se.value (these are the thresholds set in convergence_summaries.R to determine convergence) 
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
@@ -19,7 +16,7 @@ bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[
 bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
 
-df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.384.RDS"))
+df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.384.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
