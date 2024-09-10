@@ -11,7 +11,7 @@ plot.suffix <- ''      # '_beta_fix'   ''
 ## specify bad.grad.label and bad.se.value (these are the thresholds set in convergence_summaries.R to determine convergence) 
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
-bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
+bad.se.value   <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
 df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
@@ -21,18 +21,14 @@ n_oms <- nrow(df.oms)
 n_ems <- nrow(df.ems)
 n_sims <- 100
 nyears <- 40
-n_oms <- 1
 
 ##--recruitment relative error--########
 re.recr <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
-  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       print(paste0("om ",om," em ",em," sim ",sim," re.recr"))
-      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
-      # silent=TRUE)   )
+      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#, silent=TRUE))
       if(class(dat)!='try-error'){
-        #dat$truth$NAA[,1] - dat$fit$rep$NAA[,1]  
         (dat$fit$rep$NAA[,1] - dat$truth$NAA[,1])/ dat$truth$NAA[,1]   
       }
     })
@@ -42,14 +38,11 @@ saveRDS(re.recr,file.path(here::here(),'Ecov_study','recruitment_functions',res.
 
 ##--recruitment rms error--########
 rmse.recr <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
-  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       print(paste0("om ",om," em ",em," sim ",sim," rmse.recr"))
-      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
-      # silent=TRUE)   )
+      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,silent=TRUE)   )
       if(class(dat)!='try-error'){
-        #dat$truth$NAA[,1] - dat$fit$rep$NAA[,1]  
         sqrt( (dat$fit$rep$NAA[,1] - dat$truth$NAA[,1])^2 )   
       }
     })
@@ -57,12 +50,8 @@ rmse.recr <- lapply(1:n_oms,function(om){  #produces list of length n_oms with l
 })
 saveRDS(rmse.recr,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rmse.recr', plot.suffix, '.RDS') ) )
 
-
-
-
 ##--ssb relative error--########
 re.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims ***except sometimes the matrix is a list instead of a matrix!
-  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       print(paste0("om ",om," em ",em," sim ",sim," re.ssb"))
@@ -77,7 +66,6 @@ saveRDS(re.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',res
 
 ##--ssb rms error--########
 rmse.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims ***except sometimes the matrix is a list instead of a matrix!
-  print(paste0("om ",om ))
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       print(paste0("om ",om," em ",em," sim ",sim," rmse.ssb"))
@@ -89,7 +77,6 @@ rmse.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with li
   })
 })
 saveRDS(rmse.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.ssb', plot.suffix, '.RDS') ) )
-
 
 ##--F relative error--########
 re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
@@ -111,8 +98,7 @@ rmse.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with l
   lapply(1:n_ems, function(em){
     sapply(1:n_sims, function(sim){
       print(paste0("om ",om," em ",em," sim ",sim," rmse.fbar"))
-      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
-      # silent=TRUE)   )
+      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#, silent=TRUE)   )
       if(class(dat)!='try-error'){
         sqrt( (dat$fit$rep$Fbar - dat$truth$Fbar)^2)   
       }
@@ -123,8 +109,6 @@ saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',
 
 
 nyears<-dim(re.recr[[1]][[1]])[1]
-
-#re.recr.all.yrs      <- matrix(NA, nrow=(nrow(df.oms)*nrow(df.ems)), ncol=(7+2+ncol(df.oms)))
 
 recr.df           <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(6 )   )# OM, EM, Sim, Year, RE, df.om colnames
 colnames(recr.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE')
