@@ -49,9 +49,9 @@ rmse.ssb <- lapply(1:n_oms,function(om){  #produces list of length n_oms with li
     })
   })
 })
-saveRDS(rmse.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.ssb', plot.suffix, '.RDS') ) )
+saveRDS(rmse.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('rmse.ssb', plot.suffix, '.RDS') ) )
 
-nyears<-dim(re.recr[[1]][[1]])[1]
+nyears<-dim(re.ssb[[1]][[1]])[1]
 
 ssb.df            <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(6 )   )# OM, EM, Sim, Year, RE, df.om colnames
 colnames(ssb.df)  <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE')

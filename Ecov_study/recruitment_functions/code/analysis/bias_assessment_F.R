@@ -51,7 +51,7 @@ rmse.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with l
 })
 saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
 
-nyears<-dim(re.recr[[1]][[1]])[1]
+nyears<-dim(re.fbar[[1]][[1]])[1]
 
 fbar.df           <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(6 )   )# OM, EM, Sim, Year, RE, df.om colnames
 colnames(fbar.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE')
