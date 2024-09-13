@@ -53,8 +53,8 @@ saveRDS(rmse.ssb, file.path( here::here(),'Ecov_study','recruitment_functions',r
 
 nyears<-dim(re.ssb[[1]][[1]])[1]
 
-ssb.df            <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(6 )   )# OM, EM, Sim, Year, RE, df.om colnames
-colnames(ssb.df)  <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE')
+ssb.df            <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   )# OM, EM, Sim, Year, RE, df.om colnames
+colnames(ssb.df)  <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE','ssb_cv','ecov_slope')
 
 re.ssb.sims    <- matrix(NA, nrow=n_sims*nyears, ncol=1)
 rmse.ssb.sims  <- matrix(NA, nrow=n_sims*nyears, ncol=1)
@@ -64,6 +64,7 @@ kdf <- 1
 for(iom in 1:n_oms) {
   for (jem in 1:n_ems){
     kk <- 1
+    ssb_cvs=ecov_slopes <- numeric(n_sims)
     for (ksim in 1:n_sims) {
       print(paste0("om ",iom," em ",jem," sim ",ksim))
       dat <- try(readRDS(file.path(res.path, paste0("om", iom, '/','sim',ksim,'_','em',jem,'.RDS') ) ) )
@@ -80,7 +81,8 @@ for(iom in 1:n_oms) {
           if(length(rmse.ssb[[iom]][[jem]][[ksim]])>0) {
             rmse.ssb.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- rmse.ssb[[iom]][[jem]][[ksim]]
           }}
-        
+        ssb_cvs[ksim]     <- sd(dat$truth$SSB)/mean(dat$truth$SSB)
+        ecov_slopes[ksim] <- summary(lm(dat$truth$Ecov_x ~ seq(1,40)))$coefficients[2,1]
       }
       kk  <- kk+1
       kdf <- kdf+1
@@ -89,7 +91,9 @@ for(iom in 1:n_oms) {
     ssb.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),1:4] <- cbind(rep(iom, nyears*n_sims), rep(jem, nyears*n_sims), rep(seq(1,n_sims),each=nyears), rep(seq(1,nyears), n_sims))
     ssb.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),5 ]  <- re.ssb.sims
     ssb.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),6 ]  <- rmse.ssb.sims
-
+    ssb.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),7 ]  <- rep(ssb_cvs,each=nyears)
+    ssb.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),8 ]  <- rep(ecov_slopes,each=nyears)
+    
     k <- k+1
     
     re.ssb.sims    <- matrix(NA, nrow=n_sims*nyears, ncol=1)

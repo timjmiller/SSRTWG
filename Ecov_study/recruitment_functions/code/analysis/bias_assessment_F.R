@@ -53,8 +53,8 @@ saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',
 
 nyears<-dim(re.fbar[[1]][[1]])[1]
 
-fbar.df           <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(6 )   )# OM, EM, Sim, Year, RE, df.om colnames
-colnames(fbar.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE')
+fbar.df           <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   )# OM, EM, Sim, Year, RE, df.om colnames
+colnames(fbar.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE','ssb_cv','ecov_slope')
 
 re.fbar.sims   <- matrix(NA, nrow=n_sims*nyears, ncol=1)
 rmse.fbar.sims <- matrix(NA, nrow=n_sims*nyears, ncol=1)
@@ -64,6 +64,8 @@ kdf <- 1
 for(iom in 1:n_oms) {
   for (jem in 1:n_ems){
     kk <- 1
+    
+    ssb_cvs=ecov_slopes <- numeric(n_sims)
     for (ksim in 1:n_sims) {
       print(paste0("om ",iom," em ",jem," sim ",ksim))
       dat <- try(readRDS(file.path(res.path, paste0("om", iom, '/','sim',ksim,'_','em',jem,'.RDS') ) ) )
@@ -80,7 +82,8 @@ for(iom in 1:n_oms) {
           if(length(rmse.fbar[[iom]][[jem]][[ksim]])>0) {
             rmse.fbar.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- rmse.fbar[[iom]][[jem]][[ksim]]
           }}
-        
+        ssb_cvs[ksim]     <- sd(dat$truth$SSB)/mean(dat$truth$SSB)
+        ecov_slopes[ksim] <- summary(lm(dat$truth$Ecov_x ~ seq(1,40)))$coefficients[2,1]
       }
       kk  <- kk+1
       kdf <- kdf+1
@@ -89,6 +92,8 @@ for(iom in 1:n_oms) {
     fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),1:4] <- cbind(rep(iom, nyears*n_sims), rep(jem, nyears*n_sims), rep(seq(1,n_sims),each=nyears), rep(seq(1,nyears), n_sims))
     fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),5 ]  <- re.fbar.sims
     fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),6 ]  <- rmse.fbar.sims
+    fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),7 ]  <- rep(ssb_cvs,each=nyears)
+    fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),8 ]  <- rep(ecov_slopes,each=nyears)
     
     k <- k+1
     
@@ -96,6 +101,7 @@ for(iom in 1:n_oms) {
     rmse.fbar.sims <- matrix(NA, nrow=n_sims*nyears, ncol=1)
   } #jem loop
 } #iom loop
+
 
 ##-SAVE--#########################
 saveRDS(fbar.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") ) )

@@ -1,70 +1,59 @@
-recr.df <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.recr", plot.suffix, ".df.RDS") ) )
-ssb.df  <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.ssb",  plot.suffix, ".df.RDS") )  )
-fbar.df <- readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") )  )
+library(here)
+library(tidyverse)
+
+res.path    <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
+res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
+plot.dir    <- 'plots'    # 'plots_lizruns'  'plots_beta_fix'  
+table.dir   <- 'tables'   # 'results'     'results_beta_fix'
+plot.suffix <- ''      # '_beta_fix'   '' 
 
 
+df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 
-df.oms2 <- as_tibble(cbind(OM=seq(1,nrow(df.oms)), df.oms)) 
-df.ems2 <- cbind(EM=seq(1,6), df.ems)
-colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod") 
-em_tib <- as_tibble(df.ems2) %>%
-  mutate(SR=ifelse(EM_r_mod==2, 'Mean', 'BH')) %>%
-  mutate(EM_mod = paste0(SR, "_", EM_ecov_how))
+df.oms$OM <- 1:576
+df.ems$EM <- 1:5
+
+
+recr.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.recr", plot.suffix, ".df.RDS") ) ))
+ssb.df  <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.ssb",  plot.suffix, ".df.RDS") )  ))
+fbar.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") )  ))
+
+recr.df <- left_join(x=recr.df,y=df.oms,by='OM') %>%
+  left_join(x=., y=df.ems,by="EM")
+
+
+ssb.df <- left_join(x=ssb.df,y=df.oms,by='OM') %>%
+  left_join(x=., y=df.ems,by="EM")
+
+
+fbar.df <- left_join(x=fbar.df,y=df.oms,by='OM') %>%
+  left_join(x=., y=df.ems,by="EM") %>%
+  mutate(obs_error=factor(obs_error,levels=c("L","H")),
+         R_sig    =as.factor(R_sig),
+         Fhist    =factor(Fhist,levels=c("MSY","L-H","H-MSY")),
+         NAA_cor  =as.factor(NAA_cor), 
+         Ecov_re_cor = as.factor(Ecov_re_cor), 
+         Ecov_effect = as.factor(Ecov_effect), 
+         Ecov_how    = as.factor(Ecov_how), 
+         ssb_cv      = factor(case_when(ssb_cv < mean(ssb_cv) - sd(ssb_cv) ~ 'L',
+                                        ssb_cv > mean(ssb_cv) + sd(ssb_cv) ~ "H",
+                                        TRUE ~ 'M')), 
+         ecov_slope  = factor(case_when(ecov_slope > mean(ecov_slope) + sd(ecov_slope) ~ "H",
+                                        ecov_slope < mean(ecov_slope) - sd(ecov_slope) ~ 'L',
+                                        TRUE ~ 'M'))) %>%
+  mutate(ssb_cv     = factor(ssb_cv,levels=c("L","M","H")),
+         ecov_slope = factor(AIC_best$ecov_slope,levels=c("L","M","H")))
+
+
+colnames(recr.df)[19:20]=colnames(ssb.df)[19:20]=colnames(fbar.df)[19:20] <- c("EM_ecov_how","EM_recruit_mod")
+
 
 conv.runs.ok <- conv.runs %>%
   mutate(re.ok = paste0(OM, '.', sim, '.', EM)) %>%
   select(re.ok)
 
-re.rec.tib <- as_tibble(re.recr.df) %>%
-  left_join(df.oms2) %>%
-  left_join(em_tib) %>%
-  mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
-  mutate(re.ok= paste0(OM, '.', Sim, '.', EM) ) %>%
-  relocate(OM, EM, Sim, Year, re.ok, RE) %>%
-  filter(re.ok %in% conv.runs.ok$re.ok) 
 
-re.ssb.tib <- as_tibble(re.ssb.df) %>%
-  left_join(df.oms2) %>%
-  left_join(em_tib) %>%
-  mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
-  mutate(re.ok= paste0(OM, '.', Sim, '.', EM) ) %>%
-  relocate(OM, EM, Sim, Year, re.ok, RE) %>%
-  filter(re.ok %in% conv.runs.ok$re.ok) 
-
-re.fbar.tib <- as_tibble(re.fbar.df) %>%
-  left_join(df.oms2) %>%
-  left_join(em_tib) %>%
-  mutate(mod.match=ifelse(EM_ecov_how==Ecov_how & EM_r_mod==recruit_mod, 1, 0)) %>%
-  mutate(re.ok= paste0(OM, '.', Sim, '.', EM) ) %>%
-  relocate(OM, EM, Sim, Year, re.ok, RE) %>%
-  filter(re.ok %in% conv.runs.ok$re.ok) 
-
-
-re.rec.tib$R_sig <- factor(re.rec.tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
-re.rec.tib$Ecov_effect <- factor(re.rec.tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
-re.rec.tib$Ecov_how    <- factor(re.rec.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
-re.rec.tib$NAA_cor     <- factor(re.rec.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
-re.rec.tib$Fhist       <- factor(re.rec.tib$Fhist,labels=c("H-MSY","MSY") ) 
-re.rec.tib$Ecov_re_cor <- factor(re.rec.tib$Ecov_re_cor,labels=c("Ecor_L","Ecor_H"))
-re.rec.tib$obs_error <- factor(re.rec.tib$obs_error,labels=c("Obs_H","Obs_L"))
-
-
-re.ssb.tib$R_sig <- factor(re.ssb.tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
-re.ssb.tib$Ecov_effect <- factor(re.ssb.tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
-re.ssb.tib$Ecov_how    <- factor(re.ssb.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
-re.ssb.tib$NAA_cor     <- factor(re.ssb.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
-re.ssb.tib$Fhist       <- factor(re.ssb.tib$Fhist,labels=c("H-MSY","MSY") ) 
-re.ssb.tib$Ecov_re_cor <- factor(re.ssb.tib$Ecov_re_cor,labels=c("Ecor_L","Ecor_H"))
-re.ssb.tib$obs_error <- factor(re.ssb.tib$obs_error,labels=c("Obs_H","Obs_L"))
-
-
-re.fbar.tib$R_sig <- factor(re.fbar.tib$R_sig,labels = c("Rsig_0.1","Rsig_0.5","Rsig_1.0"))
-re.fbar.tib$Ecov_effect <- factor(re.fbar.tib$Ecov_effect,labels=c("Ecov_L","Ecov_H"))
-re.fbar.tib$Ecov_how    <- factor(re.fbar.tib$Ecov_how,labels=c("Ecov_0", "Ecov_1","Ecov_2","Ecov_4"))
-re.fbar.tib$NAA_cor     <- factor(re.fbar.tib$NAA_cor,labels=c("Rcor_L","Rcor_H"))
-re.fbar.tib$Fhist       <- factor(re.fbar.tib$Fhist,labels=c("H-MSY","MSY") ) 
-re.fbar.tib$Ecov_re_cor <- factor(re.fbar.tib$Ecov_re_cor,labels=c("Ecor_L","Ecor_H"))
-re.fbar.tib$obs_error <- factor(re.fbar.tib$obs_error,labels=c("Obs_H","Obs_L"))
 
 
 ####################################################################################
