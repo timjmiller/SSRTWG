@@ -7,53 +7,22 @@ plot.dir    <- 'plots'    # 'plots_lizruns'  'plots_beta_fix'
 table.dir   <- 'tables'   # 'results'     'results_beta_fix'
 plot.suffix <- ''      # '_beta_fix'   '' 
 
-
 df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 
-df.oms$OM <- 1:576
-df.ems$EM <- 1:5
-
+bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
+bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
+bad.se.value   <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
+conv.runs      <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
 recr.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.recr", plot.suffix, ".df.RDS") ) ))
 ssb.df  <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.ssb",  plot.suffix, ".df.RDS") )  ))
 fbar.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") )  ))
 
-recr.df <- left_join(x=recr.df,y=df.oms,by='OM') %>%
-  left_join(x=., y=df.ems,by="EM")
-
-
-ssb.df <- left_join(x=ssb.df,y=df.oms,by='OM') %>%
-  left_join(x=., y=df.ems,by="EM")
-
-
-fbar.df <- left_join(x=fbar.df,y=df.oms,by='OM') %>%
-  left_join(x=., y=df.ems,by="EM") %>%
-  mutate(obs_error=factor(obs_error,levels=c("L","H")),
-         R_sig    =as.factor(R_sig),
-         Fhist    =factor(Fhist,levels=c("MSY","L-H","H-MSY")),
-         NAA_cor  =as.factor(NAA_cor), 
-         Ecov_re_cor = as.factor(Ecov_re_cor), 
-         Ecov_effect = as.factor(Ecov_effect), 
-         Ecov_how    = as.factor(Ecov_how), 
-         ssb_cv      = factor(case_when(ssb_cv < mean(ssb_cv) - sd(ssb_cv) ~ 'L',
-                                        ssb_cv > mean(ssb_cv) + sd(ssb_cv) ~ "H",
-                                        TRUE ~ 'M')), 
-         ecov_slope  = factor(case_when(ecov_slope > mean(ecov_slope) + sd(ecov_slope) ~ "H",
-                                        ecov_slope < mean(ecov_slope) - sd(ecov_slope) ~ 'L',
-                                        TRUE ~ 'M'))) %>%
-  mutate(ssb_cv     = factor(ssb_cv,levels=c("L","M","H")),
-         ecov_slope = factor(AIC_best$ecov_slope,levels=c("L","M","H")))
-
-
-colnames(recr.df)[19:20]=colnames(ssb.df)[19:20]=colnames(fbar.df)[19:20] <- c("EM_ecov_how","EM_recruit_mod")
-
 
 conv.runs.ok <- conv.runs %>%
   mutate(re.ok = paste0(OM, '.', sim, '.', EM)) %>%
   select(re.ok)
-
-
 
 
 ####################################################################################
@@ -62,7 +31,20 @@ conv.runs.ok <- conv.runs %>%
 
 # recr ====
 
-rf_recr_all.yrs <- rpart(RE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how +obs_error, data=re.rec.tib, control=rpart.control(cp=0.01))
+rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                        data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                        data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_re_ten   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df[], control=rpart.control(cp=0.01))
+rf_recr_rmse_ten <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+
+
 imp.var <- rf_recr_all.yrs$frame[rf_recr_all.yrs$frame$var != '<leaf>',]
 nodes_recr_all.yrs <- unique(imp.var[,1])
 nodes_recr_all.yrs

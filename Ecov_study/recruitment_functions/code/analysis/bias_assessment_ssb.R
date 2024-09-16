@@ -101,6 +101,30 @@ for(iom in 1:n_oms) {
   } #jem loop
 } #iom loop
 
+df.oms$OM <- 1:576
+df.ems$EM <- 1:5
+
+ssb.df <- left_join(x=ssb.df,y=df.oms,by='OM') %>%
+  left_join(x=., y=df.ems,by="EM") %>%
+  mutate(obs_error=factor(obs_error,levels=c("L","H")),
+         R_sig    =as.factor(R_sig),
+         Fhist    =factor(Fhist,levels=c("MSY","L-H","H-MSY")),
+         NAA_cor  =as.factor(NAA_cor), 
+         Ecov_re_cor = as.factor(Ecov_re_cor), 
+         Ecov_effect = as.factor(Ecov_effect), 
+         Ecov_how    = as.factor(Ecov_how), 
+         ssb_cv      = factor(case_when(ssb_cv < mean(ssb_cv) - sd(ssb_cv) ~ 'L',
+                                        ssb_cv > mean(ssb_cv) + sd(ssb_cv) ~ "H",
+                                        TRUE ~ 'M')), 
+         ecov_slope  = factor(case_when(ecov_slope > mean(ecov_slope) + sd(ecov_slope) ~ "H",
+                                        ecov_slope < mean(ecov_slope) - sd(ecov_slope) ~ 'L',
+                                        TRUE ~ 'M'))) %>%
+  mutate(ssb_cv     = factor(ssb_cv,levels=c("L","M","H")),
+         ecov_slope = factor(ecov_slope,levels=c("L","M","H")))
+
+
+colnames(ssb.df)[19:20] <- c("EM_ecov_how","EM_recruit_mod")
+
 ##-SAVE--#########################
 saveRDS(ssb.df,  file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.ssb",  plot.suffix, ".df.RDS") ) )
 
