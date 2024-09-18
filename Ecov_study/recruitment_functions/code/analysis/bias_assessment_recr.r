@@ -52,7 +52,7 @@ saveRDS(rmse.recr,file.path(here::here(),'Ecov_study','recruitment_functions',re
 
 nyears<-dim(re.recr[[1]][[1]])[1]
 
-recr.df           <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   )# OM, EM, Sim, Year, RE, df.om colnames
+recr.df           <- as.data.frame(matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   ))# OM, EM, Sim, Year, RE, df.om colnames
 colnames(recr.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE','ssb_cv','ecov_slope')
 
 re.recr.sims   <- matrix(NA, nrow=n_sims*nyears, ncol=1)

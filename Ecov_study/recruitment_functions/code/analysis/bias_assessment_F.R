@@ -53,7 +53,7 @@ saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',
 
 nyears<-dim(re.fbar[[1]][[1]])[1]
 
-fbar.df           <- matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   )# OM, EM, Sim, Year, RE, df.om colnames
+fbar.df           <- as.data.frame(matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   ))# OM, EM, Sim, Year, RE, df.om colnames
 colnames(fbar.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE','ssb_cv','ecov_slope')
 
 re.fbar.sims   <- matrix(NA, nrow=n_sims*nyears, ncol=1)
