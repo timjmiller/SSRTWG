@@ -1,5 +1,6 @@
 library(here)
 library(tidyverse)
+library(rpart)
 
 res.path    <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
 res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
@@ -20,29 +21,53 @@ ssb.df  <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitm
 fbar.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") )  ))
 
 
-conv.runs.ok <- conv.runs %>%
-  mutate(re.ok = paste0(OM, '.', sim, '.', EM)) %>%
-  select(re.ok)
-
+#conv.runs.ok <- conv.runs %>%
+#  mutate(re.ok = paste0(OM, '.', sim, '.', EM)) %>%
+#  select(re.ok)
 
 ####################################################################################
 #  regression trees to find nodes for bias  ====
 ####################################################################################
-
 # recr ====
-
 rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                        data=error.recr.df, control=rpart.control(cp=0.01))
+                        data=recr.df, control=rpart.control(cp=0.01))
 rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                        data=error.recr.df, control=rpart.control(cp=0.01))
+                        data=recr.df, control=rpart.control(cp=0.01))
 rf_recr_re_ten   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                          data=error.recr.df[], control=rpart.control(cp=0.01))
+                          data=recr.df, control=rpart.control(cp=0.01))
 rf_recr_rmse_ten <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
                           data=error.recr.df, control=rpart.control(cp=0.01))
 rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
                           data=error.recr.df, control=rpart.control(cp=0.01))
 rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
                           data=error.recr.df, control=rpart.control(cp=0.01))
+
+
+# ssb ====
+rf_ssb_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                        data=ssb.df, control=rpart.control(cp=0.01))
+rf_ssb_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                        data=recr.df, control=rpart.control(cp=0.01))
+rf_recr_re_ten   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                          data=recr.df, control=rpart.control(cp=0.01))
+rf_recr_rmse_ten <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 imp.var <- rf_recr_all.yrs$frame[rf_recr_all.yrs$frame$var != '<leaf>',]
