@@ -1,6 +1,7 @@
 library(here)
 library(tidyverse)
 library(rpart)
+library(rpart.plot)
 
 res.path    <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
 res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
@@ -14,34 +15,35 @@ df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions
 bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for output suffix; ex: filename_grad_6.png)
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
 bad.se.value   <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
-conv.runs      <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
-
-recr.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.recr", plot.suffix, ".df.RDS") ) ))
-ssb.df  <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.ssb",  plot.suffix, ".df.RDS") )  ))
-fbar.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") )  ))
 
 
-#conv.runs.ok <- conv.runs %>%
-#  mutate(re.ok = paste0(OM, '.', sim, '.', EM)) %>%
-#  select(re.ok)
+recr.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.recr", plot.suffix, ".df.RDS") ) )) %>%
+  mutate(ecov_how=as.factor(ecov_how)) 
+
+ssb.df  <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.ssb",  plot.suffix, ".df.RDS") )  )) %>%
+  mutate(ecov_how=as.factor(ecov_how)) 
+
+fbar.df <- as.data.frame(readRDS( file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") )  )) %>%
+  mutate(ecov_how=as.factor(ecov_how)) 
 
 ####################################################################################
 #  regression trees to find nodes for bias  ====
 ####################################################################################
 # recr ====
-rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                        data=recr.df, control=rpart.control(cp=0.01))
-rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                        data=recr.df, control=rpart.control(cp=0.01))
-rf_recr_re_ten   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                          data=recr.df, control=rpart.control(cp=0.01))
-rf_recr_rmse_ten <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                          data=error.recr.df, control=rpart.control(cp=0.01))
-rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                          data=error.recr.df, control=rpart.control(cp=0.01))
-rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
-                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                        data=recr.df, control=rpart.control(cp=0.001))
+rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                        data=recr.df, control=rpart.control(cp=0.001))
 
+
+rf_recr_re_ten   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                          data=recr.df, control=rpart.control(cp=0.01))
+rf_recr_rmse_ten <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
+rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
+                          data=error.recr.df, control=rpart.control(cp=0.01))
 
 # ssb ====
 rf_ssb_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + ecov_how, 
@@ -56,6 +58,103 @@ rf_recr_re_all   <- rpart(RE   ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_ef
                           data=error.recr.df, control=rpart.control(cp=0.01))
 rf_recr_rmse_all <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
                           data=error.recr.df, control=rpart.control(cp=0.01))
+
+
+lm_recr_re_all <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + 
+                      EM_ecov_how + ecov_how + r_mod,
+                      data=rrecr.df)
+
+lm_recr_rmse_all <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + 
+                      EM_ecov_how + ecov_how + r_mod,
+                      data=rrecr.df)
+
+
+nn <- nrow(recr.df)
+ii <- sample(1:nn,size=10000)
+
+rrecr.df <- recr.df[ii,]
+
+
+
+
+
+glm_SR   <- glm(correct_SR   ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=AIC_best, family='binomial')
+glm_form <- glm(correct_form ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=AIC_best, family='binomial')
+
+glmm_ecov <- glmer(correct_ecov ~  (1|sim) + obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                   data=AIC_best, family='binomial')
+glmm_SR   <- glmer(correct_SR   ~  (1|sim) + obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                   data=AIC_best, family='binomial')
+glmm_form <- glmer(correct_form ~  (1|sim) + obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                   data=AIC_best, family='binomial')
+
+FITS_AIC <- list(glm_ecov,glm_SR,glm_form,
+                 glmm_ecov,glmm_SR,glmm_form)
+saveRDS(FITS_AIC,file=file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_AIC.rds'))
+
+
+
+
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','trees_error.pdf'),height=5,width=8)
+par(mfrow=c(3,2), oma=c(5,0,0,0))
+
+prp(rf_recr_re_all,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext('a) recr_re_all',adj=0, line=-1, cex=0.9)
+prp(rf_recr_rmse_all,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('b) recr_rmse_all'),adj=0,line=-1, cex=0.9)
+  #title(sub=paste0(100*round(aic.best.pct.conv,2), "% of runs converged (", aic.best.n.bad, " out of ", aic.best.n, " failed)" ),   adj=0.5, outer=TRUE)
+#prp(tree_form,yesno=FALSE,type=4,clip.right.labs=TRUE)
+#  mtext(expression('c) SRR and'~'E'['cov']~'Y/N'),adj=0,line=-1, cex=0.9)
+dev.off()
+
+
+##--MAKE PLOTS--###########################
+labels <- c(#expression(italic('intercept')),
+            expression(sigma['obs']~'= H'),
+            expression(sigma['r']~'= 0.3'),
+            expression(sigma['r']~'= 0.5'),
+            expression(sigma['r']~'= 1.0'),
+            expression(italic('F')~'= L-H'),
+            expression(italic('F')~'= H-MSY'),
+            expression(rho['NAA']~' = H'), 
+            expression(rho['E'['cov']]~' = H'), 
+            expression(beta['E'['cov']]~' = H'), 
+            expression(italic('f(E'['cov']*')')~'= 1'), 
+            expression(italic('f(E'['cov']*')')~'= 2'), 
+            expression(Delta*'E'['cov']*' = M'), 
+            expression(Delta*'E'['cov']*' = H'), 
+            expression(italic('CV'['SSB']~'= M')),
+            expression(italic('CV'['SSB']~'= H')))
+
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','effects.pdf'),height=4.5,width=4.5)
+par(mfrow=c(3,1),mar=c(1,2,1,2),oma=c(6,2,2,2),cex.axis=0.9)
+ylims <- c(-5,5)
+plotlm(glm_SR,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)))
+plotlm(glmm_SR,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)))
+  mtext('a) SR Y/N',adj=0.0)
+plotlm(glm_ecov,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)))
+plotlm(glmm_ecov,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)))
+  mtext(expression('b) E'['cov']~'Y/N'),adj=0.0)
+plotlm(glm_form,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)))
+plotlm(glmm_form,add=TRUE,ylim=ylims,labels=labels)
+  mtext(expression('c) SR & E'['cov']~'Y/N'),adj=0.0)
+mtext(outer=TRUE,expression(Delta*'log['~italic('p/(1-p)')*']'),side=2)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -23,38 +23,41 @@ n_sims <- 100
 nyears <- 40
 
 ##--F relative error--########
-re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
-  lapply(1:n_ems, function(em){
-    sapply(1:n_sims, function(sim){
-      print(paste0("om ",om," em ",em," sim ",sim," re.fbar"))
-      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
-      # silent=TRUE)   )
-      if(class(dat)!='try-error'){
-        (dat$fit$rep$Fbar - dat$truth$Fbar)/ dat$truth$Fbar   
-      }
-    })
-  })
-})
-saveRDS(re.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+#re.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
+#  lapply(1:n_ems, function(em){
+#    sapply(1:n_sims, function(sim){
+#      print(paste0("om ",om," em ",em," sim ",sim," re.fbar"))
+#      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#,
+#      # silent=TRUE)   )
+#      if(class(dat)!='try-error'){
+#        (dat$fit$rep$Fbar - dat$truth$Fbar)/ dat$truth$Fbar   
+#      }
+#    })
+#  })
+#})
+#saveRDS(re.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+re.fbar <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+
 
 ##--F rms error--########
-rmse.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
-  lapply(1:n_ems, function(em){
-    sapply(1:n_sims, function(sim){
-      print(paste0("om ",om," em ",em," sim ",sim," rmse.fbar"))
-      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#, silent=TRUE)   )
-      if(class(dat)!='try-error'){
-        sqrt( (dat$fit$rep$Fbar - dat$truth$Fbar)^2)   
-      }
-    })
-  })
-})
-saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+#rmse.fbar <- lapply(1:n_oms,function(om){  #produces list of length n_oms with list of length n_ems, each with matrix nyearsXn_sims
+#  lapply(1:n_ems, function(em){
+#    sapply(1:n_sims, function(sim){
+#      print(paste0("om ",om," em ",em," sim ",sim," rmse.fbar"))
+#      dat <- try(readRDS(file.path(res.path, paste0("om", om, '/','sim',sim,'_','em',em,'.RDS') ) ) )#, silent=TRUE)   )
+#      if(class(dat)!='try-error'){
+#        sqrt( (dat$fit$rep$Fbar - dat$truth$Fbar)^2)   
+#      }
+#    })
+#  })
+#})
+#saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+rmse.fbae <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
 
 nyears<-dim(re.fbar[[1]][[1]])[1]
 
-fbar.df           <- as.data.frame(matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(8 )   ))# OM, EM, Sim, Year, RE, df.om colnames
-colnames(fbar.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE','ssb_cv','ecov_slope')
+fbar.df           <- as.data.frame(matrix(NA, nrow=n_oms*n_ems*nyears*n_sims, ncol=(13 )   ))# OM, EM, Sim, Year, RE, df.om colnames
+colnames(fbar.df) <- c('OM', 'EM', 'Sim', 'Year', 'RE','RMSE','ssb_cv','ecov_slope','opt','conv','sdrep','max_grad','SE_par_max')
 
 re.fbar.sims   <- matrix(NA, nrow=n_sims*nyears, ncol=1)
 rmse.fbar.sims <- matrix(NA, nrow=n_sims*nyears, ncol=1)
@@ -63,13 +66,15 @@ k <- 1
 kdf <- 1
 for(iom in 1:n_oms) {
   for (jem in 1:n_ems){
-    kk <- 1
-    
+    kk <- 1    
     ssb_cvs=ecov_slopes <- numeric(n_sims)
+    conv <- matrix(NA,ncol=5,nrow=n_sims)
+
     for (ksim in 1:n_sims) {
       print(paste0("om ",iom," em ",jem," sim ",ksim))
       dat <- try(readRDS(file.path(res.path, paste0("om", iom, '/','sim',ksim,'_','em',jem,'.RDS') ) ) )
-      if(class(dat)!='try-error'){
+      conv[ksim,] <- as.numeric(convergence_fn(dat)[c(1,2,3,4,5)])
+     if(class(dat)!='try-error'){
         if(length(re.fbar[[iom]][[jem]])==n_sims*nyears)    re.fbar.sims[((ksim-1)*nyears+1):(ksim*nyears),1]   <- re.fbar[[iom]][[jem]][,ksim]
         if(length(rmse.fbar[[iom]][[jem]])==n_sims*nyears)  rmse.fbar.sims[((ksim-1)*nyears+1):(ksim*nyears),1] <- rmse.fbar[[iom]][[jem]][,ksim]
 
@@ -94,6 +99,7 @@ for(iom in 1:n_oms) {
     fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),6 ]  <- rmse.fbar.sims
     fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),7 ]  <- rep(ssb_cvs,each=nyears)
     fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),8 ]  <- rep(ecov_slopes,each=nyears)
+    fbar.df[((k-1)*nyears*n_sims+1):(n_sims*nyears*k),9:13 ]  <- as.data.frame(conv[rep(1:100,each=40),])
     
     k <- k+1
     
