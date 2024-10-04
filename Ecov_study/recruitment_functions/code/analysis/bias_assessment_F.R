@@ -53,7 +53,7 @@ re.fbar <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',
 #  })
 #})
 #saveRDS(rmse.fbar, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
-rmse.fbae <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
+rmse.fbar <- readRDS(file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0('re.fbar', plot.suffix, '.RDS') ))
 
 nyears<-dim(re.fbar[[1]][[1]])[1]
 
