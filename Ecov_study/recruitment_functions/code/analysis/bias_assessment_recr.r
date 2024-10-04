@@ -1,6 +1,7 @@
 library(here)
 library(tidyverse)
 library(rpart)
+source(file.path(here::here(), "Ecov_study","recruitment_functions", "code", "analysis", "functions_for_analysis.R" ) )
 
 res.path    <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
 res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
