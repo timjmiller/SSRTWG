@@ -130,7 +130,7 @@ fbar.df <- left_join(x=fbar.df,y=df.oms,by='OM') %>%
   mutate(ssb_cv     = factor(ssb_cv,levels=c("L","M","H")),
          ecov_slope = factor(ecov_slope,levels=c("L","M","H")))
 
-colnames(fbar.df)[19:20] <- c("EM_ecov_how","EM_recruit_mod")
+colnames(fbar.df)[26:27] <- c("EM_ecov_how","EM_recruit_mod")
 
 ##-SAVE--#########################
 saveRDS(fbar.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.fbar", plot.suffix, ".df.RDS") ) )
