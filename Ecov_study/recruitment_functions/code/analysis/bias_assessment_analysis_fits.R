@@ -75,12 +75,40 @@ rf_fbar_rmse_ten <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_ef
 rf_fbar_rmse_last <- rpart(RMSE ~ R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how, 
                           data=fbar.df[fbar.df$Year==40,], control=rpart.control(cp=0.01))
 
+
+FITS <- list(
+             rf_recr_re_all=rf_recr_re_all,
+             rf_recr_re_ten=rf_recr_re_ten,
+             rf_recr_re_last=rf_recr_re_last,
+             rf_recr_rmse_all=rf_recr_rmse_all,
+             rf_recr_rmse_ten=rf_recr_rmse_ten,
+             rf_recr_rmse_last=rf_recr_rmse_last,
+
+             rf_ssb_re_all=rf_ssb_re_all,
+             rf_ssb_re_ten=rf_ssb_re_ten,
+             rf_ssb_re_last=rf_ssb_re_last,
+             rf_ssb_rmse_all=rf_ssb_rmse_all,
+             rf_ssb_rmse_ten=rf_ssb_rmse_ten,
+             rf_ssb_rmse_last=rf_ssb_rmse_last,
+
+             rf_fbar_re_all=rf_fbar_re_all,
+             rf_fbar_re_ten=rf_fbar_re_ten,
+             rf_fbar_re_last=rf_fbar_re_last,
+             rf_fbar_rmse_all=rf_fbar_rmse_all,
+             rf_fbar_rmse_ten=rf_fbar_rmse_ten,
+             rf_fbar_rmse_last=rf_fbar_rmse_last)
+
+print('saving random forests')
+saveRDS(FITS,file=file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_error.rds'))
+print('saved random forests')
+
+
 ##########################################
 ## linear models #########################
 ##########################################
 
 #recr re
-print('recr lm lme')
+print('fitting recr lm lme')
 lm_recr_re_all <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df)
 lm_recr_re_ten <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
@@ -109,7 +137,7 @@ lme_recr_rmse_last <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + F
 
 
 #ssb re
-print('ssb lm lme')
+print('fitting ssb lm lme')
 lm_ssb_re_all <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df)
 lm_ssb_re_ten <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
@@ -138,7 +166,7 @@ lme_ssb_rmse_last <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fh
 
 
 #fbar re
-print('fbar lm lme')
+print('fitting fbar lm lme')
 lm_fbar_re_all <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df)
 lm_fbar_re_ten <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
@@ -166,65 +194,48 @@ lme_fbar_rmse_last <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + F
                           random = ~ 1|Sim, data=fbar.df[fbar.df$Year==40,]))                          
 
 
-FITS <- list(
-             rf_recr_re_all,
-             rf_recr_re_ten,
-             rf_recr_re_last,
-             rf_recr_rmse_all,
-             rf_recr_rmse_ten,
-             rf_recr_rmse_last,
+FITS <- c(FITS,
+        list(lm_recr_re_all=lm_recr_re_all,
+             lm_recr_re_ten=lm_recr_re_ten,
+             lm_recr_re_last=lm_recr_re_last,
+             lm_recr_rmse_all=lm_recr_rmse_all,
+             lm_recr_rmse_ten=lm_recr_rmse_ten,
+             lm_recr_rmse_last=lm_recr_rmse_last,
+             lme_recr_re_all=lme_recr_re_all,
+             lme_recr_re_ten=lme_recr_re_ten,
+             lme_recr_re_last=lme_recr_re_last,
+             lme_recr_rmse_all=lme_recr_rmse_all,
+             lme_recr_rmse_ten=lme_recr_rmse_ten,
+             lme_recr_rmse_last=lme_recr_rmse_last,
 
-             rf_ssb_re_all,
-             rf_ssb_re_ten,
-             rf_ssb_re_last,
-             rf_ssb_rmse_all,
-             rf_ssb_rmse_ten,
-             rf_ssb_rmse_last,
+             lm_ssb_re_all=lm_ssb_re_all,
+             lm_ssb_re_ten=lm_ssb_re_ten,
+             lm_ssb_re_last=lm_ssb_re_last,
+             lm_ssb_rmse_all=lm_ssb_rmse_all,
+             lm_ssb_rmse_ten=lm_ssb_rmse_ten,
+             lm_ssb_rmse_last=lm_ssb_rmse_last,
+             lme_ssb_re_all=lme_ssb_re_all,
+             lme_ssb_re_ten=lme_ssb_re_ten,
+             lme_ssb_re_last=lme_ssb_re_last,
+             lme_ssb_rmse_all=lme_ssb_rmse_all,
+             lme_ssb_rmse_ten=lme_ssb_rmse_ten,
+             lme_ssb_rmse_last=lme_ssb_rmse_last,
 
-             rf_fbar_re_all,
-             rf_fbar_re_ten,
-             rf_fbar_re_last,
-             rf_fbar_rmse_all,
-             rf_fbar_rmse_ten,
-             rf_fbar_rmse_last,
+             lm_fbar_re_all=lm_fbar_re_all,
+             lm_fbar_re_ten=lm_fbar_re_ten,
+             lm_fbar_re_last=lm_fbar_re_last,
+             lm_fbar_rmse_all=lm_fbar_rmse_all,
+             lm_fbar_rmse_ten=lm_fbar_rmse_ten,
+             lm_fbar_rmse_last=lm_fbar_rmse_last,
+             lme_fbar_re_all=lme_fbar_re_all,
+             lme_fbar_re_ten=lme_fbar_re_ten,
+             lme_fbar_re_last=lme_fbar_re_last,
+             lme_fbar_rmse_all=lme_fbar_rmse_all,
+             lme_fbar_rmse_ten=lme_fbar_rmse_ten,
+             lme_fbar_rmse_last=lme_fbar_rmse_last)
 
-             lm_recr_re_all,
-             lm_recr_re_ten,
-             lm_recr_re_last,
-             lm_recr_rmse_all,
-             lm_recr_rmse_ten,
-             lm_recr_rmse_last,
-             lme_recr_re_all,
-             lme_recr_re_ten,
-             lme_recr_re_last,
-             lme_recr_rmse_all,
-             lme_recr_rmse_ten,
-             lme_recr_rmse_last,
-
-             lm_ssb_re_all,
-             lm_ssb_re_ten,
-             lm_ssb_re_last,
-             lm_ssb_rmse_all,
-             lm_ssb_rmse_ten,
-             lm_ssb_rmse_last,
-             lme_ssb_re_all,
-             lme_ssb_re_ten,
-             lme_ssb_re_last,
-             lme_ssb_rmse_all,
-             lme_ssb_rmse_ten,
-             lme_ssb_rmse_last,
-
-             lm_fbar_re_all,
-             lm_fbar_re_ten,
-             lm_fbar_re_last,
-             lm_fbar_rmse_all,
-             lm_fbar_rmse_ten,
-             lm_fbar_rmse_last,
-             lme_fbar_re_all,
-             lme_fbar_re_ten,
-             lme_fbar_re_last,
-             lme_fbar_rmse_all,
-             lme_fbar_rmse_ten,
-             lme_fbar_rmse_last)
-
+print('saving all fits')
 saveRDS(FITS,file=file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_error.rds'))
+print('saved all fits')
+print('end')
+
