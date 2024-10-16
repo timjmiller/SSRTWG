@@ -87,12 +87,12 @@ lm_recr_re_ten <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA
                           data=recr.df[recr.df$Year %in% 31:40,])
 lm_recr_re_last <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df[recr.df$Year==40,])
-lme_recr_re_all  <- lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df)                          
-lme_recr_re_ten  <- lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df[recr.df$Year %in% 31:40,])                          
-lme_recr_re_last <- lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df[recr.df$Year==40,])                          
+lme_recr_re_all  <- try(lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df))                          
+lme_recr_re_ten  <- try(lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df[recr.df$Year %in% 31:40,]))                          
+lme_recr_re_last <- try(lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df[recr.df$Year==40,]))                          
 #recr rmse
 lm_recr_rmse_all <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df)
@@ -100,12 +100,12 @@ lm_recr_rmse_ten <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist + 
                           data=recr.df[recr.df$Year %in% 31:40,])
 lm_recr_rmse_last <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df[recr.df$Year==40,])
-lme_recr_rmse_all  <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df)                          
-lme_recr_rmse_ten  <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df[recr.df$Year %in% 31:40,])                          
-lme_recr_rmse_last <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df[recr.df$Year==40,])                          
+lme_recr_rmse_all  <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df))                          
+lme_recr_rmse_ten  <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df[recr.df$Year %in% 31:40,]))                          
+lme_recr_rmse_last <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df[recr.df$Year==40,]))                          
 
 
 #ssb re
@@ -116,12 +116,12 @@ lm_ssb_re_ten <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_
                           data=recr.df[recr.df$Year %in% 31:40,])
 lm_ssb_re_last <- lm(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=recr.df[recr.df$Year==40,])
-lme_ssb_re_all  <- lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df)                          
-lme_ssb_re_ten  <- lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df[recr.df$Year %in% 31:40,])                          
-lme_recr_re_last <- lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=recr.df[recr.df$Year==40,])                          
+lme_ssb_re_all  <- try(lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df))                          
+lme_ssb_re_ten  <- try(lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df[recr.df$Year %in% 31:40,]))                          
+lme_recr_re_last <- try(lme(RE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=recr.df[recr.df$Year==40,]))                          
 #ssb rmse
 lm_ssb_rmse_all <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=ssb.df)
@@ -129,12 +129,12 @@ lm_ssb_rmse_ten <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  
                           data=ssb.df[ssb.df$Year %in% 31:40,])
 lm_ssb_rmse_last <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=ssb.df[ssb.df$Year==40,])
-lme_ssb_rmse_all  <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=ssb.df)                          
-lme_ssb_rmse_ten  <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=ssb.df[ssb.df$Year %in% 31:40,])                          
-lme_ssb_rmse_last <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=ssb.df[ssb.df$Year==40,])                          
+lme_ssb_rmse_all  <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=ssb.df))                          
+lme_ssb_rmse_ten  <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=ssb.df[ssb.df$Year %in% 31:40,]))                          
+lme_ssb_rmse_last <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=ssb.df[ssb.df$Year==40,]))                          
 
 
 #fbar re
@@ -158,12 +158,12 @@ lm_fbar_rmse_ten <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist + 
                           data=fbar.df[fbar.df$Year %in% 31:40,])
 lm_fbar_rmse_last <- lm(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
                           data=fbar.df[fbar.df$Year==40,])
-lme_fbar_rmse_all  <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=fbar.df)                          
-lme_fbar_rmse_ten  <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=fbar.df[fbar.df$Year %in% 31:40,])                          
-lme_fbar_rmse_last <- lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
-                          random = ~ 1|Sim, data=fbar.df[fbar.df$Year==40,])                          
+lme_fbar_rmse_all  <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=fbar.df))                          
+lme_fbar_rmse_ten  <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=fbar.df[fbar.df$Year %in% 31:40,]))                          
+lme_fbar_rmse_last <- try(lme(RMSE ~ ssb_cv + ecov_slope + obs_error + R_sig + Fhist +  NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + EM_ecov_how, 
+                          random = ~ 1|Sim, data=fbar.df[fbar.df$Year==40,]))                          
 
 
 FITS <- list(
