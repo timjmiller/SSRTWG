@@ -232,7 +232,7 @@ FITS <- c(FITS,
              lme_fbar_re_last=lme_fbar_re_last,
              lme_fbar_rmse_all=lme_fbar_rmse_all,
              lme_fbar_rmse_ten=lme_fbar_rmse_ten,
-             lme_fbar_rmse_last=lme_fbar_rmse_last)
+             lme_fbar_rmse_last=lme_fbar_rmse_last))
 
 print('saving all fits')
 saveRDS(FITS,file=file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_error.rds'))
