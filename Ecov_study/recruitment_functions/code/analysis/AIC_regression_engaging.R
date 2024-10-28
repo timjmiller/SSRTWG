@@ -1,9 +1,11 @@
 library(rpart)
 library(rpart.plot)
+library(nlme)
 library(lme4)
 library(tidyverse)
+library(here)
 
-source(file.path(here::here(),'Ecov_study','recruitment_functions','code','analysis','functions_for_analysis.r'))
+source(file.path(here::here(),'Ecov_study','recruitment_functions','code','analysis','functions_for_analysis.R'))
 
 res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
 plot.dir    <- 'plots'    # 'plots_lizruns'  'plots_beta_fix'   
@@ -97,7 +99,7 @@ saveRDS(FITS_AIC,file=file.path(here::here(),'Ecov_study','recruitment_functions
 
 
 ##--MAKE PLOTS--###########################
-labels <- c(#expression(italic('intercept')),
+labels <- c(expression(italic('intercept')),
             expression(sigma['obs']~'= H'),
             expression(sigma['r']~'= 0.3'),
             expression(sigma['r']~'= 0.5'),
@@ -117,14 +119,14 @@ labels <- c(#expression(italic('intercept')),
 pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','effects.pdf'),height=4.5,width=4.5)
 par(mfrow=c(3,1),mar=c(1,2,1,2),oma=c(6,2,2,2),cex.axis=0.9)
 ylims <- c(-5,5)
-plotlm(glm_SR,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)))
-plotlm(glmm_SR,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)))
+plotlm(glm_SR,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
+plotlm(glmm_SR,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
   mtext('a) SR Y/N',adj=0.0)
-plotlm(glm_ecov,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)))
-plotlm(glmm_ecov,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)))
+plotlm(glm_ecov,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
+plotlm(glmm_ecov,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
   mtext(expression('b) E'['cov']~'Y/N'),adj=0.0)
-plotlm(glm_form,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)))
-plotlm(glmm_form,add=TRUE,ylim=ylims,labels=labels)
+plotlm(glm_form,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
+plotlm(glmm_form,add=TRUE,ylim=ylims,labels=labels,int=TRUE)
   mtext(expression('c) SR & E'['cov']~'Y/N'),adj=0.0)
 mtext(outer=TRUE,expression(Delta*'log['~italic('p/(1-p)')*']'),side=2)
 dev.off()
