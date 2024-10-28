@@ -208,10 +208,17 @@ for(om in 1:nrow(df.oms)){
 ##----------------------------------------------------------
 
 #plot effect sizes from linear model
-plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE){
-  coef <- summary(fit)$coefficients[,1]
-  ses  <- summary(fit)$coefficients[,2]
-  n    <- length(coef)
+plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE){
+  if(nlme==FALSE){
+    coef <- summary(fit)$coefficients[,1]
+    ses  <- summary(fit)$coefficients[,2]
+    n    <- length(coef)
+  }
+  if(nlme==TRUE){
+    coef <- summary(fit)$tTable[,1]
+    ses  <- summary(fit)$tTable[,2]
+    n    <- length(coef)
+  }
   if(int==FALSE){
     coef <- coef[2:n]
     ses  <- ses[2:n]
