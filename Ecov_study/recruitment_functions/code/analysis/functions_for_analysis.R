@@ -208,7 +208,7 @@ for(om in 1:nrow(df.oms)){
 ##----------------------------------------------------------
 
 #plot effect sizes from linear model
-plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE,nlme_try=FALSE){
+plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE,nlme_try=FALSE,mean=FALSE){
   if(nlme==FALSE & nlme_try==FALSE){
     coef <- summary(fit)$coefficients[,1]
     ses  <- summary(fit)$coefficients[,2]
@@ -231,14 +231,17 @@ plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE,nlme_try=FALS
   }
   if(add==FALSE){
     #plot(1:n,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch=19,xaxt='n')
-    plot(1:n,coef,pch=4,xaxt='n',ylim=ylims,xlim=c(1,n+0.5),cex=1)
+    plot(1:n,coef,pch=4,xaxt='n',ylim=ylims,xlim=c(-0.5,n+0.5),cex=1,bty='n')
     segments(x0=1:n,x1=1:n,y0=coef-2*ses,y1=coef+2*ses)
   }
   if(add==TRUE){
     points(1:n+0.25,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch=4,col='red',cex=1)
     segments(x0=1:n+0.25,x1=1:n+0.25,y0=coef-2*ses,y1=coef+2*ses,col='red')
   }
+  if(is.numeric(mean)){
+    points(0,mean,pch=9,cex=2)
+  }
   abline(h=0,lty=2)
-  axis(side=1,at=1:n,labels=labels,las=2)
+  axis(side=1,at=0:n,labels=labels,las=2)
 }
 
