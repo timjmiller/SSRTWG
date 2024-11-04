@@ -50,7 +50,7 @@ colnames(true_mat) <- c('OM', 'Sim', 'EM',  'mean_rec1', 'mean_rec2', 'FXSPR_sta
 ##--EXTRACT PARAMETERS--##################
 k <- 1
 for(irun in 1:n.conv.runs) {    #   1:n.conv.runs
-print(k)
+print(irun/n.conv.runs)
   dat <- try(readRDS(file.path(res.path, paste0("om", conv.runs$OM[irun], '/','sim',conv.runs$Sim[irun],'_','em', conv.runs$EM[irun],'.RDS') ) ) )
   
   if(k==1)  year1 <- dat$truth$year1_model
@@ -162,138 +162,23 @@ print(k)
   
 } #iom loop
 
+print('computing errors...')
 
 ##--COMPUTE ERRORS--#############################
+RE_par=RMSE_par <- matrix(NA,ncol=ncol(par_mat),nrow=nrow(par_mat))
+colnames(RE_par) = colnames(RMSE_par) <- colnames(par_mat)
 
-for(i in 1:nrow(par_mat)){
-  (par_mat[i,4:27] - true_mat[i,4:27])/true_mat[i,4:27]
-  sqrt((par_mat[i,4:27] - true_mat[i,4:27])^2)
-}
+RE_par[,1:3]= RMSE_par[,1:3] <- par_mat[,1:3]
 
+RE_par[,4:27]   <- (par_mat[,4:27] - true_mat[,4:27])/true_mat[,4:27] 
 
-df.oms2 <- as_tibble(cbind(OM=seq(1,nrow(df.oms)), df.oms)) 
-df.ems2 <- cbind(EM=seq(1,5), df.ems)
-colnames(df.ems2) <- c("EM", "EM_ecov_how", "EM_r_mod")
-em_tib <- as_tibble(df.ems2) %>%
-  mutate(SR=ifelse(EM_r_mod==2, 'Mean', 'BH')) %>%
-  mutate(EM_mod = paste0(SR, "_", EM_ecov_how))
-
-#colnames(true_mat)[4:27]        <- paste0(rep('True.'), colnames(true_mat)[4:27] )
-#colnames(true_mat_yearly)[5:16] <- paste0(rep('True.'), colnames(true_mat_yearly)[5:16] )
-
-true_mat_tib        <- as_tibble(true_mat)
-true_mat_yearly_tib <- as_tibble(true_mat_yearly)
-
-par_mat_tib <- as_tibble(par_mat) %>%
-  select(-c(colnames(df.oms))) %>%
-  left_join(df.oms2) %>%
-  left_join(true_mat_tib) %>%
-  mutate(True.NAA_sigmaC          = True.NAA_sigma* sqrt(1-True.NAA_rho^2),
-         True.Ecov_process_pars2C = True.Ecov_process_pars2* sqrt(1-True.Ecov_process_pars3^2) )  %>% #calculate 'marginal' sigma, given cor.
-           mutate(
-             RE.mean_rec1           = (mean_rec1-True.mean_rec1)/True.mean_rec1, 
-             RE.mean_rec2           = ifelse(is.na(mean_rec2)==FALSE, (mean_rec2-True.mean_rec2)/True.mean_rec2, NA), 
-             RE.FXSPR_static        = (FXSPR_static-True.FXSPR_static)/True.FXSPR_static,
-             RE.Y_FXSPR_static      = (Y_FXSPR_static-True.Y_FXSPR_static)/True.Y_FXSPR_static,
-             RE.SSB_FXSPR_static    = (SSB_FXSPR_static-True.SSB_FXSPR_static)/True.SSB_FXSPR_static,
-             RE.SPR0_static         = (SPR0_static-True.SPR0_static)/True.SPR0_static,
-             RE.SPR_FXSPR_static    = (SPR_FXSPR_static-True.SPR_FXSPR_static)/True.SPR_FXSPR_static,
-             RE.q1                  = (q1-True.q1)/True.q1, 
-             RE.q2                  = (q2-True.q2)/True.q2, 
-             RE.NAA_sigma           = (NAA_sigma-True.NAA_sigmaC)/True.NAA_sigmaC,
-             RE.NAA_rho             = (NAA_rho - True.NAA_rho)/True.NAA_rho, 
-             RE.selpars_f1a         = (selpars_f1a-True.selpars_f1a)/True.selpars_f1a,
-             RE.selpars_f1b         = (selpars_f1a-True.selpars_f1b)/True.selpars_f1b,
-             RE.selpars_i1a         = (selpars_i1a-True.selpars_i1a)/True.selpars_i1a,
-             RE.selpars_i1b         = (selpars_i1b-True.selpars_i1b)/True.selpars_i1b,
-             RE.selpars_i2a         = (selpars_i2a-True.selpars_i2a)/True.selpars_i2a,
-             RE.selpars_i2b         = (selpars_i2b-True.selpars_i2b)/True.selpars_i2b,
-             RE.catch_paa_par       = (catch_paa_par-True.catch_paa_par)/True.catch_paa_par,
-             RE.index_paa_par1      = (index_paa_pars1-True.index_paa_pars1)/True.index_paa_pars1,
-             RE.index_paa_par2      = (index_paa_pars2-True.index_paa_pars2)/True.index_paa_pars2,
-             RE.Ecov_beta           = (Ecov_beta-True.Ecov_beta)/True.Ecov_beta,
-             RE.Ecov_process_pars1  = (Ecov_process_pars1-True.Ecov_process_pars1)/True.Ecov_process_pars1,
-             RE.Ecov_process_pars2  = (Ecov_process_pars2-True.Ecov_process_pars2C)/True.Ecov_process_pars2C,
-             RE.Ecov_process_pars3  = (Ecov_process_pars3-True.Ecov_process_pars3)/True.Ecov_process_pars3,
-
-             RMSE.mean_rec1           = sqrt((mean_rec1-True.mean_rec1)^2), 
-             RMSE.mean_rec2           = ifelse(is.na(mean_rec2)==FALSE, sqrt((mean_rec2-True.mean_rec2)^2), NA), 
-             RMSE.FXSPR_static        = sqrt((FXSPR_static-True.FXSPR_static)^2),
-             RMSE.Y_FXSPR_static      = sqrt((Y_FXSPR_static-True.Y_FXSPR_static)^2),
-             RMSE.SSB_FXSPR_static    = sqrt((SSB_FXSPR_static-True.SSB_FXSPR_static)^2),
-             RMSE.SPR0_static         = sqrt((SPR0_static-True.SPR0_static)^2),
-             RMSE.SPR_FXSPR_static    = sqrt((SPR_FXSPR_static-True.SPR_FXSPR_static)^2),
-             RMSE.q1                  = sqrt((q1-True.q1)^2), 
-             RMSE.q2                  = sqrt((q2-True.q2)^2), 
-             RMSE.NAA_sigma           = sqrt((NAA_sigma-True.NAA_sigmaC)^2),
-             RMSE.NAA_rho             = sqrt((NAA_rho - True.NAA_rho)^2), 
-             RMSE.selpars_f1a         = sqrt((selpars_f1a-True.selpars_f1a)^2),
-             RMSE.selpars_f1b         = sqrt((selpars_f1a-True.selpars_f1b)^2),
-             RMSE.selpars_i1a         = sqrt((selpars_i1a-True.selpars_i1a)^2),
-             RMSE.selpars_i1b         = sqrt((selpars_i1b-True.selpars_i1b)^2),
-             RMSE.selpars_i2a         = sqrt((selpars_i2a-True.selpars_i2a)^2),
-             RMSE.selpars_i2b         = sqrt((selpars_i2b-True.selpars_i2b)^2),
-             RMSE.catch_paa_par       = sqrt((catch_paa_par-True.catch_paa_par)^2),
-             RMSE.index_paa_par1      = sqrt((index_paa_pars1-True.index_paa_pars1)^2),
-             RMSE.index_paa_par2      = sqrt((index_paa_pars2-True.index_paa_pars2)^2),
-             RMSE.Ecov_beta           = sqrt((Ecov_beta-True.Ecov_beta)^2),
-             RMSE.Ecov_process_pars1  = sqrt((Ecov_process_pars1-True.Ecov_process_pars1)^2),
-             RMSE.Ecov_process_pars2  = sqrt((Ecov_process_pars2-True.Ecov_process_pars2C)^2),
-             RMSE.Ecov_process_pars3  = sqrt((Ecov_process_pars3-True.Ecov_process_pars3)^2)
-          )
-
-# look at summary of RE distributions ====  
-RE.par.sum <- rbind(mean_rec1=summary(par_mat_tib$RE.mean_rec1)[1:6],
-                    mean_rec2=summary(par_mat_tib$RE.mean_rec2)[1:6],
-                    FXSPR_static=summary(par_mat_tib$RE.FXSPR_static)[1:6],
-                    Y_FXSPR_static=summary(par_mat_tib$RE.Y_FXSPR_static)[1:6],
-                    SSB_FXSPR_static=summary(par_mat_tib$RE.SSB_FXSPR_static)[1:6],
-                    SPR0_static=summary(par_mat_tib$RE.SPR0_static)[1:6],
-                    SPR_FXSPR_static=summary(par_mat_tib$RE.SPR_FXSPR_static)[1:6],
-                    q1=summary(par_mat_tib$RE.q1)[1:6],
-                    q2=summary(par_mat_tib$RE.q2)[1:6],
-                    NAA_sigma=summary(par_mat_tib$RE.NAA_sigma)[1:6],
-                    NAA_rho=summary(par_mat_tib$RE.NAA_rho)[1:6],
-                    selpars_f1a=summary(par_mat_tib$RE.selpars_f1a)[1:6],
-                    selpars_f1b=summary(par_mat_tib$RE.selpars_f1b)[1:6],
-                    selpars_i1a=summary(par_mat_tib$RE.selpars_i1a)[1:6],
-                    selpars_i1b=summary(par_mat_tib$RE.selpars_i1b)[1:6],
-                    selpars_i2a=summary(par_mat_tib$RE.selpars_i2a)[1:6],
-                    selpars_i2b=summary(par_mat_tib$RE.selpars_i2b)[1:6],
-                    catch_paa_par=summary(par_mat_tib$RE.catch_paa_par)[1:6],
-                    index_paa_par1=summary(par_mat_tib$RE.index_paa_par1)[1:6],
-                    index_paa_par2=summary(par_mat_tib$RE.index_paa_par2)[1:6],
-                    Ecov_beta=summary(par_mat_tib$RE.Ecov_beta)[1:6],
-                    Ecov_process_pars1=summary(par_mat_tib$RE.Ecov_process_pars1)[1:6],
-                    Ecov_process_pars2=summary(par_mat_tib$RE.Ecov_process_pars2)[1:6],
-                    Ecov_process_pars3=summary(par_mat_tib$RE.Ecov_process_pars3)[1:6]
-                    )
-RE.par.sum
-# strange that some of the selectivity parameters have -Inf or NaN ; checking with tim if he used a different transform
-# okayyyyyyy.... need to fix the selpars, given below from tim:     ====
-# selpars are transformed like that with k = 1, but the bounds are defined in data$selpars_lower, data$selpars_upper:
-#   lower + (upper-lower)/(1+exp(-x))
-write.csv(RE.par.sum,file=file.path(here(),'Ecov_study','recruitment_functions',table.dir, paste0("RelativeError.param.summary.table_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".csv")  ), row.names = FALSE )
+RMSE_par[,4:27] <- sqrt((par_mat[,4:27] - true_mat[,4:27])^2)
 
 
-par_mat_yearly_tib <- as_tibble(par_mat_yearly) %>%
-  select(-c(colnames(df.oms))) %>%
-  left_join(df.oms2) %>%
-  left_join(true_mat_yearly_tib) %>%
-  mutate(RE.FXSPR = (FXSPR-True.FXSPR)/True.FXSPR,
-         RE.Y_FXSPR = (Y_FXSPR-True.Y_FXSPR)/True.Y_FXSPR,
-         RE.SSB_FXSPR = (SSB_FXSPR-True.SSB_FXSPR)/True.SSB_FXSPR,
-         RE.SPR0 = (SPR0-True.SPR0)/True.SPR0,
-         RE.SPR_FXSPR = (SPR_FXSPR-True.SPR_FXSPR)/True.SPR_FXSPR,
-         RE.SR_a = (SR_a-True.SR_a)/True.SR_a, RE.SR_b = (SR_b-True.SR_b)/True.SR_b
-     #!!!!!!!!!! not calculating the MSY bias yet, as the True values are often NA or NaN  !!!!!
-     #!!!!!!!!!! will likely have to make this calculation with my own function !!!!!!!
-  )
-         
-saveRDS(par_mat_yearly_tib,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("par_mat_yearly", plot.suffix, ".RDS") ) )
-saveRDS(par_mat_tib,         file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("par_mat", plot.suffix, ".RDS") ) )
-saveRDS(true_mat_yearly_tib, file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("true_mat_yearly", plot.suffix, ".RDS") ) )
-saveRDS(true_mat_tib,        file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("true_mat", plot.suffix, ".RDS") ) )
+print('saving RE_par...')         
+saveRDS(RE_par,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RE_par.RDS") ) )
+print('saving RMSE_par...')         
+saveRDS(RMSE_par,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RMSE_par.RDS") ) )
 
 
 
