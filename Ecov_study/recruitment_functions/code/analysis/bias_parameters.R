@@ -53,46 +53,46 @@ for(irun in 1:n.conv.runs) {    #   1:n.conv.runs
 print(irun/n.conv.runs)
   dat <- try(readRDS(file.path(res.path, paste0("om", conv.runs$OM[irun], '/','sim',conv.runs$Sim[irun],'_','em', conv.runs$EM[irun],'.RDS') ) ) )
   
-  if(k==1)  year1 <- dat$truth$year1_model
+  #if(k==1)  year1 <- dat$truth$year1_model
   if(class(dat)!='try-error'){
     
     # grab annual parameter estimates
-    par_mat_yearly[((k-1)*nyears+1):(k*nyears),1:9] <- cbind(rep(conv.runs$OM[irun], nyears), 
-                                                               rep(conv.runs$Sim[irun], nyears), 
-                                                               rep(conv.runs$EM[irun], nyears),   
-                                                               seq(year1, (year1+nyears-1)),  
-                                                               exp(dat$fit$rep$log_FXSPR), 
-                                                               exp(dat$fit$rep$log_Y_FXSPR), 
-                                                               exp(dat$fit$rep$log_SSB_FXSPR), 
-                                                               exp(dat$fit$rep$log_SPR0), 
-                                                               exp(dat$fit$rep$log_SPR_FXSPR) )
+    # par_mat_yearly[((k-1)*nyears+1):(k*nyears),1:9] <- cbind(rep(conv.runs$OM[irun], nyears), 
+    #                                                            rep(conv.runs$Sim[irun], nyears), 
+    #                                                            rep(conv.runs$EM[irun], nyears),   
+    #                                                            seq(year1, (year1+nyears-1)),  
+    #                                                            exp(dat$fit$rep$log_FXSPR), 
+    #                                                            exp(dat$fit$rep$log_Y_FXSPR), 
+    #                                                            exp(dat$fit$rep$log_SSB_FXSPR), 
+    #                                                            exp(dat$fit$rep$log_SPR0), 
+    #                                                            exp(dat$fit$rep$log_SPR_FXSPR) )
     
-    if(conv.runs$EM[irun]>2){
-      par_mat_yearly[((k-1)*nyears+1):(k*nyears),10:16] <- c(exp(dat$fit$rep$log_SR_a),  
-                                                             exp(dat$fit$rep$log_SR_b), 
-                                                             exp(dat$fit$rep$log_FMSY), 
-                                                             exp(dat$fit$rep$log_SSB_MSY), 
-                                                             exp(dat$fit$rep$log_YPR_MSY), 
-                                                             exp(dat$fit$rep$log_SPR_MSY), 
-                                                             exp(dat$fit$rep$log_R_MSY) )
-    }
+    # if(conv.runs$EM[irun]>2){
+    #   par_mat_yearly[((k-1)*nyears+1):(k*nyears),10:16] <- c(exp(dat$fit$rep$log_SR_a),  
+    #                                                          exp(dat$fit$rep$log_SR_b), 
+    #                                                          exp(dat$fit$rep$log_FMSY), 
+    #                                                          exp(dat$fit$rep$log_SSB_MSY), 
+    #                                                          exp(dat$fit$rep$log_YPR_MSY), 
+    #                                                          exp(dat$fit$rep$log_SPR_MSY), 
+    #                                                          exp(dat$fit$rep$log_R_MSY) )
+    # }
     
-    true_mat_yearly[((k-1)*nyears+1):(k*nyears),] <- cbind(rep(conv.runs$OM[irun], nyears), 
-                                                     rep(conv.runs$Sim[irun], nyears), 
-                                                     rep(conv.runs$EM[irun], nyears),   
-                                                     seq(year1, (year1+nyears-1)), 
-                                                     exp(dat$truth$log_FXSPR), 
-                                                     exp(dat$truth$log_Y_FXSPR), 
-                                                     exp(dat$truth$log_SSB_FXSPR), 
-                                                     exp(dat$truth$log_SPR0), 
-                                                     exp(dat$truth$log_SPR_FXSPR), 
-                                                     exp(dat$truth$log_SR_a),  
-                                                     exp(dat$truth$log_SR_b), 
-                                                     exp(dat$truth$log_FMSY), 
-                                                     exp(dat$truth$log_SSB_MSY), 
-                                                     exp(dat$truth$log_YPR_MSY), 
-                                                     exp(dat$truth$log_SPR_MSY), 
-                                                     exp(dat$truth$log_R_MSY) )
+    # true_mat_yearly[((k-1)*nyears+1):(k*nyears),] <- cbind(rep(conv.runs$OM[irun], nyears), 
+    #                                                  rep(conv.runs$Sim[irun], nyears), 
+    #                                                  rep(conv.runs$EM[irun], nyears),   
+    #                                                  seq(year1, (year1+nyears-1)), 
+    #                                                  exp(dat$truth$log_FXSPR), 
+    #                                                  exp(dat$truth$log_Y_FXSPR), 
+    #                                                  exp(dat$truth$log_SSB_FXSPR), 
+    #                                                  exp(dat$truth$log_SPR0), 
+    #                                                  exp(dat$truth$log_SPR_FXSPR), 
+    #                                                  exp(dat$truth$log_SR_a),  
+    #                                                  exp(dat$truth$log_SR_b), 
+    #                                                  exp(dat$truth$log_FMSY), 
+    #                                                  exp(dat$truth$log_SSB_MSY), 
+    #                                                  exp(dat$truth$log_YPR_MSY), 
+    #                                                  exp(dat$truth$log_SPR_MSY), 
+    #                                                  exp(dat$truth$log_R_MSY) )
     
     # # grab parameters that aren't annual values
     par_mat[k, ] <- c(conv.runs$OM[irun], 
@@ -108,20 +108,27 @@ print(irun/n.conv.runs)
                       dat$fit$rep$q[nyears, 1], 
                       dat$fit$rep$q[nyears, 2], 
                       exp(dat$fit$sdrep$Estimate_par$log_NAA_sigma), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$trans_NAA_rho[2])) ), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,11])) ), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,12])) ), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,11])) ), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,12])) ), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,11])) ), 
-                      (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,12])) ),  
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$trans_NAA_rho[2])) ), 
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,11])) ), 
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[1,12])) ), 
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,11])) ), 
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[2,12])) ), 
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,11])) ), 
+                      # (-1 + 2/(1 + exp(-2*dat$fit$sdrep$Estimate_par$logit_selpars[3,12])) ),  
+                      exp(-1*dat$fit$sdrep$Estimate_par$trans_NAA_rho[2]), 
+                      exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[1,11]), 
+                      exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[1,12]), 
+                      exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[2,11]), 
+                      exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[2,12]), 
+                      exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[3,11]), 
+                      exp(-1*dat$fit$sdrep$Estimate_par$logit_selpars[3,12]),  
                       dat$fit$sdrep$Estimate_par$catch_paa_pars[1,1], 
                       dat$fit$sdrep$Estimate_par$index_paa_pars[1,1], 
                       dat$fit$sdrep$Estimate_par$index_paa_pars[2,1], 
                       dat$fit$sdrep$Estimate_par$Ecov_beta[[1]], 
                       exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[1,1]), 
                       exp(dat$fit$sdrep$Estimate_par$Ecov_process_pars[2,1]), 
-                      (-1 + 2/(1 + exp(-dat$fit$sdrep$Estimate_par$Ecov_process_pars[3,1])) ) )
+                      exp(-dat$fit$sdrep$Estimate_par$Ecov_process_pars[3,1]))
     
     
     # fixing logit_selpars transformation
@@ -141,20 +148,27 @@ print(irun/n.conv.runs)
                            dat$truth$q[nyears,1], 
                            dat$truth$q[nyears,2], 
                            exp(dat$truth$log_NAA_sigma), 
-                           (-1 + 2/(1 + exp(-2*dat$truth$trans_NAA_rho[2])) ), 
-                           (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[1,11])) ), 
-                           (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[1,12])) ), 
-                           (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[2,11])) ), 
-                           (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[2,12])) ), 
-                           (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[3,11])) ), 
-                           (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[3,12])) ), 
+                          #  (-1 + 2/(1 + exp(-2*dat$truth$trans_NAA_rho[2])) ), 
+                          #  (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[1,11])) ), 
+                          #  (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[1,12])) ), 
+                          #  (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[2,11])) ), 
+                          #  (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[2,12])) ), 
+                          #  (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[3,11])) ), 
+                          #  (0 + 10/(1 + exp(-1*dat$truth$logit_selpars[3,12])) ), 
+                           exp(-1*dat$truth$trans_NAA_rho[2]), 
+                           exp(-1*dat$truth$logit_selpars[1,11]), 
+                           exp(-1*dat$truth$logit_selpars[1,12]), 
+                           exp(-1*dat$truth$logit_selpars[2,11]), 
+                           exp(-1*dat$truth$logit_selpars[2,12]), 
+                           exp(-1*dat$truth$logit_selpars[3,11]), 
+                           exp(-1*dat$truth$logit_selpars[3,12]), 
                            dat$truth$catch_paa_pars[1,1], 
                            dat$truth$index_paa_pars[1,1], 
                            dat$truth$index_paa_pars[2,1], 
                            dat$truth$Ecov_beta[[1]], 
                            exp(dat$truth$Ecov_process_pars[1,1]), 
                            exp(dat$truth$Ecov_process_pars[2,1] ), 
-                           (-1 + 2/(1 + exp(-dat$truth$Ecov_process_pars[3,1])) )  )    
+                           exp(-dat$truth$Ecov_process_pars[3,1]))
     
   }  #end class(dat) check
   if(k %% ten.pct==0)  print(paste0('k = ', k, ' out of ', n.conv.runs, ' at ', Sys.time() ) )
@@ -169,16 +183,11 @@ RE_par=RMSE_par <- matrix(NA,ncol=ncol(par_mat),nrow=nrow(par_mat))
 colnames(RE_par) = colnames(RMSE_par) <- colnames(par_mat)
 
 RE_par[,1:3]= RMSE_par[,1:3] <- par_mat[,1:3]
-
-RE_par[,4:27]   <- (par_mat[,4:27] - true_mat[,4:27])/true_mat[,4:27] 
-
-RMSE_par[,4:27] <- sqrt((par_mat[,4:27] - true_mat[,4:27])^2)
-
+RE_par[,4:27]                <- (par_mat[,4:27] - true_mat[,4:27])/true_mat[,4:27] 
+RMSE_par[,4:27]              <- sqrt((par_mat[,4:27] - true_mat[,4:27])^2)
 
 print('saving RE_par...')         
 saveRDS(RE_par,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RE_par.RDS") ) )
 print('saving RMSE_par...')         
 saveRDS(RMSE_par,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RMSE_par.RDS") ) )
-
-
 
