@@ -34,17 +34,17 @@ n.conv.runs <- nrow(conv.runs)
 ten.pct     <- round(n.conv.runs/10, 0)
 
 # get parameters, only loop through converged runs
-par_mat_yearly           <- matrix(NA, nrow=nrow(conv.runs)*nyears, ncol=16 )
-colnames(par_mat_yearly) <- c('OM', 'Sim', 'EM', 'Year', 'FXSPR','Y_FXSPR', 'SSB_FXSPR', 'SPR0', 'SPR_FXSPR', 'SR_a', 'SR_b', 'FMSY', 'SSB_MSY', 'YPR_MSY', 'SPR_MSY',  'R_MSY'  )
+#par_mat_yearly           <- matrix(NA, nrow=nrow(conv.runs)*nyears, ncol=16 )
+#colnames(par_mat_yearly) <- c('OM', 'Sim', 'EM', 'Year', 'FXSPR','Y_FXSPR', 'SSB_FXSPR', 'SPR0', 'SPR_FXSPR', 'SR_a', 'SR_b', 'FMSY', 'SSB_MSY', 'YPR_MSY', 'SPR_MSY',  'R_MSY'  )
 
-true_mat_yearly           <- matrix(NA, nrow=nrow(conv.runs)*nyears, ncol=16 )
-colnames(true_mat_yearly) <- c( 'OM', 'Sim', 'EM', 'Year', 'FXSPR','Y_FXSPR', 'SSB_FXSPR', 'SPR0', 'SPR_FXSPR', 'SR_a', 'SR_b', 'FMSY', 'SSB_MSY', 'YPR_MSY', 'SPR_MSY',  'R_MSY'  )
+#true_mat_yearly           <- matrix(NA, nrow=nrow(conv.runs)*nyears, ncol=16 )
+#colnames(true_mat_yearly) <- c( 'OM', 'Sim', 'EM', 'Year', 'FXSPR','Y_FXSPR', 'SSB_FXSPR', 'SPR0', 'SPR_FXSPR', 'SR_a', 'SR_b', 'FMSY', 'SSB_MSY', 'YPR_MSY', 'SPR_MSY',  'R_MSY'  )
 
-par_mat           <- matrix(NA, nrow=nrow(conv.runs), ncol=27 )
-colnames(par_mat) <- c('OM', 'Sim', 'EM',  'mean_rec1', 'mean_rec2', 'FXSPR_static', 'Y_FXSPR_static', 'SSB_FXSPR_static', 'SPR0_static', 'SPR_FXSPR_static',  'q1', 'q2', 'NAA_sigma', 'NAA_rho','selpars_f1a', 'selpars_f1b', 'selpars_i1a' , 'selpars_i1b','selpars_i2a' , 'selpars_i2b', 'catch_paa_par', 'index_paa_pars1', 'index_paa_pars2', 'Ecov_beta', 'Ecov_process_pars1', 'Ecov_process_pars2', 'Ecov_process_pars3'  )
+par_mat           <- matrix(NA, nrow=nrow(conv.runs), ncol=29 )
+colnames(par_mat) <- c('OM', 'Sim', 'EM','ssb_cv','ecov_slope', 'mean_rec1', 'mean_rec2', 'FXSPR_static', 'Y_FXSPR_static', 'SSB_FXSPR_static', 'SPR0_static', 'SPR_FXSPR_static',  'q1', 'q2', 'NAA_sigma', 'NAA_rho','selpars_f1a', 'selpars_f1b', 'selpars_i1a' , 'selpars_i1b','selpars_i2a' , 'selpars_i2b', 'catch_paa_par', 'index_paa_pars1', 'index_paa_pars2', 'Ecov_beta', 'Ecov_process_pars1', 'Ecov_process_pars2', 'Ecov_process_pars3'  )
 
-true_mat           <- matrix(NA, nrow=nrow(conv.runs), ncol=27 )
-colnames(true_mat) <- c('OM', 'Sim', 'EM',  'mean_rec1', 'mean_rec2', 'FXSPR_static', 'Y_FXSPR_static', 'SSB_FXSPR_static', 'SPR0_static', 'SPR_FXSPR_static',  'q1', 'q2', 'NAA_sigma', 'NAA_rho','selpars_f1a', 'selpars_f1b', 'selpars_i1a' , 'selpars_i1b','selpars_i2a' , 'selpars_i2b', 'catch_paa_par', 'index_paa_pars1', 'index_paa_pars2', 'Ecov_beta', 'Ecov_process_pars1', 'Ecov_process_pars2', 'Ecov_process_pars3'  )
+true_mat           <- matrix(NA, nrow=nrow(conv.runs), ncol=29 )
+colnames(true_mat) <- c('OM', 'Sim', 'EM','ssb_cv','ecov_slope','mean_rec1', 'mean_rec2', 'FXSPR_static', 'Y_FXSPR_static', 'SSB_FXSPR_static', 'SPR0_static', 'SPR_FXSPR_static',  'q1', 'q2', 'NAA_sigma', 'NAA_rho','selpars_f1a', 'selpars_f1b', 'selpars_i1a' , 'selpars_i1b','selpars_i2a' , 'selpars_i2b', 'catch_paa_par', 'index_paa_pars1', 'index_paa_pars2', 'Ecov_beta', 'Ecov_process_pars1', 'Ecov_process_pars2', 'Ecov_process_pars3'  )
 
 
 ##--EXTRACT PARAMETERS--##################
@@ -60,7 +60,7 @@ print(irun/n.conv.runs)
     # par_mat_yearly[((k-1)*nyears+1):(k*nyears),1:9] <- cbind(rep(conv.runs$OM[irun], nyears), 
     #                                                            rep(conv.runs$Sim[irun], nyears), 
     #                                                            rep(conv.runs$EM[irun], nyears),   
-    #                                                            seq(year1, (year1+nyears-1)),  
+    #                                 ssb_cvs[ksim]     <- sd(dat$truth$SSB)/mean(dat$truth$SSB)
     #                                                            exp(dat$fit$rep$log_FXSPR), 
     #                                                            exp(dat$fit$rep$log_Y_FXSPR), 
     #                                                            exp(dat$fit$rep$log_SSB_FXSPR), 
@@ -98,6 +98,8 @@ print(irun/n.conv.runs)
     par_mat[k, ] <- c(conv.runs$OM[irun], 
                       conv.runs$Sim[irun], 
                       conv.runs$EM[irun], 
+                      sd(dat$truth$SSB)/mean(dat$truth$SSB),
+                      summary(lm(dat$truth$Ecov_x ~ seq(1,40)))$coefficients[2,1],
                       exp(dat$fit$rep$mean_rec_pars[1]), 
                       ifelse(conv.runs$EM[irun]>2, exp(dat$fit$rep$mean_rec_pars[2]), NA), 
                       exp(dat$fit$rep$log_FXSPR_static), 
@@ -135,9 +137,11 @@ print(irun/n.conv.runs)
     
     # true_mat[k, 1:27] <- c(conv.runs$OM[irun], conv.runs$Sim[irun], conv.runs$EM[irun], exp(dat$truth$mean_rec_pars[1]), exp(dat$truth$mean_rec_pars[2]), exp(dat$truth$log_FXSPR_static), exp(dat$truth$log_Y_FXSPR_static), exp(dat$truth$log_SSB_FXSPR_static), exp(dat$truth$log_SPR0_static), exp(dat$truth$log_SPR_FXSPR_static), dat$truth$q[nyears,1], dat$truth$q[nyears,2], exp(dat$truth$log_NAA_sigma), (-1 + 2/(1 + exp(-2*dat$truth$trans_NAA_rho[2])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[1,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[1,12])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[2,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[2,12])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[3,11])) ), (-1 + 2/(1 + exp(-2*dat$truth$logit_selpars[3,12])) ), dat$truth$catch_paa_pars[1,1], dat$truth$index_paa_pars[1,1], dat$truth$index_paa_pars[2,1], dat$truth$Ecov_beta[[1]], exp(dat$truth$Ecov_process_pars[1,1]), exp(dat$truth$Ecov_process_pars[2,1] ), (-1 + 2/(1 + exp(-dat$truth$Ecov_process_pars[3,1])) )  )
     # fixing logit_selpars transformation
-    true_mat[k, 1:27] <- c(conv.runs$OM[irun], 
+    true_mat[k, 1:29] <- c(conv.runs$OM[irun], 
                            conv.runs$Sim[irun], 
                            conv.runs$EM[irun], 
+                           sd(dat$truth$SSB)/mean(dat$truth$SSB),
+                           summary(lm(dat$truth$Ecov_x ~ seq(1,40)))$coefficients[2,1],
                            exp(dat$truth$mean_rec_pars[1]), 
                            exp(dat$truth$mean_rec_pars[2]), 
                            exp(dat$truth$log_FXSPR_static), 
@@ -182,9 +186,9 @@ print('computing errors...')
 RE_par=RMSE_par <- matrix(NA,ncol=ncol(par_mat),nrow=nrow(par_mat))
 colnames(RE_par) = colnames(RMSE_par) <- colnames(par_mat)
 
-RE_par[,1:3]= RMSE_par[,1:3] <- par_mat[,1:3]
-RE_par[,4:27]                <- (par_mat[,4:27] - true_mat[,4:27])/true_mat[,4:27] 
-RMSE_par[,4:27]              <- sqrt((par_mat[,4:27] - true_mat[,4:27])^2)
+RE_par[,1:5]= RMSE_par[,1:5] <- par_mat[,1:5]
+RE_par[,6:29]                <- (par_mat[,6:29] - true_mat[,6:29])/true_mat[,6:29] 
+RMSE_par[,6:29]              <- sqrt((par_mat[,6:29] - true_mat[,6:29])^2)
 
 print('saving RE_par...')         
 saveRDS(RE_par,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RE_par.RDS") ) )
