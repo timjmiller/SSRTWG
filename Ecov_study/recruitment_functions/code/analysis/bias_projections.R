@@ -68,7 +68,9 @@ for(irun in 1:nrow(conv.runs)){
   df.catch[((irun-1)*nyears+1):(irun*nyears),8] <- sqrt((dat$proj$cont.ecov$rep$pred_catch[31:40] - dat$truth$pred_catch[31:40])^2)
   df.catch[((irun-1)*nyears+1):(irun*nyears),9] <- sqrt((dat$proj$avg.ecov$rep$pred_catch[31:40]  - dat$truth$pred_catch[31:40])^2)
   df.catch[((irun-1)*nyears+1):(irun*nyears),10]<- sqrt((dat$proj$use.ecov$rep$pred_catch[31:40]  - dat$truth$pred_catch[31:40])^2)  
-
   }
 }
 
+saveRDS(df.recr, file=file.path(here::here(),'Ecov_study','recruitment_functions',res.dir,'df.recr.proj.RDS'))
+saveRDS(df.ssb,  file=file.path(here::here(),'Ecov_study','recruitment_functions',res.dir,'df.ssb.proj.RDS'))
+saveRDS(df.catch,file=file.path(here::here(),'Ecov_study','recruitment_functions',res.dir,'df.catch.proj.RDS'))
