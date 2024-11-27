@@ -17,7 +17,7 @@ bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for 
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
 bad.se.value   <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
-df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 
@@ -42,14 +42,14 @@ colnames(mrho.df) <- c('OM','EM','Sim','ssb','fbar','n1','n2','n3','n4','n5','n6
 
 for(irun in 1:n.conv.runs) {    #   1:n.conv.runs
 print(irun/n.conv.runs)
-  dat <- try(readRDS(file.path(res.path, paste0("om", conv.runs$OM[irun], '/','sim',conv.runs$Sim[irun],'_','em', conv.runs$EM[irun],'.RDS') ) ) )
+  dat <- try(readRDS(file.path(here::here(),'Ecov_study','recruitment_functions','results', paste0("om", conv.runs$OM[irun], '/','sim',conv.runs$Sim[irun],'_','em', conv.runs$EM[irun],'.RDS') ) ) )
   if(class(dat)!='try-error'){
     mrho        <- mohns_rho_set_peel(model=dat, npeels=7, ny=40, na=10)
     mrho_raneff <- mohns_rho_randeff_peel(model=dat, npeels=7, ny=40)
 
-    mrho.df[irun,] <- c(OM=conv.runs$OM[k],
-                          EM=conv.runs$EM[k],
-                          Sim=conv.runs$Sim[k],
+    mrho.df[irun,] <- c(OM=conv.runs$OM[irun],
+                          EM=conv.runs$EM[irun],
+                          Sim=conv.runs$Sim[irun],
                           mrho_ssb=mrho[1],
                           mrho_fbar=mrho[2],
                           mrho_n1=mrho[3],
