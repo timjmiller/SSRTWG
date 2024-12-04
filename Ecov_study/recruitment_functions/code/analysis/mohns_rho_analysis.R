@@ -13,4 +13,6 @@ plot.suffix <- ''      # '_beta_fix'   ''
 
 df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 
-rho.df <- readRDS(mrho.df,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("mrho.df.RDS") ) )
+mrho.df <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("mrho.df.RDS") ) )
+
+
