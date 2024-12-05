@@ -37,8 +37,8 @@ n.conv.runs <- nrow(conv.runs)
 ten.pct <- round(n.conv.runs/10, 0)
 
 
-mrho.df <- matrix(NA,ncol=16,nrow=nrow(conv.runs))
-colnames(mrho.df) <- c('OM','EM','Sim','ssb','fbar','n1','n2','n3','n4','n5','n6','n7','n8','n9','n10','rdev')
+mrho.df <- matrix(NA,ncol=18,nrow=nrow(conv.runs))
+colnames(mrho.df) <- c('OM','EM','Sim','ssb','fbar','n1','n2','n3','n4','n5','n6','n7','n8','n9','n10','rdev','ecov_slope','ssb_cv')
 
 for(irun in 1:n.conv.runs) {    #   1:n.conv.runs
 print(irun/n.conv.runs)
@@ -46,6 +46,9 @@ print(irun/n.conv.runs)
   if(class(dat)!='try-error'){
     mrho        <- mohns_rho_set_peel(model=dat, npeels=7, ny=40, na=10)
     mrho_raneff <- mohns_rho_randeff_peel(model=dat, npeels=7, ny=40)
+   
+    ssb_cv     <- sd(dat$truth$SSB)/mean(dat$truth$SSB)
+    ecov_slope <- summary(lm(dat$truth$Ecov_x ~ seq(1,40)))$coefficients[2,1]
 
     mrho.df[irun,] <- c(OM=conv.runs$OM[irun],
                           EM=conv.runs$EM[irun],
@@ -62,7 +65,9 @@ print(irun/n.conv.runs)
                           mrho_n8=mrho[10],
                           mrho_n9=mrho[11],
                           mrho_n10=mrho[12],
-                          mrho_rdev=mrho_raneff)
+                          mrho_rdev=mrho_raneff,
+                          ecov_slope=ecov_slope,
+                          ssb_cv=ssb_cv)
   }
 }
 

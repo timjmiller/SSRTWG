@@ -29,13 +29,17 @@ conv.runs <- conv.runs %>%
 
 nyears <- 10  # number of projection years
 
-df.recr=df.ssb=df.catch         <- matrix(NA, nrow=nrow(conv.runs)*nyears, ncol=10)
-colnames(df.recr)=colnames(df.ssb)=colnames(df.catch) <- c('OM','EM','Sim','Year','re.cont.ecov','rmse.cont.ecov','re.avg.ecov','rmse.avg.ecov','re.use.ecov','re.use.ecov')
+df.recr=df.ssb=df.catch         <- matrix(NA, nrow=nrow(conv.runs)*nyears, ncol=12)
+colnames(df.recr)=colnames(df.ssb)=colnames(df.catch) <- c('OM','EM','Sim','Year','re.cont.ecov','re.avg.ecov','re.use.ecov','rmse.cont.ecov','rmse.avg.ecov','rmse.use.ecov','ecov_slope','ssb_cv')
 
 for(irun in 1:nrow(conv.runs)){
   print(irun)
   dat <- try(readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.path, paste0("om", conv.runs$OM[irun], '/','sim',conv.runs$Sim[irun],'_','em', conv.runs$EM[irun],'.RDS') ) ) )
   if(class(dat)!='try-error'){
+
+  ssb_cv     <- sd(dat$truth$SSB)/mean(dat$truth$SSB)
+  ecov_slope <- summary(lm(dat$truth$Ecov_x ~ seq(1,40)))$coefficients[2,1]
+
   df.recr[((irun-1)*nyears+1):(irun*nyears),1] <- conv.runs$OM[irun]
   df.recr[((irun-1)*nyears+1):(irun*nyears),2] <- conv.runs$EM[irun]
   df.recr[((irun-1)*nyears+1):(irun*nyears),3] <- conv.runs$Sim[irun]
@@ -46,6 +50,8 @@ for(irun in 1:nrow(conv.runs)){
   df.recr[((irun-1)*nyears+1):(irun*nyears),8] <- sqrt((dat$proj$cont.ecov$rep$NAA[31:40,1] - dat$truth$NAA[31:40,1])^2)
   df.recr[((irun-1)*nyears+1):(irun*nyears),9] <- sqrt((dat$proj$avg.ecov$rep$NAA[31:40,1]  - dat$truth$NAA[31:40,1])^2)
   df.recr[((irun-1)*nyears+1):(irun*nyears),10]<- sqrt((dat$proj$use.ecov$rep$NAA[31:40,1]  - dat$truth$NAA[31:40,1])^2)  
+  df.recr[((irun-1)*nyears+1):(irun*nyears),11]<- ecov_slope
+  df.recr[((irun-1)*nyears+1):(irun*nyears),12]<- ssb_cv  
 
   df.ssb[((irun-1)*nyears+1):(irun*nyears),1] <- conv.runs$OM[irun]
   df.ssb[((irun-1)*nyears+1):(irun*nyears),2] <- conv.runs$EM[irun]
@@ -57,6 +63,8 @@ for(irun in 1:nrow(conv.runs)){
   df.ssb[((irun-1)*nyears+1):(irun*nyears),8] <- sqrt((dat$proj$cont.ecov$rep$SSB[31:40] - dat$truth$SSB[31:40])^2)
   df.ssb[((irun-1)*nyears+1):(irun*nyears),9] <- sqrt((dat$proj$avg.ecov$rep$SSB[31:40]  - dat$truth$SSB[31:40])^2)
   df.ssb[((irun-1)*nyears+1):(irun*nyears),10]<- sqrt((dat$proj$use.ecov$rep$SSB[31:40]  - dat$truth$SSB[31:40])^2)  
+  df.ssb[((irun-1)*nyears+1):(irun*nyears),11]<- ecov_slope
+  df.ssb[((irun-1)*nyears+1):(irun*nyears),12]<- ssb_cv  
 
   df.catch[((irun-1)*nyears+1):(irun*nyears),1] <- conv.runs$OM[irun]
   df.catch[((irun-1)*nyears+1):(irun*nyears),2] <- conv.runs$EM[irun]
@@ -68,6 +76,8 @@ for(irun in 1:nrow(conv.runs)){
   df.catch[((irun-1)*nyears+1):(irun*nyears),8] <- sqrt((dat$proj$cont.ecov$rep$pred_catch[31:40] - dat$truth$pred_catch[31:40])^2)
   df.catch[((irun-1)*nyears+1):(irun*nyears),9] <- sqrt((dat$proj$avg.ecov$rep$pred_catch[31:40]  - dat$truth$pred_catch[31:40])^2)
   df.catch[((irun-1)*nyears+1):(irun*nyears),10]<- sqrt((dat$proj$use.ecov$rep$pred_catch[31:40]  - dat$truth$pred_catch[31:40])^2)  
+  df.catch[((irun-1)*nyears+1):(irun*nyears),11]<- ecov_slope
+  df.catch[((irun-1)*nyears+1):(irun*nyears),12]<- ssb_cv  
   }
 }
 
