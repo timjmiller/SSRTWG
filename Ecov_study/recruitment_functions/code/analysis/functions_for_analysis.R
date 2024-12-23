@@ -207,8 +207,35 @@ for(om in 1:nrow(df.oms)){
 ## PLOTTING
 ##----------------------------------------------------------
 
+#-----------------------------------
+#marginal means
+#-----------------------------------
+dd <- function(df,vars,labels,yvar){
+  n <- length(labels)
+  ylims <- c(-0.1,0.1)
+  plot(x=1:n,y=rep(-Inf,n),xaxt='n',xlab='',ylab='',ylim=ylims,xlim=c(0,n+0.5),cex=1,bty='n')
+  axis(side=1,labels=labels,at=1:n,las=2)
+  abline(v=1:n,col=adjustcolor('black',alpha.f=0.4),lty=3)
+
+  k <- 1
+  for(i in 1:length(vars)){
+    yvar_in <- sym(yvar)
+    dd  <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(median = median(!!yvar_in,na.rm=TRUE)))
+    dd2 <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(mad = mad(!!yvar_in,na.rm=TRUE)))
+    print(dd)
+    for(j in 1:nrow(dd)){
+      points(k,dd[j,2],pch=4)
+      #segments(x0=k,x1=k, y0=dd[j,2] - dd2[j,2], y1=dd[j,2] + dd2[j,2])
+      k <- k+1
+    }
+  }
+}
+
+
+#-----------------------------------
 #plot effect sizes from linear model
-plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE,nlme_try=FALSE,mean=FALSE){
+#-----------------------------------
+plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE,nlme_try=FALSE,mean=FALSE,inv=FALSE){
   if(nlme==FALSE & nlme_try==FALSE){
     coef <- summary(fit)$coefficients[,1]
     ses  <- summary(fit)$coefficients[,2]
@@ -228,6 +255,10 @@ plotlm <- function(fit,add=FALSE,ylims,labels,int=FALSE,nlme=FALSE,nlme_try=FALS
     coef <- coef[2:n]
     ses  <- ses[2:n]
     n    <- n-1
+  }
+  if(inv==TRUE){
+    coef <- boot::inv.logit(coef)
+    #ses  <- boot::inv.logit(ses)
   }
   if(add==FALSE){
     #plot(1:n,coef,ylim=c(min(coef-2*ses),max(coef+2*ses)),pch=19,xaxt='n')
