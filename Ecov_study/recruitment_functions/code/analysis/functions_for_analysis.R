@@ -210,18 +210,19 @@ for(om in 1:nrow(df.oms)){
 #-----------------------------------
 #marginal means
 #-----------------------------------
-dd <- function(df,vars,labels,yvar){
+dd <- function(df,vars,labels,yvar,ylims,mean=FALSE){
   n <- length(labels)
-  ylims <- c(-0.1,0.1)
-  plot(x=1:n,y=rep(-Inf,n),xaxt='n',xlab='',ylab='',ylim=ylims,xlim=c(0,n+0.5),cex=1,bty='n')
+  plot(x=1:n,y=rep(-Inf,n),xaxt='n',xlab='',ylab='',ylim=ylims,xlim=c(0,n+0.5),cex=1)
   axis(side=1,labels=labels,at=1:n,las=2)
   abline(v=1:n,col=adjustcolor('black',alpha.f=0.4),lty=3)
 
   k <- 1
   for(i in 1:length(vars)){
     yvar_in <- sym(yvar)
-    dd  <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(median = median(!!yvar_in,na.rm=TRUE)))
-    dd2 <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(mad = mad(!!yvar_in,na.rm=TRUE)))
+    if(mean==TRUE){dd  <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(median = mean(!!yvar_in,na.rm=TRUE)))}else{
+      dd  <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(median = median(!!yvar_in,na.rm=TRUE)))
+    }
+    #dd2 <- as.data.frame(df %>% group_by_at(vars[i]) %>% summarize(mad = mad(!!yvar_in,na.rm=TRUE)))
     print(dd)
     for(j in 1:nrow(dd)){
       points(k,dd[j,2],pch=4)

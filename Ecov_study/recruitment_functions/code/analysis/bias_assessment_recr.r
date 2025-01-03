@@ -131,7 +131,7 @@ recr.df <- left_join(x=recr.df,y=df.oms,by='OM') %>%
          ecov_slope = factor(ecov_slope,levels=c("L","M","H")))
 
 
-colnames(recr.df)[19:20] <- c("EM_ecov_how","EM_recruit_mod")
+colnames(recr.df)[26:27] <- c("EM_ecov_how","EM_recruit_mod")
 
 saveRDS(recr.df, file.path( here::here(),'Ecov_study','recruitment_functions',res.dir , paste0( "error.recr", plot.suffix, ".df.RDS") ) )
 

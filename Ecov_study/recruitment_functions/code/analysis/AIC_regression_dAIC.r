@@ -27,51 +27,48 @@ AIC_weight$ssb_cv      <- factor(case_when(AIC_weight$ssb_cv < mean(AIC_weight$s
                                     AIC_weight$ssb_cv > mean(AIC_weight$ssb_cv) + sd(AIC_weight$ssb_cv) ~ "H",
                                     TRUE ~ 'M')) 
 AIC_weight$ssb_cv <- factor(AIC_weight$ssb_cv,levels=c("L","M","H"))
-AIC_weight$ecov_slope  <- as.factor(case_when(AIC_weight$ecov_slope > mean(AIC_weight$ecov_slope) + sd(AIC_weight$ecov_slope) ~ "H",
-                                       AIC_weight$ecov_slope < mean(AIC_weight$ecov_slope) - sd(AIC_weight$ecov_slope) ~ 'L',
-                                       TRUE ~ 'M'))
-AIC_weight$ecov_slope <- factor(AIC_weight$ecov_slope,levels=c("L","M","H"))
-
-
-
-lm_daic <- lm(dAIC ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
-                data=AIC_weight)
-
-lmm_daic <- lme(dAIC ~  obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
-                   data=AIC_weight, random = ~ 1|sim)
-
-FITS_dAIC <- list(lm_daic,lmm_daic)
-saveRDS(FITS_dAIC,file=file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_dAIC.rds'))
-
-
-
-
+AIC_weight$ecov_slope  <- as.factor(case_when(AIC_weight$ecov_slope > mean(AIC_weight$ecov_slope) + sd(AIC_weight$ecov_slope) ~ "+",
+                                       AIC_weight$ecov_slope < mean(AIC_weight$ecov_slope) - sd(AIC_weight$ecov_slope) ~ '-',
+                                       TRUE ~ '0'))
+AIC_weight$ecov_slope <- factor(AIC_weight$ecov_slope,levels=c("-","0","+"))
 
 ##--MAKE PLOTS--###########################
-labels <- c(expression(italic('intercept')),
+vars <- c("obs_error","R_sig","Fhist","NAA_cor","Ecov_re_cor","Ecov_effect","Ecov_how","ecov_slope","ssb_cv")
+
+labels <- c(expression(sigma['obs']~'= L'),
             expression(sigma['obs']~'= H'),
+            expression(sigma['r']~'= 0.1'),
             expression(sigma['r']~'= 0.3'),
             expression(sigma['r']~'= 0.5'),
             expression(sigma['r']~'= 1.0'),
+            expression(italic('F')~'= MSY'),
             expression(italic('F')~'= L-H'),
             expression(italic('F')~'= H-MSY'),
+            expression(rho['NAA']~' = L'), 
             expression(rho['NAA']~' = H'), 
+            expression(rho['E'['cov']]~' = L'), 
             expression(rho['E'['cov']]~' = H'), 
+            expression(beta['E'['cov']]~' = L'), 
             expression(beta['E'['cov']]~' = H'), 
+            expression(italic('f(E'['cov']*')')~'= 0'), 
             expression(italic('f(E'['cov']*')')~'= 1'), 
             expression(italic('f(E'['cov']*')')~'= 2'), 
-            expression(Delta*'E'['cov']*' = M'), 
-            expression(Delta*'E'['cov']*' = H'), 
+            expression(Delta*'E'['cov']*' = -'), 
+            expression(Delta*'E'['cov']*' = 0'), 
+            expression(Delta*'E'['cov']*' = +'), 
+            expression(italic('CV'['SSB']~'= L')),
             expression(italic('CV'['SSB']~'= M')),
-            expression(italic('CV'['SSB']~'= H')))
+            expression(italic('CV'['SSB']~'= H'))
+)
 
-pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','effects_daic.pdf'),height=3.5,width=5.5)
-par(mfrow=c(1,1),mar=c(1,2,1,2),oma=c(6,2,2,2),cex.axis=0.9)
-ylims <- c(-0.2,1.5)
-plotlm(lm_daic,add=FALSE,ylim=ylims,labels=labels,int=TRUE)
-plotlm(lmm_daic,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),nlme=TRUE,int=TRUE)
-mtext(side=2,line=2.5,expression(Delta*'AIC'))
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','dAIC_marg.pdf'),height=3.75,width=5)
+par(mfrow=c(1,1),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.7,cex.lab=0.7)
+ylims <- c(0,1.5)
+dd(AIC_weight,vars=vars,labels=labels,yvar="dAIC",ylims=ylims,mean=TRUE)
+  mtext(expression(italic(dAIC)),side=2,line=2.5)
+  #mtext(expression('a) Constant Ecov'),adj=0)
 dev.off()
+
 
 
 ##################################################################

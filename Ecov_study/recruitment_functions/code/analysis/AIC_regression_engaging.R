@@ -95,7 +95,7 @@ FITS_AIC <- list(glm_ecov,glm_SR,glm_form,
 saveRDS(FITS_AIC,file=file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_AIC.rds'))
 
 
-
+FITS_AIC <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions','results','FITS_AIC.rds'))
 
 
 ##--MAKE PLOTS--###########################
@@ -116,19 +116,19 @@ labels <- c(expression(italic('intercept')),
             expression(italic('CV'['SSB']~'= M')),
             expression(italic('CV'['SSB']~'= H')))
 
-pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','effects.pdf'),height=4.5,width=4.5)
-par(mfrow=c(3,1),mar=c(1,2,1,2),oma=c(6,2,2,2),cex.axis=0.9)
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','effects.pdf'),height=5.75,width=5)
+par(mfrow=c(3,1),mar=c(2,2,1,2),oma=c(6,2,2,2),cex.axis=0.9)
 ylims <- c(-5,5)
-plotlm(glm_SR,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
-plotlm(glmm_SR,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
+plotlm(glm_SR,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),nlme_try=FALSE)
+plotlm(glmm_SR,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),mean=log(mean(AIC_best$correct_SR)/(1-mean(AIC_best$correct_SR))))
   mtext('a) SR Y/N',adj=0.0)
-plotlm(glm_ecov,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
-plotlm(glmm_ecov,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
+plotlm(glm_ecov,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),nlme_try=FALSE)
+plotlm(glmm_ecov,add=TRUE,ylim=ylims,labels=rep(NA,length(labels)),mean=log(mean(AIC_best$correct_ecov)/(1-mean(AIC_best$correct_ecov))))
   mtext(expression('b) E'['cov']~'Y/N'),adj=0.0)
-plotlm(glm_form,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),int=TRUE)
-plotlm(glmm_form,add=TRUE,ylim=ylims,labels=labels,int=TRUE)
+plotlm(glm_form,add=FALSE,ylim=ylims,labels=rep(NA,length(labels)),nlme_try=FALSE)
+plotlm(glmm_form,add=TRUE,ylim=ylims,labels=labels,mean=log(mean(AIC_best$correct_form)/(1-mean(AIC_best$correct_form))))
   mtext(expression('c) SR & E'['cov']~'Y/N'),adj=0.0)
-mtext(outer=TRUE,expression(Delta*'log['~italic('p/(1-p)')*']'),side=2)
+mtext(outer=TRUE,expression('log['~italic('p/(1-p)'~'or'~Delta*'log['~italic('p/(1-p)')*']')),side=2)
 dev.off()
 
 

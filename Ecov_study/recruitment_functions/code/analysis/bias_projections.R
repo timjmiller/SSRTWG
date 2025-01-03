@@ -16,7 +16,7 @@ bad.grad.value <- 1E-6 #tim used 1E-6 (the abs of the exponent will be used for 
 bad.grad.label <- as.numeric(strsplit(as.character(bad.grad.value), split="-")[[1]][2])
 bad.se.value <- 100 #tim used 100 (this value will be used for output suffix; ex: filename_se_100.png)
 
-df.oms          <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
 df.ems    <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "inputs", "df.ems.RDS"))
 conv.runs <- readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir, paste0("conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
 

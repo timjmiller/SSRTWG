@@ -1,5 +1,5 @@
 library(tidyverse)
-source()
+source(file.path(here::here(),'Ecov_study','recruitment_functions','code','analysis','functions_for_analysis.R'))
 
 mrho.df <- as.data.frame(readRDS(file.path(here::here(), 'Ecov_study','recruitment_functions','results','mrho.df.RDS')))
 df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
@@ -51,24 +51,24 @@ labels <- c(expression(sigma['obs']~'= L'),
             expression(italic('CV'['SSB']~'= H'))
 )
 
-mars <- c(6,3,3,3)
+#mars <- c(6,3,3,3)
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','mrho.n1.pdf'),height=3.75,width=6)
-par(mar=mars)
-dd(mrho.df,vars=vars,labels=labels,yvar="n1")
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','mrho.all.pdf'),height=6,width=4.5)
+par(mfrow=c(3,1),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.6,cex.lab=0.6)
+dd(mrho.df,vars=vars,labels=rep(NA,length(labels)),yvar="n1",ylims=c(-0.05,0.05))
+  mtext(expression("Mohn's"~rho),side=2,line=2.5)
 abline(h=0,lty=2)
+mtext('a) Recruitment',adj=0)
+
+dd(mrho.df,vars=vars,labels=rep(NA,length(labels)),yvar="ssb",ylims=c(-0.05,0.05))
+  mtext(expression("Mohn's"~rho),side=2,line=2.5)
+abline(h=0,lty=2)
+mtext('b) Spawning Stock Biomass',adj=0)
+
+dd(mrho.df,vars=vars,labels=labels,yvar="fbar",ylims=c(-0.05,0.05))
+  mtext(expression("Mohn's"~rho),side=2,line=2.5)
+abline(h=0,lty=2)
+mtext('c) F',adj=0)
+
 dev.off()
 
-
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','mrho.ssb.pdf'),height=3.75,width=6)
-par(mar=mars)
-dd(mrho.df,vars=vars,labels=labels,yvar="ssb")
-abline(h=0,lty=2)
-dev.off()
-
-
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','mrho.fbar.pdf'),height=3.75,width=6)
-par(mar=mars)
-dd(mrho.df,vars=vars,labels=labels,yvar="fbar")
-abline(h=0,lty=2)
-dev.off()
