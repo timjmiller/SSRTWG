@@ -1,6 +1,6 @@
-library(rpart)
-library(rpart.plot)
-library(nlme)
+#library(rpart)
+#library(rpart.plot)
+#library(nlme)
 library(tidyverse)
 library(here)
 
@@ -61,11 +61,11 @@ labels <- c(expression(sigma['obs']~'= L'),
             expression(italic('CV'['SSB']~'= H'))
 )
 
-pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','dAIC_marg.pdf'),height=3.75,width=5)
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','dAIC_marg.pdf'),height=3.5,width=5)
 par(mfrow=c(1,1),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.7,cex.lab=0.7)
 ylims <- c(0,1.5)
 dd(AIC_weight,vars=vars,labels=labels,yvar="dAIC",ylims=ylims,mean=TRUE)
-  mtext(expression(italic(dAIC)),side=2,line=2.5)
+  mtext(expression(Delta*'AIC'),side=2,line=2)
   #mtext(expression('a) Constant Ecov'),adj=0)
 dev.off()
 

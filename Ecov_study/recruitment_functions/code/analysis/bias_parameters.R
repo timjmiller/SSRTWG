@@ -192,6 +192,6 @@ RMSE_par[,6:29]              <- sqrt((par_mat[,6:29] - true_mat[,6:29])^2)
 
 print('saving RE_par...')         
 saveRDS(RE_par,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RE_par.RDS") ) )
-print('saving RMSE_par...')         
+print(  'saving RMSE_par...')         
 saveRDS(RMSE_par,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RMSE_par.RDS") ) )
 

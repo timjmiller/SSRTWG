@@ -58,42 +58,78 @@ labels <- c(expression(sigma['obs']~'= L'),
 
 #mars <- c(6,3,3,3)
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg.pdf'),height=5,width=9)
-par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.6,cex.lab=0.6)
-ylims <- c(-0.03,0.03)
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg.pdf'),height=10,width=9)
+par(mfrow=c(4,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
+ylims <- c(-0.1,0.1)
 dd(recr.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
 abline(h=0,lty=2)
-mtext('a) Recruitment',adj=0)
+mtext('a) Recruitment (all)',adj=0)
 mtext('RE',side=2,line=2.5)
 
 dd(ssb.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
-mtext('b) SSB',adj=0)
+mtext('b) SSB (all)',adj=0)
 
 dd(fbar.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
-mtext('c) F',adj=0)
+mtext('c) F (all)',adj=0)
 
-ylims <- c(0,3E3)
-dd(recr.df,vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+dd(recr.df[recr.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
+abline(h=0,lty=2)
+mtext('d) Recruitment (terminal)',adj=0)
+mtext('RE',side=2,line=2.5)
+
+dd(ssb.df[ssb.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+abline(h=0,lty=2)
+mtext('e) SSB (terminal)',adj=0)
+
+dd(fbar.df[fbar.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+abline(h=0,lty=2)
+mtext('f) F (terminal)',adj=0)
+
+
+
+ylims <- c(0,1E4)
+dd(recr.df,vars=vars,labels=rep(NA,length(labels)),yvar="RMSE",ylims=ylims)
   mtext(expression(""),side=2,line=2.5)
 #mtext('a) Recruitment',adj=0)
 mtext('RMSE',side=2,line=2.5)
-mtext('d)',adj=0)
+mtext('g) Recruitment (all)',adj=0)
 
-ylims <- c(0,5E3)
-dd(ssb.df,vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+ylims <- c(0,1E4)
+dd(ssb.df,vars=vars,labels=rep(NA,length(labels)),yvar="RMSE",ylims=ylims)
   mtext(expression(""),side=2,line=2.5)
 #mtext('a) Recruitment',adj=0)
-mtext('e)',adj=0)
+mtext('h) SSB (all)',adj=0)
 
-ylims <- c(0,0.03)
-dd(fbar.df,vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+ylims <- c(0,0.1)
+dd(fbar.df,vars=vars,labels=rep(NA,length(labels)),yvar="RMSE",ylims=ylims)
   mtext(expression(""),side=2,line=2.5)
 #mtext('a) Recruitment',adj=0)
-mtext('f)',adj=0)
+mtext('i) F (all)',adj=0)
+
+ylims <- c(0,1E4)
+dd(recr.df[recr.df$Year==40,],vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+#mtext('a) Recruitment',adj=0)
+mtext('RMSE',side=2,line=2.5)
+mtext('j) Recruitment (terminal)',adj=0)
+
+ylims <- c(0,1E4)
+dd(ssb.df[ssb.df$Year==40,],vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+#mtext('a) Recruitment',adj=0)
+mtext('k) SSB (terminal)',adj=0)
+
+ylims <- c(0,0.1)
+dd(fbar.df[fbar.df$Year==40,],vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+#mtext('a) Recruitment',adj=0)
+mtext('l) F (terminal)',adj=0)
 
 dev.off()
 
