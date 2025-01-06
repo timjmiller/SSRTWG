@@ -58,8 +58,8 @@ labels <- c(expression(sigma['obs']~'= L'),
 
 #mars <- c(6,3,3,3)
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg.pdf'),height=10,width=9)
-par(mfrow=c(4,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_all.pdf'),height=5,width=9)
+par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
 ylims <- c(-0.1,0.1)
 dd(recr.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
 abline(h=0,lty=2)
@@ -76,6 +76,34 @@ dd(fbar.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
 abline(h=0,lty=2)
 mtext('c) F (all)',adj=0)
 
+
+ylims <- c(0,1E4)
+dd(recr.df,vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+#mtext('a) Recruitment',adj=0)
+mtext('RMSE',side=2,line=2.5)
+mtext('g) Recruitment (all)',adj=0)
+
+ylims <- c(0,1E4)
+dd(ssb.df,vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+#mtext('a) Recruitment',adj=0)
+mtext('h) SSB (all)',adj=0)
+
+ylims <- c(0,0.1)
+dd(fbar.df,vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
+  mtext(expression(""),side=2,line=2.5)
+#mtext('a) Recruitment',adj=0)
+mtext('i) F (all)',adj=0)
+
+dev.off()
+
+
+
+
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_terminal.pdf'),height=5,width=9)
+par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
+
 dd(recr.df[recr.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
 abline(h=0,lty=2)
 mtext('d) Recruitment (terminal)',adj=0)
@@ -90,27 +118,6 @@ dd(fbar.df[fbar.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
 mtext('f) F (terminal)',adj=0)
-
-
-
-ylims <- c(0,1E4)
-dd(recr.df,vars=vars,labels=rep(NA,length(labels)),yvar="RMSE",ylims=ylims)
-  mtext(expression(""),side=2,line=2.5)
-#mtext('a) Recruitment',adj=0)
-mtext('RMSE',side=2,line=2.5)
-mtext('g) Recruitment (all)',adj=0)
-
-ylims <- c(0,1E4)
-dd(ssb.df,vars=vars,labels=rep(NA,length(labels)),yvar="RMSE",ylims=ylims)
-  mtext(expression(""),side=2,line=2.5)
-#mtext('a) Recruitment',adj=0)
-mtext('h) SSB (all)',adj=0)
-
-ylims <- c(0,0.1)
-dd(fbar.df,vars=vars,labels=rep(NA,length(labels)),yvar="RMSE",ylims=ylims)
-  mtext(expression(""),side=2,line=2.5)
-#mtext('a) Recruitment',adj=0)
-mtext('i) F (all)',adj=0)
 
 ylims <- c(0,1E4)
 dd(recr.df[recr.df$Year==40,],vars=vars,labels=labels,yvar="RMSE",ylims=ylims)
@@ -133,5 +140,46 @@ mtext('l) F (terminal)',adj=0)
 
 dev.off()
 
+
+#######################################################################
+
+FITS  <- readRDS(file.path(here::here(),"Ecov_study", "recruitment_functions", "results", 'FITS_error.rds'))  # directory where simulation 
+
+
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','trees_error_all.pdf'),height=5,width=8)
+par(mfrow=c(2,3), oma=c(5,0,3,0))
+prp(FITS[['rf_recr_re_all']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('a) RE recruitment (all)',adj=0, line=3, cex=0.9)
+prp(FITS[['rf_ssb_re_all']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('b) RE SSB (all)',adj=0, line=3, cex=0.9)
+prp(FITS[['rf_fbar_re_all']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('c) RE F (all)',adj=0, line=3, cex=0.9)
+
+prp(FITS[['rf_recr_rmse_all']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('d) RMSE recruitment (all)',adj=0, line=3, cex=0.9)
+prp(FITS[['rf_ssb_rmse_all']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('e) RMSE SSB (all)',adj=0, line=3, cex=0.9)
+prp(FITS[['rf_fbar_rmse_ten']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('f) RMSE F (all)',adj=0, line=3, cex=0.9)
+dev.off()
+
+
+#terminal
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','trees_error_terminal.pdf'),height=5,width=8)
+par(mfrow=c(2,3), oma=c(5,0,3,0))
+prp(FITS[['rf_recr_re_last']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('a) RE recruitment (terminal)',adj=0,line=3, cex=0.9)
+prp(FITS[['rf_ssb_re_last']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('b) RE SSB (terminal)',adj=0,line=3, cex=0.9)
+prp(FITS[['rf_fbar_re_last']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('c) RE F (terminal)',adj=0,line=3, cex=0.9)
+
+prp(FITS[['rf_recr_rmse_last']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('d) RMSE recruitment (terminal)',adj=0, line=3, cex=0.9)
+prp(FITS[['rf_ssb_rmse_last']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('e) RMSE SSB (terminal)',adj=0, line=3, cex=0.9)
+prp(FITS[['rf_fbar_rmse_ten']],yesno=FALSE,type=4,clip.right.labs=TRUE,roundint=FALSE)
+  mtext('f) RMSE F (terminal)',adj=0, line=3, cex=0.9)
+dev.off()
 
 

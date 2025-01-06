@@ -1,5 +1,5 @@
-#library(rpart)
-#library(rpart.plot)
+library(rpart)
+library(rpart.plot)
 #library(nlme)
 #library(lme4)
 library(tidyverse)
@@ -80,3 +80,27 @@ dd(AIC_best,vars=vars,labels=labels,yvar="correct_form",ylims=ylims,mean=TRUE)
   mtext(expression('c) SR & E'['cov']~'Y/N'),adj=0)
 dev.off()
 
+
+##############################################
+## TREES #####################################
+##############################################
+cp       <- 1E-8
+maxdepth <- 2
+
+tree_ecov <- rpart(correct_ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=AIC_best,control=rpart.control(cp=cp,maxdepth=maxdepth))
+tree_SR   <- rpart(correct_SR   ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=AIC_best,control=rpart.control(cp=cp,maxdepth=maxdepth))
+tree_form <- rpart(correct_form ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=AIC_best,control=rpart.control(cp=cp,maxdepth=maxdepth))
+
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','trees_AIC.pdf'),height=5,width=8)
+par(mfrow=c(1,3), oma=c(5,0,0,0))
+prp(tree_SR,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext('a) SRR Y/N',adj=0,line=-5, cex=0.9)
+prp(tree_ecov,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('b) E'['cov']*'Y/N'),adj=0,line=-5, cex=0.9)
+  #title(sub=paste0(100*round(aic.best.pct.conv,2), "% of runs converged (", aic.best.n.bad, " out of ", aic.best.n, " failed)" ),   adj=0.5, outer=TRUE)
+prp(tree_form,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('c) SRR and'~'E'['cov']~'Y/N'),adj=0,line=-5, cex=0.9)
+dev.off()

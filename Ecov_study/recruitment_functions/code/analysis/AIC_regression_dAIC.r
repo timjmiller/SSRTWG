@@ -1,5 +1,5 @@
-#library(rpart)
-#library(rpart.plot)
+library(rpart)
+library(rpart.plot)
 #library(nlme)
 library(tidyverse)
 library(here)
@@ -76,12 +76,12 @@ dev.off()
 ##################################################################
 
 tree_daic <- rpart(dAIC ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
-                data=AIC_weight)
+                data=AIC_weight,control = rpart.control(cp = 1E-8, maxdepth=2))
 
 pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','tree_dAIC.pdf'),height=4,width=4)
-par(mfrow=c(1,1), oma=c(5,0,0,0))
+par(mfrow=c(1,1), oma=c(5,2,2,2),mar=c(2,2,2,2))
 prp(tree_daic,yesno=FALSE,type=4,clip.right.labs=TRUE)
-  mtext('a)',adj=0,line=-1, cex=0.9)
+  mtext(expression('a) '*Delta*'AIC'),adj=0,line=1, cex=0.9)
 dev.off()
 
 
