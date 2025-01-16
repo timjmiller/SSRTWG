@@ -187,7 +187,7 @@ RE_par=RMSE_par <- matrix(NA,ncol=ncol(par_mat),nrow=nrow(par_mat))
 colnames(RE_par) = colnames(RMSE_par) <- colnames(par_mat)
 
 RE_par[,1:5]= RMSE_par[,1:5] <- par_mat[,1:5]
-RE_par[,6:29]                <- (par_mat[,6:29] - true_mat[,6:29])/true_mat[,6:29] 
+RE_par[,6:29]                <- (true_mat[,6:29] - par_mat[,6:29])/par_mat[,6:29] 
 RMSE_par[,6:29]              <- sqrt((par_mat[,6:29] - true_mat[,6:29])^2)
 
 print('saving RE_par...')         
