@@ -2,7 +2,7 @@ library(here)
 library(tidyverse)
 library(rpart)
 library(rpart.plot)
-library(nlme)
+#library(nlme)
 
 res.path    <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
 res.dir     <- 'results'   # 'results'     'results_beta_fix'   # results folder where AIC dataframes are
@@ -104,6 +104,7 @@ dev.off()
 pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_terminal.pdf'),height=5,width=9)
 par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
 
+ylims <- c(-0.1,0.1)
 dd(recr.df[recr.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims)
 abline(h=0,lty=2)
 mtext('d) Recruitment (terminal)',adj=0)

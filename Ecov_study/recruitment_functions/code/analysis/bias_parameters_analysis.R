@@ -14,37 +14,83 @@ RE_par   <- as.data.frame(readRDS(file.path(here::here(),'Ecov_study','recruitme
 RMSE_par <- as.data.frame(readRDS(file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RMSE_par.RDS") ) ))
 
 df.oms    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.oms.RDS"))
+df.ems    <- readRDS(file.path(here::here(),"Ecov_study","recruitment_functions", "inputs", "df.ems.RDS"))
 colnames(df.oms)[1] <- 'OM'
 
-##################################
-
-pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RE_par_hist.pdf'),height=12,width=12)
-par(mfrow=c(5,5),mar=c(2,2,2,2),oma=c(2,2,2,2))
-for(i in c(6:10,13:ncol(RE_par))){
-  hist(RE_par[,i],xlab='',ylab='',main='')
-  mtext(colnames(RE_par)[i])
-}
-dev.off()
-
-
-pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RMSE_par_hist.pdf'),height=12,width=12)
-par(mfrow=c(5,5),mar=c(2,2,2,2),oma=c(2,2,2,2))
-for(i in c(6:10,13:ncol(RMSE_par))){
-  hist(RMSE_par[,i],xlab='',ylab='',main='')
-  mtext(colnames(RMSE_par)[i])
-}
-dev.off()
-
-
-#################################
 for(i in 1:576){
   RMSE_par$OM[RMSE_par$OM==i] = RE_par$OM[RE_par$OM==i] <- paste0('om_',i)
 }
 
 RE_par   <- left_join(RE_par,df.oms,by=c('OM'))
+
+##--FILTERING--################
 RE_par$Ecov_beta[!is.finite(RE_par$Ecov_beta) | RE_par$Ecov_beta=='NaN'] <- NA
 
 RMSE_par <- left_join(RMSE_par,df.oms,by=c('OM'))
+
+RE_par$recruit_mod_EM=RMSE_par$recruit_mod_EM <- NA
+  RMSE_par$recruit_mod_EM[RMSE_par$EM==1] = RE_par$recruit_mod_EM[RE_par$EM==1] <- 2
+  RMSE_par$recruit_mod_EM[RMSE_par$EM==2] = RE_par$recruit_mod_EM[RE_par$EM==2] <- 2
+  RMSE_par$recruit_mod_EM[RMSE_par$EM==3] = RE_par$recruit_mod_EM[RE_par$EM==3] <- 3
+  RMSE_par$recruit_mod_EM[RMSE_par$EM==4] = RE_par$recruit_mod_EM[RE_par$EM==4] <- 3
+  RMSE_par$recruit_mod_EM[RMSE_par$EM==5] = RE_par$recruit_mod_EM[RE_par$EM==5] <- 3
+
+RE_par$ecov_how_EM=RMSE_par$ecov_how_EM <- NA
+  RMSE_par$ecov_how_EM[RMSE_par$EM==1] = RE_par$ecov_how_EM[RE_par$EM==1] <- 0
+  RMSE_par$ecov_how_EM[RMSE_par$EM==2] = RE_par$ecov_how_EM[RE_par$EM==2] <- 1
+  RMSE_par$ecov_how_EM[RMSE_par$EM==3] = RE_par$ecov_how_EM[RE_par$EM==3] <- 0
+  RMSE_par$ecov_how_EM[RMSE_par$EM==4] = RE_par$ecov_how_EM[RE_par$EM==4] <- 1
+  RMSE_par$ecov_how_EM[RMSE_par$EM==5] = RE_par$ecov_how_EM[RE_par$EM==5] <- 2
+
+##-select only best fitting model
+AIC_weight             <- readRDS( file.path(here(),'Ecov_study','recruitment_functions',res.dir, paste0("AIC_weight_conv.runs_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".RDS")  ) )
+RE_par   <- RE_par[AIC_weight$AIC_rank==1,]
+RMSE_par <- RMSE_par[AIC_weight$AIC_rank==1,]
+
+RE_par$rec_a   <- RE_par$mean_rec1
+RMSE_par$rec_a <- RMSE_par$mean_rec1
+RE_par$rec_b   <- RE_par$mean_rec2
+RMSE_par$rec_b <- RMSE_par$mean_rec2
+
+RE_par$rec_a[RE_par$recruit_mod_EM==2 | RE_par$Ecov_how %in% c(1,2)] = RMSE_par$rec_a[RMSE_par$recruit_mod_EM==2 | RE_par$Ecov_how %in% c(1,2)] <- NA  #remove BH from mean_rec1
+RE_par$rec_b[RE_par$recruit_mod_EM==2 | RE_par$Ecov_how %in% c(1,2)] = RMSE_par$rec_b[RMSE_par$recruit_mod_EM==2 | RE_par$Ecov_how %in% c(1,2)] <- NA  #remove BH from mean_rec1
+
+RE_par$mean_rec1   <- RE_par$rec_a
+RE_par$mean_rec2   <- RE_par$rec_b
+RMSE_par$mean_rec1 <- RMSE_par$rec_a
+RMSE_par$mean_rec2 <- RMSE_par$rec_b
+
+RE_par$Ecov_beta[RE_par$Ecov_how==0] = NA
+RMSE_par$Ecov_beta[RMSE_par$Ecov_how==0] = NA
+
+#RE_par$mean_rec1[RE_par$recruit_mod_EM==3] = RMSE_par$mean_rec1[RMSE_par$recruit_mod_EM==3] <- NA  #remove BH from mean_rec1
+#RE_par$mean_rec2[RE_par$recruit_mod_EM==3] = RMSE_par$mean_rec2[RMSE_par$recruit_mod_EM==3] <- NA  #remove BH from mean_rec1
+
+
+##-HISTOGRAMS-###########
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RE_par_hist.pdf'),height=12,width=12)
+par(mfrow=c(5,5),mar=c(2,2,2,2),oma=c(2,2,2,2))
+for(i in c(6:10,13:29)){
+  x <- RE_par[,i]
+  x <- x[x > quantile(x,p=0.01,na.rm=TRUE) & x < quantile(x,p=0.99,na.rm=TRUE)]
+  hist(x,xlab='',ylab='',main='',col='white')
+  abline(v=mean(x,na.rm=TRUE),lwd=2,col='red',lty=3)
+  mtext(colnames(RE_par)[i])
+}
+dev.off()
+
+
+#pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RMSE_par_hist.pdf'),height=12,width=12)
+#par(mfrow=c(5,5),mar=c(2,2,2,2),oma=c(2,2,2,2))
+#for(i in c(6:10,13:29)){
+#  x <- RMSE_par[,i]
+#  x <- x[x > quantile(x,p=0.01,na.rm=TRUE) & x < quantile(x,p=0.99,na.rm=TRUE)]
+#  hist(x,xlab='',ylab='',main='')
+#  mtext(colnames(RMSE_par)[i])
+#}
+#dev.off()
+
+##--MARGINAL MEDIANS--###############
 
 ##--COVARIATES--########
 RE_par$obs_error=  RMSE_par$obs_error   <- factor(RE_par$obs_error,levels=c("L","H"))
@@ -91,16 +137,60 @@ labels <- c(expression(sigma['obs']~'= L'),
             expression(italic('CV'['SSB']~'= H'))
 )
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','par_marg.pdf'),height=6,width=4.5)
-par(mfrow=c(3,1),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.6,cex.lab=0.6)
-ylims <- c(0,1)
-dd(RMSE_par,vars=vars,labels=rep(NA,length(labels)),yvar="Ecov_beta",ylims=ylims)
-  mtext(expression("RE"),side=2,line=2.5)
-abline(h=0,lty=2)
-#mtext('a) Recruitment',adj=0)
 
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','par_marg.pdf'),height=6,width=6)
+par(mfrow=c(3,2),mar=c(3,2,1,0),oma=c(6,4,2,2),cex.axis=0.6,cex.lab=0.6)
+ylims <- c(-1,1)
+dd(RE_par,vars=vars,labels=labels,yvar="mean_rec1",ylims=ylims,mean=TRUE)
+  abline(h=0,lty=2)
+  mtext(expression("RE"),side=2,line=2.5)
+
+ylims <- c(-1,10)
+dd(RE_par,vars=vars,labels=labels,yvar="mean_rec2",ylims=ylims,mean=TRUE)
+  abline(h=0,lty=2)
+
+ylims <- c(-1,10)
+dd(RE_par,vars=vars,labels=labels,yvar="NAA_sigma",ylims=ylims,mean=TRUE)
+  abline(h=0,lty=2)
+  mtext(expression("RE"),side=2,line=2.5)
+
+ylims <- c(-1,1)
+dd(RE_par,vars=vars,labels=labels,yvar="NAA_rho",ylims=ylims,mean=TRUE)
+  abline(h=0,lty=2)
+
+ylims <- c(-2,1)
+dd(RE_par,vars=vars,labels=labels,yvar="Ecov_beta",ylims=ylims,mean=TRUE)
+  abline(h=0,lty=2)
+  mtext(expression("RE"),side=2,line=2.5)
+
+ylims <- c(-1,1)
+dd(RE_par,vars=vars,labels=labels,yvar="Ecov_process_pars3",ylims=ylims,mean=TRUE)
+  abline(h=0,lty=2)
 
 dev.off()
+
+
+
+###################################################
+## RANDOM PLOTS ###################################
+###################################################
+
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','try.pdf'),height=6,width=4.5)
+hist(RE_par$Ecov_beta[RE_par$Ecov_how==1 & RE_par$ecov_how_EM==1 & RE_par$recruit_mod_EM==3])
+hist(RE_par$Ecov_beta[RE_par$Ecov_how==2 & RE_par$ecov_how_EM==2 & RE_par$recruit_mod_EM==3])
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
