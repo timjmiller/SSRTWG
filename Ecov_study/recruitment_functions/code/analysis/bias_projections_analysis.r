@@ -154,7 +154,7 @@ dev.off()
 
 pdf(file=file.path(here::here(),'Ecov_study','recruitment_functions','plots','proj_ssb_marg.pdf'),height=4.25,width=8)
 par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.7,cex.lab=0.7)
-ylims <- c(-0.1,0.1)
+ylims <- c(-0.15,0.15)
 dd(df.ssb.proj,vars=vars,labels=rep(NA,length(labels)),yvar="re.cont.ecov",ylims=ylims)
   abline(h=0,lty=2)
   mtext(expression('RE'),side=2,line=2.5)
@@ -194,12 +194,40 @@ dd(df.catch.proj,vars=vars,labels=labels,yvar="rmse.avg.ecov",ylims=ylims)
 dd(df.catch.proj,vars=vars,labels=labels,yvar="rmse.avg.ecov",ylims=ylims)
 dev.off()
 
+cp <- 1E-8
+maxdepth <- 2
 
+rf.re.recr  <- rpart(re.use.ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=df.recr.proj, control=rpart.control(cp=cp,maxdepth=maxdepth))
+rf.re.ssb   <- rpart(re.use.ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=df.ssb.proj, control=rpart.control(cp=cp,maxdepth=maxdepth))
+rf.re.catch <- rpart(re.use.ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=df.catch.proj, control=rpart.control(cp=cp,maxdepth=maxdepth))
 
+rf.rmse.recr  <- rpart(rmse.use.ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=df.recr.proj, control=rpart.control(cp=cp,maxdepth=maxdepth))
+rf.rmse.ssb   <- rpart(rmse.use.ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=df.ssb.proj, control=rpart.control(cp=cp,maxdepth=maxdepth))
+rf.rmse.catch <- rpart(rmse.use.ecov ~ obs_error + R_sig + Fhist + NAA_cor + Ecov_re_cor + Ecov_effect + Ecov_how + ecov_slope + ssb_cv, 
+                data=df.catch.proj, control=rpart.control(cp=cp,maxdepth=maxdepth))
 
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','trees_proj.pdf'),height=5,width=8)
+par(mfrow=c(2,3), oma=c(5,0,0,0))
+prp(rf.re.recr,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('a) Recruitment RE'),adj=0,line=2.5, cex=0.9)
+prp(rf.re.ssb,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('b) SSB RE'),adj=0,line=2.5, cex=0.9)
+prp(rf.re.catch,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('c) Catch RE'),adj=0,line=2.5, cex=0.9)
 
+prp(rf.rmse.recr,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('d) Recruitment RMSE'),adj=0,line=2.5, cex=0.9)
+prp(rf.rmse.ssb,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('e) SSN RMSE'),adj=0,line=2.5, cex=0.9)
+prp(rf.rmse.catch,yesno=FALSE,type=4,clip.right.labs=TRUE)
+  mtext(expression('f) Catch RMSE'),adj=0,line=2.5, cex=0.9)
 
-
+dev.off()
 
 
 
