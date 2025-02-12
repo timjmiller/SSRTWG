@@ -116,6 +116,7 @@ make_mohns_rho_df <- function(om_type = "naa", res = all_naa_mohns_rho) {
   facs <- c("om", "Fhist","NAA_sig", "R_sig", "M_sig", "M_cor", "Sel_sig", "Sel_cor", "q_sig", "q_cor", "obs_error", "correct_EM_PE")
   fac_names <- names(df)[names(df) %in% facs]
   df[fac_names] <- lapply(df[fac_names], as.factor)
+  df$correct_EM_PE[df$correct_EM_PE== "No"] <- NA
   est_config <- c("M known, No SR", "M estimated, No SR", "M known, SR", "M estimated, SR")
   df$est_config <- est_config[1]
   df$est_config[df$M_est & df$SR_model == 2] <- est_config[2]
@@ -137,7 +138,7 @@ q_mohns_rho_df <- make_mohns_rho_df(om_type = "q", res = all_q_mohns_rho)
 ylims <- c(-0.4,0.4)
 Values <- c("SSB","F","R")
 Ylabs <- list(expression("Mohn's"~rho(SSB)), expression("Mohn's"~rho(italic(F))), expression("Mohn's"~rho(italic(R))))
-for(i in 1:3)
+for(i in 1:3){
   theme_set(theme_bw())
   theme_update(strip.text = element_text(size = rel(2)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
         axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(2)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
@@ -150,7 +151,7 @@ for(i in 1:3)
       scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
       scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
       geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
       labs(colour = "EM process error", fill = "EM process error") +
@@ -164,7 +165,7 @@ for(i in 1:3)
       scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
       scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
       geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
       labs(colour = "EM process error", fill = "EM process error") +
@@ -178,7 +179,7 @@ for(i in 1:3)
       scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
       scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
       geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
       labs(colour = "EM process error", fill = "EM process error") +
@@ -192,7 +193,7 @@ for(i in 1:3)
       scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
       geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
       geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
       scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
       geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
       labs(colour = "EM process error", fill = "EM process error") +
@@ -201,17 +202,19 @@ for(i in 1:3)
 
   R_Sel_plt_alt <- R_Sel_plt + 
       geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) 
+      geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
   
   theme_set(theme_bw())
   theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
-  cairo_pdf(here("Project_0","manuscript", paste0("mohns_rho_", Values[i],"_plots.pdf")), width = 30*2/3, height = 20*2/3)
   design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
-  (R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-  (R_M_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-  (R_Sel_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
+  plt_all <- (R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
+  (R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
+  (R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
   (R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
     plot_layout(design = design, axis_titles = "collect")
+
+  cairo_pdf(here("Project_0","manuscript", paste0("mohns_rho_", Values[i],"_plots.pdf")), width = 30*2/3, height = 20*2/3)
+  print(plt_all)
   dev.off()
 }
 
@@ -227,7 +230,7 @@ R_S_plt <- ggplot(filter(naa_mohns_rho_df, Type == "F"), aes(x = est_config, y =
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     facet_nested(obs_error + Fhist ~ R_sig + NAA_sig, labeller = labeller(Fhist = label_parsed, R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    geom_point(position = position_dodge(0.7), mapping = aes(colour = EM_process_error, fill = EM_process_error, size = correct_EM_PE, shape = correct_EM_PE)) + 
+    geom_point(position = position_dodge(0.7), mapping = aes(colour = EM_process_error, fill = EM_process_error, size = correct_EM_PE, shape = correct_EM_PE), na.rm = TRUE) + 
     scale_shape_manual(values = c('No'=21, 'Yes'=23)) + 
     scale_size_manual(values = c('No'=2, 'Yes'=4)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
@@ -243,7 +246,7 @@ R_M_plt <- ggplot(filter(M_mohns_rho_df, Type == "F"), aes(x = est_config, y = m
     scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), mapping = aes(colour = EM_process_error, fill = EM_process_error, size = correct_EM_PE, shape = correct_EM_PE)) + 
+    geom_point(position = position_dodge(0.7), mapping = aes(colour = EM_process_error, fill = EM_process_error, size = correct_EM_PE, shape = correct_EM_PE), na.rm = TRUE) + 
     scale_shape_manual(values = c('No'=21, 'Yes'=23)) + 
     scale_size_manual(values = c('No'=2, 'Yes'=4)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +

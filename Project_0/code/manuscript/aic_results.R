@@ -247,8 +247,8 @@ R_Sel_aic_plt_alt <- R_Sel_aic_plt +
 cairo_pdf(here("Project_0","manuscript", "pe_aic_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (R_S_aic_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
-(R_M_aic_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
-(R_Sel_aic_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
+(R_M_aic_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
+(R_Sel_aic_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
 (R_q_aic_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
@@ -357,7 +357,7 @@ for(i in 1:4) {
         "0.1" = "sigma[Sel] == 0.1",
         "0.5" = "sigma[Sel] == 0.5")) %>% 
       mutate(Sel_cor = recode(Sel_cor,
-        "0" = "rho[Sell] == 0",
+        "0" = "rho[Sel] == 0",
         "0.9" = "rho[Sel] == 0.9"))
   }
   if(i == 4){
@@ -423,7 +423,6 @@ for(i in 1:4) {
       xlab("log(SD(log(SSB)))") + ylab("Probability SR assumption with lowest AIC") + xlim(-3,1)
     R_M_sr_aic_plt
 
-
     R_Sel_sr_aic_plt <- ggplot(pred_dfs[[3]], aes(x = log_sd_log_SSB, y = pred, colour = type, fill =  type)) + 
       facet_nested(obs_error+ Fhist ~ Sel_sig + Sel_cor, 
         labeller = labeller(Sel_sig = label_parsed, Sel_cor = label_parsed, Fhist = label_parsed)) +
@@ -451,8 +450,8 @@ theme_update(strip.placement = "outside", strip.background = element_rect(), tit
 cairo_pdf(here("Project_0","manuscript", "sr_aic_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (R_S_sr_aic_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
-(R_M_sr_aic_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
-(R_Sel_sr_aic_plt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
+(R_M_sr_aic_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
+(R_Sel_sr_aic_plt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
 (R_q_sr_aic_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()

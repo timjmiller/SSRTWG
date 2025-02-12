@@ -199,11 +199,12 @@ make_plot_df <- function(om_type = "naa", res = naa_relSR_results, is_SE = FALSE
         "MSY" = "italic(F)[MSY]"))
   df <- df %>% as.data.frame
   facs <- c("om", "Fhist","NAA_sig", "R_sig", "M_sig", "M_cor", "Sel_sig", "Sel_cor", "q_sig", "q_cor", "obs_error", "correct_EM_PE")
-  fac_names <- names(df)[names(df) %in% facs]
+  fac_names <- names(df)[names(df) %in% facs]  
   df[fac_names] <- lapply(df[fac_names], as.factor)
+  df$correct_EM_PE[df$correct_EM_PE== "No"] <- NA
   return(df)
 }
-temp <- make_plot_df(om_type = "M", res = M_rel_M_results, M_or_SR = "M")
+# temp <- make_plot_df(om_type = "M", res = M_rel_M_results, M_or_SR = "M")
 
 
 df.ems <- readRDS(here::here("Project_0","inputs", "df.ems.RDS"))
@@ -249,7 +250,7 @@ naa_plt <- ggplot(R_S_df, aes(x = M_config, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -266,7 +267,7 @@ M_plt <- ggplot(R_M_df, aes(x = M_config, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -282,7 +283,7 @@ Sel_plt <- ggplot(R_Sel_df, aes(x = M_config, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -298,7 +299,7 @@ q_plt <- ggplot(R_q_df, aes(x = M_config, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -309,15 +310,15 @@ q_plt
 
 Sel_plt_alt <- Sel_plt + 
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
 
 theme_set(theme_bw())
 theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
 cairo_pdf(here("Project_0","manuscript", "sr_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (naa_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
-(M_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
-(Sel_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
+(M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
+(Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
 (q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
@@ -360,7 +361,7 @@ naa_plt <- ggplot(R_S_df, aes(x = SR_model, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -376,7 +377,7 @@ M_plt <- ggplot(R_M_df, aes(x = SR_model, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -392,7 +393,7 @@ Sel_plt <- ggplot(R_Sel_df, aes(x = SR_model, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -408,7 +409,7 @@ q_plt <- ggplot(R_q_df, aes(x = SR_model, y = middle))  +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -418,15 +419,15 @@ q_plt
 
 Sel_plt_alt <- Sel_plt + 
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
 
 theme_set(theme_bw())
 theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
 cairo_pdf(here("Project_0","manuscript", "M_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (naa_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(M_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(Sel_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
+(M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
+(Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
 (q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
@@ -546,6 +547,7 @@ make_annual_relerror_df <- function(om_type = "naa", res = all_naa_om_relssb, is
   facs <- c("om", "Fhist","NAA_sig", "R_sig", "M_sig", "M_cor", "Sel_sig", "Sel_cor", "q_sig", "q_cor", "obs_error", "correct_EM_PE")
   fac_names <- names(df)[names(df) %in% facs]
   df[fac_names] <- lapply(df[fac_names], as.factor)
+  df$correct_EM_PE[df$correct_EM_PE== "No"] <- NA
   est_config <- c("M known, No SR", "M estimated, No SR", "M known, SR", "M estimated, SR")
   df$est_config <- est_config[1]
   df$est_config[df$M_est & df$SR_model == 2] <- est_config[2]
@@ -620,7 +622,7 @@ R_S_plt <- ggplot(filter(R_S_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -636,7 +638,7 @@ R_M_plt <- ggplot(filter(R_M_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -653,7 +655,7 @@ R_Sel_plt <- ggplot(filter(R_Sel_df, year == "End"), aes(x = est_config, y = mid
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -670,7 +672,7 @@ R_q_plt <- ggplot(filter(R_q_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -681,7 +683,7 @@ R_q_plt
 
 R_Sel_plt_alt <- R_Sel_plt + 
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
 
 
 theme_set(theme_bw())
@@ -689,8 +691,8 @@ theme_update(strip.placement = "outside", strip.background = element_rect(), tit
 cairo_pdf(here("Project_0","manuscript", "term_SSB_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(R_M_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(R_Sel_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
+(R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
+(R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
 (R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
@@ -748,7 +750,7 @@ R_S_plt <- ggplot(filter(R_S_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -764,7 +766,7 @@ R_M_plt <- ggplot(filter(R_M_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -781,7 +783,7 @@ R_Sel_plt <- ggplot(filter(R_Sel_df, year == "End"), aes(x = est_config, y = mid
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -798,7 +800,7 @@ R_q_plt <- ggplot(filter(R_q_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -809,7 +811,7 @@ R_q_plt
 
 R_Sel_plt_alt <- R_Sel_plt + 
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
 
 
 theme_set(theme_bw())
@@ -817,8 +819,8 @@ theme_update(strip.placement = "outside", strip.background = element_rect(), tit
 cairo_pdf(here("Project_0","manuscript", "term_F_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(R_M_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(R_Sel_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
+(R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
+(R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
 (R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
@@ -873,7 +875,7 @@ R_S_plt <- ggplot(filter(R_S_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -889,7 +891,7 @@ R_M_plt <- ggplot(filter(R_M_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -906,7 +908,7 @@ R_Sel_plt <- ggplot(filter(R_Sel_df, year == "End"), aes(x = est_config, y = mid
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -923,7 +925,7 @@ R_q_plt <- ggplot(filter(R_q_df, year == "End"), aes(x = est_config, y = middle)
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) + 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
     scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
     geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
     labs(colour = "EM process error", fill = "EM process error") +
@@ -934,7 +936,7 @@ R_q_plt
 
 R_Sel_plt_alt <- R_Sel_plt + 
     geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7)) 
+    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
 
 
 theme_set(theme_bw())
@@ -942,8 +944,8 @@ theme_update(strip.placement = "outside", strip.background = element_rect(), tit
 cairo_pdf(here("Project_0","manuscript", "term_R_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
 design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(R_M_plt + labs(title = "C: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(R_Sel_plt_alt + xlab("") + labs(title = "B: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
+(R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
+(R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
 (R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
