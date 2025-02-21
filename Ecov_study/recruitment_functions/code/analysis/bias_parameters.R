@@ -195,3 +195,8 @@ saveRDS(RE_par,  file.path(here::here(),'Ecov_study','recruitment_functions',res
 print(  'saving RMSE_par...')         
 saveRDS(RMSE_par,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RMSE_par.RDS") ) )
 
+print('saving RE_par...')         
+saveRDS(RE_par,  file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RE_par.RDS") ) )
+print(  'saving RMSE_par...')         
+saveRDS(RMSE_par,file.path(here::here(),'Ecov_study','recruitment_functions',res.dir , paste0("RMSE_par.RDS") ) )
+

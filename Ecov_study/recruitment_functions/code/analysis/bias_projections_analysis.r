@@ -130,6 +130,47 @@ labels <- c(expression(sigma['obs']~'= L'),
             expression(italic('CV'['SSB']~'= H'))
 )
 
+
+pdf(file=file.path(here::here(),'Ecov_study','recruitment_functions','plots','proj_use_ecov_marg.pdf'),height=4.25,width=8)
+par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.7,cex.lab=0.7)
+ylims <- c(-0.5,0.5)
+dd(df.recr.proj,vars=vars,labels=rep(NA,length(labels)),yvar="re.use.ecov",ylims=ylims)
+  abline(h=0,lty=2)
+  mtext(expression('a) Recruitment'),adj=0)
+  mtext(expression('RE'),side=2,line=2.5)
+
+ylims <- c(-0.15,0.15)
+dd(df.ssb.proj,vars=vars,labels=rep(NA,length(labels)),yvar="re.use.ecov",ylims=ylims)
+  abline(h=0,lty=2)
+  mtext(expression('b) SSB'),adj=0)
+
+ylims <- c(-0.1,0.1)
+dd(df.catch.proj,vars=vars,labels=rep(NA,length(labels)),yvar="re.use.ecov",ylims=ylims)
+  abline(h=0,lty=2)
+  mtext(expression('c) Catch'),adj=0)
+
+ylims <- c(0,2E4)
+dd(df.recr.proj,vars=vars,labels=labels,yvar="rmse.use.ecov",ylims=ylims)
+  mtext(expression('d) Recruitment'),adj=0)
+  mtext(expression('RMSE'),side=2,line=2.5)
+
+ylims <- c(0,6E4)
+dd(df.ssb.proj,vars=vars,labels=labels,yvar="rmse.use.ecov",ylims=ylims)
+  mtext(expression('e) SSB'),adj=0)
+
+ylims <- c(0,1.1E4)
+dd(df.catch.proj,vars=vars,labels=labels,yvar="rmse.use.ecov",ylims=ylims)
+  mtext(expression('f) Catch'),adj=0)
+
+dev.off()
+
+
+
+
+
+
+############################################################################
+
 pdf(file=file.path(here::here(),'Ecov_study','recruitment_functions','plots','proj_recr_marg.pdf'),height=4.25,width=8)
 par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.7,cex.lab=0.7)
 ylims <- c(-0.5,0.5)
