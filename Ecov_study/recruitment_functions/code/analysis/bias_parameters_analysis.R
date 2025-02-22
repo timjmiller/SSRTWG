@@ -75,14 +75,18 @@ RE_par$Ecov_beta <- RE_par$Ecov_beta + 1
 
 
 ##-HISTOGRAMS-###########
-pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RE_par_hist.pdf'),height=12,width=12)
-par(mfrow=c(5,5),mar=c(2,2,2,2),oma=c(2,2,2,2))
+pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RE_par_hist.pdf'),height=9,width=9)
+par(mfrow=c(5,5),mar=c(1.5,1,2,1),oma=c(4,2,2,2))
+k=1
 for(i in c(8:10,13:29,43:44)){
   x <- RE_par[,i]
   x <- x[x > quantile(x,p=0.01,na.rm=TRUE) & x < quantile(x,p=0.99,na.rm=TRUE)]
-  hist(x,xlab='',ylab='',main='',col='white')
-  abline(v=mean(x,na.rm=TRUE),lwd=2,col='red',lty=1)
-  mtext(colnames(RE_par)[i])
+  yy <- hist(x,plot=FALSE,breaks=20)
+  plot(yy,xlab='',ylab='',main='',col='white',ylim=c(0,max(yy$counts) + 0.2*max(yy$counts)),yaxt='n')
+  abline(v=mean(x,na.rm=TRUE),lwd=2,col='red',lty=2)
+  mtext(colnames(RE_par)[i],line=2.25,side=1,cex=0.8)
+  mtext(adj=0,paste0(letters[k],')'),line=-2)
+  k <- k+1
 }
 dev.off()
 
@@ -147,21 +151,21 @@ labels <- c(expression(sigma['obs']~'= L'),
 )
 
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','par_marg.pdf'),height=5,width=9)
-par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.65,cex.lab=0.5)
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','par_marg.pdf'),height=5.5,width=9)
+par(mfrow=c(2,3),mar=c(4.5,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
 ylims <- c(-1,2)
-dd(RE_par,vars=vars,labels=rep(NA,length(labels)),yvar="rec_a",ylims=ylims,mean=TRUE)
+dd(RE_par,vars=vars,labels=labels,yvar="rec_a",ylims=ylims,mean=TRUE)
   abline(h=0,lty=2)
   mtext(expression("RE"),side=2,line=2.5)
   mtext(expression("a) rec_a"),adj=0.0,cex=0.8)
 
 ylims <- c(-1,22)
-dd(RE_par,vars=vars,labels=rep(NA,length(labels)),yvar="rec_b",ylims=ylims,mean=TRUE)
+dd(RE_par,vars=vars,labels=labels,yvar="rec_b",ylims=ylims,mean=TRUE)
   abline(h=0,lty=2)
   mtext(expression("b) rec_b"),adj=0.0,cex=0.8)
 
 ylims <- c(-1,6)
-dd(RE_par,vars=vars,labels=rep(NA,length(labels)),yvar="NAA_sigma",ylims=ylims,mean=TRUE)
+dd(RE_par,vars=vars,labels=labels,yvar="NAA_sigma",ylims=ylims,mean=TRUE)
   abline(h=0,lty=2)
   mtext(expression("c) NAA_sigma"),adj=0.0,cex=0.8)
 

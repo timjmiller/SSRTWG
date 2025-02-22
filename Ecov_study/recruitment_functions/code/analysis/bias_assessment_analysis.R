@@ -2,7 +2,7 @@ library(here)
 library(tidyverse)
 library(rpart)
 library(rpart.plot)
-library(plyr)
+#library(plyr)
 #library(nlme)
 
 res.path    <- file.path(here::here(),"Ecov_study", "recruitment_functions", "results")  # directory where simulation 
@@ -59,20 +59,20 @@ labels <- c(expression(sigma['obs']~'= L'),
 
 #mars <- c(6,3,3,3)
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_all.pdf'),height=5,width=9)
-par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_all.pdf'),height=5.5,width=9)
+par(mfrow=c(2,3),mar=c(4.5,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
 ylims <- c(-0.1,0.1)
-dd(recr.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims,mean=TRUE)
+dd(recr.df,vars=vars,labels=labels,yvar="RE",ylims=ylims,mean=TRUE)
 abline(h=0,lty=2)
 mtext('a) Recruitment (all)',adj=0)
 mtext('RE',side=2,line=2.5)
 
-dd(ssb.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims,mean=TRUE)
+dd(ssb.df,vars=vars,labels=labels,yvar="RE",ylims=ylims,mean=TRUE)
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
 mtext('b) SSB (all)',adj=0)
 
-dd(fbar.df,vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims,mean=TRUE)
+dd(fbar.df,vars=vars,labels=labels,yvar="RE",ylims=ylims,mean=TRUE)
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
 mtext('c) F (all)',adj=0)
@@ -102,21 +102,21 @@ dev.off()
 
 
 
-pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_terminal.pdf'),height=5,width=9)
-par(mfrow=c(2,3),mar=c(1,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
+pdf(file=file.path(here::here(), 'Ecov_study','recruitment_functions','plots','assessment.marg_terminal.pdf'),height=5.5,width=9)
+par(mfrow=c(2,3),mar=c(4.5,2,1,0),oma=c(6,4,2,2),cex.axis=0.8,cex.lab=0.8)
 
 ylims <- c(-0.1,0.1)
-dd(recr.df[recr.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims,mean=TRUE)
+dd(recr.df[recr.df$Year==40,],vars=vars,labels=labels,yvar="RE",ylims=ylims,mean=TRUE)
 abline(h=0,lty=2)
 mtext('a) Recruitment (terminal)',adj=0)
 mtext('RE',side=2,line=2.5)
 
-dd(ssb.df[ssb.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims,mean=TRUE)
+dd(ssb.df[ssb.df$Year==40,],vars=vars,labels=labels,yvar="RE",ylims=ylims,mean=TRUE)
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
 mtext('b) SSB (terminal)',adj=0)
 
-dd(fbar.df[fbar.df$Year==40,],vars=vars,labels=rep(NA,length(labels)),yvar="RE",ylims=ylims,mean=TRUE)
+dd(fbar.df[fbar.df$Year==40,],vars=vars,labels=labels,yvar="RE",ylims=ylims,mean=TRUE)
   mtext(expression(""),side=2,line=2.5)
 abline(h=0,lty=2)
 mtext('c) F (terminal)',adj=0)
