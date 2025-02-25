@@ -160,7 +160,7 @@ bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
   theme(axis.text.y = element_text(size = 12)) +
   theme(axis.title.x = element_text(size = 13))   + 
   theme(axis.title.y = element_text(size = 13))   +
-  ylab('Number failed convg. checks (OM-EM-Sim with lowest AIC)') +
+  ylab('Number failed convg. checks') +
   labs(subtitle=paste0(100*round(pct.fail.convg,3), '% of all OM-EM-Sims failed 1 or more convergence checks; max(abs(gradient)) > ', bad.grad.value, ' and/or par_SE > ', bad.se.value  ))
 ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".plot.png" ) ),  height=7, width=12)
 
