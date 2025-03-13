@@ -193,7 +193,7 @@ Hansell\textsuperscript{2} \and Christopher M.
 Legault\textsuperscript{2} \and Chengxue
 Li\textsuperscript{2} \and Brandon Muffley\textsuperscript{5} \and Brian
 C. Stock\textsuperscript{6} \and John Wiedenmann\textsuperscript{7}}
-\date{13 February, 2025}
+\date{12 March, 2025}
 
 \begin{document}
 \maketitle
@@ -253,44 +253,96 @@ correct process error assumptions.
 \addcontentsline{toc}{section}{Introduction}
 
 Application of state-space models in fisheries stock assessment and
-management has expanded dramatically within ICES, Canada, and the
-Northeast US (Nielsen and Berg 2014; Cadigan 2016; Pedersen and Berg
-2017; Stock and Miller 2021). State-space approaches that use random
-effects to parameterize process errors is considered best practice and a
-requirement for the next generation of stock assessment models (Hoyle et
-al. 2022; Punt 2023).
+management has expanded dramatically within International Council for
+the Exploration of the Sea (ICES), Canada, and the Northeast US (Nielsen
+and Berg 2014; Cadigan 2016; Pedersen and Berg 2017; Stock and Miller
+2021). State-space models latent population characteristics as
+statistical time series with periodic observations that also may have
+error due to sampling or other sources of measurement error. Traditional
+assessment models may use state-space approaches to account for temporal
+variability in population characteristics (Legault and Restrepo 1999;
+Methot and Wetzel 2013), but these models treat the annual parameters as
+penalized fixed effects parameters where the variance parameters
+controlling the penalties are assumed known (Thorson and Minto 2015).
+Modern state-space models can estimate the annually varying parameters
+as random effects with variance parameters estimated using maximum
+marginal likelihood or corresponding Bayesian approaches. These latter
+approaches are considered best practice and a requirement for the next
+generation of stock assessment models (Hoyle et al. 2022; Punt 2023).
 
-Although the statistical aspects of state-space models and their
-application have been studied extensively, the work is primarily on
-Gaussian state-space models. State-space stock assessment models, where
-there are nonlinear functions of latent parameters and multiple types of
-observations with varying distributional assumptions, is one of the most
-complex examples of this analytical approach.
+State-space stock assessment models, with nonlinear functions of latent
+parameters and multiple types of observations with varying
+distributional assumptions, are one of the most complex examples of this
+analytical approach. Statistical aspects of state-space models and their
+application within fisheries have been studied extensively, but previous
+work has focused primarily on linear and Gaussian state-space models
+(Aeberhard et al. 2018; Auger-Méthé et al. 2021). Therefore, current
+understanding of the reliability of state-space models does not extend
+to usage for stock assessment.
 
-Much is known about the reliability of state-space models that are
-linear or Gaussian (Aeberhard et al. 2018), but not for the more complex
-application in stock assessment modeling.
+As state-space models provide greater flexibility by allowing multiple
+processes to vary as random effects (Nielsen and Berg 2014; Aeberhard et
+al. 2018; Stock et al. 2021), one of the most immediate questions
+regards the implications of mis-specification among alternative sources
+of process error. Incorrect treatment of population attributes as
+temporally varying (Trijoulet et al. 2020; Liljestrand et al. 2024)
+could lead to misidentification of stock status and biased population
+estimates, ultimately impacting fisheries management decisions (Legault
+and Palmer 2016; Szuwalski et al. 2018; Cronin-Fine and Punt 2021).
+Furthermore, biological, fishery, and observational processes are often
+confounded in catch-at-age data, which may adversely affect ability to
+distinguish between true process variability and observational error (Li
+et al. In review; Punt et al. 2014; Stewart and Monnahan 2017;
+Cronin-Fine and Punt 2021; Fisch et al. 2023).
 
-(Li et al. 2024 investigated some aspects of inferences for operating
-models with multiple sources of process error, but there are differences
-for this paper.)
+Li et al. (2024) conducted a full-factorial simulation-estimation study
+to assess model reliability when confounding random-effects processes
+(numbers-at-age, fishery selectivity, and natural mortality) were
+included. Their results suggest that while state-space models can
+generally identify sources of process error, overly complex models, even
+when misspecified (i.e., incorporating process error that did not exist
+in reality), often performed similarly to correctly specified models,
+with little to no bias in key management quantities. Similarly,
+Liljestrand et al. (2024) found little downside in assuming process
+error in recruitment or selectivity, even when it was absent.
 
-There is a wide range of model parameters that can be treated as random
-effects in assessment models and a variety of potential distributions
-for the random effects. We know relatively little about the factors
-affecting statistical reliability of such models or the ability to
-distinguish among such alternative structures.
+Despite mounting efforts, several limitations remain. First, confounding
+processes that can be treated as random effects in the model were not
+thoroughly examined or tested within a simulation-estimation framework.
+Second, previous studies relied on operating models conditioned on
+specific fisheries, limiting their generalizability (Li et al. In
+review; Liljestrand et al. 2024). In particular, the effects of
+observation error and underlying fishing history were not fully isolated
+from their study design, making it challenging to disentangle the
+interplay between process and observation error magnitudes, as
+demonstrated in Fisch et al. (2023). Third, explicitly modeling
+stock-recruitment relationships as mechanistic drivers of population
+dynamics is promising (Fleischman et al. 2013; Du Pontavice et al. 2022)
+but can be challenging in state-space models. Evidence suggests that
+when both process and observation errors are unknown, estimating density
+dependence parameters becomes highly uncertain (Knape 2008; Polansky et
+al. 2009). In particular, Knape (2008) demonstrated that stronger
+density dependence becomes increasingly difficult to estimate in the
+presence of observation error. Therefore, it is crucial to assess
+whether density dependence mechanisms can be estimated with sufficient
+precision before drawing ecological conclusions (Auger-Méthé et al.
+2016).
 
-Here we conduct a simulation study with operating models (OMs) varying
-by degree of observation error error, source and variability of process
-error, and fishing history. The simulations from these OMs are fitted
-with estimation models (EMs) that make alternative assumptions for
-sources of process error, whether a stock-recruit model was estimated,
-and whether a constant, or, in some EMs, median, natural mortality is
-estimated. We evaluate whether AIC can correctly determine the correct
-source of process error and a stock-recruit relationship. We also
-evaluate when retrospective patterns occur and the degree of bias in the
-outputs of the assessment model that are important for management.
+In the present study, we conduct a simulation study with operating
+models (OMs) varying by degree of observation error, source and
+variability of process error, and fishing history. The simulations from
+these OMs are fitted with estimation models (EMs) that make alternative
+assumptions for sources of process error, whether a stock-recruit model
+was estimated, and whether a constant, or, in some EMs, median, natural
+mortality is estimated. Given the confounding nature of process errors,
+developing diagnostic tools to detect model misspecification is of great
+scientific interest and could aid the next generation of stock
+assessments (Auger-Méthé et al. 2021). We evaluate whether convergence
+and Akaike Information Criterion (AIC) can correctly determine the
+source of process error and the existence of a stock-recruit
+relationship. We also evaluate when retrospective patterns occur and the
+degree of bias in the outputs of the assessment model that are important
+for management.
 
 \hypertarget{methods}{%
 \section*{Methods}\label{methods}}
@@ -1172,6 +1224,20 @@ Aeberhard, W.H., Flemming, J.M., and Nielsen, A. 2018. Review of
 Statistics and Its Application \textbf{5}(1): 215--235.
 doi:\href{https://doi.org/10.1146/annurev-statistics-031017-100427}{10.1146/annurev-statistics-031017-100427}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-augeretal16}{}}%
+Auger-Méthé, M., Field, C., Albertsen, C.M., Derocher, A.E., Lewis,
+M.A., Jonsen, I.D., and Mills Flemming, J. 2016. State-space models'
+dirty little secrets: Even simple linear gaussian models can have
+estimation problems. Scientific reports \textbf{6}(1): 26677.
+doi:\href{https://doi.org/10.1038/srep26677}{10.1038/srep26677}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-augeretal21}{}}%
+Auger-Méthé, M., Newman, K., Cole, D., Empacher, F., Gryba, R., King,
+A.A., Leos-Barajas, V., Mills Flemming, J., Nielsen, A., Petris, G., and
+others. 2021. A guide to state--space modeling of ecological time
+series. Ecological Monographs \textbf{91}(4): e01470.
+doi:\href{https://doi.org/10.1002/ecm.1470}{10.1002/ecm.1470}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-brittenetalinreview}{}}%
 Britten, G., Brooks, E.N., and Miller, T.J. Reliability of
 stock-recruitment function estimation in state space assessment models.
@@ -1204,10 +1270,35 @@ reliably estimate the productivity of fish stocks? Canadian Journal of
 Fisheries and Aquatic Sciences \textbf{67}(3): 511--523.
 doi:\href{https://doi.org/10.1139/F09-194}{10.1139/F09-194}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-croninpunt21}{}}%
+Cronin-Fine, L., and Punt, A.E. 2021. Modeling time-varying selectivity
+in size-structured assessment models. Fisheries Research \textbf{239}:
+105927. Elsevier.
+
 \leavevmode\vadjust pre{\hypertarget{ref-devalpinehastings02}{}}%
 de Valpine, P., and Hastings, A. 2002. Fitting population models
 incorporating process noise and observation error. Ecological Monographs
 \textbf{72}(1): 57--76.
+
+\leavevmode\vadjust pre{\hypertarget{ref-dupontaviceetal22}{}}%
+Du Pontavice, H., Miller, T.J., Stock, B.C., Chen, Z., and Saba, V.S.
+2022. Ocean model-based covariates improve a marine fish stock
+assessment when observations are limited. ICES Journal of Marine Science
+\textbf{79}(4): 1259--1273.
+doi:\href{https://doi.org/10.1093/icesjms/fsac050}{10.1093/icesjms/fsac050}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-fischetal23}{}}%
+Fisch, N., Shertzer, K., Camp, E., Maunder, M., and Ahrens, R. 2023.
+Process and sampling variance within fisheries stock assessment models:
+Estimability, likelihood choice, and the consequences of incorrect
+specification. ICES Journal of Marine Science \textbf{80}(8):
+2125--2149. Oxford University Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-fleischmanetal13}{}}%
+Fleischman, S.J., Catalano, M.J., Clark, R.A., and Bernard, D.R. 2013.
+An age-structured state-space stock--recruit model for pacific salmon
+(oncorhynchus spp.). Canadian Journal of Fisheries and Aquatic Sciences
+\textbf{70}(3): 401--414. NRC Research Press.
 
 \leavevmode\vadjust pre{\hypertarget{ref-hoyleetal22}{}}%
 Hoyle, S.D., Maunder, M.N., Punt, A.E., Mace, P.M., Devine, J.A., and
@@ -1224,6 +1315,22 @@ Katz, R.W. 1981. On some criteria for estimating the order of a {M}arkov
 chain. Technometrics \textbf{23}(3): 243--249.
 doi:\href{https://doi.org/10.1080/00401706.1981.10486293}{10.1080/00401706.1981.10486293}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-knape08}{}}%
+Knape, J. 2008. Estimability of density dependence in models of time
+series data. Ecology \textbf{89}(11): 2994--3000.
+doi:\href{https://doi.org/10.1890/08-0071.1}{10.1890/08-0071.1}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-legaultpalmer16}{}}%
+Legault, C.M., and Palmer, M.C. 2016. In what direction should the
+fishing mortality target change when natural mortality increases within
+an assessment? Canadian Journal of Fisheries and Aquatic Sciences
+\textbf{73}(3): 349--357. NRC Research Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-legaultrestrepo99}{}}%
+Legault, C.M., and Restrepo, V.R. 1999. A flexible forward
+age-structured assessment program. Col. Vol. Sci. Pap. ICCAT
+\textbf{49}(2): 246--253.
+
 \leavevmode\vadjust pre{\hypertarget{ref-legaultetal23}{}}%
 Legault, C.M., Wiedenmann, J., Deroba, J.J., Fay, G., Miller, T.J.,
 Brooks, E.N., Bell, R.J., Langan, J.A., Cournane, J.M., Jones, A.W., and
@@ -1232,6 +1339,13 @@ data-limited methods to manage fisheries with failed age-based stock
 assessments. Canadian Journal of Fisheries and Aquatic Sciences
 \textbf{80}(1): 27--42.
 doi:\href{https://doi.org/10.1139/cjfas-2022-0045}{10.1139/cjfas-2022-0045}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-lietalinreview_a}{}}%
+Li, C., Deroba, J.J., Berger, A.M., Goethel, D.R., Langseth, B.J.,
+Schueller, A.M., and Miller, T.J. In review. Random effects on
+numbers-at-age transitions implictly 2 account for movement dynamics and
+improve 3 performance within a state-space stock assessment. Canadian
+Journal of Fisheries and Aquatic Sciences.
 
 \leavevmode\vadjust pre{\hypertarget{ref-lietalinreview}{}}%
 Li, C., Deroba, J.J., Miller, T.J., Legault, C.M., and Perretti, C. In
@@ -1247,10 +1361,22 @@ choosing among state-space models with multiple random effects
 processes. Fisheries Research \textbf{273}: 106968.
 doi:\href{https://doi.org/10.1016/j.fishres.2024.106968}{10.1016/j.fishres.2024.106968}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-liljestrandetal24}{}}%
+Liljestrand, E.M., Bence, J.R., and Deroba, J.J. 2024. The effect of
+process variability and data quality on performance of a state-space
+stock assessment model. Fisheries Research \textbf{275}: 107023.
+Elsevier.
+
 \leavevmode\vadjust pre{\hypertarget{ref-magnussonhilborn07}{}}%
 Magnusson, A., and Hilborn, R. 2007. What makes fisheries data
 informative? Fish and Fisheries \textbf{8}(4): 337--358.
 doi:\url{https://doi.org/10.1111/j.1467-2979.2007.00258.x}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-methotwetzel13}{}}%
+Methot, R.D., and Wetzel, C.R. 2013. Stock synthesis: A biological and
+statistical framework for fish stock assessment and fishery management.
+Fisheries Research \textbf{142}: 86--99.
+doi:\href{https://doi.org/10.1016/j.fishres.2012.10.012}{10.1016/j.fishres.2012.10.012}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-millerbrooks21}{}}%
 Miller, T.J., and Brooks, E.N. 2021. Steepness is a slippery slope. Fish
@@ -1293,16 +1419,32 @@ Pedersen, M.W., and Berg, C.W. 2017. A stochastic surplus production
 model in continuous time. Fish and Fisheries \textbf{18}(2): 226--243.
 doi:\href{https://doi.org/10.1111/faf.12174}{10.1111/faf.12174}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-polanskyetal09}{}}%
+Polansky, L., De Valpine, P., Lloyd-Smith, J.O., and Getz, W.M. 2009.
+Likelihood ridges and multimodality in population growth rate models.
+Ecology \textbf{90}(8): 2313--2320.
+doi:\href{https://doi.org/10.1890/08-1461.1}{10.1890/08-1461.1}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-punt23}{}}%
 Punt, A.E. 2023. Those who fail to learn from history are condemned to
 repeat it: A perspective on current stock assessment good practices and
 the consequences of not following them. Fisheries Research \textbf{261}:
 106642.
 
+\leavevmode\vadjust pre{\hypertarget{ref-puntetal14}{}}%
+Punt, A.E., Hurtado-Ferro, F., and Whitten, A.R. 2014. Model selection
+for selectivity in fisheries stock assessments. Fisheries Research
+\textbf{158}: 124--134. Elsevier.
+
 \leavevmode\vadjust pre{\hypertarget{ref-shibata76}{}}%
 Shibata, R. 1976. Selection of the order of an autoregressive model by
 akaike's information criterion. Biometrika \textbf{63}(1): 117--126.
 doi:\href{https://doi.org/10.1093/biomet/63.1.117}{10.1093/biomet/63.1.117}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-stewartmonnahan17}{}}%
+Stewart, I.J., and Monnahan, C.C. 2017. Implications of process error in
+selectivity for approaches to weighting compositional data in fisheries
+stock assessments. Fisheries Research \textbf{192}: 126--134. Elsevier.
 
 \leavevmode\vadjust pre{\hypertarget{ref-stockmiller21}{}}%
 Stock, B.C., and Miller, T.J. 2021. The {W}oods {H}ole {A}ssessment
@@ -1310,6 +1452,31 @@ Stock, B.C., and Miller, T.J. 2021. The {W}oods {H}ole {A}ssessment
 incorporates time- and age-varying processes via random effects and
 links to environmental covariates. Fisheries Research \textbf{240}:
 105967. doi:\url{https://doi.org/10.1016/j.fishres.2021.105967}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-stocketal21}{}}%
+Stock, B.C., Xu, H., Miller, T.J., Thorson, J.T., and Nye, J.A. 2021.
+{Implementing two-dimensional autocorrelation in either survival or
+natural mortality improves a state-space assessment model for Southern
+New England-Mid Atlantic yellowtail flounder}. Fisheries Research
+\textbf{237}: 105873.
+
+\leavevmode\vadjust pre{\hypertarget{ref-szuwalskietal18}{}}%
+Szuwalski, C.S., Ianelli, J.N., and Punt, A.E. 2018. Reducing
+retrospective patterns in stock assessment and impacts on management
+performance. ICES Journal of Marine Science \textbf{75}(2): 596--609.
+Oxford University Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-thorsonminto15}{}}%
+Thorson, J.T., and Minto, C. 2015. Mixed effects: A unifying framework
+for statistical modelling in fisheries biology. ICES Journal of Marine
+Science \textbf{72}(5): 1245--1256.
+doi:\href{https://doi.org/10.1093/icesjms/fsu213}{10.1093/icesjms/fsu213}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-trijouletetal20}{}}%
+Trijoulet, V., Fay, G., and Miller, T.J. 2020. Performance of a
+state-space multispecies model: What are the consequences of ignoring
+predation and process errors in stock assessments? Journal of Applied
+Ecology \textbf{57}(1): 121--135. Wiley Online Library.
 
 \leavevmode\vadjust pre{\hypertarget{ref-wiedenmannetal19}{}}%
 Wiedenmann, J., Free, C.M., and Jensen, O.P. 2019. Evaluating the
