@@ -151,7 +151,7 @@ n.bad.runs <- length((bad.runs.unique) )
 
 
 bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
-  facet_grid(Ecov_effect + Ecov_re_sig ~ Fhist +R_sig   ) +
+  facet_grid(Ecov_effect ~ Fhist +R_sig   ) +
   geom_bar(fill='#2099aa99') +
   theme_light()  +
   theme(strip.background =element_rect(fill="white", color="grey65"))+

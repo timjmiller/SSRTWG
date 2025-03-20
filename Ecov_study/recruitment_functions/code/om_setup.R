@@ -14,6 +14,44 @@ source(file.path(here(), "Ecov_study", "mortality", "code", "make_om.R"))
 source(file.path(here(), "Ecov_study", "mortality", "code", "sim_management.R"))
 verify_version()
 
+
+set_F_scenario = function(input, Fhist, Fmsy, max_mult = 1, min_mult = 1, change_time = 0.5){
+  nby <- input$data$n_years_model
+  year_change <- floor(nby * change_time)
+  if(!Fhist %in% c("Fmsy","H-L","H","L-H")) {
+    stop("Fhist must be 'Fmsy'','H-L'', or 'H'. Edit set_F_scenario to allow other options.")
+  }
+
+  if(Fhist == "Fmsy"){
+    cat("OM will have F=Fmsy for all years.\n")
+    input$par$log_F1[] = log(Fmsy)
+    input$par$F_devs[] = 0
+  }
+  if(Fhist == "H"){
+    cat("OM will have F= max_mult * Fmsy for all years.\n")
+    input$par$log_F1[] = log(max_mult * Fmsy)
+    input$par$F_devs[] = 0
+  }
+  if(Fhist == "H-L"){
+    cat("OM will have F decrease abruptly from max_mult x Fmsy to min_mult * Fmsy at ", change_time, 
+      " x n_model_years = ", year_change, ".\n")
+    input$par$log_F1[] = log(max_mult * Fmsy)
+    input$par$F_devs[] = 0
+    input$par$F_devs[year_change-1,] = log(min_mult) - log(max_mult)
+  }
+  if(Fhist == "L-H"){
+    cat("OM will have F increase abruptly from min_mult x Fmsy to max_mult * Fmsy at ", change_time, 
+      " x n_model_years = ", year_change, ".\n")
+    input$par$log_F1[] = log(min_mult * Fmsy)
+    input$par$F_devs[] = 0
+    input$par$F_devs[year_change-1,] = log(max_mult) - log(min_mult)
+  }
+  return(input)
+}
+
+
+
+
 naa_om_inputs <- readRDS(file.path(here::here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 
 #SR parameters are the same for all naa_om models 
@@ -156,4 +194,3 @@ for(i in 1:NROW(df.oms)){
   om_inputs[[i]]$data$index_Neff[] = 1
 }
 
-saveRDS(om_inputs, file.path(here(),"Ecov_study", "recruitment_functions", "inputs", "om_inputs.RDS"))
