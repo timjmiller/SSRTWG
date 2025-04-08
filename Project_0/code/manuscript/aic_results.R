@@ -4,6 +4,7 @@ library(ggh4x)
 library(dplyr)
 library(tidyr)
 library(ggpattern)
+library(patchwork)
 df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
 
 
@@ -233,7 +234,6 @@ R_q_aic_plt
 
 #all in one figure
 
-library(patchwork)
 theme_set(theme_bw())
 theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
 R_Sel_aic_plt_alt <- R_Sel_aic_plt + 
@@ -315,7 +315,7 @@ types.plt <- c("R, R+S","R+M", "R+Sel", "R+q")
 est_conds <- cbind(c(FALSE,TRUE))
 em_inds <- cbind(1:20, 5:24, c(5:20,25:28), c(5:20, 29:32))
 pred_dfs <- list()
-
+obs_dfs <- list()
 for(i in 1:4) {
   all_aic <- readRDS(file = here("Project_0","results", paste0("all_", types[i], "_aic_results.RDS")))
   df.oms = readRDS(here("Project_0","inputs", paste0("df.", ifelse(i==1, "", paste0(types[i],".")),"oms.RDS")))
@@ -399,6 +399,7 @@ for(i in 1:4) {
       "ME" = "M estimated"))
   pred_df$log_sd_log_SSB <- log(pred_df$sd_log_SSB)
   pred_df$log_obs <- log(pred_df$obs)
+  pred_df$BH_best <- c(df$BH_best_MF,df$BH_best_ME)
   pred_dfs[[i]] <- pred_df
 }
     R_S_sr_aic_plt <- ggplot(pred_dfs[[1]], aes(x = log_sd_log_SSB, y = pred, colour = type, fill =  type)) + 
@@ -453,5 +454,78 @@ design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
 (R_M_sr_aic_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
 (R_Sel_sr_aic_plt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
 (R_q_sr_aic_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
+  plot_layout(design = design, axis_titles = "collect")
+dev.off()
+
+
+x <- subset(pred_dfs[[1]], type == "M known" & Fhist == "italic(F)[MSY]" & NAA_sig == "sigma['2+'] == 0" & R_sig == "sigma[italic(R)] == 0.5" & obs_error == "Low observation error")
+x <- subset(pred_dfs[[1]], type == "M known" & NAA_sig == "sigma['2+'] == 0" & R_sig == "sigma[italic(R)] == 0.5" & obs_error == "Low observation error")
+x <- subset(pred_dfs[[1]], type == "M known")
+    R_S_sr_aic_plt <- ggplot(x, 
+      aes(x = log_sd_log_SSB, y = pred, colour = NAA_sig, linetype = Fhist, fill = NAA_sig)) + 
+      facet_nested(obs_error ~ R_sig, 
+         labeller = labeller(R_sig = label_parsed)) +
+      scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$NAA_sig), \(x) parse(text= x))) +
+      scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$NAA_sig), \(x) parse(text= x))) +
+      # scale_fill_discrete(labels = lapply(levels(x$NAA_sig), \(x) parse(text= x))) + 
+      geom_ribbon(data = subset(x, Fhist == "italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = NAA_sig, ymin = pred_lo, ymax = pred_hi, fill = NAA_sig), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_ribbon(data = subset(x, Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = NAA_sig, ymin = pred_lo, ymax = pred_hi, fill = NAA_sig), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_line(linewidth = 2) + 
+      labs(fill = "") +
+      guides(fill = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), linetype = "none", colour = "none") +
+      xlab("log(SD(log(SSB)))") + ylab("Probability SR assumption with lowest AIC") + xlim(-3,1)
+    R_S_sr_aic_plt
+
+x <- subset(pred_dfs[[2]], type == "M known")
+    R_M_sr_aic_plt <- ggplot(x, 
+      aes(x = log_sd_log_SSB, y = pred, colour = M_cor, linetype = Fhist, fill = M_cor)) + 
+      facet_nested(obs_error ~ M_sig,  labeller = labeller(M_sig = label_parsed)) +
+      scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$M_cor), \(x) parse(text= x))) +
+      scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$M_cor), \(x) parse(text= x))) +
+      geom_ribbon(data = subset(x, Fhist == "italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = M_cor, ymin = pred_lo, ymax = pred_hi, fill = M_cor), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_ribbon(data = subset(x, Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = M_cor, ymin = pred_lo, ymax = pred_hi, fill = M_cor), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_line(linewidth = 2) + 
+      labs(fill = "") +
+      guides(fill = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), linetype = "none", colour = "none") +
+      xlab("log(SD(log(SSB)))") + ylab("Probability SR assumption with lowest AIC") + xlim(-3,1)
+    R_M_sr_aic_plt
+
+x <- subset(pred_dfs[[3]], type == "M known")
+    R_Sel_sr_aic_plt <- ggplot(x, 
+      aes(x = log_sd_log_SSB, y = pred, colour = Sel_cor, linetype = Fhist, fill = Sel_cor)) + 
+      facet_nested(obs_error ~ Sel_sig,  labeller = labeller(Sel_sig = label_parsed)) +
+      scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$Sel_cor), \(x) parse(text= x))) +
+      scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$Sel_cor), \(x) parse(text= x))) +
+      geom_ribbon(data = subset(x, Fhist == "italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = Sel_cor, ymin = pred_lo, ymax = pred_hi, fill = Sel_cor), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_ribbon(data = subset(x, Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = Sel_cor, ymin = pred_lo, ymax = pred_hi, fill = Sel_cor), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_line(linewidth = 2) + 
+      labs(fill = "") +
+      guides(fill = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), linetype = "none", colour = "none") +
+      xlab("log(SD(log(SSB)))") + ylab("Probability SR assumption with lowest AIC") + xlim(-3,1)
+    R_Sel_sr_aic_plt
+
+x <- subset(pred_dfs[[4]], type == "M known")
+    R_q_sr_aic_plt <- ggplot(x, 
+      aes(x = log_sd_log_SSB, y = pred, colour = q_cor, linetype = Fhist, fill = q_cor)) + 
+      facet_nested(obs_error ~ q_sig,  labeller = labeller(q_sig = label_parsed)) +
+      scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$q_cor), \(x) parse(text= x))) +
+      scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE, labels = lapply(levels(x$q_cor), \(x) parse(text= x))) +
+      geom_ribbon(data = subset(x, Fhist == "italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = q_cor, ymin = pred_lo, ymax = pred_hi, fill = q_cor), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_ribbon(data = subset(x, Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]"), aes(x = log_sd_log_SSB, y = pred, colour = q_cor, ymin = pred_lo, ymax = pred_hi, fill = q_cor), linetype = 0, alpha = 0.4, inherit.aes = FALSE) +
+      geom_line(linewidth = 2) + 
+      labs(fill = "") +
+      guides(fill = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), linetype = "none", colour = "none") +
+      xlab("log(SD(log(SSB)))") + ylab("Probability SR assumption with lowest AIC") + xlim(-3,1)
+    R_q_sr_aic_plt
+
+
+theme_set(theme_bw())
+theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
+cairo_pdf(here("Project_0","manuscript", "sr_aic_plots_rev.pdf"), width = 30*2/3, height = 20*2/3)
+design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
+(R_S_sr_aic_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
+(R_M_sr_aic_plt + labs(title = "B: R+M OMs") + theme(strip.text.y=element_blank())) + #axis.title.x = element_blank(), strip.text=element_text(margin=margin(b = 5)), axis.text.x=element_blank(), plot.margin = margin(b = 1, t = 0))) + 
+(R_Sel_sr_aic_plt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +# , strip.text=element_text(margin=margin(b = 5)), plot.margin = margin(b = 1, t = 0))) + 
+(R_q_sr_aic_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank())) + 
   plot_layout(design = design, axis_titles = "collect")
 dev.off()
