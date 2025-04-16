@@ -40,7 +40,6 @@ conv_fn <- function(all, est_ind, om_ind = NULL){
 conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
 
   for(i in 1:3) for(j in 1:3){
-    
     re_mods <- c("rec", "rec+1", "rec+M")
     #re_mod <- c("rec", "rec+1", "rec+M")[i]
     #EM:  M fixed, OM and EM RE assumption match
@@ -80,6 +79,11 @@ conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
       "FALSE" = "Known"
     ))
   df <- df %>%
+    mutate(Ecov_assumption = recode(as.character(Ecov_est),
+      "TRUE" = "beta[italic(E)]*' Estimated'",
+      "FALSE" = "beta[italic(E)] == 0"
+    ))
+  df <- df %>%
     mutate(OM_process_error = recode(NAA_M_re,
       "rec" = "R OMs",
       "rec+1" = "R+S OMs",
@@ -116,8 +120,8 @@ conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
 
   facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor", "obs_error", "NAA_M_re", "re_config", "OM_process_error", "EM_process_error", "correct_EM_PE")
   df[facs] <- lapply(df[facs], factor)
-  levels(df$OM_process_error) <- c("R OMs","R+S OMs", "R+M OMs")
-  levels(df$EM_process_error) <- c("R","R+S", "R+M")
+  df$OM_process_error <- factor(df$OM_process_error, levels= c("R OMs","R+S OMs", "R+M OMs"))
+  df$EM_process_error <- factor(df$EM_process_error, levels= c("R","R+S", "R+M"))
   return(df)
 }
 
@@ -128,21 +132,22 @@ conv_res <- readRDS(here("Ecov_study","mortality", "results", "convergence_resul
 
 df <- rbind(
   conv_res_plotting_fn(conv_res, M_est = FALSE, Ecov_est = TRUE),
-  conv_res_plotting_fn(conv_res, M_est = TRUE, Ecov_est = TRUE))
+  conv_res_plotting_fn(conv_res, M_est = TRUE, Ecov_est = TRUE),
+  conv_res_plotting_fn(conv_res, M_est = FALSE, Ecov_est = FALSE),
+  conv_res_plotting_fn(conv_res, M_est = TRUE, Ecov_est = FALSE))
 
 theme_set(theme_bw())
 theme_update(strip.text.x = element_text(size = rel(1.3)), strip.text.y = element_text(size = rel(1.5)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
        axis.title = element_text(size = rel(1.5)), axis.text = element_text(size = rel(1.25)), legend.text = element_text(size = rel(1.5)), #text = element_text(size = rel(2)), 
        legend.title = element_text(size = rel(1.5)))
-# temp <- subset(df, Type == 3 & OM_process_error == "R")
 
-# plt <- ggplot(subset(df, Type == 3 & OM_process_error == "R"), aes(x = Ecov_effect, y = p_pass, colour = EM_process_error, fill = EM_process_error, shape = M_est)) + 
-plt <- ggplot(subset(df, Type == 3), aes(x = Ecov_effect, y = p_pass, colour = EM_process_error, fill = EM_process_error, shape = M_assumption)) + 
-    facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error + obs_error + Fhist, 
-      labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, Fhist = label_parsed)) +
+temp <- subset(df, Type == 3 & obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]")
+plt <- ggplot(temp, aes(x = Ecov_effect, y = p_pass, colour = EM_process_error, fill = EM_process_error, shape = M_assumption)) + 
+    facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error + Ecov_assumption, 
+      labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,Ecov_assumption = label_parsed)) +
     scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression(beta[Ecov])) +
+    coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression("True "*beta[Ecov])) +
     scale_x_continuous(breaks = c(0,0.25, 0.5)) + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + 
     geom_point(position = position_dodge(0.1), size = 4) + 
@@ -154,25 +159,7 @@ plt <- ggplot(subset(df, Type == 3), aes(x = Ecov_effect, y = p_pass, colour = E
     guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", fill = "none")
     
 
-    # facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error+Fhist+obs_error, 
-    #   labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
-     
-    # labs(colour = "EM process error") + geom_errorbar(aes(ymin = Type3_ci_lo, ymax = Type3_ci_hi), width = .05, position = position_dodge(0.1)) + 
-    # geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red") + ggtitle(bquote(beta[M]==log(0.2)*","~beta[Ecov]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
-# plt
-#ggsave(here("Ecov_study","mortality", "paper", "proportion_good_hessian_ecov_effect_est_M_fixed.png"), plt, width = 20, height = 12, units = "in")
 cairo_pdf(here("Ecov_study","mortality","manuscript", "convergence.pdf"), width = 30*2/3, height = 20*2/3)
 print(plt)
 dev.off()
-
-all_res_mod <- conv_res_plotting_fn(conv_res, M_est = TRUE, Ecov_est = TRUE)
-plt <- ggplot(all_res_mod, aes(x = Ecov_effect, y = Type3_p_pass, colour = EM_process_error)) + 
-    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
-    facet_grid(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error+Fhist+obs_error, 
-      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_wrap_gen(width = 15), Ecov_obs_sig = label_parsed, Fhist = label_parsed)) +
-    theme_bw() + coord_cartesian(ylim = c(0, 1)) + ylab("P(convergence: invertible Hessian)") + xlab(expression(beta[Ecov])) +
-    labs(colour = "EM process error") + geom_errorbar(aes(ymin = Type3_ci_lo, ymax = Type3_ci_hi), width = .05, position = position_dodge(0.1)) + 
-    geom_hline(aes(yintercept=0.5), linewidth = 1, linetype = "dashed", colour = "red") + ggtitle(bquote(beta[M]~estimated*","~beta[Ecov]~estimated)) + theme(plot.title = element_text(hjust = 0.5))
-plt
-#ggsave(here("Ecov_study","mortality", "paper", "proportion_good_hessian_ecov_effect_est_M_est.png"), plt, width = 20, height = 12, units = "in")
 

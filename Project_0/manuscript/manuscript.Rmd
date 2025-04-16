@@ -49,8 +49,8 @@ if(knitr::is_html_output()) type <- "html"
 
 $^1$corresponding author: timothy.j.miller@noaa.gov\
 $^2$Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
-$^3$Woods Hole Oceanographic Institution\
-$^4$SMAST\
+$^3$Biology Department, Woods Hole Oceanographic Institution, 266 Woods Hole Rd. Woods Hole, MA, USA\
+$^4$Department of Fisheries Oceanography, School for Marine Science and Technology, University of Massachusetts Dartmouth, 836 S Rodney French Boulevard, New Bedford, MA 02740, USA\
 $^5$Mid-Atlantic Fishery Management Council, 800 North State Street, Suite 201, Dover, DE 19901 USA\
 $^6$Institute of Marine Research, Nye Flødevigveien 20, 4817 His, Norway\
 $^7$Department of Ecology, Evolution, and Natural Resources. Rutgers University\
