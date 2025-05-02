@@ -11,6 +11,7 @@
 !Ecov_study/recruitment_functions/inputs/*.RDS
 Project_0/hpcc_bash
 Project_0/paper/*.pdf
+Project_0/manuscript/*.docx
 misspecification_study/output
 /code/
 Ecov_study/recruitment/results*
