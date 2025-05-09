@@ -193,13 +193,9 @@ $$
 $$
 from fitting a given estimating model to simulated data set $i$ configured for a given OM where $\widehat \theta_i$ and $\theta_i$ are the estimated and true values for simulation $i$. We estimated bias as the median of the relative errors across all simulations for a given OM and EM combination. We constructed 95\% confidence intervals for the median relative bias using the binomial distribution approach as in @millerhyun18 and @stockmiller21. We present results for bias in terminal year estimates of SSB and recruitment, Beverton-Holt stock recruit parameters ($a$ and $b$), and median natural mortality rate. Results for terminal year fishing mortality were strongly negatively correlated with those for SSB and are provided in the Supplementary Materials.
 
-<!--
-Similar to the AIC results, bias results only condition on whether the estimating model completed the optimization process without failure. We did not condition on convergence as defined by a gradient threshold or invertibility of the hessian because the optimized model can provide reliable estimation of assessment model output whether or not the model was able to estimate non-zero random effects. In practice, the model would be reconfigured to remove unnecessary process errors and produce otherwise equivalent parameter estimates.
--->
-
 ### Mohn's $\rho$ {-}
 
-We calculated Mohn's $\rho$ for SSB, fully-selected fishing mortality, and recruitment for each EM [@mohn99]. We fit 7 peels for each EM and calculated median 95\% confidence intervals for Mohn's $\rho$ using the same methods as that for relative bias. <!--Similar to the other results, retrospective results only condition on whether all of the peels of a given estimating model completed the optimization process without failure. We did not condition on convergence as defined by a gradient threshold or invertibility of the hessian because the optimized model can provide reliable estimation of SSB, fishing mortality rates, and recruitment whether or not the model was able to estimate non-zero random effects. -->
+We calculated Mohn's $\rho$ for SSB, fully-selected fishing mortality, and recruitment for each EM [@mohn99]. We fit 7 peels for each EM and calculated median 95\% confidence intervals for Mohn's $\rho$ using the same methods as that for relative bias. 
 
 # Results {-}
 
@@ -314,53 +310,17 @@ Incorrect EM process error assumptions did not produce strong retrospective patt
 
 The general lack of retrospective patterns with mis-specified process errors is perhaps to be expected. Retrospective patterns are often induced in simulation studies by rapid changes in a quantity such as index catchability, natural mortality, or perceived catch during years toward the end of the time series [@legault09; @millerlegault17; @huynhetal22; @breiviketal23]. In our simulations, the process errors changing over time may have trends in particular simulations, particularly when strong autocorrelation is imposed, but the random effects have no trend on average across simulations. @szuwalskietal18 and lietal24 also found relatively small retrospective patterns when the source of mis-specification was temporal variation in demography attributes. Indeed, it is common for the flexibility provided by temporal random effects to reduce retrospective patterns [@milleretal18; @stockmiller21; @stocketal21], though it does not necessarily indicate a more accurate assessment model [@perrettietal20; @lietal24; @liljestrandetal24]. Our results together with the existing literature seem to suggest that when a strong retrospective pattern is observed in an assessment it is more likely to be due to a mis-specification of a rapid shift in some model attribute rather than whether a particular process is assumed to be randomly varying temporally.
 
-<!--
-Finally, although the EMs estimated observation variance parameters for the age composition observations, they were provided the correct precision of the aggregate indices and catch which 
-
-The R+q OMs only have temporal variation in catchability for one index so the other index is able to provide a consistent signal of trend. Incorrect assumptions about the mean selectivity model could also produce 
-
-Lack of retrospective patterns for SSB coupled with biased terminal SSB estimates would indicate that the scale across the time series is biased and
--->
 
 ## Conclusions {-}
 
 Our simulation study examined the importance of several factors for reliable inferences from state-space age-structured assessment models. Contrast in fishing pressure was consistently an important factor across all measures of reliability we examined. AIC accurately distinguished models with process errors on recruitment only (R) or on recruitment and apparent survival (R+S). Accuracy for other process error types required a strong signal (high process variability) with low noise (low observation uncertainty). Therefore, we expect practitioners will find R+S configurations to provide satisfactory diagnostics across a range of life history and data quality scenarios.  AIC generally performed poorly for selecting the SRR, but performance was improved with low recruitment variability and contrast in fishing pressure. Some bias in estimation in at least one of the SRR parameters existed in nearly all OM-EM combinations. Because bias in terminal SSB and retrospective patterns were indifferent to whether or not the SRR was estimated, and convergence was slightly better without the SRR, a sensible default would be to fit models without an assumed SRR.
 
-<!--
-All together what do results mean? E.g., when do you get good convergence and retrospective patterns and high/none bias? When do you get good convergence and no retros and no/big bias?
-
-For R+S OMs with low observation error, temporal contrast in fishing pressure, and large variation in survival process errors (3rd row), some EMs with the incorrect process error assumptions, estimate median M to be 0, and SSB is also underestimated, but Mohn's $\rho$ for SSB is better than when M is known. Fortunately, AIC would not choose the wrong EM process error type in these situations.
-
-When R+S is preferred AMONG THE TYPES CONSIDERED HERE, it probably means its the correct process error .
--->
-
-
-<!--
-## Summary {-}
-
-We conducted a simulation study where we simulated process errors and observations for 72 operating models with alternative assumptions about fishing history, degree of uncertainty in index and age composition observations, type (recruitment, survival, fishery selectivity, catchability and natural mortality), degree of variation, and correlation of process errors. We fit 20 different estimation models to each of 100 simulated set of observations with alternative assumptions type and correlation structure of process errors, median natural mortality was known or estimated, and a B-H SRR was assumed or not.
-
-Across simulations we summarized probability of convergence of fitted models, accuracy of marginal AIC in determining the correct process error assumption and it ability to determine the Beverton-Holt SRR, bias in annual spawning stock biomass, in estimation of natural mortality, and in SRR parameters, and severity of retrospective patterns for estimation models.
-
-Alternative measures of convergence performed differently. Invertible hessians and resulting standard error estimation was possible when criteria based on the gradient of the optimized log-likelihood with respect to the fixed effects parameters. Using hessian-based convergence, probability of convergence was best for models that assumed the correct source of process error, assumed M was known, and did not assume SRRs.
-
-Using marginal AIC provided most accurate inferences about the process errors on recruitment and survival and selectivity, in that AIC preferred EMs with assumed process errors that matched OMs, and EMs with those assumed process errors were not preferred when alternative process errors were assumed in the OMs. However, when the true process errors were more variable, AIC accuracy increased to a useful level. We found AIC more accurately determined a B-H SRR rather than the null model without a S-R relationship when there was low variability in recruitment, low variability in survival random effects, and higher variation in spawning biomass over the time series. When the median natural mortality rate was estimated, we found large bias and uncertainty much more likely in model output such as spawning stock biomass.
-
-Bias in spawning stock biomass estimation was generally low for estimation models that assumed the correct source of process error when there was lower observation error. Reliable estimation of SRR parameters only appears possible in ideal situations with lower observation errors in age composition and indices, lower variability in recruitment process errors and large contrast in spawning biomass over time. We found little evidence of bias for many OM process error assumptions when there was contrast in fishing pressure even when there was greater observation error although it can lead to more variable estimates of natural mortality. For OMs where there was bias in natural mortality due to high observation error, estimation the SRR seemed to remove the bias. However, estimation of natural mortality can cause large differences between the true and estimated SSB (that may be unbiased on average) when there is less contrast in fishing pressure over time and higher observation error.
-
-Retrospective patterns were generally weak for all estimation models regardless of the true source of process error, but they can be expected for recruitment even for the correct process error assumptions when observation error is high. When models did exhibit some retrospective pattern, estimation the median natural mortality rate tended to remove it.
--->
 
 # Acknowledgements {-}
 
-This work was funded by NOAA Fisheries Northeast Fisheries Science Center. 
+This work was funded by NOAA Fisheries Northeast Fisheries Science Center. We thank Jon Deroba for helpful comments on an earlier version of this manuscript.
 
-<!--
-# CRediT authorship contribution statement {-}
 
-**Timothy J. Miller:** Conceptualization, Methodology, Writing - original draft, Formal analysis, Visualization.
- -->
- 
 \pagebreak
 
 # References {-}
