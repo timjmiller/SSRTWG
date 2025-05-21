@@ -74,6 +74,13 @@ conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
       "H" = "High observation error"
     ))
   df <- df %>%
+    mutate(oe = recode(obs_error,
+        "Low observation error" = "Low OE",
+        "High observation error" = "High OE"
+    ))
+  df$oe  <- factor(df$oe, levels = c("Low OE", "High OE"))
+
+  df <- df %>%
     mutate(M_assumption = recode(as.character(M_est),
       "TRUE" = "Estimated",
       "FALSE" = "Known"
@@ -163,3 +170,24 @@ cairo_pdf(here("Ecov_study","mortality","manuscript", "convergence.pdf"), width 
 print(plt)
 dev.off()
 
+
+OMs <- levels(all_res_mod$OM_process_error)
+OMs_lab <- c("Rom","RSom","RMom")
+for(i in 1:length(OMs)){
+  temp <- subset(df, Type == 3 & OM_process_error == OMs[i])
+  plt <- ggplot(temp, aes(x = Ecov_effect, y = p_pass, colour = EM_process_error, fill = EM_process_error, shape = M_assumption)) + 
+      facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ Fhist + oe + Ecov_assumption,
+        labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,  Fhist = label_parsed, Ecov_assumption = label_parsed)) +
+      scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
+      scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
+      coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression("True "*beta[Ecov])) +
+      scale_x_continuous(breaks = c(0,0.25, 0.5)) + 
+      geom_line(position = position_dodge(0.1), linewidth = 1) + 
+      geom_point(position = position_dodge(0.1), size = 4) + 
+      geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi, colour = EM_process_error), width = 0, position = position_dodge(0.1), linewidth = 1) +
+      labs(colour = "EM process error", fill = "EM process error", shape = "M assumption") +
+      guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", fill = "none")
+  cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("convergence_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
+  print(plt)
+  dev.off()
+}
