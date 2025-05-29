@@ -9,9 +9,9 @@ library(scales)
 #convergence information:
 #1: 0/1 model finished optimizing
 #2: nlminb convergence flag
-#3: max gradient value
-#4: number of NaNs in SEs for parameters, 0 = good invertible hessian
-#5: maximum non-NaN SE estimate
+#3: number of NaNs in SEs for parameters, 0 = good invertible hessian
+#4: max gradient value < 1e-6
+#5: maximum non-NaN SE estimate < 10
 
 
 conv_fn <- function(all, est_ind, om_ind = NULL){
@@ -85,6 +85,7 @@ conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
       "TRUE" = "Estimated",
       "FALSE" = "Known"
     ))
+  df$M_assumption <- factor(df$M_assumption)
   df <- df %>%
     mutate(Ecov_assumption = recode(as.character(Ecov_est),
       "TRUE" = "beta[italic(E)]*' Estimated'",
@@ -148,30 +149,37 @@ theme_update(strip.text.x = element_text(size = rel(1.3)), strip.text.y = elemen
        axis.title = element_text(size = rel(1.5)), axis.text = element_text(size = rel(1.25)), legend.text = element_text(size = rel(1.5)), #text = element_text(size = rel(2)), 
        legend.title = element_text(size = rel(1.5)))
 
+levels(df$M_assumption)
+
+# c(expression("Median "*italic(M)*" estimated"), expression("Median "*italic(M)*" known"))
+
+# shape.labs <- list(expression("Median "*italic(M)*" estimated"), expression("Median "*italic(M)*" known"))
+# library(latex2exp) #https://github.com/stefano-meschiari/latex2exp
+# scale_color_viridis_d(begin = 0.2, end = 0.8, option = "turbo", labels=lapply(levels(df$model), TeX)) + 
+
+
 temp <- subset(df, Type == 3 & obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]")
 plt <- ggplot(temp, aes(x = Ecov_effect, y = p_pass, colour = EM_process_error, fill = EM_process_error, shape = M_assumption)) + 
     facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error + Ecov_assumption, 
       labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,Ecov_assumption = label_parsed)) +
     scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression("True "*beta[Ecov])) +
+    coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression("True "*beta[italic(E)])) +
     scale_x_continuous(breaks = c(0,0.25, 0.5)) + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + 
     geom_point(position = position_dodge(0.1), size = 4) + 
     geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi, colour = EM_process_error), width = 0, position = position_dodge(0.1), linewidth = 1) +
-    # geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.1), na.rm = TRUE) + 
-    # scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    labs(colour = "EM process error", fill = "EM process error", shape = "M assumption") +
-    # guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none")
+    labs(colour = "EM process error", fill = "EM process error", shape = expression("Median "*italic(M)*" assumption")) +
     guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", fill = "none")
-    
+plt
 
-cairo_pdf(here("Ecov_study","mortality","manuscript", "convergence.pdf"), width = 30*2/3, height = 20*2/3)
+
+cairo_pdf(here("Ecov_study","mortality","manuscript", "convergence_main.pdf"), width = 30*2/3, height = 20*2/3)
 print(plt)
 dev.off()
 
 
-OMs <- levels(all_res_mod$OM_process_error)
+OMs <- levels(df$OM_process_error)
 OMs_lab <- c("Rom","RSom","RMom")
 for(i in 1:length(OMs)){
   temp <- subset(df, Type == 3 & OM_process_error == OMs[i])
@@ -180,12 +188,12 @@ for(i in 1:length(OMs)){
         labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,  Fhist = label_parsed, Ecov_assumption = label_parsed)) +
       scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
       scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-      coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression("True "*beta[Ecov])) +
+      coord_cartesian(ylim = c(0, 1)) + ylab("Probability of convergence") + xlab(expression("True "*beta[italic(E)])) +
       scale_x_continuous(breaks = c(0,0.25, 0.5)) + 
       geom_line(position = position_dodge(0.1), linewidth = 1) + 
       geom_point(position = position_dodge(0.1), size = 4) + 
       geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi, colour = EM_process_error), width = 0, position = position_dodge(0.1), linewidth = 1) +
-      labs(colour = "EM process error", fill = "EM process error", shape = "M assumption") +
+    labs(colour = "EM process error", fill = "EM process error", shape = expression("Median "*italic(M)*" assumption")) +
       guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", fill = "none")
   cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("convergence_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
   print(plt)

@@ -84,9 +84,13 @@ make_df_fn <- function(M_est = TRUE){
     ))
   df <- df %>%
     mutate(M_assumption = recode(as.character(M_est),
-      "TRUE" = "Median M estimated",
-      "FALSE" = "Median M known"
+      "TRUE" = '"Median "*italic(M)*" estimated"',
+      "FALSE" = '"Median "*italic(M)*" known"'
     ))
+    # mutate(M_assumption = recode(as.character(M_est),
+    #   "TRUE" = "Median M estimated",
+    #   "FALSE" = "Median M known"
+    # ))
   df <- df %>%
     mutate(oe = recode(obs_error,
         "Low observation error" = "Low OE",
@@ -148,8 +152,8 @@ for(i in 1:length(OMs)){
   plt <- ggplot(temp, aes(x = Ecov_effect, y = n, fill = correct)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
       geom_col(position = "fill") + labs(fill = "EM assumption") + 
       facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ M_assumption + Fhist + oe,
-        labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,  Fhist = label_parsed)) +
-      coord_cartesian(ylim = c(0, 1)) + ylab("Proportion with lowest AIC") + xlab(expression("True "*beta[Ecov]))
+        labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,  Fhist = label_parsed, M_assumption = label_parsed)) +
+      coord_cartesian(ylim = c(0, 1)) + ylab("Proportion with lowest AIC") + xlab(expression("True "*beta[italic(E)]))
   plt
   cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("aic_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
   print(plt)
@@ -161,7 +165,7 @@ temp <- subset(all_res_mod, obs_error == "Low observation error" & Fhist == "2.5
       geom_col(position = "fill") + labs(fill = "EM assumption") + 
       facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ OM_process_error,
         labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed)) +
-      coord_cartesian(ylim = c(0, 1)) + ylab("Proportion with lowest AIC") + xlab(expression("True "*beta[Ecov]))
+      coord_cartesian(ylim = c(0, 1)) + ylab("Proportion with lowest AIC") + xlab(expression("True "*beta[italic(E)]))
   plt
 cairo_pdf(here("Ecov_study","mortality","manuscript", "aic_main.pdf"), width = 30*2/3, height = 20*2/3)
 print(plt)
