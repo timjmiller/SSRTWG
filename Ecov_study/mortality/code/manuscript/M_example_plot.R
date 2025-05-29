@@ -1,6 +1,10 @@
 library(here)
 library(ggplot2)
+library(ggh4x)
 library(dplyr)
+library(tidyr)
+library(patchwork)
+library(scales)
 df.ems = readRDS(here::here("Ecov_study","mortality","inputs", "df.ems.RDS"))
 df.oms = readRDS(here::here("Ecov_study","mortality","inputs", "df.oms.RDS"))
 om_inputs <- readRDS(here::here("Ecov_study","mortality","inputs", "om_inputs.RDS"))
@@ -30,23 +34,37 @@ facs <- c("Ecov_re_sig","Ecov_re_cor", "Ecov_effect", "process_error")
 M_df[facs] <- lapply(M_df[facs], factor)
 M_df_mod <- M_df %>%
   mutate(M_re_present = recode(process_error,
-    "rec" = "M RE absent",
-    "rec+M" = "M RE present"
+    "rec" = "without M process error",
+    "rec+M" = "with M process error"
   ))
 M_df_mod <- M_df_mod %>%
   mutate(Ecov_effect = recode(Ecov_effect,
-    "0" = "beta[Ecov] == 0",
-    "0.25" = "beta[Ecov] == 0.25",
-    "0.5" = "beta[Ecov] == 0.5"
+    "0" = "beta[E] == 0",
+    "0.25" = "beta[E] == 0.25",
+    "0.5" = "beta[E] == 0.5"
+  ))
+M_df_mod <- M_df_mod %>%
+  mutate(Ecov_re_sig = recode(Ecov_re_sig,
+                              "0.1" = "sigma[italic(E)] == 0.1",
+                              "0.5" = "sigma[italic(E)] == 0.5"
+  ))
+M_df_mod <- M_df_mod %>%
+  mutate(Ecov_re_cor = recode(Ecov_re_cor,
+                              "0" = "rho[italic(E)] == 0",
+                              "0.5" = "rho[italic(E)] == 0.5"
   ))
 
-plt <- ggplot(M_df_mod, aes(x = Year, y = M, colour = Ecov_re_sig:Ecov_re_cor)) + 
+theme_update(strip.text.x = element_text(size = rel(2)), strip.text.y = element_text(size = rel(2)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
+             axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(1.5)), legend.text = element_text(size = rel(2)), 
+             legend.title = element_text(size = rel(2)))
+
+plt <- ggplot(M_df_mod, aes(x = Year, y = M)) + 
   scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
   geom_line(position = position_dodge(0.1), linewidth = 1, alpha = 0.7) + geom_point(position = position_dodge(0.1), size = 4, alpha = 0.7) + 
-  facet_grid(M_re_present ~ Ecov_effect, labeller = labeller(Ecov_effect = label_parsed)) + 
-  theme_bw() + labs(colour = expression(sigma[E]:rho[E])) +
-  ylab("M") + xlab("Year")
+  facet_nested(Ecov_re_sig + Ecov_re_cor ~ M_re_present + Ecov_effect, labeller = labeller(Ecov_effect = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed)) + 
+  scale_x_continuous(breaks = seq(1985,2015,10)) +
+  ylab(expression(italic(M))) + xlab("Year")
 plt
-cairo_pdf(here::here("Ecov_study","mortality","manuscript", "M_example.pdf"), width = 20, height = 20)
+cairo_pdf(here::here("Ecov_study","mortality","manuscript", "M_example.pdf"), width = 30*2/3, height = 20*2/3)
 plt
 dev.off()
