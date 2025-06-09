@@ -85,7 +85,7 @@ conv_res_plotting_fn <- function(conv_res, M_est = TRUE, Ecov_est = TRUE){
       "TRUE" = "Estimated",
       "FALSE" = "Known"
     ))
-  df$M_assumption <- factor(df$M_assumption)
+  # df$M_assumption <- factor(df$M_assumption)
   df <- df %>%
     mutate(Ecov_assumption = recode(as.character(Ecov_est),
       "TRUE" = "beta[italic(E)]*' Estimated'",
@@ -145,9 +145,9 @@ df <- rbind(
   conv_res_plotting_fn(conv_res, M_est = TRUE, Ecov_est = FALSE))
 
 theme_set(theme_bw())
-theme_update(strip.text.x = element_text(size = rel(1.3)), strip.text.y = element_text(size = rel(1.5)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
-       axis.title = element_text(size = rel(1.5)), axis.text = element_text(size = rel(1.25)), legend.text = element_text(size = rel(1.5)), #text = element_text(size = rel(2)), 
-       legend.title = element_text(size = rel(1.5)))
+theme_update(strip.text = element_text(size = rel(1.5)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
+      axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(1.5)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
+      legend.title = element_text(size = rel(2)), legend.title.align=0.5)
 
 levels(df$M_assumption)
 

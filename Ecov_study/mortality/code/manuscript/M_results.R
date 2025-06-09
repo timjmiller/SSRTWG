@@ -32,7 +32,7 @@ conv_fn <- function(om, em, conv_res, Type = 3){
 #5: maximum non-NaN SE estimate < 10
 
 #all EM PE assumptions
-plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_type = 3) {
+plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_type = 3, years = 40) {
   custom_boxplot_stat <- function(x){#, n.yrs = 1, n.sim = 100) {
     x <- x[which(!is.na(x))]
     n <- length(x)
@@ -43,32 +43,34 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
     r
   }
   for(h in 1:3) {
-    re_mod <- c("rec", "rec+1", "rec+M")[h]
+    re_mod <- c("rec", "rec+1", "rec+M")[h] #OM re config
     #EM:  M fixed, mean_M estimated
-    em_ind <- which(df.ems$Ecov_est== Ecov_est & df.ems$M_est == M_est)
+    em_ind <- which(df.ems$Ecov_est== Ecov_est & df.ems$M_est == M_est) #all three PE configs for the ems
     print("em_ind")
     print(em_ind)
     om_ind <- which(df.oms$NAA_M_re == re_mod) #om and em match
     res <- lapply(om_ind, function(x) {
-      M_res <- lapply(1:40, function(y) {
+      if(is.null(years)) years <- 1:40
+      M_res <- lapply(years, function(y) {
         out <- matrix(NA,length(em_ind), 8)
         for(j in em_ind){
           conv_ind <- 1:100 #all of them
           if(!is.null(conv_type)) conv_ind <- conv_fn(x,j,conv_res,Type = conv_type) #subset consistent with convergence results
           r_e <- M_bias[[x]][conv_ind,j,y,2]/M_bias[[x]][conv_ind,j,y,1]-1
-          log_M_e <- log(M_bias[[x]][conv_ind,j,y,2]) - log(M_bias[[x]][conv_ind,j,y,1])
-          # rmse <- sqrt(mean(log_M_e^2, na.rm = TRUE))
           rmse <- sqrt(mean((M_bias[[x]][conv_ind,j,y,2]-M_bias[[x]][conv_ind,j,y,1])^2, na.rm = TRUE))
           out[which(em_ind==j),] <- c(median(r_e, na.rm = TRUE), sd(r_e, na.rm=T)/sqrt(sum(!is.na(r_e))), custom_boxplot_stat(r_e), rmse)
         }
         colnames(out) <- c("bias_est", "bias_se", "ymin", "lower", "middle", "upper", "ymax", "rmse")
         return(out)
       })
+      names(M_res) <- years
       return(M_res)
     })
+    names(res) <- om_ind
     res <- reshape2::melt(res)
     colnames(res) <- c("em_config","type","value","year", "om")
-    res$om <- om_ind[res$om]
+    res <- cbind.data.frame(df.ems[em_ind[res$em_config],, drop = FALSE], res)
+    # res$om <- om_ind[res$om]
 
     res <- cbind.data.frame(df.oms[res$om,], res)
     if(h == 1) {
@@ -83,59 +85,58 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
   all_res<- all_res %>% tidyr::pivot_wider(names_from = type, values_from = value) %>% as.data.frame
   facs <- c("Ecov_obs_sig", "Fhist", "Ecov_re_sig","Ecov_re_cor", "obs_error", "NAA_M_re", "em_config")
   all_res[facs] <- lapply(all_res[facs], factor)
-  all_res_mod <- all_res
-  all_res_mod <- all_res %>%
+  df <- all_res %>%
     mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
       "0.1" = "sigma[italic(e)] == 0.1",
       "0.5" = "sigma[italic(e)] == 0.5"
     ))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(Ecov_re_sig = recode(Ecov_re_sig,
       "0.1" = "sigma[italic(E)] == 0.1",
       "0.5" = "sigma[italic(E)] == 0.5"
     ))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(Ecov_re_cor = recode(Ecov_re_cor,
       "0" = "rho[italic(E)] == 0",
       "0.5" = "rho[italic(E)] == 0.5"
     ))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(beta_Ecov = recode(as.character(Ecov_est),
       "TRUE" = 'beta[italic(E)]*" estimated"',
       "FALSE" = 'beta[italic(E)]==0'
     ))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(obs_error = recode(obs_error,
       "L" = "Low observation error",
       "H" = "High observation error"
     ))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(oe = recode(obs_error,
         "Low observation error" = "Low OE",
         "High observation error" = "High OE"
     ))
-  all_res_mod$oe  <- factor(all_res_mod$oe, levels = c("Low OE", "High OE"))
-  all_res_mod <- all_res_mod %>%
+  df$oe  <- factor(df$oe, levels = c("Low OE", "High OE"))
+  df <- df %>%
     mutate(OM_process_error = recode(NAA_M_re,
       "rec" = "R OMs",
       "rec+1" = "R+S OMs",
       "rec+M" = "R+M OMs"
     ))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(EM_process_error = recode(em_config,
       "rec" = "R",
       "rec+1" = "R+S",
       "rec+M" = "R+M"
     ))
-  all_res_mod <- all_res_mod %>% mutate(Fhist = recode(Fhist,
+  df <- df %>% mutate(Fhist = recode(Fhist,
       "H-MSY"  = "2.5*italic(F)[MSY] %->% italic(F)[MSY]",
       "MSY" = "italic(F)[MSY]"))
-  all_res_mod <- all_res_mod %>%
+  df <- df %>%
     mutate(M = recode(as.character(M_est),
       "TRUE" = "Estimated", #'"Median "*italic(M)*" estimated"',
       "FALSE" = "Known" #'"Median "*italic(M)*" known"'
     ))
-  return(all_res_mod)
+  return(df)
 }
 
 all_res <- rbind(
@@ -144,18 +145,20 @@ all_res <- rbind(
   plot_df_fn(df.ems, df.oms, Ecov_est = FALSE, M_est = TRUE, conv_type = 3),
   plot_df_fn(df.ems, df.oms, Ecov_est = TRUE, M_est = TRUE, conv_type = 3))
 
-n <- NROW(all_res)/4
-all_res$M_est = rep(c(FALSE, TRUE), each = 2*n)
-all_res$Ecov_est = rep(c(FALSE, TRUE,FALSE, TRUE), each = n)
+# n <- NROW(all_res)/4
+# all_res$M_est = rep(c(FALSE, TRUE), each = 2*n)
+# all_res$Ecov_est = rep(c(FALSE, TRUE,FALSE, TRUE), each = n)
 
-all_res_less <- subset(all_res, year %in% c(1,21,40))
-all_res_less$year <- factor(all_res_less$year)
-all_res_less <- all_res_less %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
+# all_res_less <- subset(all_res, year %in% c(1,21,40))
+# all_res_less$year <- factor(all_res_less$year)
+# all_res_less <- all_res_less %>% mutate(year = recode(year,
+#     "1" = "Start",
+#     "21" = "Middle",
+#     "40" = "End"))
 
-temp <- subset(all_res_less, obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]" & year == "End")
+temp <- subset(all_res, obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]")
+temp$bias_est[temp$rmse == 0] <-NA
+temp$rmse[temp$rmse == 0] <-NA
 
 theme_set(theme_bw())
 theme_update(strip.text = element_text(size = rel(1.5)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
@@ -178,15 +181,23 @@ plt <- ggplot(temp, aes(x = Ecov_effect, y = bias_est, colour = EM_process_error
     geom_errorbar(aes(ymin = ymin, ymax = ymax), width = .01, linewidth = 1, position = position_dodge(0.1))
 plt
 
+subset(df.oms, NAA_M_re == "rec+1" & Ecov_obs_sig == 0.1 & Ecov_re_sig == 0.5 & Ecov_re_cor == 0.5 & Fhist == "H-MSY" & obs_error == "L" & Ecov_effect == 0)$Model
+# OM 20
+temp[temp$Model == "om_20",]
+
+which(df.ems$M_est & !df.ems$Ecov_est & df.ems$re_config == "rec+1")
+# conv_res EM 9
+
+x <- M_bias[[20]][conv_fn(20,9,conv_res,Type = 3),9,40,]
+
 cairo_pdf(here("Ecov_study","mortality","manuscript", "terminal_year_M_bias_main.pdf"), width = 30*2/3, height = 20*2/3)
 print(plt)
 dev.off()
 
-# temp <- subset(all_res_tnull_less, obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]" & year == "End")
-temp_rmse <- temp
-temp_rmse$rmse[which(temp_rmse$rmse==0)] <- NA
+# temp <- subset(all_res_tnull_less, obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]")
+# temp_rmse <- temp
 # temp_rmse <- filter(temp_rmse, rmse<10)
-plt <- ggplot(temp_rmse, aes(x = Ecov_effect, y = rmse, colour = EM_process_error, shape = M)) + 
+plt <- ggplot(temp, aes(x = Ecov_effect, y = rmse, colour = EM_process_error, shape = M)) + 
     scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
     geom_line(position = position_dodge(0.1), linewidth = 1) + 
     geom_point(position = position_dodge(0.1), size = 4) + 
@@ -207,10 +218,12 @@ cairo_pdf(here("Ecov_study","mortality","manuscript", "terminal_year_M_rmse_main
 print(plt)
 dev.off()
 
-OMs <- levels(all_res_less$OM_process_error)
+OMs <- levels(all_res$OM_process_error)
 OMs_lab <- c("Rom","RSom","RMom")
 for(i in 1:length(OMs)){
-  temp <- subset(all_res_less, OM_process_error == OMs[i] & year == "End")
+  temp <- subset(all_res, OM_process_error == OMs[i])
+  temp$bias_est[temp$rmse == 0] <-NA
+  temp$rmse[temp$rmse == 0] <-NA
   plt <- ggplot(temp, aes(x = Ecov_effect, y = bias_est, colour = EM_process_error, shape = M)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
     geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
@@ -226,9 +239,7 @@ for(i in 1:length(OMs)){
   print(plt)
   dev.off()
   
-  temp_rmse <- temp
-  temp_rmse$rmse[which(temp_rmse$rmse==0)] <- NA
-  plt <- ggplot(temp_rmse, aes(x = Ecov_effect, y = rmse, colour = EM_process_error, shape = M)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
+  plt <- ggplot(temp, aes(x = Ecov_effect, y = rmse, colour = EM_process_error, shape = M)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
       geom_line(position = position_dodge(0.1), linewidth = 1) + 
       geom_point(position = position_dodge(0.1), size = 4) + 
       scale_x_continuous(breaks = c(0,0.25,0.5)) + 
@@ -244,6 +255,9 @@ for(i in 1:length(OMs)){
   print(plt)
   dev.off()
 }
+
+x <- M_bias[[246]][conv_fn(246,3,conv_res,Type = 3),3,40,]
+sum(conv_res[[246]][[3]][,3] == 0, na.rm = T)
 
 # all_res_tnull <- rbind(
 #   plot_df_fn(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_type = NULL),
@@ -283,7 +297,7 @@ for(i in 1:length(OMs)){
 
 # subset(temp_rmse, Ecov_effect == 0.5 & OM_process_error == "R+M OMs" & Ecov_obs_sig == "sigma[italic(e)] == 0.1" & Ecov_re_sig ==  "sigma[italic(E)] == 0.5" & Ecov_re_cor == "rho[italic(E)] == 0.5")$rmse
 
-# temp <- subset(all_res_less, obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]" & year == "End")
+# temp <- subset(all_res, obs_error == "Low observation error" & Fhist == "2.5*italic(F)[MSY] %->% italic(F)[MSY]" & year == "End")
 # temp_rmse <- temp
 
 # subset(temp_rmse, Ecov_effect == 0.5 & OM_process_error == "R+M OMs" & Ecov_obs_sig == "sigma[italic(e)] == 0.1" & Ecov_re_sig ==  "sigma[italic(E)] == 0.5" & Ecov_re_cor == "rho[italic(E)] == 0.5")$rmse

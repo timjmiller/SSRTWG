@@ -40,35 +40,42 @@ conv_fn <- function(om, em, conv_res, Type = 3){
 
 #all EM PE assumptions
 plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, conv_type = 3) {
-  cnames <- c("bias_est", "bias_se", "rmse","lower", "middle", "upper", "true_beta_sd", "beta_sd_est", "pCI", "pCI_low", "pCI_hi", "nfit")
+  cnames <- c("bias_est", "bias_se", "rmse","lower", "middle", "upper", "true_beta_sd", "beta_sd_est", "beta_sd_rel_bias", "beta_sd_mean_bias", "beta_sd_median_bias", "pCI", "pCI_low", "pCI_hi", "nfit")
   for(h in 1:3) {
     re_mod <- c("rec", "rec+1", "rec+M")[h]
     #EM:  M fixed, mean_M estimated, OM and EM RE assumption match
     df.ems. <- df.ems[df.ems$M_est,]
-    em_ind <- which(df.ems.$Ecov_est==Ecov_est) # all 3 EM re_mods  
+    # em_ind <- which(df.ems.$Ecov_est==Ecov_est) # all 3 EM re_mods  
+    em_ind_median_M_res <- which(df.ems.$Ecov_est == Ecov_est) # all 3 EM re_mods, M_results just has the 6 EMs where ecov_beta is estimated (this is NOT the first 6 EMS in df.ems)
     om_ind <- which(df.oms$NAA_M_re == re_mod)
     for(i in om_ind){
-      out <- matrix(NA,length(em_ind), length(cnames))
-      for(j in em_ind){
+      out <- matrix(NA,length(em_ind_median_M_res), length(cnames))
+      for(j in em_ind_median_M_res){
+        em_ind_conv_res <- which(df.ems$M_est & df.ems$Ecov_est==Ecov_est & df.ems$re_config == df.ems.$re_config[j]) # conv_results has all 12 EMs, must find the one that corresponds to the em here
+        # print(c(em_ind_conv_res,j))
+        # stop()
         om_em_res <- median_M_bias[[i]][[j]]
-        if(!is.null(conv_type)) om_em_res <- om_em_res[conv_fn(i,j,conv_res,Type = conv_type),,drop = FALSE] #make sure subset is consistent with convergence results
+        if(!is.null(conv_type)) om_em_res <- om_em_res[conv_fn(i,em_ind_conv_res,conv_res,Type = conv_type),,drop = FALSE] #make sure subset is consistent with convergence results
         rmse <- sqrt(mean(om_em_res[,1]^2, na.rm = TRUE))
         ci_pCI <- c(NA,NA)
         if(NROW(om_em_res)>0) ci_pCI <- binom.test(sum(om_em_res[,3], na.rm= TRUE), sum(!is.na(om_em_res[,3])), p = mean(om_em_res[,3], na.rm = TRUE))$conf.int[1:2]
-        out[which(em_ind==j),] <- c(
+        out[which(em_ind_median_M_res==j),] <- c(
           median(om_em_res[,1], na.rm = TRUE), 
           sd(om_em_res[,1], na.rm=T)/sqrt(sum(!is.na(om_em_res[,1]))), 
           rmse, 
           custom_boxplot_stat(om_em_res[,1]), 
-          sd(om_em_res[,1], na.rm=T), 
+          sd(om_em_res[,1], na.rm=T), #sd of the beta estimate is the same as the sd of the bias because the true value is constant.
           mean(om_em_res[,2],na.rm = TRUE),
+          median(om_em_res[,2]/sd(om_em_res[,1],na.rm=T) -1, na.rm=T),
+          mean(om_em_res[,2],na.rm = TRUE) - sd(om_em_res[,1], na.rm=T),
+          median(om_em_res[,2],na.rm = TRUE) - sd(om_em_res[,1], na.rm=T),
           mean(om_em_res[,3], na.rm = TRUE),
           ci_pCI,
           sum(!is.na(om_em_res[,1])))
       }
       colnames(out) <- cnames
-      if(i == om_ind[1]) res <- cbind.data.frame(df.oms[rep(i,length(em_ind)),], df.ems.[em_ind,], out)
-      else res <- rbind.data.frame(res,cbind.data.frame(df.oms[rep(i,length(em_ind)),], df.ems.[em_ind,], out))
+      if(i == om_ind[1]) res <- cbind.data.frame(df.oms[rep(i,length(em_ind_median_M_res)),], df.ems.[em_ind_median_M_res,], out)
+      else res <- rbind.data.frame(res,cbind.data.frame(df.oms[rep(i,length(em_ind_median_M_res)),], df.ems.[em_ind_median_M_res,], out))
     }
     if(h == 1) {
       all_res <- res
@@ -150,6 +157,47 @@ cairo_pdf(here("Ecov_study","mortality","manuscript", "beta_M_bias_main.pdf"), w
 print(plt)
 dev.off()
 
+plt <- ggplot(temp, aes(x = Ecov_effect, y = beta_sd_median_bias, colour = EM_process_error)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
+    geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
+    geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+    scale_x_continuous(breaks = c(0,0.25,0.5)) + 
+    facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor  ~ OM_process_error + beta_Ecov, 
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, obs_error = label_parsed, Ecov_obs_sig = label_parsed, beta_Ecov = label_parsed)) +
+    coord_cartesian(ylim = c(-0.5, 0.5)) + ylab(bquote(ME(widehat(SE)(hat(beta)[italic(M)])))) + xlab(expression("True "*beta[italic(E)])) +
+    labs(colour = "EM process error")
+plt
+cairo_pdf(here("Ecov_study","mortality","manuscript", "se_beta_M_bias_main.pdf"), width = 30*2/3, height = 20*2/3)
+print(plt)
+dev.off()
+
+subset(df.oms, NAA_M_re == "rec+M" & Ecov_obs_sig == 0.1 & Ecov_re_sig == 0.5 & Ecov_re_cor == 0.5 & Fhist == "H-MSY" & obs_error == "L" & Ecov_effect == 0.5)$Model
+# OM 69
+which(df.ems$M_est & df.ems$Ecov_est & df.ems$re_config == "rec+M")
+# conv_res EM 5
+which(df.ems$Ecov_est[df.ems$M_est] & df.ems$re_config[df.ems$M_est] == "rec+M")
+# median_M_res index 3
+
+x <- median_M_bias[[69]][[3]][conv_fn(69,5,conv_res,Type = 3),,drop = FALSE]
+
+mean(x[,1] < qnorm(0.975) * x[,2] & x[,1] > qnorm(0.025)*x[,2], na.rm = T)
+x <- as.data.frame(x)
+x[,2] <- x[,2] - mean(x[,2])
+names(x) = c("est", "se", "inCI")
+            plot(x[,1],x[,2])
+
+theme_set(theme_bw())
+theme_update(strip.text = element_text(size = rel(1.5)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
+      axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(1.5)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
+      legend.title = element_text(size = rel(2)), legend.title.align=0.5)
+plt <- ggplot(data = x, aes(x = est, y = se)) +
+            geom_smooth(method = "lm", se=TRUE, color="black", formula = y ~ x) +
+            geom_point() + ylab(bquote(widehat(SE)(hat(beta)[italic(M)])- SE(hat(beta)[italic(M)]))) + xlab(bquote(hat(beta)[italic(M)]-beta[italic(M)]))
+
+plt
+cairo_pdf(here("Ecov_study","mortality","manuscript", "om_69_em_5_beta_M_se_beta_M_lm_plot.pdf"), width = 30*2/3, height = 20*2/3)
+print(plt)
+dev.off()
+
 
 plt <- ggplot(temp, aes(x = Ecov_effect, y = pCI, colour = EM_process_error)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
     geom_hline(aes(yintercept=0.95), linewidth = 2, linetype = "dashed", colour = "grey") +
@@ -169,7 +217,7 @@ plt <- ggplot(temp, aes(x = Ecov_effect, y = rmse, colour = EM_process_error)) +
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
     facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor  ~ OM_process_error + beta_Ecov, 
       labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, Ecov_obs_sig = label_parsed, beta_Ecov = label_parsed)) +
-    ylab(bquote(RMSE(hat(beta)[italic(E)]))) + xlab(expression("True "*beta[italic(E)])) + 
+    ylab(bquote(RMSE(hat(beta)[italic(M)]))) + xlab(expression("True "*beta[italic(E)])) + 
     coord_cartesian(ylim = c(0.01, 100), clip = "on") +
     scale_y_log10(breaks = c(1e-2,1e-1,1e-0,1e1,1e2), labels = parse(text = c("10^-2","10^-1","10^-0","10^1", "10^2"))) + #ylim(c(0,10)) +
     scale_x_continuous(breaks = c(0,0.25,0.5)) + labs(colour = "EM process error")
@@ -187,7 +235,7 @@ for(i in 1:length(OMs)){
     geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
     scale_x_continuous(breaks = c(0,0.25,0.5)) + 
     facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ beta_Ecov + Fhist + oe,
-      labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,  Fhist = label_parsed, beta_Ecov = label_parsed)) +
+      labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, Ecov_obs_sig = label_parsed, Fhist = label_parsed, beta_Ecov = label_parsed)) +
     coord_cartesian(ylim = c(-0.5, 0.5)) + ylab(bquote(ME(hat(beta)[italic(M)]))) + xlab(expression("True "*beta[italic(E)])) +
     labs(colour = "EM process error") +
     geom_errorbar(aes(ymin = lower, ymax = upper), width = .05, position = position_dodge(0.1))
@@ -195,6 +243,20 @@ for(i in 1:length(OMs)){
   cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("beta_M_bias_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
   print(plt)
   dev.off()
+
+  plt <- ggplot(temp, aes(x = Ecov_effect, y = beta_sd_median_bias, colour = EM_process_error)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
+      geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
+      geom_line(position = position_dodge(0.1), linewidth = 1) + geom_point(position = position_dodge(0.1), size = 4) + 
+      scale_x_continuous(breaks = c(0,0.25,0.5)) + 
+      facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor  ~ beta_Ecov + Fhist + oe, 
+        labeller = labeller(Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed, Ecov_obs_sig = label_parsed, Fhist = label_parsed, beta_Ecov = label_parsed)) +
+      coord_cartesian(ylim = c(-0.5, 0.5)) + ylab(bquote(ME(widehat(SE)(hat(beta)[italic(M)])))) + xlab(expression("True "*beta[italic(E)])) +
+      labs(colour = "EM process error")
+  plt
+  cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("se_beta_M_bias_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
+  print(plt)
+  dev.off()
+
   
   plt <- ggplot(temp, aes(x = Ecov_effect, y = pCI, colour = EM_process_error)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
       geom_hline(aes(yintercept=0.95), linewidth = 2, linetype = "dashed", colour = "grey") +
