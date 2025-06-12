@@ -78,14 +78,15 @@ RE_par$Ecov_beta <- RE_par$Ecov_beta + 1
 pdf(file.path(here::here(),'Ecov_study','recruitment_functions','plots','RE_par_hist.pdf'),height=9,width=9)
 par(mfrow=c(5,5),mar=c(1.5,1,2,1),oma=c(4,2,2,2))
 k=1
-for(i in c(8:10,13:29,43:44)){
+for(i in c(8:10,13:29,42:43)){
   x <- RE_par[,i]
   x <- x[x > quantile(x,p=0.01,na.rm=TRUE) & x < quantile(x,p=0.99,na.rm=TRUE)]
   yy <- hist(x,plot=FALSE,breaks=20)
-  plot(yy,xlab='',ylab='',main='',col='white',ylim=c(0,max(yy$counts) + 0.2*max(yy$counts)),yaxt='n')
-  abline(v=mean(x,na.rm=TRUE),lwd=2,col='red',lty=2)
+  plot(yy,xlab='',ylab='',main='',col='white',ylim=c(0,max(yy$counts) + 0.5*max(yy$counts)),yaxt='n')
+  abline(v=mean(x,na.rm=TRUE),lwd=1.5,col='red',lty=1)
   mtext(colnames(RE_par)[i],line=2.25,side=1,cex=0.8)
   mtext(adj=0,paste0(letters[k],')'),line=-2)
+  abline(v=0,lwd=1.5,lty=1)
   k <- k+1
 }
 dev.off()
