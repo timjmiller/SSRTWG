@@ -312,10 +312,10 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # Set up parallelization
 numCore <- detectCores()
 
-registerDoParallel(numCore-10) # Don't use 2 of the cores
+registerDoParallel(numCore-8) # Don't use 2 of the cores
 
 ##### Simulations with range of ecov beta values
-subsetOM <- OMsetup %>% filter(OMname > 19) # Incomplete runs: 19, 
+subsetOM <- OMsetup %>% filter(OMname == 364) # Run 360 onwards
 subsetEM <- EMsetup #%>% filter(miss_season == "NONE" | miss_season == "BOTH") # none or both seasons q misspecified
 
 
@@ -343,7 +343,7 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
   EM_NONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[12, "miss_season"], "_missQ_", subsetEM[12, "miss_q"]), "EMinput.Rds"))
   
   # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-  foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+  foreach(isim = 1:14) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
     simTestWHAM(nsim = 2,
                 OM = testOM,
                 inputEMlist = list(EM_BOTH_NoEcov, EM_ONE_NoEcov, EM_NONE_NoEcov,
@@ -369,12 +369,28 @@ outdir = here::here("Ecov_study/catchability")
 # Post-process results
 postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 
-# # Plot
-# perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-21_16-12-53.647033.RDS")) 
-# library(TAF)
-# mkdir(here::here("Ecov_study", "catchability", "plots_testEcovBeta_initEM"))
-# library(DataExplorer)
-# plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovBeta_initEM"))
+# Plot
+perfMet <- readRDS(here::here("Ecov_study", "catchability", "Results", "parallel_process", "aggPerformanceMetric_2024-01-17_23-02-41.123961.Rds")) 
+library(TAF)
+mkdir(here::here("Ecov_study", "catchability", "Results", "plots_fullResults"))
+mkdir(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE"))
+mkdir(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE"))
+mkdir(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH"))
+library(DataExplorer)
+# Plot full results
+plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_fullResults"))
+# Plot results with no seasonal misspecification
+perfMet %>% filter(EM_miss_season == "NONE") %>% saveRDS(., file = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE"), "aggPerfMet_missSeason_NONE")
+perfMet %>% filter(EM_miss_season == "NONE") %>%
+  plotResults(., convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE"))
+# Plot results with one seasonal misspecification
+perfMet %>% filter(EM_miss_season == "ONE") %>% saveRDS(., file = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE"), "aggPerfMet_missSeason_ONE")
+perfMet %>% filter(EM_miss_season == "ONE") %>%
+  plotResults(., convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE"))
+# Plot results with both seasonal misspecification
+perfMet %>% filter(EM_miss_season == "BOTH") %>% saveRDS(., file = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE"), "aggPerfMet_missSeason_BOTH")
+perfMet %>% filter(EM_miss_season == "BOTH") %>%
+  plotResults(., convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH"))
 # 
 # 
 # ##### Check performance of above OMs with a range of ecov obs errors
@@ -397,5 +413,43 @@ postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
 # library(DataExplorer)
 # plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
 
+# Plot results with one seasonal misspecification and F_hist = H-L
+library(DataExplorer)
+library(tidyverse)
+aggPerfMet_missSeason_ONE_HL <- readRDS("C:/Users/amanda.hart/Other_Research/SSRTWG/Ecov_study/catchability/aggPerfMet_missSeason_ONE_HL.Rds")
+plotResults(results = aggPerfMet_missSeason_ONE_HL, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL"))
+
+
+##### OM
+# Ecov process & effect magnitude set up
+Ecov_process_sig <- c(0.1, 0.5)
+Ecov_process_cor <- c(0, 0.5)
+Ecov_process_obs_sig <- c(0.0001, 0.1, 0.5) # Add option so obs followed perfectly in OM (i.e. almost no observation error)
+Ecov_effect <- c(0, 0.5,  1.5, 3.0) # beta
+# Fishing history
+F_hist <- c("H-L", "Fmsy") # High-then FMSY vs. FMSY for entire history
+# Observation error
+ageComp_sig <- c(0.3, 1.5) # Fleet and index age comp treated with same error
+log_index_sig <- c(0.1, 0.4) # agg_index_sigma
+log_catch_sig <- 0.1 # agg_catch_sigma
+# Factorial combinations
+OMsetup <- expand.grid(Ecov_process_sig = Ecov_process_sig, Ecov_process_cor = Ecov_process_cor, Ecov_process_obs_sig = Ecov_process_obs_sig, Ecov_effect = Ecov_effect, F_hist = F_hist, ageComp_sig = ageComp_sig, log_index_sig = log_index_sig, log_catch_sig = log_catch_sig)
+OMname <- 1:nrow(OMsetup)
+OMsetup <- cbind(OMname, OMsetup)
+OMsetup[,"F_hist"] <- as.character(OMsetup[,"F_hist"])
+
+##### EM
+# EM factorial settings
+miss_season <- c("BOTH", "ONE", "NONE") # Number of seasons with correctly specified effect, assumes 2 survey indices (spring & fall)
+miss_q <- c("NoEcov", "Ecov", "qRand", "qRandEcov") # Catchability setup for EM
+EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
+
+check <- cbind(rep(seq(1,nrow(OMsetup)),each=4), rep(paste0("EM_ONE_", miss_q), nrow(OMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric
+colnames(OMsetup)[1] <- "OMshortName"
+full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(outfile,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 
 
