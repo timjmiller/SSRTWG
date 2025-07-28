@@ -368,6 +368,43 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 
 filenames <- list.files(path = here::here(paste0("Ecov_study/catchability/Results")), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 
+"perfmet_2023-12-29_20-13-34.505775.RDS",
+"perfmet_2023-12-29_20-27-36.640791.RDS",
+"perfmet_2023-12-29_20-41-22.442021.RDS",
+"perfmet_2023-12-29_20-55-09.203809.RDS",
+"perfmet_2023-12-29_21-09-09.780349.RDS",
+"perfmet_2023-12-29_21-23-20.431991.RDS",
+"perfmet_2023-12-29_21-37-16.985615.RDS",
+"perfmet_2023-12-29_21-51-28.116545.RDS",
+"perfmet_2023-12-29_22-05-38.41417.RDS",
+"perfmet_2023-12-29_22-19-57.653278.RDS",
+"perfmet_2023-12-29_22-34-20.532968.RDS",
+"perfmet_2023-12-29_22-48-30.489408.RDS",
+"perfmet_2023-12-29_23-02-46.834601.RDS",
+"perfmet_2023-12-29_23-17-07.542494.RDS",
+"perfmet_2023-12-29_23-31-14.37506.RDS",
+"perfmet_2023-12-29_23-45-33.36481.RDS",
+"perfmet_2023-12-29_23-59-44.775598.RDS",
+"perfmet_2023-12-30-00-13-50.700073.RDS",
+"perfmet_2023-01-03_17-30-47.349568.RDS",
+"perfmet_2023-01-03_17-45-25.488529.RDS",
+"perfmet_2023-01-03_18-55-18.280357.RDS",
+"perfmet_2023-01-03_19-09-45.568978.RDS",
+"perfmet_2023-01-03_19-23-45.055622.RDS",
+"perfmet_2023-01-03_19-38-28.88513.RDS",
+"perfmet_2023-01-03_19-53-01.396128.RDS",
+"perfmet_2023-01-03_20-07-36.667071.RDS",
+"perfmet_2023-01-03_20-22-23.60639.RDS",
+"perfmet_2023-01-03_20-37-03.490185.RDS",
+"perfmet_2023-01-04_17-43-37.659487.RDS",
+"perfmet_2023-01-04_17-57-53.103325.RDS",
+"perfmet_2023-01-04_18-12-25.628939.RDS",
+"perfmet_2023-01-04_18-27-07.647875.RDS",
+"perfmet_2023-01-04_18-43-34.467153.RDS",
+"perfmet_2023-01-04_19-01-25.640493.RDS",
+"perfmet_2023-01-04_19-18-03.303149.RDS",
+"perfmet_2023-01-04_19-33-21.512589.RDS"
+
 
 # Set storage directory
 outdir = here::here("Ecov_study/catchability")
