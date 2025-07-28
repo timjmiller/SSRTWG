@@ -10,6 +10,7 @@ library(TAF)
 library(varhandle)
 library(doParallel)
 library(here)
+library(DataExplorer)
 
 ## OM/EM setup functions
 source(here::here("Ecov_study", "catchability", "make_om.R")) # Use revised copy that has option not to include a S-R relationship & sets ecov = NULL so only formatted by prepare_wham_input if provided to make_om
@@ -312,6 +313,7 @@ EMsetup <- expand.grid(miss_season = miss_season, miss_q = miss_q)
 # Set up parallelization
 numCore <- detectCores()
 
+
 registerDoParallel(numCore-8) # Don't use 2 of the cores
 
 ##### Simulations with range of ecov beta values
@@ -343,7 +345,11 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
   EM_NONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[12, "miss_season"], "_missQ_", subsetEM[12, "miss_q"]), "EMinput.Rds"))
   
   # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+<<<<<<< HEAD
   foreach(isim = 1:14) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+=======
+  foreach(isim = 1:10) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+>>>>>>> bccc521b53efc38a2d91debb73d3f59dd8a75bf3
     simTestWHAM(nsim = 2,
                 OM = testOM,
                 inputEMlist = list(EM_BOTH_NoEcov, EM_ONE_NoEcov, EM_NONE_NoEcov,
@@ -357,18 +363,32 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 
 
 
-##### Check performance of above OMs with a range of ecov beta parameters
+##### Post-process results
 # Find all result files 
-
 filenames <- list.files(path = here::here(paste0("Ecov_study/catchability/Results")), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 
-
 # Set storage directory
-outdir = here::here("Ecov_study/catchability")
+outdir = here::here("Ecov_study/catchability/Results/parallel_process")
 
 # Post-process results
-postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
+registerDoParallel(40)
+# for(idir in 1:length(seq(1150, 4100, by = 50))){ # Store results in sequence named folders to allow debugging if one parallel run doesn't complete
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", seq(1150, 4100, by = 50)), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+# for(idir in 1:length(c(seq(5800, 6800, by = 50), head(seq(7850, length(filenames), by = 50),-1)))){
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", c(seq(5800, 6800, by = 50), head(seq(7850, length(filenames), by = 50),-1))), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+# for(idir in 1:length(c(seq(1, 1100, by = 50), seq(4150, 5750, by = 50), seq(6850, 7800, by = 50)))){
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", c(seq(1, 1100, by = 50), seq(4150, 5750, by = 50), seq(6850, 7800, by = 50))), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+# foreach(ifile = seq(1150, 4100, by = 50)) %dopar% { 
+# foreach(ifile = c(seq(5800, 6800, by = 50), head(seq(7850, length(filenames), by = 50),-1))) %dopar% {
+#foreach(ifile = c(seq(1, 1100, by = 50), seq(4150, 5750, by = 50), seq(6850, 7800, by = 50))) %dopar% {
 
+<<<<<<< HEAD
 # Plot
 perfMet <- readRDS(here::here("Ecov_study", "catchability", "Results", "parallel_process", "aggPerformanceMetric_2024-01-17_23-02-41.123961.Rds")) 
 library(TAF)
@@ -398,20 +418,456 @@ perfMet %>% filter(EM_miss_season == "BOTH") %>%
 # filenames <- NULL
 # for(iom in c(27, 31, 35)){
 #   filenames <- c(filenames, list.files(path = here::here(paste0("Ecov_study/catchability/Results_initEM/OM_", iom)), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE))
+=======
+# for(idir in 1:length(head(seq(1, length(filenames), by=50), -1))){
+#   dirname <- paste("Ecov_study", "catchability", "Results", "parallel_process", paste0("process_", head(seq(1, length(filenames), by=50), -1)), sep="/")[idir]
+#   dir.create(here::here(dirname))
+# }
+#foreach(ifile = head(seq(1, length(filenames), by=50), -1)) %dopar% {
+#foreach(ifile = c(9201, 9251, 9301, 9351, 9401, 9451, 9501, 9551)) %dopar% {
+foreach(ifile = c(1251, 2201, 2451, 3201, 3851, 6201, 8501, 8851)) %dopar%{ # process files that were initially missed
+  print(paste0("ifile ", ifile))
+  postprocess_simTestWHAM(filenames =  c(filenames[ifile:(ifile+49)]), outdir = paste0(outdir,"/process_", ifile))
+}
+postprocess_simTestWHAM(filenames =  c(filenames[tail(seq(1, length(filenames), by = 50), n=1):length(filenames)]), outdir = paste0(outdir,"/process_", 9601)) # Last files may be less than 50 interval so processed independently
+postprocess_simTestWHAM(filenames = c(filenames[9152:9200], filenames[9151]), outdir = paste0(outdir,"/process_", 9151))
+postprocess_simTestWHAM(filenames = c(filenames[9552:9600], filenames[9551]), outdir = paste0(outdir,"/process_", 9551))
+
+parallel_processed <-  list.files(path = here::here(paste0("Ecov_study/catchability/Results/parallel_process")), pattern = "perfMet_", recursive = TRUE, full.names = TRUE)
+
+postprocess_simTestWHAM(filenames = c(filenames[1153:1200], filenames[1151:1152]), outdir = paste0(outdir, "/process_1151"))
+postprocess_simTestWHAM(filenames = c(filenames[1252:1300], filenames[1251]), outdir = paste0(outdir, "/process_1251"))
+postprocess_simTestWHAM(filenames = c(filenames[2202:2250], filenames[2201]), outdir = paste0(outdir, "/process_2201"))
+postprocess_simTestWHAM(filenames = c(filenames[2452:2500], filenames[2451]), outdir = paste0(outdir, "/process_2451")) 
+postprocess_simTestWHAM(filenames = c(filenames[3203:3250], filenames[3201:3202]), outdir = paste0(outdir, "/process_3201")) 
+postprocess_simTestWHAM(filenames = c(filenames[3852:3900], filenames[3851]), outdir = paste0(outdir, "/process_3851"))
+postprocess_simTestWHAM(filenames = c(filenames[6202:6250], filenames[6201]), outdir = paste0(outdir, "/process_6201")) 
+postprocess_simTestWHAM(filenames = c(filenames[8502:8550], filenames[8501]), outdir = paste0(outdir, "/process_8501")) 
+postprocess_simTestWHAM(filenames = c(filenames[8852:8900], filenames[8851]), outdir = paste0(outdir, "/process_8851"))
+
+# Check that all blocks of files have been processed
+check <- parallel_processed %>% strsplit(., "/", fixed = TRUE) %>% unlist() %>% matrix(ncol = 11, byrow = T) %>% as.data.frame()
+check <- check[,10] %>% strsplit("process_", fixed = TRUE) %>% unlist() %>% matrix(ncol = 2, byrow = TRUE)
+check <- check[,2] %>% as.numeric() 
+sequence <- seq(1, length(filenames), by=50)
+sequence[-match(check, sequence)] # if numeric(0) then finished processing
+
+# Aggregate processed files
+# combinePerfMet(filenames = parallel_processed, outdir = outdir)
+
+##### Aggregate processed files by seasonal miss-specification (required because full results file too large)
+batchCombine <- function(filenames=NULL, manualLast = NULL){
+  aggPerfMet <- NULL
+  
+  for(ifile in 1:length(filenames)){
+    print(ifile)
+    
+    # Read in RDS file
+    perfMet <- readRDS(file = here::here(filenames[ifile]))
+    
+    if(is.null(manualLast) == TRUE){
+      if(ifile == 1){ # If this is the first file, append to the aggPerfMet storage
+        aggPerfMet <- rbind(aggPerfMet, perfMet)
+      } else{
+        # ID number of sims to append
+        nsim <- perfMet$sim %>% unique() %>% length()
+        # ID last sim number in aggPerfMet 
+          lastsim <- aggPerfMet$sim %>% unique() %>% as.numeric() %>% max()
+        # New sim numbers
+        newSim <- lastsim + 1:nsim
+        # Replace old sim numbers with new sim numbers
+        for(isim in 1:nsim){
+          perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
+        }
+        # Append newly renumbered simulations to aggPerfMet storage
+        aggPerfMet <- rbind(aggPerfMet, perfMet)
+      }
+    } else{ 
+      if(ifile == 1){ # Use manualLast number to order sims within the batch combined files
+        # ID number of sims to append
+        nsim <- perfMet$sim %>% unique() %>% length()
+        # ID last sim number in aggPerfMet 
+        lastsim <- manualLast
+        
+        # New sim numbers
+        newSim <- lastsim + 1:nsim
+        # Replace old sim numbers with new sim numbers
+        for(isim in 1:nsim){
+          perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
+        }
+        # Append newly renumbered simulations to aggPerfMet storage
+        aggPerfMet <- rbind(aggPerfMet, perfMet)
+      } else{
+        # ID number of sims to append
+        nsim <- perfMet$sim %>% unique() %>% length()
+        # ID last sim number in aggPerfMet 
+        lastsim <- aggPerfMet$sim %>% unique() %>% as.numeric() %>% max()
+        # New sim numbers
+        newSim <- lastsim + 1:nsim
+        # Replace old sim numbers with new sim numbers
+        for(isim in 1:nsim){
+          perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
+        }
+        # Append newly renumbered simulations to aggPerfMet storage
+        aggPerfMet <- rbind(aggPerfMet, perfMet)
+      }
+        
+    } # End if statement for manualLast
+  } # End loop over files
+  
+  # Save results by seasonal misspecification 
+  timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+  
+  aggPerfMet %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+  aggPerfMet %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+  aggPerfMet %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+  aggPerfMet %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+  aggPerfMet %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+  aggPerfMet %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+}
+
+batchCombine(filenames = parallel_processed[1:10], manualLast = NULL)
+#readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "perfMet_missSeason_NONE_Fmsy_2024-01-22_19-50-00.346291.RDS"))$sim %>% unique() %>% as.numeric() %>% max() # NONE option is last in each file so should be max sim from the file
+batchCombine(filenames = parallel_processed[11:20], manualLast = 12000)
+#readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "perfMet_missSeason_NONE_Fmsy_2024-01-22_19-57-03.800172.RDS"))$sim %>% unique() %>% as.numeric() %>% max() # NONE option is last in each file so should be max sim from the file
+batchCombine(filenames = parallel_processed[21:30], manualLast = 24000)
+batchCombine(filenames = parallel_processed[31:40], manualLast = 36000)
+batchCombine(filenames = parallel_processed[41:45], manualLast = 48000) #! 10:22/1215/1227 file has no rows 
+batchCombine(filenames = parallel_processed[46:50], manualLast = 54000) #! 10:27 file has no rows
+batchCombine(filenames = parallel_processed[51:60], manualLast = 60000) #! 10:35 file has no rows
+batchCombine(filenames = parallel_processed[61:70], manualLast = 72000)
+batchCombine(filenames = parallel_processed[71:80], manualLast = 84000)
+batchCombine(filenames = parallel_processed[81:90], manualLast = 96000)
+batchCombine(filenames = parallel_processed[91:100], manualLast = 108000)
+batchCombine(filenames = parallel_processed[101:110], manualLast = 120000) #! 1108 no rows
+batchCombine(filenames = parallel_processed[111:120], manualLast = 132000) #! 1113 no rows
+batchCombine(filenames = parallel_processed[121:130], manualLast = 144000) # finished 1120
+batchCombine(filenames = parallel_processed[131:140], manualLast = 156000) # finished 1128
+batchCombine(filenames = parallel_processed[141:150], manualLast = 168000) # finished 1139
+batchCombine(filenames = parallel_processed[151:160], manualLast = 180000) # finished 1144
+batchCombine(filenames = parallel_processed[161:170], manualLast = 192000) # finished 1152
+batchCombine(filenames = parallel_processed[171:180], manualLast = 204000) # finished 1200
+batchCombine(filenames = parallel_processed[181:190], manualLast = 216000) # finished 1207
+batchCombine(filenames = parallel_processed[191:length(parallel_processed)], manualLast = 228000) #! 1211 no rows
+#! files with size 1.1KB and no rows result when the batch didn't contain the corresponding split (e.g. No Fmsy runs in a batch processed for plots_MissSeason_NONE_HL)
+
+
+
+# Take 2 to avoid issue with looping not storing all appended results
+
+# batchCombine <- function(filenames=NULL){ # Assumes you will batch combine either 3 or 10 files, will not change sim #s
+#   
+#   timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+#   
+#   # Read in RDS file 
+#   file1 <- readRDS(file = here::here(filenames[1]))
+#   file2 <- readRDS(file = here::here(filenames[2]))
+#   file3 <- readRDS(file = here::here(filenames[3]))
+#   
+#   if(length(filenames)==3){ # Only read in and save 3 files
+#     combined <- rbind(file1, file2, file3)
+#     # Save results by seasonal misspecification & F_hist
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+#     
+#   } else{ # Also read in files 4-10 before saving
+#     file4 <- readRDS(file = here::here(filenames[4]))
+#     file5 <- readRDS(file = here::here(filenames[5]))
+#     file6 <- readRDS(file = here::here(filenames[6]))
+#     file7 <- readRDS(file = here::here(filenames[7]))
+#     file8 <- readRDS(file = here::here(filenames[8]))
+#     file9 <- readRDS(file = here::here(filenames[9]))
+#     file10 <- readRDS(file = here::here(filenames[10]))
+#     
+#     combined <- rbind(file1, file2, file3, file4, file5, file6, file7, file8, file9, file10)
+#     # Save results by seasonal misspecification & F_hist
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+#     combined %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+#     
+#   }
+>>>>>>> bccc521b53efc38a2d91debb73d3f59dd8a75bf3
 # }
 # 
-# # Set storage directory
-# outdir = here::here("Ecov_study/catchability")
+
+# batchCombine(filenames = parallel_processed[1:10])
+# batchCombine(filenames = parallel_processed[11:20])
+# batchCombine(filenames = parallel_processed[21:30])
+# batchCombine(filenames = parallel_processed[31:40])
+# batchCombine(filenames = parallel_processed[41:50])
+# batchCombine(filenames = parallel_processed[51:60])
+# batchCombine(filenames = parallel_processed[61:70])
+# batchCombine(filenames = parallel_processed[71:80])
+# batchCombine(filenames = parallel_processed[81:90])
+# batchCombine(filenames = parallel_processed[91:100])
+# batchCombine(filenames = parallel_processed[101:110])
+# batchCombine(filenames = parallel_processed[111:120])
+# batchCombine(filenames = parallel_processed[121:130])
+# batchCombine(filenames = parallel_processed[131:140])
+# batchCombine(filenames = parallel_processed[141:150])
+# batchCombine(filenames = parallel_processed[151:160])
+# batchCombine(filenames = parallel_processed[161:170])
+# batchCombine(filenames = parallel_processed[171:180])
+# batchCombine(filenames = parallel_processed[181:190])
+# batchCombine(filenames = parallel_processed[191:200])
+# batchCombine(filenames = parallel_processed[201:length(parallel_processed)])
+
+
+
+
+
+
+
+
+
+# # Append batches for no misspecification
+# missSeason_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE")), pattern = "perfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+# for(ifile in 1:8){
+#   print(ifile)
+#   if(ifile == 1){
+#     file1 <- readRDS(missSeason_NONE[1])
+#     file2 <- readRDS(missSeason_NONE[2])
+#     rbind(file1, file2) %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE.Rds"))
+#   } else if(ifile > 2){
+#     aggFile <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE.Rds"))
+#     tempfile <- readRDS(missSeason_NONE[ifile])
+#     # append to file
+#     rbind(aggFile, tempfile) %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE.Rds"))
+#   }
+# }
+# #!!! start here
+# for(ifile in 9:length(missSeason_NONE)){
+#   print(ifile)
+#   if(ifile == 9){
+#     file1 <- readRDS(missSeason_NONE[9])
+#     file2 <- readRDS(missSeason_NONE[10])
+#     rbind(file1, file2) %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE2.Rds"))
+#   } else if(ifile > 10){
+#     aggFile <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE2.Rds"))
+#     tempfile <- readRDS(missSeason_NONE[ifile])
+#     # append to file
+#     rbind(aggFile, tempfile) %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE2.Rds"))
+#   }
+# }
+# agg1 <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE.Rds")) 
+# agg2 <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE2.Rds"))
+# rbind(agg1, agg2) %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE", "aggPerfMet_missSeason_NONE.Rds"))
 # 
-# # Post-process results
-# postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
-# 
-# # Plot
-# perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-19_19-05-25.884854.RDS")) # Only 20 simulations
-# library(TAF)
-# mkdir(here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
-# library(DataExplorer)
-# plotResults(results = perfMet, convergedONLY = TRUE, outfile = here::here("Ecov_study", "catchability", "plots_testEcovObs_initEM"))
+# # Function to expedite combining files (I hope)
+# rbindCombine <- function(filenames = NULL, outfile = NULL){
+#   for(ifile in 1:length(filenames)){
+#     print(ifile)
+#     if(ifile == 1){
+#       file1 <- readRDS(filenames[1])
+#       file2 <- readRDS(filenames[2])
+#       rbind(file1, file2) %>% saveRDS(., file =  outfile)
+#     } else if(ifile > 2){
+#       aggFile <- readRDS(outfile)
+#       tempfile <- readRDS(missSeason_ONE[ifile])
+#       # append to file
+#       rbind(aggFile, tempfile) %>% saveRDS(., file =  outfile)
+#     }
+#   }
+# }
+
+testrbindCombine <- function(filenames = NULL, outfile = NULL){
+      file1 <- readRDS(filenames[1])
+      file2 <- readRDS(filenames[2])
+      file3 <- readRDS(filenames[3])
+      file4 <- readRDS(filenames[4])
+      if(length(filenames) == 4){
+        rbind(file1, file2, file3, file4) %>% saveRDS(., file = outfile)
+      } else if(length(filenames) == 5){
+        file5 <- readRDS(filenames[5])
+        rbind(file1, file2, file3, file4, file5) %>% saveRDS(., file =  outfile)
+      } else if(length(filenames)==6){
+        file5 <- readRDS(filenames[5])
+        file6 <- readRDS(filenames[6])
+        rbind(file1, file2, file3, file4, file5, file6) %>% saveRDS(., file =  outfile)
+      }
+}
+
+# Append batches for one season misspecified Fhist H-L
+missSeason_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_HL")), pattern = "perfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = missSeason_ONE[1:5], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE1-5.Rds"))
+testrbindCombine(filenames = missSeason_ONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE6-10.Rds"))
+testrbindCombine(filenames = missSeason_ONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE11-15.Rds"))
+testrbindCombine(filenames = missSeason_ONE[16:length(missSeason_ONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE16-end.Rds"))
+final_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_HL")), pattern = "aggPerfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = final_ONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds"))
+# Check that all OM/EM pairs have been processed
+path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL")
+results <- readRDS(paste0(path,"/aggPerfMet_missSeason_ONE_HL.Rds"))
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "H-L")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_ONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric()
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+# Plot
+plotResults(results = results, convergedONLY = TRUE, outfile = path)
+
+# Append batches for one season misspecified Fhist Fmsy
+missSeason_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_Fmsy")), pattern = "perfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = missSeason_ONE[1:5], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE1-5.Rds"))
+testrbindCombine(filenames = missSeason_ONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE6-10.Rds"))
+testrbindCombine(filenames = missSeason_ONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE11-15.Rds"))
+testrbindCombine(filenames = missSeason_ONE[16:length(missSeason_ONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE16-end.Rds"))
+final_ONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_ONE_Fmsy")), pattern = "aggPerfMet_missSeason_ONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = final_ONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds"))
+# Check that all OM/EM pairs have been processed
+path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy")
+results <- readRDS(paste0(path,"/aggPerfMet_missSeason_ONE_Fmsy.Rds"))
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "Fmsy")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_ONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric()
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+# Plot
+plotResults(results = results, convergedONLY = TRUE, outfile = path)
+
+
+# Append batches for both seasons misspecified Fhist H-L
+missSeason_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_HL")), pattern = "perfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = missSeason_BOTH[1:5], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH1-5.Rds"))
+testrbindCombine(filenames = missSeason_BOTH[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH6-10.Rds"))
+testrbindCombine(filenames = missSeason_BOTH[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH11-15.Rds"))
+testrbindCombine(filenames = missSeason_BOTH[16:length(missSeason_BOTH)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH16-end.Rds"))
+final_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_HL")), pattern = "aggPerfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = final_BOTH, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds"))
+# Check that all OM/EM pairs have been processed
+path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL")
+results <- readRDS(paste0(path,"/aggPerfMet_missSeason_BOTH_HL.Rds"))
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "H-L")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_BOTH_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric()
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+# Plot
+plotResults(results = results, convergedONLY = TRUE, outfile = path)
+
+# Append batches for both seasons misspecified Fhist Fmsy
+missSeason_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_Fmsy")), pattern = "perfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = missSeason_BOTH[1:5], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH1-5.Rds"))
+testrbindCombine(filenames = missSeason_BOTH[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH6-10.Rds"))
+testrbindCombine(filenames = missSeason_BOTH[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH11-15.Rds"))
+testrbindCombine(filenames = missSeason_BOTH[16:length(missSeason_BOTH)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH16-end.Rds"))
+final_BOTH <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_BOTH_Fmsy")), pattern = "aggPerfMet_missSeason_BOTH", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = final_BOTH, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds"))
+# Check that all OM/EM pairs have been processed
+path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy")
+results <- readRDS(paste0(path,"/aggPerfMet_missSeason_BOTH_Fmsy.Rds"))
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "Fmsy")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_BOTH_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric()
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+# Plot
+plotResults(results = results, convergedONLY = TRUE, outfile = path)
+
+# Append batches for NONE seasons misspecified Fhist H-L
+missSeason_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_HL")), pattern = "perfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = missSeason_NONE[1:5], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE1-5.Rds"))
+testrbindCombine(filenames = missSeason_NONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE6-10.Rds"))
+testrbindCombine(filenames = missSeason_NONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE11-15.Rds"))
+testrbindCombine(filenames = missSeason_NONE[16:length(missSeason_NONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE16-end.Rds"))
+final_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_HL")), pattern = "aggPerfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = final_NONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds"))
+# Check that all OM/EM pairs have been processed
+path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL")
+results <- readRDS(paste0(path,"/aggPerfMet_missSeason_NONE_HL.Rds"))
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "H-L")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_NONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric()
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+# Plot
+plotResults(results = results, convergedONLY = TRUE, outfile = path)
+
+# Append batches for NONE seasons misspecified Fhist Fmsy
+missSeason_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_Fmsy")), pattern = "perfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = missSeason_NONE[1:5], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE1-5.Rds"))
+testrbindCombine(filenames = missSeason_NONE[6:10], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE6-10.Rds"))
+testrbindCombine(filenames = missSeason_NONE[11:15], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE11-15.Rds"))
+testrbindCombine(filenames = missSeason_NONE[16:length(missSeason_NONE)], outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE16-end.Rds"))
+final_NONE <- list.files(path = here::here(paste0("Ecov_study/catchability/Results/plots_missSeason_NONE_Fmsy")), pattern = "aggPerfMet_missSeason_NONE", recursive = FALSE, full.names = TRUE)
+testrbindCombine(filenames = final_NONE, outfile = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds"))
+# Check that all OM/EM pairs have been processed
+path = here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy")
+results <- readRDS(paste0(path,"/aggPerfMet_missSeason_NONE_Fmsy.Rds"))
+
+allOMsettings <- NULL
+for(iOM in 1:384){
+  tempOMsettings <- readRDS(here::here("Ecov_study/catchability/Results", paste0("OM_", iOM), "OMsettings.Rds"))
+  allOMsettings <- rbind(allOMsettings, tempOMsettings)
+}
+
+tempOMsetup <- allOMsettings %>% filter(F_hist == "Fmsy")
+colnames(tempOMsetup)[1] <- "OMshortName"
+check <- cbind(rep(tempOMsetup$OMshortName, each=4), rep(paste0("EM_NONE_", miss_q), nrow(tempOMsetup))) %>% as.data.frame()
+colnames(check) <- c("OMshortName",	"EMshortName") # Set up full combinations
+check2 <- results %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40) # Check if completed
+check3 <- full_join(check, check2) 
+check3$OMshortName <- check3$OMshortName %>% as.numeric()
+full_join(check3, tempOMsetup, by = "OMshortName") %>% write.csv(., paste0(path,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
+# Plot
+plotResults(results = results, convergedONLY = TRUE, outfile = path)
 
 # Plot results with one seasonal misspecification and F_hist = H-L
 library(DataExplorer)
@@ -452,4 +908,699 @@ check3$OMshortName <- check3$OMshortName %>% as.numeric
 colnames(OMsetup)[1] <- "OMshortName"
 full_join(check3, OMsetup, by = "OMshortName") %>% write.csv(., paste0(outfile,"/simSummary.csv")) # /40 years so nsim = number of full simulations for each OM/EM
 
+
+##### Extra plots
+### Catch/Index/AIC data for Alex
+# First pick a F_hist/seasonal misspecification pair for your results
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_NONE_Fmsy.Rds")) # Fmsy Fhist, no misspecification
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_NONE_HL.Rds")) # H-L Fhist, no misspecification
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_ONE_Fmsy.Rds")) # Fmsy Fhist, one season misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_ONE_HL.Rds")) # H-L Fhist, one season misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_BOTH_Fmsy.Rds")) # Fmsy Fhist, both seasons misspecified
+results <- readRDS(here::here("Ecov_study", "catchability", "Results", "supplementSims", "fullResults_BOTH_HL.Rds")) # H-L Fhist, both seasons misspecified
+
+# Pull out the AIC and simulation settings for each simulation (1 entry per simulation) 
+results_AIC <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% # Only plot models that converged
+  group_by(sim) %>% # Need this if you don't want to plot time-series
+  dplyr::summarize(seed = unique(seed), Fhist = unique(F_hist), ageComp_sig = unique(ageComp_sig), log_catch_sig = unique(log_catch_sig), log_index_sig = unique(log_index_sig),
+                   OM_ecov_effect = unique(OM_ecov_effect), OM_ecov_process_cor = unique(OM_ecov_process_cor), OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig), OM_ecov_process_sig = unique(OM_ecov_process_sig), OMshortName = unique(OMshortName),
+                   EM_miss_q = unique(EM_miss_q), EM_miss_season = unique(EM_miss_season), EMshortName = unique(EMshortName),
+                   AIC = unique(AIC)) %>%
+  group_by(seed) %>% mutate(maxAIC = max(AIC)) %>% # group_by(seed) %>% count() %>% filter(n == 4) # This checks 
+  filter(AIC == maxAIC) %>% group_by(EM_miss_q) %>% count() 
+results_AIC %>% 
+  ggplot() +
+  geom_bar(aes(x = EM_miss_q, y = n), stat = "identity")
+  
+
+# Catch
+results_catch <- results_BOTH_HL %>% 
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  select(Year, seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         OM_Catch, EM_Catch)
+
+relCatch_plot <- results_catch %>%
+  ggplot() +
+  geom_boxplot(aes(x=EMshortName, y=as.numeric(EM_Catch)/as.numeric(OM_Catch), fill = EMshortName)) + 
+  facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect, F_hist)) + # Facet by OM settings
+  geom_hline(aes(yintercept = 1), color="red") +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM", 
+       x = "EM",
+       y = "EM:OM ratio of Catch (all years)") +
+  ggtitle("EM:OM ratio of catch")
+ggsave(relCatch_plot, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "relCatch_BOTH_HL.png"), width = 25)
+
+# Names for Index time series: OM_agg_ind1, OM_agg_ind2, EM_agg_ind1, EM_agg_ind2
+results_index <- results_BOTH_HL %>% 
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  select(Year, seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         OM_agg_ind1, OM_agg_ind2, EM_agg_ind1, EM_agg_ind2)
+
+aggIndex1_plot <- results_index %>%
+  ggplot() +
+  geom_boxplot(aes(x=EMshortName, y=as.numeric(EM_agg_ind1)/as.numeric(OM_agg_ind1), fill = EMshortName)) + 
+  facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect, F_hist)) + # Facet by OM settings
+  geom_hline(aes(yintercept = 1), color="red") +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM", 
+       x = "EM",
+       y = "EM:OM ratio of Index 1 (all years)") +
+  ggtitle("EM:OM ratio of aggregate index 1")
+ggsave(aggIndex1_plot, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "aggIndex1_BOTH_HL.png"), width = 25, height = 10)
+
+aggIndex2_plot <- results_index %>% mutate(relInd2 = as.numeric(EM_agg_ind2)/as.numeric(OM_agg_ind2)) %>% filter(relInd2<10) %>% filter(Year == 40) %>%
+  ggplot() +
+  geom_boxplot(aes(x=EMshortName, y=relInd2, fill = EMshortName)) + 
+  facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect, F_hist)) + # Facet by OM settings
+  geom_hline(aes(yintercept = 1), color="red") +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM", 
+       x = "EM",
+       y = "EM:OM ratio of Index 2 (all years) ") +
+  ggtitle("EM:OM ratio of aggregate index 2")
+ggsave(aggIndex2_plot, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "aggIndex2_BOTH_HL_trimmed.png"), width = 25, height = 10)
+
+
+##### Final data manipulations to 1) ensure all OM/EM pairs have 50 simulations and 2) generate summary plots across seasonal misspecifications and F histories
+### 1A: Run & process additional simulations for OM 247 & 376
+## Run supplemental simulations in parallel 
+registerDoParallel(25) 
+subsetOM <- OMsetup %>% filter(OMname== 247) # 2 sim missing
+subsetOM <- OMsetup %>% filter(OMname == 376) # 10 sim missing
+subsetEM <- EMsetup 
+# Run simulation tests
+for(iom in 1:nrow(subsetOM)){  # Loop over OMs
+  # Pull OM
+  testOM <- readRDS(here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]), paste0("OM_", subsetOM[iom, "OMname"], ".Rds")))
+  omdir <- here::here("Ecov_study", "catchability", "Results", paste0("OM_", subsetOM[iom, "OMname"]))
+  # Pull EM
+  EM_BOTH_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[2, "miss_season"], "_missQ_", subsetEM[2, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[3, "miss_season"], "_missQ_", subsetEM[3, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[4, "miss_season"], "_missQ_", subsetEM[4, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[5, "miss_season"], "_missQ_", subsetEM[5, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_Ecov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[6, "miss_season"], "_missQ_", subsetEM[6, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[7, "miss_season"], "_missQ_", subsetEM[7, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[8, "miss_season"], "_missQ_", subsetEM[8, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_qRand <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[9, "miss_season"], "_missQ_", subsetEM[9, "miss_q"]), "EMinput.Rds"))
+  EM_BOTH_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[10, "miss_season"], "_missQ_", subsetEM[10, "miss_q"]), "EMinput.Rds"))
+  EM_ONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[11, "miss_season"], "_missQ_", subsetEM[11, "miss_q"]), "EMinput.Rds"))
+  EM_NONE_qRandEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[12, "miss_season"], "_missQ_", subsetEM[12, "miss_q"]), "EMinput.Rds"))
+  
+  # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
+  foreach(isim = 1:1) %dopar% { # Supplemental sims for OM 247
+#  foreach(isim = 1:1) %dopar% { # Supplemental sims for OM 376
+    simTestWHAM(nsim = 2,
+                OM = testOM,
+                inputEMlist = list(EM_BOTH_NoEcov, EM_ONE_NoEcov, EM_NONE_NoEcov,
+                                   EM_BOTH_Ecov, EM_ONE_Ecov, EM_NONE_Ecov,
+                                   EM_BOTH_qRand, EM_ONE_qRand, EM_NONE_qRand,
+                                   EM_BOTH_qRandEcov, EM_ONE_qRandEcov, EM_NONE_qRandEcov), # Run all EMs fit to same OM data
+                outdir = omdir) # Save in OM directory
+  } # End foreach loop over sims
+} # End loop over OMs
+
+## Post-process results & renumber sims
+supplementFiles <- c(here::here("Ecov_study/catchability/Results/OM_247/simWHAM_2_nsim_OM_247_0.1_0.5_0.1_0_Fmsy_0.3_0.4_0.1_OM_2024-01-25_02-25-01.576569.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-47-30.725459.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-23.807626.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-25.743862.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-36.333031.RData"),
+                     here::here("Ecov_study/catchability/Results/OM_376/simWHAM_2_nsim_OM_376_0.5_0.5_1e-04_3_Fmsy_1.5_0.4_0.1_OM_2024-01-25_02-48-55.503308.RData"))
+postprocess_simTestWHAM(filenames = supplementFiles, outdir = paste0(here::here("Ecov_study/catchability/Results/supplementSims")))
+
+## Renumber sims
+aggPerfMet <- NULL
+# Read in RDS file
+perfMet <- readRDS(file = here::here("Ecov_study/catchability/Results/supplementSims","perfMet_2024-01-25_02-55-05.916451.RDS"))
+# ID number of sims to append
+nsim <- perfMet$sim %>% unique() %>% length()
+# ID last sim number in aggPerfMet 
+lastsim <- 231000 # Slightly higher than max sim from previous file just to leave a buffer, not an issue as long as it is unique
+
+# New sim numbers
+newSim <- lastsim + 1:nsim
+# Replace old sim numbers with new sim numbers
+for(isim in 1:nsim){
+  perfMet[which(perfMet$sim == isim), "sim"] <- newSim[isim]
+}
+# Append newly renumbered simulations to aggPerfMet storage
+aggPerfMet <- rbind(aggPerfMet, perfMet)
+# Save results by seasonal misspecification (HL files will be empty since we only added extra sims for Fmsy OMs)
+timeStamp <- Sys.time() %>% gsub(" ", "_",.) %>% gsub(":", "-", .) # Change millisecond half of Sys.time() output to avoid having spaces/weird characters in filenames
+supplement_NONE_HL <- aggPerfMet %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_HL_",timeStamp, ".Rds")))
+supplement_NONE_Fmsy <- aggPerfMet %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+supplement_ONE_HL <- aggPerfMet %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_HL_",timeStamp, ".Rds")))
+supplement_ONE_Fmsy <- aggPerfMet %>% filter(EM_miss_season == "ONE") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+supplement_BOTH_HL <- aggPerfMet %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "H-L") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_HL_",timeStamp, ".Rds")))
+supplement_BOTH_Fmsy <- aggPerfMet %>% filter(EM_miss_season == "BOTH") %>% filter(F_hist == "Fmsy") %>% saveRDS(., file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+
+
+### 1B: Remove extra simulations for OM 19 & 36
+# Remove extra simulations from OM 19 & 36 (these are both HL models so no need to process for Fmsy)
+# results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds"))  # Fmsy Fhist, no misspecification
+# simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeRate <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds"))  # HL Fhist, no misspecification
+simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+# results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds"))  # Fmsy Fhist, one season misspecified
+# simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeRate <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds"))  # HL Fhist, one season misspecified
+simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+# results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds"))  # Fmsy Fhist, both seasons misspecified
+# simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+# convergeRate <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds"))  # HL Fhist, both seasons misspecified
+simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+
+checkHL <- full_join(results_BOTH_HL, convergeRate, by = c("OMshortName", "EMshortName")) %>% filter(Year == 40) 
+keep36 <- checkHL %>% filter(OMshortName == 36) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
+only36_BOTH_HL <- semi_join(results_BOTH_HL, keep36, by = "seed") # Pull out 50 unique simulations
+#only36_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+only36_ONE_HL <- semi_join(results_ONE_HL, keep36, by = "seed") # Pull out 50 unique simulations
+#only36_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+only36_NONE_HL <- semi_join(results_NONE_HL, keep36, by = "seed") # Pull out 50 unique simulations
+#only36_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep36, by = "seed") # Pull out 50 unique simulations
+
+keep19 <- checkHL %>% filter(OMshortName == 19) %>% group_by(seed) %>% count(seed) %>% filter(n == 4) %>% select(seed) %>% head(n=50) # ID 50 unique simulations to keep (same across HL for BOTH/ONE/NONE misspecifications)
+only19_BOTH_HL <- semi_join(results_BOTH_HL, keep19, by = "seed") # Pull out 50 unique simulations
+#only19_BOTH_Fmsy <- semi_join(results_BOTH_Fmsy, keep19, by = "seed") # %>% group_by(seed) %>% count(seed) # will have n=160 if 4 EMs*40 years of data = 1 simulation per seed
+only19_ONE_HL <- semi_join(results_ONE_HL, keep19, by = "seed") # Pull out 50 unique simulations
+#only19_ONE_Fmsy <- semi_join(results_ONE_Fmsy, keep19, by = "seed")
+only19_NONE_HL <- semi_join(results_NONE_HL, keep19, by = "seed") # Pull out 50 unique simulations
+#only19_NONE_Fmsy <- semi_join(results_NONE_Fmsy, keep19, by = "seed")
+
+
+### Add supplemental data so 50 sims each
+supplement_NONE_Fmsy <- readRDS(file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_NONE_Fmsy_",timeStamp, ".Rds")))
+results_NONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_Fmsy", "aggPerfMet_missSeason_NONE_Fmsy.Rds")) %>% # Fmsy Fhist, no misspecification
+  rbind(., supplement_NONE_Fmsy) # Add additional sims for OM 247 & 376
+# saveRDS(results_NONE_Fmsy, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_Fmsy.RDS"))
+simCount_NONE_Fmsy <- results_NONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_Fmsy <- results_NONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate_NONE_Fmsy <- full_join(convergeCount_NONE_Fmsy, simCount_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_NONE_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_Fmsy.RDS"))
+plot_NONE_Fmsy <- full_join(results_NONE_Fmsy, convergeRate_NONE_Fmsy, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2, OM_ecov_effect, 
+         AIC, 
+         relSSB, relF, relR)
+
+results_NONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_NONE_HL", "aggPerfMet_missSeason_NONE_HL.Rds")) %>% # HL Fhist, no misspecification
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_NONE_HL, only19_NONE_HL)  # Re-add only 50 simulations for OM 19 & 36
+# saveRDS(results_NONE_HL, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_HL.RDS"))
+simCount_NONE_HL <- results_NONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_NONE_HL <- results_NONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate_NONE_HL <- full_join(convergeCount_NONE_HL, simCount_NONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_NONE_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_HL.RDS"))
+plot_NONE_HL <- full_join(results_NONE_HL, convergeRate_NONE_HL, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2, OM_ecov_effect, 
+         AIC, 
+         relSSB, relF, relR)
+
+supplement_ONE_Fmsy <- readRDS(file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_ONE_Fmsy_",timeStamp, ".Rds")))
+results_ONE_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_Fmsy", "aggPerfMet_missSeason_ONE_Fmsy.Rds")) %>% # Fmsy Fhist, one season misspecified
+  rbind(., supplement_ONE_Fmsy) # Add additional sims for OM 247 & 376
+# saveRDS(results_ONE_Fmsy, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_Fmsy.RDS"))
+simCount_ONE_Fmsy <- results_ONE_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_Fmsy <- results_ONE_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate_ONE_Fmsy <- full_join(convergeCount_ONE_Fmsy, simCount_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+#results_ONE_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_Fmsy.RDS"))
+plot_ONE_Fmsy <- full_join(results_ONE_Fmsy, convergeRate_ONE_Fmsy, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,  OM_ecov_effect, 
+         AIC, 
+         relSSB, relF, relR)
+
+results_ONE_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_ONE_HL", "aggPerfMet_missSeason_ONE_HL.Rds")) %>% # HL Fhist, one season misspecified
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_ONE_HL, only19_ONE_HL)  # Re-add only 50 simulations for OM 19 & 36
+# saveRDS(results_ONE_HL, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_HL.RDS"))
+simCount_ONE_HL <- results_ONE_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_ONE_HL <- results_ONE_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate_ONE_HL <- full_join(convergeCount_ONE_HL, simCount_ONE_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_ONE_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_HL.RDS"))
+plot_ONE_HL <- full_join(results_ONE_HL, convergeRate_ONE_HL, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,  OM_ecov_effect, 
+         AIC, 
+         relSSB, relF, relR)
+
+supplement_BOTH_Fmsy <- readRDS(file =  here::here("Ecov_study", "catchability", "Results", "supplementSims", paste0("perfMet_missSeason_BOTH_Fmsy_",timeStamp, ".Rds")))
+results_BOTH_Fmsy <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_Fmsy", "aggPerfMet_missSeason_BOTH_Fmsy.Rds")) %>% # Fmsy Fhist, both seasons misspecified
+  rbind(., supplement_BOTH_Fmsy) # Add additional sims for OM 247 & 376
+# saveRDS(results_BOTH_Fmsy, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_Fmsy.RDS"))
+simCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_Fmsy <- results_BOTH_Fmsy %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate_BOTH_Fmsy <- full_join(convergeCount_BOTH_Fmsy, simCount_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_BOTH_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_Fmsy.RDS"))
+plot_BOTH_Fmsy <- full_join(results_BOTH_Fmsy, convergeRate_BOTH_Fmsy, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,  OM_ecov_effect, 
+         AIC, 
+         relSSB, relF, relR)
+
+results_BOTH_HL <- readRDS(here::here("Ecov_study", "catchability", "Results", "plots_missSeason_BOTH_HL", "aggPerfMet_missSeason_BOTH_HL.Rds")) %>% # HL Fhist, both seasons misspecified
+  filter(OMshortName != 36) %>% filter(OMshortName != 19) %>% # Remove all OM 36 & 19 results
+  rbind(., only36_BOTH_HL, only19_BOTH_HL) # Re-add only 50 simulations for OM 19 & 36
+# saveRDS(results_BOTH_HL, here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_HL.RDS"))
+simCount_BOTH_HL <- results_BOTH_HL %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeCount_BOTH_HL <- results_BOTH_HL %>% filter(EM_converged == TRUE) %>% count(OMshortName, EMshortName) %>% mutate(nsim = n/40)
+convergeRate_BOTH_HL <- full_join(convergeCount_BOTH_HL, simCount_BOTH_HL, by = c("OMshortName", "EMshortName")) %>% mutate(convergeRate = nsim.x/nsim.y) %>% drop_columns(c("n.x", "nsim.x", "n.y", "nsim.y"))
+# results_BOTH_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_HL.RDS"))
+plot_BOTH_HL <- full_join(results_BOTH_HL, convergeRate_BOTH_HL, by = c("OMshortName", "EMshortName")) %>%
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>%
+  filter(Year == 40) %>%
+  select(seed, sim, F_hist, ageComp_sig, log_catch_sig, log_index_sig, 
+         OM_ecov_effect, OM_ecov_process_cor, OM_ecov_process_obs_sig, OM_ecov_process_sig, OMshortName,
+         EM_miss_q, EM_miss_season, EMshortName,
+         EM_MohnsRho_SSB, EM_MohnsRho_F, EM_MohnsRho_R,
+         convergeRate,
+         relSSBMSY, relFMSY, relMSY,
+         EM_ecovBeta_ind1, EM_ecovBeta_ind2,  OM_ecov_effect, 
+         AIC, 
+         relSSB, relF, relR)
+
+results_all <- rbind(plot_NONE_Fmsy, plot_NONE_HL, plot_ONE_Fmsy, plot_ONE_HL, plot_BOTH_Fmsy, plot_BOTH_HL)
+saveRDS(results_all, file = here::here("Ecov_study/catchability/Results/supplementSims/supplementedFullResults.rds"))
+
+### Additional plots with facets across F_hist, environmental effect size, and seasonal misspecification
+## Convergence overview
+overview_convergence <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = convergeRate, fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Convergence rate")
+ggsave(overview_convergence, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_convergence.png"), width = 15)
+
+overview_convergence <- results_all %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>%
+       ggplot() +
+      geom_boxplot(aes(x=EM_miss_q, y = convergeRate, fill = EM_miss_q)) +
+       facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect))
+ggsave(overview_convergence, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "convergence_NONE_HL.png"), width = 45, height = 15)
+
+overview_convergence <- results_all %>% filter(EM_miss_season == "NONE") %>% filter(F_hist == "H-L") %>% filter(OM_ecov_process_sig == 0.1) %>% filter(OM_ecov_process_obs_sig == 0.5) %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = convergeRate, fill = EM_miss_q)) +
+  geom_hline(yintercept = 1, col="red")+
+  theme_gray(base_size = 30) +
+  facet_grid(cols = vars(OM_ecov_process_sig,  OM_ecov_process_obs_sig, OM_ecov_process_cor, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect))
+ggsave(overview_convergence, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "convergence_NONE_HL_0.1_0.5.png"), width = 45, height = 15)
+
+
+# total convergence counts by seasonal misspecification
+overview_convergence <- results_all %>% group_by(EM_miss_season, OM_ecov_effect, F_hist) %>% count() %>%
+  ggplot() +
+    geom_bar(aes(x = EM_miss_season, y = n), stat = "identity", colour = "black") +
+    #facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+    #scale_fill_grey(start = 0.45, end = 1.0) +
+    #theme(axis.text.x = element_blank()) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+    labs(x = "Seasonal misspecification",
+         y = "Convergence frequency")
+ggsave(overview_convergence, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "total_Convergence_counts.png"), width = 15)
+
+## Mohn's rho overviews
+overview_mohnsRho_F <- results_all %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_MohnsRho_F), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Mohn's Rho: F")
+ggsave(overview_mohnsRho_F, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_mohnsRho_F.png"), width = 15, height = 10)
+
+overview_mohnsRho_R <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_MohnsRho_R), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Mohn's Rho: R")
+ggsave(overview_mohnsRho_R, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_mohnsRho_R.png"), width = 15, height = 5)
+
+overview_mohnsRho_SSB <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_MohnsRho_SSB), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Mohn's Rho: SSB")
+ggsave(overview_mohnsRho_SSB, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_mohnsRho_SSB.png"), width = 15, height = 5)
+
+## Reference point overviews
+overview_relSSBMSY <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relSSBMSY), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM SSBmsy ratio")
+ggsave(overview_relSSBMSY, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relSSBMSY.png"), width = 15, height = 5)
+
+overview_relMSY <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relMSY), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM MSY ratio")
+ggsave(overview_relMSY, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relMSY.png"), width = 15, height = 5)
+
+overview_relFMSY <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relFMSY), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM FMSY ratio")
+ggsave(overview_relFMSY, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relFMSY.png"), width = 15, height = 5)
+
+## Terminal SSB/F/R summary plots
+overview_relF <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relF), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM F ratio")
+ggsave(overview_relF, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relF_terminal.png"), width = 15, height = 5)
+
+overview_relSSB <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relSSB), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM SSB ratio")
+ggsave(overview_relSSB, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relSSB_terminal.png"), width = 15, height = 5)
+
+overview_relR <- results_all %>%
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(relR), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM Recruitment ratio")
+ggsave(overview_relR, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_relR_terminal.png"), width = 15, height = 5)
+
+# AIC plot
+results_AIC <- results_all %>% 
+  group_by(sim) %>% # Need this if you don't want to plot time-series
+  dplyr::summarize(seed = unique(seed), F_hist = unique(F_hist), ageComp_sig = unique(ageComp_sig), log_catch_sig = unique(log_catch_sig), log_index_sig = unique(log_index_sig),
+                   OM_ecov_effect = unique(OM_ecov_effect), OM_ecov_process_cor = unique(OM_ecov_process_cor), OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig), OM_ecov_process_sig = unique(OM_ecov_process_sig), OMshortName = unique(OMshortName),
+                   EM_miss_q = unique(EM_miss_q), EM_miss_season = unique(EM_miss_season), EMshortName = unique(EMshortName),
+                   AIC = unique(AIC)) %>%
+  group_by(seed) %>% mutate(maxAIC = max(AIC)) %>% # group_by(seed) %>% count() %>% filter(n == 4) # This checks 
+  filter(AIC == maxAIC) %>% group_by(EM_miss_q, EM_miss_season, OM_ecov_effect, F_hist) %>% count() 
+
+results_AIC <- results_all %>% 
+    group_by(seed,EM_miss_season) %>% mutate(maxAIC = max(AIC)) %>% filter(AIC == maxAIC) %>% ungroup() %>% group_by(EM_miss_q, EM_miss_season, OM_ecov_effect, F_hist) %>% count()
+results_AIC %>% ungroup() %>% group_by(EM_miss_season) %>% dplyr::summarise(total_n = sum(n)) #!!! check that seed not duplicated regularly
+
+results_AIC <- results_all %>% filter(seed == 100012) 
+
+overview_AIC <- results_AIC %>% 
+  ggplot() +
+  geom_bar(aes(x = EM_miss_q, y = n, fill = EM_miss_q), stat = "identity", colour = "black") +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "AIC selection frequency")
+ggsave(overview_AIC, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "overview_AIC.png"), width = 15, height = 5)
+
+# EM_ecovBeta_ind2 is almost always 0 or NA for ONE misspecified models - could be something wrong with the way things were stored for fall index
+beta_Ind2_box <- results_all %>% filter(EM_miss_q == "Ecov" | EM_miss_q == "qRandEcov") %>% filter(OM_ecov_effect > 0) %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_ecovBeta_ind2)/as.numeric(OM_ecov_effect), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  geom_hline(aes(yintercept = 1), color="red") +
+  labs(fill = "EM",
+       x = "EM", 
+       y = "EM:OM ratio of environmental effect size")
+ggsave(beta_Ind2_box, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "beta_Ind2_summary.png"), width = 15, height = 10) 
+
+beta_Ind2_box <- results_all %>% filter(EM_miss_q == "Ecov" | EM_miss_q == "qRandEcov") %>% filter(OM_ecov_effect > 0) %>% filter(EM_miss_season == "NONE") %>% mutate(relBeta = as.numeric(EM_ecovBeta_ind2)/as.numeric(OM_ecov_effect)) %>% filter(relBeta <= 2.5 & relBeta >= -0.5) %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = relBeta, fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  geom_hline(aes(yintercept = 1), color="red") +
+  labs(fill = "EM",
+       x = "EM", 
+       y = "EM:OM ratio of environmental effect size")
+ggsave(beta_Ind2_box, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "beta_Ind2_summary_NONE.png"), width = 10, height = 10) 
+
+beta_Ind1_box <- results_all %>% filter(EM_miss_q == "Ecov" | EM_miss_q == "qRandEcov") %>% filter(OM_ecov_effect > 0) %>% filter(EM_miss_season == "BOTH") %>% mutate(relBeta = as.numeric(EM_ecovBeta_ind1)/as.numeric(OM_ecov_effect)) %>% filter(relBeta <= 2.5 & relBeta >= -0.5) %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = relBeta, fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  geom_hline(aes(yintercept = 1), color="red") +
+  labs(fill = "EM",
+       x = "EM", 
+       y = "EM:OM ratio of environmental effect size")
+ggsave(beta_Ind1_box, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "beta_Ind1_summary_BOTH.png"), width = 10, height = 10) 
+
+
+beta_Ind1_box <- results_all %>% filter(EM_miss_q == "Ecov" | EM_miss_q == "qRandEcov") %>% filter(OM_ecov_effect > 0) %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = as.numeric(EM_ecovBeta_ind1)/as.numeric(OM_ecov_effect), fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  geom_hline(aes(yintercept = 1), color="red") +
+  labs(fill = "EM",
+       x = "EM", 
+       y = "EM:OM ratio of environmental effect size")
+ggsave(beta_Ind1_box, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "beta_Ind1_summary.png"), width = 15, height = 10) 
+
+# Plot seasonally correct negative values to see if there is a persistent pattern
+beta_Ind2_negative <- results_all %>% filter(EM_miss_q == "Ecov" | EM_miss_q == "qRandEcov") %>% # Only pick models witth environmental covariates
+  filter(OM_ecov_effect > 0) %>% # plot only sims with ecov effect larger than 0
+  filter(EM_miss_season == "NONE") %>% # No seasonal misspecification
+  mutate(relBeta_ind2 = as.numeric(EM_ecovBeta_ind2)/as.numeric(OM_ecov_effect)) %>%
+  filter(relBeta_ind2 < 0) %>% # Pull out only the negative estimates
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = relBeta_ind2, fill = EM_miss_q)) +
+  facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect, F_hist)) + # Facet by OM settings
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank(), text = element_text(size=20)) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "EM:OM ratio of environmental effect size")
+ggsave(beta_Ind2_negative, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "beta_Ind2_negativeNONE.png"), width = 25, height = 10) 
+
+
+# Regenerate fleet age 2 selectivity plot
+selectivity_results <- results_NONE_HL %>% group_by(sim) %>%
+  dplyr::summarize(seed = unique(seed), Fhist = unique(F_hist), ageComp_sig = unique(ageComp_sig), log_catch_sig = unique(log_catch_sig), log_index_sig = unique(log_index_sig),
+                   OM_ecov_effect = unique(OM_ecov_effect), OM_ecov_process_cor = unique(OM_ecov_process_cor), OM_ecov_process_obs_sig = unique(OM_ecov_process_obs_sig), OM_ecov_process_sig = unique(OM_ecov_process_sig), OMshortName = unique(OMshortName),
+                   EM_miss_q = unique(EM_miss_q), EM_miss_season = unique(EM_miss_season), EMshortName = unique(EMshortName),
+                   relselCat_1 = unique(relselCat_1),
+                   relselCat_2 = unique(relselCat_2),
+                   relselCat_3 = unique(relselCat_3),
+                   relselCat_4 = unique(relselCat_4),
+                   relselCat_5 = unique(relselCat_5),
+                   relselCat_6 = unique(relselCat_6),
+                   relselCat_7 = unique(relselCat_7),
+                   relselCat_8 = unique(relselCat_8),
+                   relselCat_9 = unique(relselCat_9),
+                   relselCat_10 = unique(relselCat_10))
+
+relSelFleet <- selectivity_results %>% 
+  pivot_longer(., cols = c(relselCat_1, relselCat_2, relselCat_3, relselCat_4, relselCat_5, relselCat_6, relselCat_7, relselCat_8, relselCat_9, relselCat_10), names_to = "age", names_prefix = "relselCat_", values_to = "sel")
+relSelFleet$age <- factor(relSelFleet$age, levels = c(1:10))
+relSelFleet$sel <- as.numeric(relSelFleet$sel)
+for(iage in c(2)){
+  relSelFleetplot <- relSelFleet %>% filter(age == iage) %>%
+    ggplot() +
+    geom_boxplot(aes(x = EMshortName, y = sel, fill = EMshortName)) + 
+    facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(OM_ecov_effect, Fhist)) + # Facet by OM settings
+    geom_hline(aes(yintercept = 1), color="red") +
+    scale_fill_grey(start = 0.45, end = 1.0) +
+    theme(axis.text.x = element_blank()) +
+    labs(fill = "EM", 
+         x = "EM",
+         y = "EM:OM ratio of selectivity") +
+    ggtitle(paste0("Fleet relative selectivity ", iage)) +
+    ylim(-1,2.7) +
+    ggtitle(paste0("EM:OM ratio of fleet selectivity at age ", iage))
+  ggsave(relSelFleetplot, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots","relSel_fleet_age2.png"), width = 15) 
+}
+
+# Break down WP2 figure 5 by all facets
+results_NONE_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_Fmsy.RDS"))
+results_NONE_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_HL.RDS"))
+plot_NONE <- rbind(results_NONE_Fmsy, results_NONE_HL) %>% 
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>% 
+  filter(OM_ecov_effect > 0) %>%
+  filter(EM_miss_season == "NONE")
+
+plot_NONE_q <- plot_NONE %>%
+  select(EM_miss_q, EM_q_index2, Year, seed, sim, OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig, OM_ecov_effect, F_hist)
+  
+  # Plot index 2 q for EM 
+q_ind2_EM_breakdown <- plot_NONE_q %>% #head(n=240) %>% 
+  #filter(F_hist == "Fmsy") %>% 
+  filter(EM_miss_q == "NoEcov" | EM_miss_q == "Ecov") %>%
+  filter(OM_ecov_effect == 3) %>%
+  ggplot()+
+  geom_line(aes(x=as.numeric(Year), y = as.numeric(EM_q_index2), group = seed), alpha = 0.5) +
+    facet_grid(cols = vars(OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig), rows = vars(F_hist, EM_miss_q)) + # Facet by OM settings
+  theme(text = element_text(size=13)) +
+  ylab("Fall index catchability estimate") +
+  xlab("Year") +
+  scale_x_continuous(breaks = c(0,20))
+ggsave(q_ind2_EM_breakdown, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "q_ind2_EM_breakdown.png"), width = 20, height = 10)
+  
+# Calculate % relative error for FMSY
+results_NONE_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_Fmsy.RDS"))
+results_NONE_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_NONE_HL.RDS"))
+results_ONE_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_Fmsy.RDS"))
+results_ONE_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_ONE_HL.RDS"))
+results_BOTH_Fmsy <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_Fmsy.RDS"))
+results_BOTH_HL <- readRDS(here::here("Ecov_study/catchability/Results/supplementSims/fullResults_BOTH_HL.RDS"))
+
+
+plot_Fmsy <- rbind(results_NONE_Fmsy, results_NONE_HL, results_ONE_Fmsy, results_ONE_HL, results_BOTH_Fmsy, results_BOTH_HL) %>% 
+  filter(EM_converged == TRUE) %>% 
+  group_by(sim) %>% 
+  select(EM_FMSY, OM_FMSY, Year, seed, sim, OM_ecov_process_sig, OM_ecov_process_cor, OM_ecov_process_obs_sig, ageComp_sig, log_index_sig, OM_ecov_effect, F_hist, EM_miss_season, EM_miss_q)
+  
+relError_Fmsy <- plot_Fmsy %>% 
+  filter(Year == 40) %>% ungroup() %>%
+  mutate(error_Fmsy = (as.numeric(EM_FMSY)-as.numeric(OM_FMSY))/as.numeric(OM_FMSY)) %>% 
+  ggplot() +
+  geom_boxplot(aes(x=EM_miss_q, y = error_Fmsy, fill = EM_miss_q)) +
+  facet_grid(cols = vars(EM_miss_season, OM_ecov_effect), rows = vars(F_hist)) +
+  scale_fill_grey(start = 0.45, end = 1.0) +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "EM",
+       x = "EM",
+       y = "Relative error in FMSY")
+ggsave(relError_Fmsy, filename = here::here("Ecov_study", "catchability", "Results", "aggregatePlots", "relError_Fmsy.png"), width = 15, height = 5)
+
+# Example covariate
+load("~/SSRTWG/Ecov_study/catchability/Results/OM_336/simWHAM_2_nsim_OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1_OM_2024-01-15_04-10-12.266391.RData")
+plotEcov <- cbind(results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_obs, 
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[2]]$dataOM$Ecov_obs,
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_year) %>% 
+  as.data.frame() %>%
+  pivot_longer(cols = c(V1, V2), values_to = "covariate", names_to = "sim", names_prefix = "V")
+
+plotEcov %>% 
+  ggplot() + 
+  geom_line(aes(y=covariate, x=V3, col = sim))  + 
+  ylab("Environmental covariate") + 
+  xlab("Year")
+
+
+Ecov_mean_trend <- seq(0, 5, by = 5/39)
+plotEcov <- cbind(results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_obs+Ecov_mean_trend, 
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[2]]$dataOM$Ecov_obs+Ecov_mean_trend,
+                  results$`OM_336_0.5_0.5_0.5_3_H-L_1.5_0.4_0.1`[[1]]$dataOM$Ecov_year) %>% 
+  as.data.frame() %>%
+  pivot_longer(cols = c(V1, V2), values_to = "covariate", names_to = "sim", names_prefix = "V")
+
+plotEcov %>% 
+  ggplot() + 
+  geom_line(aes(y=covariate, x=V3, col = sim))  + 
+  ylab("Environmental covariate") + 
+  xlab("Year")
 

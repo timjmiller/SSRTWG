@@ -332,7 +332,7 @@ numCore <- detectCores()
 registerDoParallel(numCore-10) # Don't use 2 of the cores
 
 ##### Simulations with range of ecov beta values
-subsetOM <- OMsetup %>% filter(OMname > 297) # OM 15 is missing 2 simulations, 91 is incomplete, 294 is incomplete, 297 is incomplete
+subsetOM <- OMsetup 
 subsetEM <- EMsetup %>% filter(miss_season == "NONE") # No seasonal misspecification
 
 
@@ -352,7 +352,7 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
     EM_NoEcov <- readRDS(here::here(omdir, paste0("EM_missSeason_", subsetEM[1, "miss_season"], "_missQ_", subsetEM[1, "miss_q"]), "EMinput.Rds"))
     
     # Run simulation test in parallelized 2 sim intervals to minimize number of resulting files
-    foreach(isim = 1:25) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
+    foreach(isim = 1:1) %dopar% { # Run 25 times*2 sims each = 50 sims total in parallel
       simTestWHAM(nsim = 2,
                   OM = testOM,
                   inputEMlist = list(EM_qRand, EM_qRandEcov, EM_Ecov, EM_NoEcov), # Run all EMs fit to same OM data
@@ -366,51 +366,113 @@ for(iom in 1:nrow(subsetOM)){  # Loop over OMs
 ##### Check performance of above OMs with a range of ecov beta parameters
 # Find all result files 
 
+
 filenames <- list.files(path = here::here(paste0("Ecov_study/catchability/Results")), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 
-"perfmet_2023-12-29_20-13-34.505775.RDS",
-"perfmet_2023-12-29_20-27-36.640791.RDS",
-"perfmet_2023-12-29_20-41-22.442021.RDS",
-"perfmet_2023-12-29_20-55-09.203809.RDS",
-"perfmet_2023-12-29_21-09-09.780349.RDS",
-"perfmet_2023-12-29_21-23-20.431991.RDS",
-"perfmet_2023-12-29_21-37-16.985615.RDS",
-"perfmet_2023-12-29_21-51-28.116545.RDS",
-"perfmet_2023-12-29_22-05-38.41417.RDS",
-"perfmet_2023-12-29_22-19-57.653278.RDS",
-"perfmet_2023-12-29_22-34-20.532968.RDS",
-"perfmet_2023-12-29_22-48-30.489408.RDS",
-"perfmet_2023-12-29_23-02-46.834601.RDS",
-"perfmet_2023-12-29_23-17-07.542494.RDS",
-"perfmet_2023-12-29_23-31-14.37506.RDS",
-"perfmet_2023-12-29_23-45-33.36481.RDS",
-"perfmet_2023-12-29_23-59-44.775598.RDS",
-"perfmet_2023-12-30-00-13-50.700073.RDS",
-"perfmet_2023-01-03_17-30-47.349568.RDS",
-"perfmet_2023-01-03_17-45-25.488529.RDS",
-"perfmet_2023-01-03_18-55-18.280357.RDS",
-"perfmet_2023-01-03_19-09-45.568978.RDS",
-"perfmet_2023-01-03_19-23-45.055622.RDS",
-"perfmet_2023-01-03_19-38-28.88513.RDS",
-"perfmet_2023-01-03_19-53-01.396128.RDS",
-"perfmet_2023-01-03_20-07-36.667071.RDS",
-"perfmet_2023-01-03_20-22-23.60639.RDS",
-"perfmet_2023-01-03_20-37-03.490185.RDS",
-"perfmet_2023-01-04_17-43-37.659487.RDS",
-"perfmet_2023-01-04_17-57-53.103325.RDS",
-"perfmet_2023-01-04_18-12-25.628939.RDS",
-"perfmet_2023-01-04_18-27-07.647875.RDS",
-"perfmet_2023-01-04_18-43-34.467153.RDS",
-"perfmet_2023-01-04_19-01-25.640493.RDS",
-"perfmet_2023-01-04_19-18-03.303149.RDS",
-"perfmet_2023-01-04_19-33-21.512589.RDS"
+# "perfmet_2023-12-29_20-13-34.505775.RDS",
+# "perfmet_2023-12-29_20-27-36.640791.RDS",
+# "perfmet_2023-12-29_20-41-22.442021.RDS",
+# "perfmet_2023-12-29_20-55-09.203809.RDS",
+# "perfmet_2023-12-29_21-09-09.780349.RDS",
+# "perfmet_2023-12-29_21-23-20.431991.RDS",
+# "perfmet_2023-12-29_21-37-16.985615.RDS",
+# "perfmet_2023-12-29_21-51-28.116545.RDS",
+# "perfmet_2023-12-29_22-05-38.41417.RDS",
+# "perfmet_2023-12-29_22-19-57.653278.RDS",
+# "perfmet_2023-12-29_22-34-20.532968.RDS",
+# "perfmet_2023-12-29_22-48-30.489408.RDS",
+# "perfmet_2023-12-29_23-02-46.834601.RDS",
+# "perfmet_2023-12-29_23-17-07.542494.RDS",
+# "perfmet_2023-12-29_23-31-14.37506.RDS",
+# "perfmet_2023-12-29_23-45-33.36481.RDS",
+# "perfmet_2023-12-29_23-59-44.775598.RDS",
+# "perfmet_2023-12-30-00-13-50.700073.RDS",
+# "perfmet_2023-01-03_17-30-47.349568.RDS",
+# "perfmet_2023-01-03_17-45-25.488529.RDS",
+# "perfmet_2023-01-03_18-55-18.280357.RDS",
+# "perfmet_2023-01-03_19-09-45.568978.RDS",
+# "perfmet_2023-01-03_19-23-45.055622.RDS",
+# "perfmet_2023-01-03_19-38-28.88513.RDS",
+# "perfmet_2023-01-03_19-53-01.396128.RDS",
+# "perfmet_2023-01-03_20-07-36.667071.RDS",
+# "perfmet_2023-01-03_20-22-23.60639.RDS",
+# "perfmet_2023-01-03_20-37-03.490185.RDS",
+# "perfmet_2023-01-04_17-43-37.659487.RDS",
+# "perfmet_2023-01-04_17-57-53.103325.RDS",
+# "perfmet_2023-01-04_18-12-25.628939.RDS",
+# "perfmet_2023-01-04_18-27-07.647875.RDS",
+# "perfmet_2023-01-04_18-43-34.467153.RDS",
+# "perfmet_2023-01-04_19-01-25.640493.RDS",
+# "perfmet_2023-01-04_19-18-03.303149.RDS",
+# "perfmet_2023-01-04_19-33-21.512589.RDS"
+
+
+#filenames <- list.files(path = here::here(paste0("Ecov_study/catchability/Results_initEM_full")), pattern = "simWHAM_", recursive = TRUE, full.names = TRUE)
 
 
 # Set storage directory
 outdir = here::here("Ecov_study/catchability")
 
 # Post-process results
-postprocess_simTestWHAM(filenames = c(filenames), outdir = outdir)
+# postprocess_simTestWHAM(filenames = c(filenames[2601:2800]), outdir = outdir)
+# postprocess_simTestWHAM(filenames = c(filenames[2801:3000]), outdir = outdir)
+# postprocess_simTestWHAM(filenames = c(filenames[3001:3200]), outdir = outdir)
+# postprocess_simTestWHAM(filenames = c(filenames[3201:3400]), outdir = outdir)
+# postprocess_simTestWHAM(filenames = c(filenames[3401:3600]), outdir = outdir)
+# postprocess_simTestWHAM(filenames = c(filenames[3601:3800]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[3801:4000]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[4001:4200]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[4201:4400]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[4401:4600]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[4601:4800]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[4801:5000]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[5001:5200]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[5201:5400]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[5401:5600]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[5601:5800]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[5801:6000]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[6001:6200]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[6202:6400], filenames[6201]), outdir = outdir) # first file didn't converge so formatting is bad
+postprocess_simTestWHAM(filenames = c(filenames[6401:6600]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[6601:6800]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[6802:7000],filenames[6801]), outdir = outdir) 
+postprocess_simTestWHAM(filenames = c(filenames[7001:7200]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[7201:7400]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[7401:7600]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[7601:7800]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[7801:8000]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[8001:8200]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[8201:8400]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[8402:8600],filenames[8401]), outdir = outdir) 
+postprocess_simTestWHAM(filenames = c(filenames[8601:8800]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[8801:9000]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[9001:9200]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[9201:9400]), outdir = outdir)
+postprocess_simTestWHAM(filenames = c(filenames[9401:length(filenames)]), outdir = outdir)
+
+
+combinePerfMet(filenames = c("perfMet_2023-12-29_14-51-37.886169.RDS", #1-100
+                             "perfMet_2023-12-29_14-58-44.526053.RDS", #101-200
+                             "perfMet_2023-12-29_15-29-39.466686.RDS", #201-300
+                             "perfMet_2023-12-29_15-42-49.276661.RDS", #301-400
+                             "perfMet_2023-12-29_15-49-50.635176.RDS", #401-500
+                             "perfMet_2023-12-29_15-55-16.080999.RDS", #501-600
+                             "perfMet_2023-12-29_16-08-09.706646.RDS", #601-700
+                             "perfMet_2023-12-29_16-16-22.931958.RDS", #701-800
+                             "perfMet_2023-12-29_16-25-37.404685.RDS", #801-900
+                             "perfMet_2023-12-29_16-32-04.423158.RDS", #901-1000
+                             "perfMet_2023-12-29_16-42-09.57716.RDS", #1001-1100
+                             "perfMet_2023-12-29_17-20-47.592459.RDS", #1101-1200
+                             "perfMet_2023-12-29_17-28-34.745905.RDS", #1201-1300
+                             "perfMet_2023-12-29_17-37-12.177755.RDS", #1301-1400
+                             "perfMet_2023-12-29_18-10-45.534984.RDS", #1401-1500
+                             "perfMet_2023-12-29_18-19-23.192474.RDS", #1501-1600
+                             "perfMet_2023-12-29_18-34-59.439541.RDS", #1601-1800
+                             "perfMet_2023-12-29_18-55-49.345083.RDS", #1801-2000
+                             "perfMet_2023-12-29_19-23-04.991313.RDS", #2001-2200
+                             "perfMet_2023-12-29_19-36-19.603546.RDS", #2201-2400
+                             "perfMet_2023-12-29_19-54-20.785649.RDS", #2401-2600
+                             ), outdir = outdir)
 
 # # Plot
 # perfMet <- readRDS(here::here("Ecov_study", "catchability", "perfMet_2023-12-21_16-12-53.647033.RDS")) 
