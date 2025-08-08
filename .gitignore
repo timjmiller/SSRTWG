@@ -22,5 +22,6 @@ Ecov_study/recruitment_functions/results*
 #Ecov_study/recruitment_functions/plots
 Ecov_study/mortality/results
 Ecov_study/mortality/untracked
+Ecov_study/mortality/manuscript/*.docx
 !Ecov_study/mortality/inputs/*.RDS
 /MSE/
