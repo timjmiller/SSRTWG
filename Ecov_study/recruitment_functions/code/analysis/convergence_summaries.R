@@ -71,7 +71,7 @@ bad.mods.plot <- ggplot(AIC.bad, aes(x=EM_mod)) +
   theme(axis.title.y = element_text(size = 13))   +
   ylab('Number failed convg. checks (EM in OM-Sim with lowest AIC)') +
   labs(subtitle=paste0(100*round(pct.fail.converge,3), '% of lowest AIC model failed 1 or more convergence checks; max(abs(gradient)) > ', bad.grad.label, ' and/or par_SE > ', bad.se.value ))
-ggsave(bad.mods.plot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad.mods_lowestAIC.plot_grad_",bad.grad.label, "_SE_", bad.se.value, plot.suffix,".png") ),  height=7, width=12)
+ggsave(bad.mods.plot, filename=file.path(here(),'Ecov_study','recruitment_functions',plot.dir, paste0("bad.mods_lowestAIC.plot_grad_",bad.grad.label, "_SE_", bad.se.value, plot.suffix,".pdf") ),  height=7, width=12)
 
 # analyze AIC_weight (info for all OM - EM - Sim)  ====
 ## specify cut-off for non-converged runs for AIC_weight (same as for AIC_all) ====
@@ -162,7 +162,8 @@ bad.mods_all.plot <- ggplot(non.conv.run.info, aes(x=EM_mod)) +
   theme(axis.title.y = element_text(size = 13))   +
   ylab('Number failed convg. checks') +
   labs(subtitle=paste0(100*round(pct.fail.convg,3), '% of all OM-EM-Sims failed 1 or more convergence checks; max(abs(gradient)) > ', bad.grad.value, ' and/or par_SE > ', bad.se.value  ))
-ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".plot.png" ) ),  height=7, width=12)
+#ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".plot.png" ) ),  height=7, width=12)
+ggsave(bad.mods_all.plot, filename=file.path(here(),'Ecov_study','recruitment_functions', plot.dir, paste0("bad.mods_all_grad_", bad.grad.label, "_SE_", bad.se.value, plot.suffix, ".plot.pdf" ) ),  height=7, width=12)
 
 
 ###################################################################
