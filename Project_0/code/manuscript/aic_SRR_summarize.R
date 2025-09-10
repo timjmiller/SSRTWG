@@ -2,6 +2,9 @@ library(here)
 library(dplyr)
 library(tidyr)
 library(Hmisc)
+#modified rpart.plot package to use plotmath in split labels...
+pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+# pkgload::load_all("c:/work/rpart.plot")
 
 aic_fn <- function(x, all_aic, df.oms, df.ems, rec_mod, M_est) {
   if(!is.null(df.oms$NAA_sig)){
@@ -129,7 +132,7 @@ colnames(PRD.table) <- c("R","R+S","R+M","R+Sel","R+q")
 rnames <- gsub("_", " ", All.facs, fixed = TRUE)
 rnames <- gsub("F ", "$F$ ", rnames, fixed = TRUE)
 rnames <- gsub("EM M", "EM $M$ Assumption", rnames, fixed = TRUE)
-rnames <- gsub("log sd log SSB", "$\\log\\left(SD_\\text{SSB}]\\right)$", rnames, fixed = TRUE)
+rnames <- gsub("log sd log SSB", "$\\log\\left(\\text{SD}_\\text{SSB}\\right)$", rnames, fixed = TRUE)
 rnames <- gsub("NAA sigma", "$\\sigma_{2+}$ ", rnames, fixed = TRUE)
 rnames <- gsub("R sigma", "$\\sigma_R$", rnames, fixed = TRUE)
 rnames <- gsub("q sigma", "$\\sigma_q$", rnames, fixed = TRUE)
@@ -145,7 +148,7 @@ y <- interactions.dev.table
 rownames(y) <- c("All factors", "+ All Two Way", "+ All Three Way")
 PRD.table <- rbind(PRD.table,y)
 
-x[] <- format(round(100*PRD.table,2), nsmall = 2)
+x <- format(round(100*PRD.table,2), nsmall = 2)
 dim(x)
 x[which(is.na(as.numeric(x)))] <- "--"
 x[which(as.numeric(x) == 0)] <- "< 0.01"
@@ -159,7 +162,7 @@ x <- latex(x, file = here("Project_0","manuscript","AIC_SRR_PRD_table.tex"),
 library(rpart)
 #modified rpart.plot package to use plotmath in split labels...
 #library(rpart.plot)
-pkgload::load_all("c:/work/rpart.plot")
+# pkgload::load_all("c:/work/rpart.plot")
 split.fun <- function(type = "R") {
   # replace commas with spaces (needed for strwrap)
   if(!type %in% c("R","R+S")){
@@ -225,7 +228,7 @@ split.fun <- function(type = "R") {
 
 node.fun <- function(x, labs, digits, varlen)
 {
-  paste0("Prop. Correct = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\nn = ", x$frame$n)
+  paste0("Prop. Correct = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\n", x$frame$n)
 }
 
 #modified from part package to allow more flexibility in pruning in plots
@@ -272,12 +275,12 @@ for(type in names(factors)){
   temp$BH_best_fac <- as.factor(temp$BH_best)
   
   form <- as.formula(paste("BH_best_fac ~", paste(factors[[type]], collapse = "+")))# (EM_PE + OM_R_SD + EM_M + EM_SR + OM_Obs._Error + OM_F_History)
-  full.trees[[type]] <- rpart(form, data=temp, method = "class", control=rpart.control(cp=0, xval = 100), roundint = FALSE)
+  full.trees[[type]] <- rpart(form, data=temp, method = "class", control=rpart.control(cp=0, xval = 100))
 }
 plot.prune(full.trees[["R"]], cp = 0.1, type = "R", roundint = FALSE)
 
 cairo_pdf(here("Project_0","manuscript", paste0("AIC_SRR_classification_plots.pdf")), width = 30*2/3, height = 20*2/3)
-x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
+x <- matrix(c(1,1,2,2,4,4,3,3,3,5,5,5), 2, 6, byrow = TRUE)
 layout.x <- layout(x) 
 par(mar = c(0,0,5,0), oma = c(0,0,0,0))
 plot.prune(full.trees[["R"]],0.1, "R", tweak = 1.2, mar = c(0,0,5,0), roundint = FALSE)

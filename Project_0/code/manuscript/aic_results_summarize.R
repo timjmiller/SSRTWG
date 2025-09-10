@@ -5,6 +5,9 @@ library(mgcv)
 library(gratia)
 library(Hmisc)
 library(VGAM)
+#modified rpart.plot package to use plotmath in split labels...
+pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+# pkgload::load_all("c:/work/rpart.plot")
 
 df.oms = list(naa = readRDS(here("Project_0", "inputs", "df.oms.RDS")))
 df.oms$M = readRDS(here("Project_0", "inputs", "df.M.oms.RDS"))
@@ -79,10 +82,10 @@ aic_fn <- function(all, em_rows, om_type, df.ems, om_ind = NULL){
   out <- do.call(rbind, res_by_om)
   return(out)
 }
-  aic_df[[i]] <- aic_fn(om_aic_res, em_rows = om.em.rows, om_type = i, df.ems = df.ems)
+  # aic_df[[i]] <- aic_fn(om_aic_res, em_rows = om.em.rows, om_type = i, df.ems = df.ems)
 
-table(aic_df[[i]]$best)
-unique(aic_df[[i]]$M_re_cor)
+# table(aic_df[[i]]$best)
+# unique(aic_df[[i]]$M_re_cor)
 
 aic_df <- list()
 for(i in names(om.em.rows)) {
@@ -231,7 +234,7 @@ x <- latex(x, file = here("Project_0","manuscript","AIC_PE_PRD_table.tex"),
 library(rpart)
 #modified rpart.plot package to use plotmath in split labels...
 #library(rpart.plot)
-pkgload::load_all("c:/work/rpart.plot")
+# pkgload::load_all("c:/work/rpart.plot")
 split.fun <- function(type = "R") {
   # replace commas with spaces (needed for strwrap)
   if(!type %in% c("R","R+S")){
@@ -244,7 +247,7 @@ split.fun <- function(type = "R") {
       labs <- gsub(" (iid)","(iid)", labs, fixed = TRUE)
       labs <- gsub(" (AR1)","(AR1)", labs, fixed = TRUE)
       labs <- gsub("q sig", "sigma[q]", labs, fixed = TRUE)
-      labs <- gsub(" M sig", "sigma[M]", labs, fixed = TRUE)
+      labs <- gsub(" M sig", " sigma[M]", labs, fixed = TRUE)
       labs <- gsub("Sel sig", "sigma[Sel]", labs, fixed = TRUE)
       labs <- gsub("M cor", "rho[M]", labs, fixed = TRUE)
       labs <- gsub("Sel cor", "rho[Sel]", labs, fixed = TRUE)
@@ -286,7 +289,7 @@ split.fun <- function(type = "R") {
   }
   return(fn)
 }
-plot.prune(full.trees[["R+q"]],cp = 0, type = "R+q", tweak = 1.2, mar = c(0,0,5,0))
+# plot.prune(full.trees[["R+q"]],cp = 0, type = "R+q", tweak = 1.2, mar = c(0,0,5,0))
 
 node.fun <- function(x, labs, digits, varlen)
 {
@@ -299,7 +302,7 @@ node.fun <- function(x, labs, digits, varlen)
     if(length(ind)<length(vals)) lab <- paste0(lab, ", Others < 0.1")
     lab
   }) 
-  paste0(labs, "\nn = ", x$frame$n)
+  paste0(labs, "\n", x$frame$n)
 }
 
 #modified from part package to allow more flexibility in pruning in plots
@@ -356,14 +359,16 @@ for(type in names(factors)){
   }
   form <- as.formula(paste("best_PE ~", paste(factors[[type]], collapse = "+")))# (EM_assumption + OM_R_SD + OM_Obs._Error + OM_F_History)
   full.trees[[type]] <- rpart(form, data=temp_df, method = "class", control=rpart.control(cp=0, xval = 100))
+  full.trees[[type]]$correct_level <- type
 }
 
-cairo_pdf(here("Project_0","manuscript", paste0("AIC_PE_classification_plots.pdf")), width = 30*2/3, height = 20*2/3)
+cairo_pdf(here("Project_0","manuscript", paste0("AIC_PE_classification_plots.pdf")), width = 30*2/3, height = 15*2/3)
 x <- matrix(c(1,2,3,4), 2, 2, byrow = TRUE)
 layout.x <- layout(x)
 #layout.x <- layout(x, widths = c(1,0.05,1)) 
-par(mar = c(0,1,5,1), oma = c(0,0,0,0))
-# plot.prune(full.trees[["R"]],0, "R", tweak = 1.2, mar = c(0,0,5,0))
+par(oma = c(0,2,0,0))
+# plot.prune(full.trees[["R"]],cp = 0, type = "R", tweak = 1.2, mar = c(0,0,5,0))
+pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
 plot.prune(full.trees[["R+S"]],cp = 0.1, type = "R+S", tweak = 1.2, mar = c(0,2,5,1), legend.x = NA)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 plot.prune(full.trees[["R+M"]],cp = 0.04, type = "R+M", tweak = 1.2, mar = c(0,2,5,1), legend.x = NA)

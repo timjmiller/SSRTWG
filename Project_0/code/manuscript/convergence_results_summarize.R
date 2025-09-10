@@ -4,6 +4,10 @@ library(tidyr)
 library(mgcv)
 library(gratia)
 library(Hmisc)
+#modified rpart.plot package to use plotmath in split labels...
+pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+# pkgload::load_all("c:/work/rpart.plot")
+
 
 df.oms = list(naa = readRDS(here("Project_0", "inputs", "df.oms.RDS")))
 df.oms$M = readRDS(here("Project_0", "inputs", "df.M.oms.RDS"))

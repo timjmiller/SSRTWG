@@ -6,7 +6,8 @@ library(reshape2)
 library(rpart)
 library(viridis)
 #modified rpart.plot package to use plotmath in split labels...
-pkgload::load_all("c:/work/rpart.plot")
+pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+# pkgload::load_all("c:/work/rpart.plot")
 
 
 make_plot_df <- function(om_type = "naa", res = naa_relSR_results, is_SE = FALSE, M_or_SR = "SR", year = NULL) {
@@ -170,7 +171,7 @@ split.fun <- function(type = "R") {
       labs <- gsub("q rho", "rho['q']", labs, fixed = TRUE) #sigma_q
       labs <- gsub(" M rho", " rho['M']", labs, fixed = TRUE) #sigma_M
       labs <- gsub("R sigma", "sigma[R]", labs, fixed = TRUE) #sigma_R
-      labs <- gsub("NAA SD", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
+      labs <- gsub("NAA sigma", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
       labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
       labs <- gsub("process error", "Process*phantom(0)*Error", labs, fixed = TRUE)
       labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
@@ -191,7 +192,7 @@ split.fun <- function(type = "R") {
       labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
       labs <- gsub("EM SR", "EM*phantom(0)*SR*phantom(0)*Assumption", labs, fixed = TRUE)
       labs <- gsub("R sigma", "sigma[R]", labs, fixed = TRUE) #sigma_2+
-      labs <- gsub("NAA SD", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
+      labs <- gsub("NAA sigma", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
       labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
       labs <- gsub("*%", "%", labs, fixed = TRUE)
       labs <- gsub("%*", "%", labs, fixed = TRUE)
@@ -264,16 +265,18 @@ add_to_frame <- function(obj, data){
   origx$frame$median_abs_RE <- NA
   origx$frame$n_test <- NA
   origx$frame$yval_test <- NA
+  origx$frame$median_yval <- NA
   all_node_names <- node_names <- as.numeric(rownames(newx$frame))
   toss <- max(node_names %/% 2)
   nloop <- 0
-  data <- subset(data, !is.na(relerror_trans2))
+  data <- subset(data, !is.na(relerror_trans))
   while(toss > -1){
     leaf_rows <- sort(which(newx$frame$var == "<leaf>"))
     for(i in leaf_rows){
       origx_index <- which(all_node_names == node_names[i])
       origx$frame$n_test[origx_index] <- NROW(data[which(newx$where == i),])
-      origx$frame$yval_test[origx_index] <- mean(data$relerror_trans2[which(newx$where == i)])
+      origx$frame$yval_test[origx_index] <- mean(data$relerror_trans[which(newx$where == i)])
+      origx$frame$median_yval[origx_index] <- median(data$relerror_trans[which(newx$where == i)])
       x <- data$relerror[which(newx$where == i)]
       origx$frame$mean_RE[origx_index] <- mean(data$relerror[which(newx$where == i)])
       origx$frame$median_RE[origx_index] <- median(data$relerror[which(newx$where == i)])
@@ -288,15 +291,37 @@ add_to_frame <- function(obj, data){
   return(origx)
 }
   
-node.fun <- function(x, labs, digits, varlen)
-{
+node.fun <- function(x, labs, digits, varlen){
   # out <- paste0("Mean log(|RE|) = ", format(round(x$frame$yval,3), nsmall = 3))
   # out <- paste0("Mean |RE| = ", format(round(x$frame$mean_abs_RE,3), nsmall = 3))
-  out <- ""
-  if(!is.null(x$frame$median_abs_RE)) out <- paste0(out, "Median |RE| = ", format(round(x$frame$median_abs_RE,3), nsmall = 3))
-  if(!is.null(x$frame$median_RE)) out <- paste0(out, "\nMedian RE = ",format(round(x$frame$median_RE,3), nsmall = 3))
-  if(out == "") out <- paste0("yval = ", format(round(x$frame$yval,3), nsmall = 3))
-  paste0(out, "\nn = ", x$frame$n)
+  out <- rep("", NROW(x$frame))
+  # if(!is.null(x$frame$median_abs_RE)) out <- paste0("Median |RE| = ", format(round(x$frame$median_abs_RE,3), nsmall = 3))
+  # if(!is.null(x$frame$median_RE)) out <- paste0("Median RE = ",format(round(x$frame$median_RE,3), nsmall = 3))
+  # out <- paste0(out, "\nMean response = ", format(round(x$frame$yval,3), nsmall = 3))
+  if(!is.null(x$frame$median_yval)) out <- paste0(format(round(x$frame$median_yval,3), nsmall = 3))
+  paste0(out, "\n", x$frame$n)
+}
+
+get_small_data <- function(SR_par, OM_type, obs_dfs, factors, cv_limit){
+  print(SR_par)
+  par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
+  print(par_type)
+  print(OM_type)
+  facs <- factors[[par_type]][[OM_type]]
+  dfs <- obs_dfs[[par_type]]
+  
+  if(OM_type == "R") temp <- subset(dfs[["naa"]], OM_NAA_sigma == 0 )
+  if(OM_type == "R+S") temp <- subset(dfs[["naa"]], OM_NAA_sigma != 0)
+  if(OM_type == "R+M") temp <- dfs[["M"]]
+  if(OM_type == "R+Sel") temp <- dfs[["Sel"]]
+  if(OM_type == "R+q") temp <- dfs[["q"]]
+  if(SR_par %in% c("a","b","M")) temp <- subset(temp, par == paste0("italic(",SR_par,")"))
+  print(dim(temp))
+  if(!is.na(cv_limit)) temp <- subset(temp, cv < cv_limit) #delta-method based cv, not log-normal
+  print(dim(temp))
+  temp$relerror_trans <- log(temp$relerror + 1)
+  temp$relerror_trans[which(is.infinite(temp$relerror_trans))] <- NA
+  return(temp)
 }
 
 ########################################
@@ -390,7 +415,6 @@ factors[["SSB"]][["R+M"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs
 factors[["SSB"]][["R+Sel"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs._Error", "OM_F_History","OM_Sel_sigma", "OM_Sel_rho")
 factors[["SSB"]][["R+q"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs._Error", "OM_F_History","OM_q_sigma", "OM_q_rho")
 
-
 ########################################
 
 glm_fits <- list(a = list(), b = list(), M = list())
@@ -407,38 +431,38 @@ for(SR_par in c("a","b","M", "SSB")) {
   for(OM_type in names(factors[[par_type]])){
     print(OM_type)
     facs <- factors[[par_type]][[OM_type]]
-    dfs <- obs_dfs[[par_type]]
-
-    if(OM_type == "R") temp <- subset(dfs[["naa"]], OM_NAA_sigma == 0 )
-    if(OM_type == "R+S") temp <- subset(dfs[["naa"]], OM_NAA_sigma != 0)
-    if(OM_type == "R+M") temp <- dfs[["M"]]
-    if(OM_type == "R+Sel") temp <- dfs[["Sel"]]
-    if(OM_type == "R+q") temp <- dfs[["q"]]
-    if(SR_par %in% c("a","b","M")) temp <- subset(temp, par == paste0("italic(",SR_par,")"))
-    print(dim(temp))
-    if(!is.na(cv_limit)) temp <- subset(temp, cv < cv_limit) #delta-method based cv, not log-normal
-    print(dim(temp))
-
-    temp$relerror_trans <- log(temp$relerror + 1)
-    temp$relerror_trans[which(is.infinite(temp$relerror_trans))] <- NA
-    temp$relerror_trans2 <- log(abs(temp$relerror_trans)) # log of absolute errors on log scale (higher values are differences further from 0)
+    # dfs <- obs_dfs[[par_type]]
+    # 
+    # if(OM_type == "R") temp <- subset(dfs[["naa"]], OM_NAA_sigma == 0 )
+    # if(OM_type == "R+S") temp <- subset(dfs[["naa"]], OM_NAA_sigma != 0)
+    # if(OM_type == "R+M") temp <- dfs[["M"]]
+    # if(OM_type == "R+Sel") temp <- dfs[["Sel"]]
+    # if(OM_type == "R+q") temp <- dfs[["q"]]
+    # if(SR_par %in% c("a","b","M")) temp <- subset(temp, par == paste0("italic(",SR_par,")"))
+    # print(dim(temp))
+    # if(!is.na(cv_limit)) temp <- subset(temp, cv < cv_limit) #delta-method based cv, not log-normal
+    # print(dim(temp))
+    # 
+    # temp$relerror_trans <- log(temp$relerror + 1)
+    # temp$relerror_trans[which(is.infinite(temp$relerror_trans))] <- NA
+    # temp$relerror_trans2 <- log(abs(temp$relerror_trans)) # log of absolute errors on log scale (higher values are differences further from 0)
+    temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
     glm_fits[[SR_par]][[OM_type]] <- list()
     dev.tables[[SR_par]][[OM_type]] <- list()
     for(i in facs){
-      glm_fits[[SR_par]][[OM_type]][[i]] <- glm(as.formula(paste("relerror_trans2", "~", i)), family = gaussian, data = temp)
+      glm_fits[[SR_par]][[OM_type]][[i]] <- glm(as.formula(paste("relerror_trans", "~", i)), family = gaussian, data = temp)
     }
     sapply(glm_fits[[SR_par]][[OM_type]][facs[-1]], \(x) anova(x, test = "LRT")[[5]][2])
-    glm_fits[[SR_par]][[OM_type]][["all"]] <- glm(as.formula(paste("relerror_trans2", "~", paste(facs,collapse = "+"))), family = gaussian, data = temp)
-    glm_fits[[SR_par]][[OM_type]][["all2"]] <- glm(as.formula(paste("relerror_trans2", "~ (", paste(facs[-1],collapse = "+"), ")^2")), family = gaussian, data = temp)
-    glm_fits[[SR_par]][[OM_type]][["all3"]] <- glm(as.formula(paste("relerror_trans2", "~ (", paste(facs[-1],collapse = "+"), ")^3")), family = gaussian, data = temp)
+    glm_fits[[SR_par]][[OM_type]][["all"]] <- glm(as.formula(paste("relerror_trans", "~", paste(facs,collapse = "+"))), family = gaussian, data = temp)
+    glm_fits[[SR_par]][[OM_type]][["all2"]] <- glm(as.formula(paste("relerror_trans", "~ (", paste(facs[-1],collapse = "+"), ")^2")), family = gaussian, data = temp)
+    glm_fits[[SR_par]][[OM_type]][["all3"]] <- glm(as.formula(paste("relerror_trans", "~ (", paste(facs[-1],collapse = "+"), ")^3")), family = gaussian, data = temp)
 
     #percent reduction in deviance
     dev.tables[[SR_par]][[OM_type]] <- sapply(glm_fits[[SR_par]][[OM_type]][facs], \(x) 1 - x$deviance/glm_fits[[SR_par]][[OM_type]][[1]]$null.deviance)
 
     #Regression trees
-    form <- as.formula(paste("relerror_trans2 ~", paste(facs, collapse = "+")))# (EM_PE + OM_R_SD + EM_M + EM_SR + OM_Obs._Error + OM_F_History)
+    form <- as.formula(paste("relerror_trans ~", paste(facs, collapse = "+")))# (EM_PE + OM_R_SD + EM_M + EM_SR + OM_Obs._Error + OM_F_History)
     full.trees[[SR_par]][[OM_type]] <- rpart(form, data=temp, method = "anova", control=rpart.control(cp=0, xval = 100), model = TRUE)#, roundint = FALSE)
-    full.trees[[SR_par]][[OM_type]] <- add_to_frame(full.trees[[SR_par]][[OM_type]], temp)
     print("OM_type done")
   }
 
@@ -480,8 +504,19 @@ for(SR_par in c("a","b","M", "SSB")) {
   PRD.tables[[SR_par]] <- rbind(PRD.table,y)
 
 }
-
 saveRDS(glm_fits, here::here("Project_0","results", "glm_fits_bias.RDS"))
+
+for(SR_par in c("a","b","M", "SSB")) {
+  print(SR_par)
+  par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
+  print(par_type)
+  for(OM_type in names(factors[[par_type]])){
+    print(OM_type)
+    temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
+    full.trees[[SR_par]][[OM_type]] <- add_to_frame(full.trees[[SR_par]][[OM_type]], temp)
+  }
+}
+
 saveRDS(full.trees, here::here("Project_0","results", "reg_trees_bias.RDS"))
 
 x <- cbind(PRD.tables[["a"]],PRD.tables[["b"]])
@@ -510,594 +545,82 @@ x <- latex(x, file = here("Project_0","manuscript","bias_SSB_PRD_table.tex"),
   table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
 
 #this is needed inside my modified handle.anova.palette function
-anova.palette.sd <- 0.3
+anova.palette.sd <- 0.15
 
-cairo_pdf(here("Project_0","manuscript", paste0("SR_a_bias_regtree_plots.pdf")), width = 30*2/3, height = 20*2/3)
-x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
+pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+round(PRD.tables$a,2)
+cairo_pdf(here("Project_0","manuscript", paste0("SR_a_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+# x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
+x <- matrix(c(1,1,2,3,1,1,4,5), 2, 4, byrow = TRUE)
 layout.x <- layout(x) 
-par(oma = c(0,0,0,0))
-plot.prune(full.trees[["a"]][["R"]], cp = 0.005, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+par(oma = c(0,0,0,0), bg = NA)
+plot.prune(full.trees[["a"]][["R"]], cp = 0.005, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+S"]], cp = 0.005, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(full.trees[["a"]][["R+S"]], cp = 0.02, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+M"]], cp = 0.015, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(full.trees[["a"]][["R+M"]], cp = 0.015, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+Sel"]], cp = 0.015, type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(full.trees[["a"]][["R+Sel"]], cp = 0.02, type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
+# plot.prune(full.trees[["a"]][["R+Sel"]], cp = 0.02, type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yspace = 0.1, split.space = 0.1)#, xpd = TRUE)
 mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+q"]], cp = 0.03, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(full.trees[["a"]][["R+q"]], cp = 0.03, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
 # pkgload::load_all("c:/work/rpart.plot")
 # show_col(viridis::viridis_pal(option = "turbo", begin = 0.2, end = 0.8)(4))
-PRD.tables$b
-cairo_pdf(here("Project_0","manuscript", paste0("SR_b_bias_regtree_plots.pdf")), width = 30*2/3, height = 20*2/3)
-x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
+round(PRD.tables$b,2)*100
+cairo_pdf(here("Project_0","manuscript", paste0("SR_b_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(1,1,0,1,1,0,rep(2,9),3,4,5), 3, 6)
 layout.x <- layout(x) 
-par(oma = c(0,0,0,0))
-plot.prune(full.trees[["b"]][["R"]], cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+par(oma = c(0,2,0,0))
+plot.prune(full.trees[["b"]][["R"]], cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2, split.yshift = -6)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["b"]][["R+S"]],5), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(prune(full.trees[["b"]][["R+S"]],5), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,1,5,0), tweak = 1.4, split.yshift = -6)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["b"]][["R+M"]], cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
-mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["b"]][["R+Sel"]], cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
-mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["b"]][["R+q"]], cp = 0.01,type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
-mtext("R+q OMs", side = 3, line = 0, cex = 2)
+plot.prune(full.trees[["b"]][["R+M"]], cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
+mtext("R+M OMs", side = 3, line = 1, cex = 2)
+plot.prune(full.trees[["b"]][["R+Sel"]], cp = 0.02,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
+mtext("R+Sel OMs", side = 3, line = 1, cex = 2)
+plot.prune(full.trees[["b"]][["R+q"]], cp = 0.035,type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
+mtext("R+q OMs", side = 3, line = 1, cex = 2)
 dev.off()
 
 
 # pkgload::load_all("c:/work/rpart.plot")
 # show_col(viridis::viridis_pal(option = "turbo", begin = 0.2, end = 0.8)(4))
-PRD.tables$M
-cairo_pdf(here("Project_0","manuscript", paste0("med_M_bias_regtree_plots.pdf")), width = 30*2/3, height = 20*2/3)
-x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
+round(PRD.tables$M,2)*100
+cairo_pdf(here("Project_0","manuscript", paste0("med_M_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(rep(1,4),rep(2,4),rep(3,4),4,5), 2, 7)
 layout.x <- layout(x) 
-par(mar = c(0,0,5,0), oma = c(0,0,0,0))
-plot.prune(full.trees[["M"]][["R"]], cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+par(oma = c(0,0,0,1))
+plot.prune(prune(full.trees[["M"]][["R"]], c(3,5,16:17,18:19)), cp = 100, factor = "n", type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.1, split.yshift = -6)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["M"]][["R+S"]],5), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(prune(full.trees[["M"]][["R+S"]],c(2,12,14:15,27,28:29,52,53)), cp = 0, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.1, split.yshift = -6)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["M"]][["R+M"]],c(4:6)), cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(prune(full.trees[["M"]][["R+M"]], c(8,18,38:39,5,3)), cp = 0, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.1, split.yshift = -6)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["M"]][["R+Sel"]], c(4,6)), cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+# par(mfrow = c(1,1), oma = c(0,0,0,0))
+plot.prune(prune(full.trees[["M"]][["R+Sel"]],2), cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2, split.yshift = -6)
 mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["M"]][["R+q"]], c(9,13)), cp = 0.01, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0))
+plot.prune(prune(full.trees[["M"]][["R+q"]],4), cp = 0.03, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2, split.yshift = -3)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
 PRD.tables$SSB
-cairo_pdf(here("Project_0","manuscript", paste0("SSB_bias_regtree_plots.pdf")), width = 30*2/3, height = 20*2/3)
-x <- matrix(c(1,1,2,2,3,3,4,4,5,5,5,5), 2, 6, byrow = TRUE)
+cairo_pdf(here("Project_0","manuscript", paste0("SSB_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(1,3,rep(2,4),rep(4,4), rep(5,4)), 2, 7)
 layout.x <- layout(x) 
-par(mar = c(0,0,5,0), oma = c(0,0,0,0))
-plot.prune(prune(full.trees[["SSB"]][["R"]],5), cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+par(mar = c(0,0,5,0), oma = c(0,4,0,1))
+plot.prune(prune(full.trees[["SSB"]][["R"]],c(5,15)), cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(4,10)), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(4,10,15)), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(4,9,10)), cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(4,7,9,10,15)), cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["SSB"]][["R+Sel"]],6), cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+plot.prune(prune(full.trees[["SSB"]][["R+Sel"]],c(6,15,29)), cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.42)
 mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["SSB"]][["R+q"]],19), cp = 0.01, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+plot.prune(prune(full.trees[["SSB"]][["R+q"]],c(19,31,60)), cp = 0.01, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
-dev.off()
-
-########################################
-#Get annual SSB, F relative error
-########################################
-
-
-make_annual_relerror_df <- function(om_type = "naa", res = all_naa_om_relssb, is_SE = FALSE) {
-  df.ems <- readRDS(here::here("Project_0","inputs", "df.ems.RDS"))
-  if(om_type == "naa") {
-    em_ind <- 1:20
-  }
-  if(om_type == "M") {
-    em_ind <- 5:24
-  }
-  if(om_type == "Sel") {
-    em_ind <- c(5:20,25:28)
-  }
-  if(om_type == "q") {
-    em_ind <- c(5:20,29:32)
-  }
-  df.ems <- df.ems[em_ind,]
-
-  res <- melt(res)
-  names(res) <- c("year", "column", "value", "em", "sim","om")
-  res <- res %>% mutate(column = recode(column,
-      "1" = "relerror",
-      "2" = "cv",
-      "3" = "in_ci",
-    ))
-  df <- res %>% tidyr::pivot_wider(names_from = column, values_from = value) %>% as.data.frame
-  if(is_SE) df <- filter(df, !is.na(cv))
-  
-  df$relerror = df$relerror - 1
-
-  df <- df %>% group_by(om, em, year) %>%
-    reframe(stats = median_ci_fn(relerror)) %>% as.data.frame
-  df$type <- c("lo", "middle", "hi")
-  if(om_type == "naa") {
-    df.oms <- readRDS(here::here("Project_0", "inputs", "df.oms.RDS"))
-  } else {
-    df.oms <- readRDS(here::here("Project_0", "inputs", paste0("df.", om_type, ".oms.RDS")))
-  }
-  df <- df %>% pivot_wider(names_from = type, values_from = stats) %>% as.data.frame
-  df <- cbind(df, df.oms[df$om,])
-  df <- cbind(df, df.ems[df$em,])
-  df <- df %>%
-    mutate(EM_process_error = recode(re_config,
-      "rec" = "R",
-      "rec+1" = "R+S",
-      "M_re" = "R+M",
-      "q_re" = "R+q",
-      "sel_re" = "R+Sel"
-    ))
-  ind <- which(df$M_re_cor == "iid" | df$sel_re_cor == "iid" | df$q_re_cor == "iid")
-  df$EM_process_error[ind] <- paste0(df$EM_process_error[ind], " (iid)")
-  ind <- which(df$M_re_cor == "ar1_y" | df$sel_re_cor == "ar1_y" | df$q_re_cor == "ar1")
-  df$EM_process_error[ind] <- paste0(df$EM_process_error[ind], " (AR1)")
-  EM_process_error <- c("R","R+S","R+M (iid)","R+M (AR1)","R+Sel (iid)","R+Sel (AR1)","R+q (iid)","R+q (AR1)")
-  df$EM_process_error <- factor(df$EM_process_error, levels = EM_process_error)
-  
-  df$correct_EM_PE <- "No"
-  if(om_type == "naa") {
-    df$NAA_sig[which(is.na(df$NAA_sig))] <- 0
-    df$correct_EM_PE[df$NAA_sig == 0 & df$EM_process_error == "R"] <- "Yes"
-    df$correct_EM_PE[df$NAA_sig >  0 & df$EM_process_error == "R+S"] <- "Yes"
-    df <- df %>% mutate(NAA_sig = recode(NAA_sig,
-        "0" = "sigma['2+'] == 0",
-        "0.25" = "sigma['2+'] == 0.25",
-        "0.5" = "sigma['2+'] == 0.5")) %>%
-      mutate(R_sig = recode(R_sig,
-        "0.5" = "sigma[italic(R)] == 0.5",
-        "1.5" = "sigma[italic(R)] == 1.5"))
-  }
-
-  if(om_type == "M") {
-    df$correct_EM_PE[df$M_cor == 0 & df$EM_process_error == "R+M (iid)"] <- "Yes"
-    df$correct_EM_PE[df$M_cor >  0 & df$EM_process_error == "R+M (AR1)"] <- "Yes"
-    df <- df %>% mutate(M_sig = recode(M_sig,
-        "0.1" = "sigma[italic(M)] == 0.1",
-        "0.5" = "sigma[italic(M)] == 0.5")) %>% 
-      mutate(M_cor = recode(M_cor,
-        "0" = "rho[italic(M)] == 0",
-        "0.9" = "rho[italic(M)] == 0.9"))
-  }
-  if(om_type == "Sel") {
-    df$correct_EM_PE[df$Sel_cor == 0 & df$EM_process_error == "R+Sel (iid)"] <- "Yes"
-    df$correct_EM_PE[df$Sel_cor >  0 & df$EM_process_error == "R+Sel (AR1)"] <- "Yes"
-    df <- df %>% mutate(Sel_sig = recode(Sel_sig,
-        "0.1" = "sigma[Sel] == 0.1",
-        "0.5" = "sigma[Sel] == 0.5")) %>% 
-      mutate(Sel_cor = recode(Sel_cor,
-        "0" = "rho[Sel] == 0",
-        "0.9" = "rho[Sel] == 0.9"))
-  }
-  if(om_type == "q") {
-    df$correct_EM_PE[df$q_cor == 0 & df$EM_process_error == "R+q (iid)"] <- "Yes"
-    df$correct_EM_PE[df$q_cor >  0 & df$EM_process_error == "R+q (AR1)"] <- "Yes"
-    df <- df %>% mutate(q_sig = recode(q_sig,
-        "0.1" = "sigma[italic(q)] == 0.1",
-        "0.5" = "sigma[italic(q)] == 0.5")) %>%
-      mutate(q_cor = recode(q_cor,
-        "0" = "rho[italic(q)] == 0",
-        "0.9" = "rho[italic(q)] == 0.9"))  
-  }
-  df <- df %>%
-    mutate(obs_error = recode(obs_error,
-      "L" = "Low observation error",
-      "H" = "High observation error"))
-  df <- df %>% mutate(Fhist = recode(Fhist,
-        "H-MSY"  = "2.5*italic(F)[MSY] %->% italic(F)[MSY]",
-        "MSY" = "italic(F)[MSY]"))
-  df <- df %>% as.data.frame
-  facs <- c("om", "Fhist","NAA_sig", "R_sig", "M_sig", "M_cor", "Sel_sig", "Sel_cor", "q_sig", "q_cor", "obs_error", "correct_EM_PE")
-  fac_names <- names(df)[names(df) %in% facs]
-  df[fac_names] <- lapply(df[fac_names], as.factor)
-  df$correct_EM_PE[df$correct_EM_PE== "No"] <- NA
-  est_config <- c("M known, No SR", "M estimated, No SR", "M known, SR", "M estimated, SR")
-  df$est_config <- est_config[1]
-  df$est_config[df$M_est & df$SR_model == 2] <- est_config[2]
-  df$est_config[!df$M_est & df$SR_model == 3] <- est_config[3]
-  df$est_config[df$M_est & df$SR_model == 3] <- est_config[4]
-  df$est_config <- factor(df$est_config, levels = est_config)
-  return(df)
-}
-
-
-
-########################################
-#terminal SSB
-########################################
-
-all_naa_om_relssb <- readRDS(file = here("Project_0","results", "all_naa_relssb_results.RDS"))
-
-ylims <- c(-0.4,0.4)
-plot.df <- make_annual_relerror_df()
-plot.df$outside <- plot.df$hi < min(ylims) | plot.df$lo > max(ylims)
-
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_S_df <- temp
-
-all_M_relssb <- readRDS(file = here("Project_0","results", "all_M_relssb_results.RDS"))
-plot.df <- make_annual_relerror_df("M", all_M_relssb)
-plot.df$outside <- plot.df$hi < min(ylims) | plot.df$lo > max(ylims)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_M_df <- temp
-
-all_Sel_relssb <- readRDS(file = here("Project_0","results", "all_Sel_relssb_results.RDS"))
-plot.df <- make_annual_relerror_df("Sel", all_Sel_relssb)
-plot.df$outside <- plot.df$hi < min(ylims) | plot.df$lo > max(ylims)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_Sel_df <- temp
-
-all_q_relssb <- readRDS(file = here("Project_0","results", "all_q_relssb_results.RDS"))
-plot.df <- make_annual_relerror_df("q", all_q_relssb)
-plot.df$outside <- plot.df$hi < min(ylims) | plot.df$lo > max(ylims)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_q_df <- temp
-
-theme_set(theme_bw())
-theme_update(strip.text = element_text(size = rel(2)), strip.placement = "outside", strip.background = element_rect(), #fill = "transparent"), 
-      axis.title = element_text(size = rel(2)), axis.text = element_text(size = rel(2)), legend.text = element_text(size = rel(2)), #text = element_text(size = rel(2)), 
-      legend.title = element_text(size = rel(2)))
-
-R_S_plt <- ggplot(filter(R_S_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ R_sig + NAA_sig, labeller = labeller(Fhist = label_parsed, R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab("Median Relative Error (SSB)") + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_S_plt
-
-
-R_M_plt <- ggplot(filter(R_M_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ M_sig + M_cor, labeller = labeller(Fhist = label_parsed, M_sig = label_parsed, M_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab("Median Relative Error (SSB)") + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_M_plt
-
-
-
-R_Sel_plt <- ggplot(filter(R_Sel_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ Sel_sig + Sel_cor, labeller = labeller(Fhist = label_parsed, Sel_sig = label_parsed, Sel_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab("Median Relative Error (SSB)") + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_Sel_plt
-
-
-
-R_q_plt <- ggplot(filter(R_q_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ q_sig + q_cor, labeller = labeller(Fhist = label_parsed, q_sig = label_parsed, q_cor = label_parsed)) +
-    coord_cartesian(ylim = ylims) + ylab("Median Relative Error (SSB)") + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_q_plt
-
-
-R_Sel_plt_alt <- R_Sel_plt + 
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
-
-
-theme_set(theme_bw())
-theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
-cairo_pdf(here("Project_0","manuscript", "term_SSB_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
-design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
-(R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
-(R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
-  plot_layout(design = design, axis_titles = "collect")
-dev.off()
-
-########################################
-#terminal F
-########################################
-
-all_naa_relF <- readRDS(file = here("Project_0","results", "all_naa_relF_results.RDS"))
-plot.df <- make_annual_relerror_df("naa", all_naa_relF)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_S_df <- temp
-
-
-all_M_relF <- readRDS(file = here("Project_0","results", "all_M_relF_results.RDS"))
-plot.df <- make_annual_relerror_df("M", all_M_relF)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_M_df <- temp
-
-all_Sel_relF <- readRDS(file = here("Project_0","results", "all_Sel_relF_results.RDS"))
-plot.df <- make_annual_relerror_df("Sel", all_Sel_relF)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_Sel_df <- temp
-
-all_q_relF <- readRDS(file = here("Project_0","results", "all_q_relF_results.RDS"))
-plot.df <- make_annual_relerror_df("q", all_q_relF)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_q_df <- temp
-
-
-R_S_plt <- ggplot(filter(R_S_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ R_sig + NAA_sig, labeller = labeller(Fhist = label_parsed, R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(F)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_S_plt
-
-
-R_M_plt <- ggplot(filter(R_M_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ M_sig + M_cor, labeller = labeller(Fhist = label_parsed, M_sig = label_parsed, M_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(F)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_M_plt
-
-
-
-R_Sel_plt <- ggplot(filter(R_Sel_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ Sel_sig + Sel_cor, labeller = labeller(Fhist = label_parsed, Sel_sig = label_parsed, Sel_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(F)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_Sel_plt
-
-
-
-R_q_plt <- ggplot(filter(R_q_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ q_sig + q_cor, labeller = labeller(Fhist = label_parsed, q_sig = label_parsed, q_cor = label_parsed)) +
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(F)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_q_plt
-
-
-R_Sel_plt_alt <- R_Sel_plt + 
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
-
-
-theme_set(theme_bw())
-theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
-cairo_pdf(here("Project_0","manuscript", "term_F_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
-design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
-(R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
-(R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
-  plot_layout(design = design, axis_titles = "collect")
-dev.off()
-
-
-all_naa_relR <- readRDS(file = here("Project_0","results", "all_naa_relR_results.RDS"))
-plot.df <- make_annual_relerror_df("naa", all_naa_relR)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_S_df <- temp
-
-
-all_M_relR <- readRDS(file = here("Project_0","results", "all_M_relR_results.RDS"))
-plot.df <- make_annual_relerror_df("M", all_M_relR)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_M_df <- temp
-
-all_Sel_relR <- readRDS(file = here("Project_0","results", "all_Sel_relR_results.RDS"))
-plot.df <- make_annual_relerror_df("Sel", all_Sel_relR)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_Sel_df <- temp
-
-all_q_relR <- readRDS(file = here("Project_0","results", "all_q_relR_results.RDS"))
-plot.df <- make_annual_relerror_df("q", all_q_relR)
-temp <- filter(plot.df, year %in% c(1,21,40))
-temp <- temp %>% mutate(year = recode(year,
-    "1" = "Start",
-    "21" = "Middle",
-    "40" = "End"))
-temp$year <- factor(temp$year, levels = c("Start", "Middle", "End"))
-R_q_df <- temp
-
-
-R_S_plt <- ggplot(filter(R_S_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ R_sig + NAA_sig, labeller = labeller(Fhist = label_parsed, R_sig = label_parsed, NAA_sig = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(R)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_S_plt
-
-
-R_M_plt <- ggplot(filter(R_M_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ M_sig + M_cor, labeller = labeller(Fhist = label_parsed, M_sig = label_parsed, M_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(R)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_M_plt
-
-
-
-R_Sel_plt <- ggplot(filter(R_Sel_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ Sel_sig + Sel_cor, labeller = labeller(Fhist = label_parsed, Sel_sig = label_parsed, Sel_cor = label_parsed)) +#, obs_error = label_wrap_gen(width=30))) + #labeller = label_parsed) + #label_wrap_gen(width = 30)) + #, labeller = label_parsed) + 
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(R)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_Sel_plt
-
-
-
-R_q_plt <- ggplot(filter(R_q_df, year == "End"), aes(x = est_config, y = middle)) + 
-    facet_nested(obs_error + Fhist ~ q_sig + q_cor, labeller = labeller(Fhist = label_parsed, q_sig = label_parsed, q_cor = label_parsed)) +
-    coord_cartesian(ylim = ylims) + ylab(bquote(Median~Relative~Error~(italic(R)))) + xlab("EM M and Stock Recruit Assumptions") +
-    scale_colour_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) +
-    geom_hline(aes(yintercept=0), linewidth = 1, linetype = "dashed", colour = "black") +
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) + 
-    scale_size_manual(values = c('No'=0, 'Yes'=6)) + 
-    geom_errorbar(aes(ymin = lo, ymax = hi, colour = EM_process_error), width = 0, position = position_dodge(0.7), linewidth = 1) +
-    labs(colour = "EM process error", fill = "EM process error") +
-    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", shape = "none", fill = "none") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
-R_q_plt
-
-
-R_Sel_plt_alt <- R_Sel_plt + 
-    geom_point(position = position_dodge(0.7), size =  2, mapping = aes(colour = EM_process_error, fill = EM_process_error), shape = 21, show.legend = TRUE) + 
-    geom_point(mapping = aes(fill = EM_process_error, size = correct_EM_PE), shape = 1, position = position_dodge(0.7), na.rm = TRUE) 
-
-
-theme_set(theme_bw())
-theme_update(strip.placement = "outside", strip.background = element_rect(), title = element_text(size = rel(1.5)))
-cairo_pdf(here("Project_0","manuscript", "term_R_bias_plots.pdf"), width = 30*2/3, height = 20*2/3)
-design <- c(area(1,1,1,1), area(2,1,2,1), area(1,2,1,2), area(2,2,2,2))
-(R_S_plt +  xlab("") + labs(title = "A: R, R+S OMs") + theme(axis.title.x = element_blank(), strip.text.y=element_blank(), axis.text.x=element_blank(), legend.position="none")) +
-(R_M_plt + labs(title = "B: R+M OMs") + theme(legend.position="none", strip.text.y=element_blank())) + 
-(R_Sel_plt_alt + xlab("") + labs(title = "C: R+Sel OMs") + theme(axis.title.x = element_blank(), axis.text.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank())) +
-(R_q_plt + labs(title = "D: R+q OMs") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), legend.position = "none")) + 
-  plot_layout(design = design, axis_titles = "collect")
 dev.off()
 
