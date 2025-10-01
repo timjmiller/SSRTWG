@@ -6,7 +6,8 @@ library(reshape2)
 library(rpart)
 library(viridis)
 #modified rpart.plot package to use plotmath in split labels...
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+# pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
 # pkgload::load_all("c:/work/rpart.plot")
 
 
@@ -30,19 +31,11 @@ make_plot_df <- function(om_type = "naa", res = naa_relSR_results, is_SE = FALSE
     if(M_or_SR == "M") em_ind <- which(df.ems$M_est)
     df.ems <- df.ems[em_ind,]
   }
-  print("df.ems")
-  print(df.ems)
 
   res <- melt(res)
   names(res) <- c("par", "column", "value", "em", "sim","om") #em = 1: M fixed, em = 2: M estimated
   if(!is.null(year)) res <- filter(res, par == year)
 
-  print("unique(res$em)")
-  print(unique(res$em))
-  print(all(unique(res$em) %in% 1:NROW(df.ems)))
-  print(length(unique(res$em)))
-  print(length(unique(res$em)))
-  print(NROW(df.ems))
   if(!(all(unique(res$em) %in% 1:NROW(df.ems)) & length(unique(res$em)) == NROW(df.ems))) stop("df.ems does not seem to be difined correctly for the number of ems in res.")
   res <- cbind(df.ems[res$em,], res)
   res <- res %>% mutate(column = recode(column,
@@ -303,10 +296,11 @@ node.fun <- function(x, labs, digits, varlen){
 }
 
 get_small_data <- function(SR_par, OM_type, obs_dfs, factors, cv_limit){
-  print(SR_par)
+  print("get_small_data")
+  print(paste0("SR_par:", SR_par))
   par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
-  print(par_type)
-  print(OM_type)
+  print(paste0("par_type: ", par_type))
+  print(paste0("OM_type: ", OM_type)
   facs <- factors[[par_type]][[OM_type]]
   dfs <- obs_dfs[[par_type]]
   
@@ -316,9 +310,7 @@ get_small_data <- function(SR_par, OM_type, obs_dfs, factors, cv_limit){
   if(OM_type == "R+Sel") temp <- dfs[["Sel"]]
   if(OM_type == "R+q") temp <- dfs[["q"]]
   if(SR_par %in% c("a","b","M")) temp <- subset(temp, par == paste0("italic(",SR_par,")"))
-  print(dim(temp))
   if(!is.na(cv_limit)) temp <- subset(temp, cv < cv_limit) #delta-method based cv, not log-normal
-  print(dim(temp))
   temp$relerror_trans <- log(temp$relerror + 1)
   temp$relerror_trans[which(is.infinite(temp$relerror_trans))] <- NA
   return(temp)
@@ -341,15 +333,15 @@ obs_dfs$SR$M <- make_plot_df(om_type = "M", res = M_relSR_results)
 obs_dfs$SR$Sel <- make_plot_df(om_type = "Sel", res = Sel_relSR_results)
 obs_dfs$SR$q <- make_plot_df(om_type = "q", res = q_relSR_results)
 
-temp <- make_plot_df(om_type = "M", res = M_relSR_results)
-dim(temp)
-dim(obs_dfs$SR$M)
-temp <- make_plot_df(om_type = "Sel", res = Sel_relSR_results)
-dim(temp)
-dim(obs_dfs$SR$Sel)
-temp <- make_plot_df(om_type = "q", res = q_relSR_results)
-dim(temp)
-dim(obs_dfs$SR$q)
+# temp <- make_plot_df(om_type = "M", res = M_relSR_results)
+# dim(temp)
+# dim(obs_dfs$SR$M)
+# temp <- make_plot_df(om_type = "Sel", res = Sel_relSR_results)
+# dim(temp)
+# dim(obs_dfs$SR$Sel)
+# temp <- make_plot_df(om_type = "q", res = q_relSR_results)
+# dim(temp)
+# dim(obs_dfs$SR$q)
 
 ########################################
 #Natural Mortality
@@ -364,18 +356,18 @@ obs_dfs$M$M <- make_plot_df(om_type = "M", res = M_rel_M_results, M_or_SR = "M")
 obs_dfs$M$Sel <- make_plot_df(om_type = "Sel", res = Sel_rel_M_results, M_or_SR = "M")
 obs_dfs$M$q <- make_plot_df(om_type = "q", res = q_rel_M_results, M_or_SR = "M")
 
-temp <- make_plot_df(om_type = "naa", res = naa_rel_M_results, M_or_SR = "M")
-dim(temp)
-dim(obs_dfs$M$naa)
-temp <- make_plot_df(om_type = "M", res = M_relS_M_results, M_or_SR = "M")
-dim(temp)
-dim(obs_dfs$M$M)
-temp <- make_plot_df(om_type = "Sel", res = Sel_rel_M_results, M_or_SR = "M")
-dim(temp)
-dim(obs_dfs$M$Sel)
-temp <- make_plot_df(om_type = "q", res = q_rel_M_results, M_or_SR = "M")
-dim(temp)
-dim(obs_dfs$M$q)
+# temp <- make_plot_df(om_type = "naa", res = naa_rel_M_results, M_or_SR = "M")
+# dim(temp)
+# dim(obs_dfs$M$naa)
+# temp <- make_plot_df(om_type = "M", res = M_relS_M_results, M_or_SR = "M")
+# dim(temp)
+# dim(obs_dfs$M$M)
+# temp <- make_plot_df(om_type = "Sel", res = Sel_rel_M_results, M_or_SR = "M")
+# dim(temp)
+# dim(obs_dfs$M$Sel)
+# temp <- make_plot_df(om_type = "q", res = q_rel_M_results, M_or_SR = "M")
+# dim(temp)
+# dim(obs_dfs$M$q)
 
 ########################################
 #make dfs for SSB,F
@@ -391,6 +383,27 @@ obs_dfs$SSB$M <- make_plot_df(om_type = "M", res = all_M_relssb, M_or_SR = NULL,
 obs_dfs$SSB$Sel <- make_plot_df(om_type = "Sel", res = all_Sel_relssb, M_or_SR = NULL, year = 40)
 obs_dfs$SSB$q <- make_plot_df(om_type = "q", res = all_q_relssb, M_or_SR = NULL, year = 40)
 
+all_naa_relF <- readRDS(file = here("Project_0","results", "all_naa_relF_results.RDS"))
+all_M_relF <- readRDS(file = here("Project_0","results", "all_M_relF_results.RDS"))
+all_Sel_relF <- readRDS(file = here("Project_0","results", "all_Sel_relF_results.RDS"))
+all_q_relF <- readRDS(file = here("Project_0","results", "all_q_relF_results.RDS"))
+
+obs_dfs$F <- list()
+obs_dfs$F$naa <- make_plot_df(om_type = "naa", res = all_naa_relF, M_or_SR = NULL, year = 40)
+obs_dfs$F$M <- make_plot_df(om_type = "M", res = all_M_relF, M_or_SR = NULL, year = 40)
+obs_dfs$F$Sel <- make_plot_df(om_type = "Sel", res = all_Sel_relF, M_or_SR = NULL, year = 40)
+obs_dfs$F$q <- make_plot_df(om_type = "q", res = all_q_relF, M_or_SR = NULL, year = 40)
+
+all_naa_relR <- readRDS(file = here("Project_0","results", "all_naa_relR_results.RDS"))
+all_M_relR <- readRDS(file = here("Project_0","results", "all_M_relR_results.RDS"))
+all_Sel_relR <- readRDS(file = here("Project_0","results", "all_Sel_relR_results.RDS"))
+all_q_relR <- readRDS(file = here("Project_0","results", "all_q_relR_results.RDS"))
+
+obs_dfs$R <- list()
+obs_dfs$R$naa <- make_plot_df(om_type = "naa", res = all_naa_relR, M_or_SR = NULL, year = 40)
+obs_dfs$R$M <- make_plot_df(om_type = "M", res = all_M_relR, M_or_SR = NULL, year = 40)
+obs_dfs$R$Sel <- make_plot_df(om_type = "Sel", res = all_Sel_relR, M_or_SR = NULL, year = 40)
+obs_dfs$R$q <- make_plot_df(om_type = "q", res = all_q_relR, M_or_SR = NULL, year = 40)
 
 ########################################
 #define factors for fits
@@ -415,37 +428,20 @@ factors[["SSB"]][["R+M"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs
 factors[["SSB"]][["R+Sel"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs._Error", "OM_F_History","OM_Sel_sigma", "OM_Sel_rho")
 factors[["SSB"]][["R+q"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs._Error", "OM_F_History","OM_q_sigma", "OM_q_rho")
 
+factors[["F"]] <- factors[["R"]] <- factors[["SSB"]]
 ########################################
 
-glm_fits <- list(a = list(), b = list(), M = list())
-dev.tables <- list(a = list(), b = list(), M = list())
-PRD.tables <- list(a = list(), b = list(), M = list())
-full.trees <- list(a = list(), b = list(), M = list())
+glm_fits <- dev.tables <- PRD.tables <- list()
 
 cv_limit <- NA
-for(SR_par in c("a","b","M", "SSB")) {
+for(SR_par in c("a","b","M", "SSB", "F", "R")) {
   print(SR_par)
   par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
   print(par_type)
-  glm_fits[[SR_par]] <- dev.tables[[SR_par]] <- PRD.tables[[SR_par]] <- full.trees[[SR_par]] <- list()
+  glm_fits[[SR_par]] <- dev.tables[[SR_par]] <- PRD.tables[[SR_par]] <- list()
   for(OM_type in names(factors[[par_type]])){
     print(OM_type)
     facs <- factors[[par_type]][[OM_type]]
-    # dfs <- obs_dfs[[par_type]]
-    # 
-    # if(OM_type == "R") temp <- subset(dfs[["naa"]], OM_NAA_sigma == 0 )
-    # if(OM_type == "R+S") temp <- subset(dfs[["naa"]], OM_NAA_sigma != 0)
-    # if(OM_type == "R+M") temp <- dfs[["M"]]
-    # if(OM_type == "R+Sel") temp <- dfs[["Sel"]]
-    # if(OM_type == "R+q") temp <- dfs[["q"]]
-    # if(SR_par %in% c("a","b","M")) temp <- subset(temp, par == paste0("italic(",SR_par,")"))
-    # print(dim(temp))
-    # if(!is.na(cv_limit)) temp <- subset(temp, cv < cv_limit) #delta-method based cv, not log-normal
-    # print(dim(temp))
-    # 
-    # temp$relerror_trans <- log(temp$relerror + 1)
-    # temp$relerror_trans[which(is.infinite(temp$relerror_trans))] <- NA
-    # temp$relerror_trans2 <- log(abs(temp$relerror_trans)) # log of absolute errors on log scale (higher values are differences further from 0)
     temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
     glm_fits[[SR_par]][[OM_type]] <- list()
     dev.tables[[SR_par]][[OM_type]] <- list()
@@ -460,20 +456,16 @@ for(SR_par in c("a","b","M", "SSB")) {
     #percent reduction in deviance
     dev.tables[[SR_par]][[OM_type]] <- sapply(glm_fits[[SR_par]][[OM_type]][facs], \(x) 1 - x$deviance/glm_fits[[SR_par]][[OM_type]][[1]]$null.deviance)
 
-    #Regression trees
-    form <- as.formula(paste("relerror_trans ~", paste(facs, collapse = "+")))# (EM_PE + OM_R_SD + EM_M + EM_SR + OM_Obs._Error + OM_F_History)
-    full.trees[[SR_par]][[OM_type]] <- rpart(form, data=temp, method = "anova", control=rpart.control(cp=0, xval = 100), model = TRUE)#, roundint = FALSE)
-    print("OM_type done")
   }
 
-  interactions.dev.table <- sapply(names(factors[[par_type]]), \(x) 1 - c(glm_fits[[SR_par]][[x]][["all"]]$deviance,glm_fits[[SR_par]][[x]][["all2"]]$deviance,glm_fits[[SR_par]][[x]][["all3"]]$deviance)/glm_fits[[SR_par]][[x]][[1]]$null.deviance)
+  interactions.dev.table <- sapply(names(factors[[par_type]]), \(x) 1 - c(glm_fits[[SR_par]][[x]][["all"]]$deviance, glm_fits[[SR_par]][[x]][["all2"]]$deviance,glm_fits[[SR_par]][[x]][["all3"]]$deviance)/glm_fits[[SR_par]][[x]][[1]]$null.deviance)
   x <- as.data.frame(round(100*interactions.dev.table,2))
   x <- cbind(Model = c("No Interactions", "+ All Two Way", "+ All Three Way"), x)
 
-  All.facs <- c("EM_process_error","OM_Obs._Error", "OM_F_History","OM_R_sigma","OM_NAA_sigma","OM_M_sigma", "OM_M_rho","OM_Sel_sigma", "OM_Sel_rho","OM_q_sigma", "OM_q_rho")
+  All.facs <- c("EM_process_error","OM_Obs._Error", "OM_F_History","OM_R_sigma","OM_NAA_sigma","OM_M_sigma", "OM_M_rho","OM_Sel_sigma", "OM_Sel_rho", "OM_q_sigma", "OM_q_rho")
   if(SR_par %in% c("a","b")) All.facs <- c("EM_M", All.facs)
   if(SR_par %in% c("M")) All.facs <- c("SR_model", All.facs)
-  if(SR_par %in% c("SSB")) All.facs <- c("EM_M", "SR_model",All.facs)
+  if(SR_par %in% c("SSB", "F", "R")) All.facs <- c("EM_M", "SR_model",All.facs)
   PRD.table <- matrix(NA, length(All.facs),5)
   colnames(PRD.table) <- c("R","R+S","R+M","R+Sel","R+q")
   rnames <- gsub("_", " ", All.facs, fixed = TRUE)
@@ -506,18 +498,6 @@ for(SR_par in c("a","b","M", "SSB")) {
 }
 saveRDS(glm_fits, here::here("Project_0","results", "glm_fits_bias.RDS"))
 
-for(SR_par in c("a","b","M", "SSB")) {
-  print(SR_par)
-  par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
-  print(par_type)
-  for(OM_type in names(factors[[par_type]])){
-    print(OM_type)
-    temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
-    full.trees[[SR_par]][[OM_type]] <- add_to_frame(full.trees[[SR_par]][[OM_type]], temp)
-  }
-}
-
-saveRDS(full.trees, here::here("Project_0","results", "reg_trees_bias.RDS"))
 
 x <- cbind(PRD.tables[["a"]],PRD.tables[["b"]])
 x[] <- format(round(100*x,2), nsmall = 2)
@@ -536,34 +516,69 @@ x[which(as.numeric(x) == 0)] <- "< 0.01"
 x <- latex(x, file = here("Project_0","manuscript","bias_median_M_PRD_table.tex"), 
   table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
 
-x <- PRD.tables[["SSB"]]
-x[] <- format(round(100*x,2), nsmall = 2)
-dim(x)
-x[which(is.na(as.numeric(x)))] <- "--"
-x[which(as.numeric(x) == 0)] <- "< 0.01"
-x <- latex(x, file = here("Project_0","manuscript","bias_SSB_PRD_table.tex"), 
-  table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
+for(i in c("SSB", "F", "R")){
+  x <- PRD.tables[[i]]
+  x[] <- format(round(100*x,2), nsmall = 2)
+  dim(x)
+  x[which(is.na(as.numeric(x)))] <- "--"
+  x[which(as.numeric(x) == 0)] <- "< 0.01"
+  x <- latex(x, file = here("Project_0","manuscript",paste0("bias_",i,"_PRD_table.tex")), 
+             table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
+}
+#Regression trees
+
+full.trees <- list()#a = list(), b = list(), M = list())
+for(SR_par in c("a","b","M", "SSB", "F", "R")) {
+  print(SR_par)
+  par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
+  print(par_type)
+  full.trees[[SR_par]] <- list()
+  for(OM_type in names(factors[[par_type]])){
+    print(OM_type)
+    temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
+    facs <- factors[[par_type]][[OM_type]]
+    form <- as.formula(paste("relerror_trans ~", paste(facs, collapse = "+")))# (EM_PE + OM_R_SD + EM_M + EM_SR + OM_Obs._Error + OM_F_History)
+    full.trees[[SR_par]][[OM_type]] <- rpart(form, data=temp, method = "anova", control=rpart.control(cp=0, xval = 100), model = TRUE)#, roundint = FALSE)
+    print("OM_type done")
+  }
+}
+
+for(SR_par in c("a","b","M", "SSB", "F", "R")) {
+  print(SR_par)
+  par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
+  print(par_type)
+  for(OM_type in names(factors[[par_type]])){
+    print(OM_type)
+    temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
+    full.trees[[SR_par]][[OM_type]] <- add_to_frame(full.trees[[SR_par]][[OM_type]], temp)
+  }
+}
+
+saveRDS(full.trees, here::here("Project_0","results", "reg_trees_bias.RDS"))
 
 #this is needed inside my modified handle.anova.palette function
 anova.palette.sd <- 0.15
+# full.trees <- readRDS(here::here("Project_0","results", "reg_trees_bias.RDS"))
 
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
-round(PRD.tables$a,2)
+
+# pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+# round(PRD.tables$a,2)
 cairo_pdf(here("Project_0","manuscript", paste0("SR_a_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
-# x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
-x <- matrix(c(1,1,2,3,1,1,4,5), 2, 4, byrow = TRUE)
+x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
+# x <- matrix(c(1,1,2,3,1,1,4,5), 2, 4, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0), bg = NA)
-plot.prune(full.trees[["a"]][["R"]], cp = 0.005, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
+#par(mfrow = c(1,2))
+plot.prune(prune(full.trees[["a"]][["R"]],3), cp = 0.005, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+S"]], cp = 0.02, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
+plot.prune(full.trees[["a"]][["R+S"]], cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+M"]], cp = 0.015, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
+plot.prune(prune(full.trees[["a"]][["R+M"]], c(13,7)), cp = 0.001, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 3, split.yshift = 1)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+Sel"]], cp = 0.02, type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
-# plot.prune(full.trees[["a"]][["R+Sel"]], cp = 0.02, type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yspace = 0.1, split.space = 0.1)#, xpd = TRUE)
+plot.prune(prune(full.trees[["a"]][["R+Sel"]],c(4,5,3)), cp = 0.0001, type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["a"]][["R+q"]], cp = 0.03, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -6)
+plot.prune(prune(full.trees[["a"]][["R+q"]], c(4,5,3)), cp = 0.0001, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
@@ -571,18 +586,18 @@ dev.off()
 # show_col(viridis::viridis_pal(option = "turbo", begin = 0.2, end = 0.8)(4))
 round(PRD.tables$b,2)*100
 cairo_pdf(here("Project_0","manuscript", paste0("SR_b_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
-x <- matrix(c(1,1,0,1,1,0,rep(2,9),3,4,5), 3, 6)
+x <- matrix(c(1,3,2,4,5,5), 2, 3)
 layout.x <- layout(x) 
 par(oma = c(0,2,0,0))
-plot.prune(full.trees[["b"]][["R"]], cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2, split.yshift = -6)
+plot.prune(prune(full.trees[["b"]][["R"]], c(2,12,13,7)), cp = 0.0001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2, split.yshift = 0)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(prune(full.trees[["b"]][["R+S"]],5), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,1,5,0), tweak = 1.4, split.yshift = -6)
+plot.prune(prune(full.trees[["b"]][["R+S"]],c(8,9,5,3)), cp = 0.0001, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,1,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["b"]][["R+M"]], cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
+plot.prune(prune(full.trees[["b"]][["R+M"]],c(2,12,7)), cp = 0.001, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R+M OMs", side = 3, line = 1, cex = 2)
 plot.prune(full.trees[["b"]][["R+Sel"]], cp = 0.02,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
 mtext("R+Sel OMs", side = 3, line = 1, cex = 2)
-plot.prune(full.trees[["b"]][["R+q"]], cp = 0.035,type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
+plot.prune(prune(full.trees[["b"]][["R+q"]], c(3,5,9)), cp = 0.0001,type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = -3)
 mtext("R+q OMs", side = 3, line = 1, cex = 2)
 dev.off()
 
@@ -624,3 +639,36 @@ plot.prune(prune(full.trees[["SSB"]][["R+q"]],c(19,31,60)), cp = 0.01, type = "R
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
+cairo_pdf(here("Project_0","manuscript", paste0("F_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(1,3,rep(2,4),rep(4,4), rep(5,4)), 2, 7)
+layout.x <- layout(x) 
+par(mar = c(0,0,5,0), oma = c(0,4,0,1))
+plot.prune(prune(full.trees[["F"]][["R"]],c(5,8,15)), cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+mtext("R OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["F"]][["R+S"]],c(4,10,15)), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+mtext("R+S OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["F"]][["R+M"]],c(4,7,9,10,15)), cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+mtext("R+M OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["F"]][["R+Sel"]],c(6,8,15,18,29)), cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.42)
+mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["F"]][["R+q"]],c(16,19,31,34,35,60)), cp = 0.01, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+mtext("R+q OMs", side = 3, line = 0, cex = 2)
+dev.off()
+
+
+cairo_pdf(here("Project_0","manuscript", paste0("R_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(1,1,2,2,3,3,4,4,5,5), 2, 5)
+layout.x <- layout(x) 
+par(mar = c(0,0,5,0), oma = c(0,4,0,1))
+plot.prune(prune(full.trees[["R"]][["R"]],c(5,15)), cp = 0.01, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+mtext("R OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["R"]][["R+S"]],c(4,10,15)), cp = 0.01, type = "R+S", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+mtext("R+S OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["R"]][["R+M"]], c(15,24)), cp = 0.001, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+#plot.prune(prune(full.trees[["R"]][["R+M"]],c(4,7,9,10,15)), cp = 0.01, type = "R+M", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+mtext("R+M OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["R"]][["R+Sel"]],c(6,15,29)), cp = 0.01,type = "R+Sel", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.42)
+mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
+plot.prune(prune(full.trees[["R"]][["R+q"]],c(19,31,60)), cp = 0.01, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+mtext("R+q OMs", side = 3, line = 0, cex = 2)
+dev.off()

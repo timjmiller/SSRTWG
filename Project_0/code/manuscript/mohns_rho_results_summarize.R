@@ -7,7 +7,8 @@ library(rpart)
 library(viridis)
 library(gratia)
 #modified rpart.plot package to use plotmath in split labels...
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+# pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
 
 
 make_plot_df <- function(om_type = "naa", res = naa_relSR_results) {
@@ -61,8 +62,8 @@ make_plot_df <- function(om_type = "naa", res = naa_relSR_results) {
   ))
   
   df <- df %>% mutate(SR_model = recode(SR_model,
-                                        "2" = "No SR",
-                                        "3" = "SR"
+                                        "2" = "None",
+                                        "3" = "Estimated"
   ))
   ind <- which(df$M_re_cor == "iid" | df$sel_re_cor == "iid" | df$q_re_cor == "iid")
   df$EM_process_error[ind] <- paste0(df$EM_process_error[ind], "(iid)")
@@ -451,11 +452,15 @@ plot.prune(prune(full.trees[["F"]][["R+q"]],c(12,15)), cp = 0.0005, type = "R+q"
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
+par(mfrow = c(1,2))
+plot.prune(full.trees[["R"]][["R+S"]], cp = 0.0001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+ 
 cairo_pdf(here("Project_0","manuscript", paste0("R_mohns_rho_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
 x <- matrix(c(1,0,1,4,2,4,2,5,3,5,3,0), 2, 6)
 layout.x <- layout(x) 
 par(mar = c(0,0,5,0), oma = c(0,4,0,1))
-plot.prune(prune(full.trees[["R"]][["R"]], c(5,14,15)), cp = 0.0001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+plot.prune(prune(full.trees[["R"]][["R"]],c(14:15)), cp = 0.0001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
+#plot.prune(prune(full.trees[["R"]][["R"]], c(5,14,15)), cp = 0.0001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
 mtext("R OMs", side = 3, line = 0, cex = 2)
 plot.prune(prune(full.trees[["R"]][["R+S"]], c(11,29)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.2)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)

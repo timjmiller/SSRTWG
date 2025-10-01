@@ -1,11 +1,13 @@
 % Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
-%
 \documentclass[
   12pt,
 ]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
@@ -36,25 +38,21 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
-\usepackage{xcolor}
-\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
 % Set default figure placement to htbp
-\makeatletter
 \def\fps@figure{htbp}
 \makeatother
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{5}
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -88,6 +86,9 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \usepackage{url}
 \usepackage{setspace}
 %\singlespacing
@@ -185,9 +186,6 @@
 \usepackage[normalem]{ulem}
 \usepackage{makecell}
 \usepackage{xcolor}
-\ifLuaTeX
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
@@ -206,7 +204,7 @@ Hansell\textsuperscript{2} \and Christopher M.
 Legault\textsuperscript{2} \and Chengxue
 Li\textsuperscript{2} \and Brandon Muffley\textsuperscript{5} \and Brian
 C. Stock\textsuperscript{6} \and John Wiedenmann\textsuperscript{7}}
-\date{10 September, 2025}
+\date{30 September, 2025}
 
 \begin{document}
 \maketitle
@@ -236,24 +234,25 @@ convergence, retrospective patterns
 \addcontentsline{toc}{subsection}{Abstract}
 
 State-space models are increasingly used for stock assessment, and
-evaluations of their statistical reliability and best practices for
-selecting among process error configurations are needed. We simulated 72
-operating models that varied fishing pressure and observation error
-across process errors in recruitment, survival, selectivity,
-catchability, and/or natural mortality. We fit estimating models with
-different assumptions on the process error source and whether median
-natural mortality or a stock-recruit relationship were estimated.
-Estimating models without a stock-recruit relationship that assumed the
-correct process error source and median natural mortality had high
-convergence rates and low bias. Bias was also low under many incorrect
-process error assumptions when there was contrast in fishing pressure
-and low observation error. Marginal AIC most accurately distinguished
-process errors on recruitment, survival, and selectivity, and other
-process error sources when variability was greater. Retrospective
-patterns were generally small but were sizable for recruitment when
-observation error was high. These results help establish the statistical
-reliability of state space assessment models and pave the way for the
-next-generation of fisheries stock assessment.
+evaluations of statistical inferences made from them is needed. We
+simulated 72 operating models that varied fishing pressure and
+observation error across process errors in recruitment, apparent
+survival, selectivity, catchability, and/or natural mortality. We fit
+estimating models with different assumptions on the process error source
+and whether natural mortality and stock-recruit relationship were
+estimated. We measured reliability of estimating models by probability
+of convergence, accuracy of AIC for correct process error configuration
+and stock-recruit function, estimation bias, and magnitude of
+retrospective patterns. Across all measures reliability was generally
+better with lower observation error, contrast in fishing pressure over
+time, and median natural mortality rate known, but using marginal AIC to
+distinguishing the stock recruit relationship further required large
+contrast in spawning biomass and low residual variation in recruitment.
+Marginal AIC accurately distinguished process errors on recruitment,
+apparent survival, and selectivity. These results improve our
+understanding of when results from state space assessment models, the
+next-generation of fisheries stock assessment, can be expected to be
+reliable.
 
 \pagebreak
 
@@ -284,7 +283,7 @@ distributional assumptions, are one of the most complex examples of this
 analytical approach. Statistical aspects of state-space models and their
 application within fisheries have been studied extensively, but previous
 work has focused primarily on linear and Gaussian state-space models
-(Aeberhard et al. 2018; Auger-Méthé et al. 2021). Therefore, current
+(Aeberhard et al. 2018; {Auger-Méthé et al.} 2021). Therefore, current
 understanding of the reliability of state-space models does not extend
 to usage for stock assessment.
 
@@ -350,7 +349,7 @@ assumptions for sources of process error, whether a SRR was estimated,
 and whether natural mortality is estimated. Given the confounding nature
 of process errors, developing diagnostic tools to detect model
 misspecification is of great scientific interest and could aid the next
-generation of stock assessments (Auger-Méthé et al. 2021). We evaluate
+generation of stock assessments ({Auger-Méthé et al.} 2021). We evaluate
 whether convergence and Akaike Information Criterion (AIC) can correctly
 determine the source of process error and the existence of a SRR. We
 also evaluate when retrospective patterns occur and the degree of bias
@@ -602,13 +601,13 @@ EMs had matching process error assumptions as well as R+Sel, R+M, and
 R+q assumptions without autocorrelation. Similarly, For other OM process
 error categories, we fit EMs with matching process error assumptions as
 well as other process error types without autocorrelation. The maturity
-at age, weight at age for catch and SSB, and observation error variance
-of aggregate catch and indices were all assumed known at the true
-values. However, the variance parameters for the logistic-normal
-distributions for age composition observations were estimated in the
-EMs. As such, EMs would either be configured completely correctly for
-the OM, or there could be mis-specification in assumptions of process
-error autocorrelation, the type of process error, or the SRR
+at age, weight at age for catch and spawning stock biomass (SSB), and
+observation error variance of aggregate catch and indices were all
+assumed known at the true values. However, the variance parameters for
+the logistic-normal distributions for age composition observations were
+estimated in the EMs. As such, EMs would either be configured completely
+correctly for the OM, or there could be mis-specification in assumptions
+of process error autocorrelation, the type of process error, or the SRR
 (Beverton-Holt or none).
 
 \subsection*{Measures of reliability}\label{measures-of-reliability}
@@ -622,48 +621,43 @@ convergence when fitting each EM to the simulated data sets. There are
 various ways to assess convergence of the fit (e.g., Carvalho et al.
 2021; Kapur et al. 2025), but given the importance of estimates of
 uncertainty when using assessment models in management, we estimated
-probablity of convergence as measured by occurrence of a
+probability of convergence as measured by occurrence of a
 positive-definite hessian matrix at the optimized negative
-log-likelihood that could be inverted. We also provide results in the
-Supplementary Materials for the maximum of the absolute values among all
-gradients for all fits of a given EM to all simulated data sets from a
-given OM that produced hessian-based standard errors for all estimated
-fixed effects. This provides an indication of how poor the calculated
+log-likelihood that could be inverted (i.e., providing hessian-based
+standard error estimates). We also provide results in the Supplementary
+Materials for convergence defined by the maximum absolute gradient
+\textless{} \(1^{-6}\) and the maximum of the absolute gradient values
+for all fits of a given EM to all simulated data sets from a given OM
+that produced hessian-based standard errors for all estimated fixed
+effects. This provides an indication of how poor the calculated
 gradients can be, but still presumably converged adequately enough for
-parameter inferences. We used the Clopper-Pearson exact method for
-constructing 95\% confidence intervals of the probabilities of
-convergence (Clopper and Pearson 1934; Thulin 2014).
+parameter inferences.
 
 \subsubsection*{AIC for model selection}\label{aic-for-model-selection}
 \addcontentsline{toc}{subsubsection}{AIC for model selection}
 
-We estimated the probability of selection of each process error model
-structure (R, R+S, R+M, R+Sel, R+q) using marginal AIC. For a given
-operating model, we compared AIC for EMs that were all configured the
-same for median natural mortality (known or estimated) and the SRR
-(Beverton-Holt or none).
-
-We also estimated the probability of correctly selecting between EMs
-with Beverton-Holt SRR assumed and models without the SRR (null model).
-We made these comparisons between models that otherwise assumed the same
-process error structure as the operating model and both of the compared
-models either estimate median natural mortality or assume it is known.
+We investigated the reliability of AIC-based model selection for two
+purposes. First, we analyzed selection of each process error model
+structure (R, R+S, R+M, R+Sel, R+q) using marginal AIC. For a given OM
+simulated data set, we compared AIC for EMs with different process error
+assumption conditional on whether median natural mortality rate and the
+Beverton-Holt SRR were estimated. We tabulated the models providing the
+lowest AIC across simulated data sets. Second, we analyzed AIC-based
+selection between EMs with and without the Beverton-Holt SRR assumed.
 Contrast in fishing pressure and time series with recruitment at low
 stock size has been shown to improve estimation of SRR parameters
 (Magnusson and Hilborn 2007; Conn et al. 2010). Our preliminary
-inspections of the proportions of simulations where the correct
-recruitment model was chosen for a given set of OM factors (including
-contrast in fishing pressure) indicated generally poor performance of
-AIC. Therefore, we fit logistic regression models to the indicator of
-Beverton-Holt models having lower AIC as a function of the log-standard
-deviation of the true log(SSB) (similar to the log of the coefficient of
-variation for SSB) since simulations with realized SSB producing low and
-high recruitments would have larger variation in realized SSB.
+inspections indicated generally poor performance of AIC in determining
+the Beverton-Holt model for a given set of OM factors (including
+contrast in fishing pressure). Therefore, we also considered the effect
+of of the log-standard deviation of the true log(SSB) (similar to the
+log of the coefficient of variation for SSB) on model selection since
+simulations with realized SSB producing low and high recruitment would
+have larger variation in realized SSB.
 
-All model selection results condition only on whether all of the
-compared estimating models completed the optimization process without
-failure. We did not condition on convergence as defined by a gradient
-threshold or invertibity of the hessian because optimization could
+All model selection results condition only on completion of the
+optimization process without failure for all of the compared EMs. We did
+not condition on convergence as defined above because optimization could
 correctly determine an inappropriate process error assumption by
 estimating variance parameters at the lower bound of zero. Such an
 optimization could indicate poor convergence but the likelihood would be
@@ -676,59 +670,55 @@ summarized results.
 \subsubsection*{Bias}\label{bias}
 \addcontentsline{toc}{subsubsection}{Bias}
 
-For a given model attribute we calculated the relative error
-\begin{equation}\label{relerror}
+We also investigated bias in estimation of various model attributes as a
+measure of reliability. For a given model attribute we calculated the
+relative error \begin{equation}\label{relerror}
 \text{RE}\left(\theta_i\right) = \frac{\widehat \theta_i - \theta_i}{\theta_i}
 \end{equation} from fitting a given estimating model to simulated data
 set \(i\) configured for a given OM where \(\widehat \theta_i\) and
 \(\theta_i\) are the estimated and true values for simulation \(i\). We
-estimated bias as the median of the relative errors across all
-simulations for a given OM and EM combination. We constructed 95\%
-confidence intervals for the median relative bias using the binomial
-distribution approach as in Miller and Hyun (2018) and Stock and Miller
-(2021). We present results for bias in terminal year estimates of SSB
-and recruitment, Beverton-Holt stock recruit parameters (\(a\) and
-\(b\)), and median natural mortality rate. Results for terminal year
-fishing mortality were strongly negatively correlated with those for SSB
-and are provided in the Supplementary Materials.
+analyzed simulation results for estimates of terminal year estimates of
+SSB and recruitment, Beverton-Holt SRR parameters (\(a\) and \(b\)), and
+median natural mortality rate.
 
 \subsubsection*{\texorpdfstring{Mohn's
 \(\rho\)}{Mohn's \textbackslash rho}}\label{mohns-rho}
 \addcontentsline{toc}{subsubsection}{Mohn's \(\rho\)}
 
-We calculated Mohn's \(\rho\) for SSB, fishing mortality (averaged over
-all age classes), and recruitment for each EM (Mohn 1999). We fit
-\(P =7\) peels to each simulated data set and calculated Mohn's \(\rho\)
-for a given attribute \(\theta\) as \begin{equation}\label{mohns_rho}
+Finally, we investigated presence of retrospective patterns in fitted
+models as a measure of reliability. We calculated Mohn's \(\rho\) for
+SSB, fishing mortality (averaged over all age classes), and recruitment
+for each EM fit to each OM simulated data set (Mohn 1999). We fit
+\(P = 7\) peels to each simulated data set and calculated Mohn's
+\(\rho\) for a given attribute \(\theta\) as
+\begin{equation}\label{mohns_rho}
 \rho\left(\theta\right) = \frac{1}{P}\sum^P_{p=1} \frac{\widehat \theta_{Y-p,Y-p} - \widehat\theta_{Y-p,Y}}{\widehat\theta_{Y-p,Y}}
 \end{equation} where \(\widehat \theta_{i,j}\) is the estimate for
 attribute \(\theta\) in year \(i\) from a model fit using data up to
-year \(j\). For each EM we calculated median and 95\% confidence
-intervals using the same methods as that for relative bias.
+year \(j\).
 
 \subsubsection*{Summarizing results across OM and EM
 attributes}\label{summarizing-results-across-om-and-em-attributes}
 \addcontentsline{toc}{subsubsection}{Summarizing results across OM and
 EM attributes}
 
-The measures of central tendency and variability of of observed values
-for specific OM and EM attributes (e.g., low or high observation error)
-that we described above can indicate scenarios that provide better or
-poorer reliability. However, the OM and EM attributes that we
-investigated are numerous, so we used two methods to summarize the most
-important factors for differences in results. The first method was
-fitting regression models with the response being each of the measures
-of reliability described above and predictor variables were defined
-based on OM and EM characteristics (e.g., MacKinnon et al. 1995; Wang et
-al. 2017; Harwell et al. 2018). For the binary results for convergence
-and AIC-based selection of a stock-recruit relationship, we performed
-logistic regressions. For results for AIC-based selection of EM process
-error type (multiple categories) we performed multinomial regressions.
-For other measures of reliability we fit standard linear regression
-models. Because relative errors (Eq. \ref{relerror}) and Mohn's \(\rho\)
-for the various parameters are bounded below at -1, we used a
-transformation of these values
-\begin{equation}\label{bias_regression_response}
+The measures of central tendency and variability of observed values for
+specific OM and EM attributes (e.g., low or high observation error) that
+we described above can indicate scenarios that provide better or poorer
+reliability. However, the OM and EM attributes that we investigated are
+numerous, so we used two methods to summarize the most important factors
+for differences in results. The first method was fitting regression
+models with the response being each of the measures of reliability
+described above and predictor variables were defined based on OM and EM
+characteristics (e.g., MacKinnon et al. 1995; Wang et al. 2017; Harwell
+et al. 2018). For the binary indicators of convergence and AIC-based
+selection of a SRR, we performed logistic regressions. For indicators of
+AIC-based selection of EM process error type (multiple categories) we
+performed multinomial regressions. For other measures of reliability we
+fit linear regression models to transformed responses. Because relative
+errors (Eq. \ref{relerror}) and Mohn's \(\rho\) for the various
+parameters are bounded below at -1, we used a transformation of these
+values \begin{equation}\label{bias_regression_response}
 y_i = \log\left[f\left(\widehat \theta_i,\theta_i\right)+1\right]
 \end{equation} where \(f\) is either the relative error (Eq.
 \ref{relerror}) or Mohn's \(\rho\) (Eq. \ref{mohns_rho}) for simulation
@@ -754,7 +744,24 @@ the other measures with continuous scales (relative error and Mohn's
 \(\rho\)). The response variables were the same as the regressions for
 the deviance reduction analyses. We used the \verb|rpart| function in
 the rpart package (\url{https://cran.r-project.org/package=rpart}) to
-fit trees and, for clarity we pruned them to show the primary branches.
+fit trees. Full trees were determined using default settings except that
+we increased the number of cross-validations to 100. For clarity, we
+pruned the full trees to show just the primary branches.
+
+We also provide detailed results for all measures of reliability at each
+combination of OM and EM attributes in the Supplementary Materials. For
+confidence intervals of probability of convergence, we used the
+Clopper-Pearson exact method (Clopper and Pearson 1934; Thulin 2014).
+For AIC selection of process error configuration we provide estimates of
+the proportions of simulations where each EM type was selected. For AIC
+selection of the SRR, we provide predicted probabilities from logistic
+regressions as a function of SSB variability for each OM and EM type. We
+estimated bias as the median of the relative errors across all
+simulations for a given OM and EM combination. We constructed 95\%
+confidence intervals for the median relative bias, and Mohn's \(\rho\)
+using the binomial distribution approach as in Miller and Hyun (2018)
+and Stock and Miller (2021). For each EM we calculated median and 95\%
+confidence intervals using the same methods as that for relative bias.
 
 \section*{Results}\label{results}
 \addcontentsline{toc}{section}{Results}
@@ -762,432 +769,229 @@ fit trees and, for clarity we pruned them to show the primary branches.
 \subsection*{Convergence performance}\label{convergence-performance}
 \addcontentsline{toc}{subsection}{Convergence performance}
 
-\subsubsection*{Deviance reduction and classification
-trees}\label{deviance-reduction-and-classification-trees}
-\addcontentsline{toc}{subsubsection}{Deviance reduction and
-classification trees}
+For probability of convergence, EM process error assumption was the
+single attribute that resulted in the largest percent reduction in
+deviance (14-28\%) for all OM process error types other than R+S OMs
+where the EM M assumption explained the most residual deviance
+(\textgreater11\%; Table \ref{convergence_PRD_table}). However,
+including interactions of OM and EM factors also provided large
+reductions in residual deviance (35-47\%), suggesting successful
+convergence depended on a combination OM and EM attributes.
 
-EM process error assumption was the single attribute that resulted in
-the largest percent reduction in deviance for all OM process error types
-other than R+S OMs where the EM M assumption explained the most residual
-deviance (Table \ref{convergence_PRD_table}). However, also including
-interactions of OM and EM factors also provided large reductions in
-residual deviance, suggesting successful convergence depended on a
-combination OM and EM attributes. Classification trees for each OM
-process error type, all had the primary branch defined using the same
-attribute that provided the largest reduction in deviance (Figure
-\ref{conv_class}).
+Classification trees for each OM process error type, all had the primary
+branch defined using the same attribute that provided the largest
+reduction in deviance (Figure \ref{conv_class}). EMs that assumed R+S
+process errors converged poorly for all OMs that were simulated with the
+alternative process error assumptions (R, R+M, R+Sel, an R+q OMs). For
+all trees, branches based on the OM fishing mortality history showed
+better convergence when the OM included a change in fishing pressure.
+Branches based on whether the Beverton-Holt SRR was assumed or not,
+showed better convergence when it was not estimated and branches based
+on whether the EM estimated the median natural mortality rate showed
+better convergence when it was treated as known. For certain R+M and
+R+Sel OMs, better convergence was also observed when there was lower
+observation uncertainty.
 
-Generally, the factors defining primary splits for the trees
-corresponded to those with the largest reductions in deviance fitting
-the regression models.
+When convergence is defined by a gradient threshold, the primary factor
+explaining deviance reduction is the same for all OM process error
+types, but there are some differences in deviance reduction for
+secondary factors (Table \ref{convergence_gradient_PRD_table}), and
+probability of convergence, overall, was lower (Figure
+\ref{conv_gradient_class}). We found a wide range of maximum absolute
+values of gradients for models that had invertible Hessians (Figure
+\ref{hess_grad}). The largest value observed for a given EM and OM
+combination was typically \(<10^{-3}\), but many converged models had
+values greater than 1. For many OMs, EMs that assumed the correct
+process error type and did not estimate median natural mortality or the
+Beverton-Holt SRR produced the lowest gradient values.
 
-\subsubsection*{Full results}\label{full-results}
-\addcontentsline{toc}{subsubsection}{Full results}
+\subsection*{AIC performance}\label{aic-performance}
+\addcontentsline{toc}{subsection}{AIC performance}
 
-For many R and R+S OMs, convergence rate declined when either the median
-natural mortality rate or the Beverton-Holt SRR was estimated even when
-the process error assumptions of the EMs and OMs matched (Figure
-\ref{hessian_SE_convergence}, A). When there was high observation error
-and constant fishing pressure (\(F = F_{\text{MSY}}\) for all 40 years),
-convergence was poor for of all EM process error configurations other
-than R EMs when fitted to R OMs (\(\sigma_{2+} = 0\)) regardless of
-whether median natural mortality and SRRs were estimated. Convergence of
-R EMs was high for all R and R+S OMs except when there was high
-observation error and constant fishing pressure, and when median natural
-mortality and SRRs were estimated. R+S EMs fit to R OMs exhibited poor
-convergence regardless of whether natural mortality or a SRR was
-estimated. R+S EMs fit to R+S OMs had highest convergence rates when
-there was contrast in fishing pressure and low observation error.
-Convergence rates were high for all EMs when fit to data from R+S OMs
-with lower observation error except those where median natural mortality
-and/or SRRs were estimated.
+\subsubsection*{Process error structure}\label{process-error-structure}
+\addcontentsline{toc}{subsubsection}{Process error structure}
 
-Convergence of all EMs fitted to R+M OMs was highest when the OMs had
-higher natural mortality process error variability, low observation
-error, and contrast in fishing pressure (Figure
-\ref{hessian_SE_convergence}, B). R+M EMs that estimated autocorrelation
-of process errors had poor convergence for R+M OMs when there was low
-natural mortality process error variability regardless of
-autocorrelation of the simulated process errors. R+S EMs fitted to data
-generated from R+M OMs always converged poorly whether or not median
-natural mortality and the Beverton-Holt SRR were estimated.
+For AIC selection of the correct process error configuration, the
+magnitude of observation and process error were the attributes that
+resulted in the largest percent reductions in deviance across OM process
+error types other than R OMs (Table \ref{AIC_PE_PRD_table}). Both
+variance of apparent survival random effects (\(\sigma_{2+}\)) and
+degree of observation error explained the largest reductions for R+S
+(17-22\%) and R+Sel (8-26\%) OMs, whereas variance of process errors
+provided the largest reductions in R+M (\textgreater9\%) and R+q
+(\textgreater13\%) OMs. Comparatively, none of the OM or EM attributes
+explained particularly large reductions in deviance for R OMs, but
+fishing history, whether a SRR was estimated, and whether median natural
+mortality was known or estimated provided similar and the largest
+reductions (approximately 5-6\%). Inclusion of second and third order
+interactions, did not provide large reductions in deviance for any of
+the OM process error types.
 
-The R+S EMs, in particular, had poor convergence when fit to data
-generated from R+Sel OMs with lower selectivity process error
-variability or higher observation error (Figure
-\ref{hessian_SE_convergence}, C). R+Sel EMs generally converged better
-than other EMs for R+Sel OMs with higher process error variability,
-lower observation error, and contrast in fishing pressure regardless of
-whether median natural mortality or a SRR was estimated.
+For all OM process error types other than R OMs, the attributes defining
+the primary branches of classification trees matched those that provided
+the largest reductions in deviance (Figure \ref{AIC_PE_class}). Across
+all OMs, AIC was more accurate for the process error type when process
+error variability was greater and when observation error was lower. No
+branches were estimated for classification trees fit to the R OMs,
+likely because accuracy was high across all simulations (0.94), although
+inspection of the fine-scale results shows there is some degradation in
+AIC selection when a SRR and median natural mortality rate are estimated
+for R OMs with constant fishing pressure and high observation error
+(Figure \ref{pe_aic}, top left).
 
-For R+q OMs, convergence of R+q EMs was generally better than that of
-other EMs when there was contrast in fishing pressure (Figure
-(\ref{hessian_SE_convergence}, D). Convergence of R+S EMs was generally
-worse than that of all other EMs across all OMs whether or not median
-natural mortality or a SRR was estimated. Again, convergence probability
-generally declined for all EMs when median natural mortality or a SRR
-was estimated.
+\subsubsection*{Stock-recruit
+relationship}\label{stock-recruit-relationship}
+\addcontentsline{toc}{subsubsection}{Stock-recruit relationship}
 
-We found a wide range of maximum absolute values of gradients for models
-that converged (Figure \ref{hess_grad}). The largest value observed for
-a given EM and OM combination was typically \(<10^{-3}\), but many
-converged models had values greater than 1. For many OMs, EMs that
-assumed the correct process error type and did not estimate median
-natural mortality or the Beverton-Holt SRR produced the lowest gradient
-values.
+Logistic regressions for AIC selection of the Beverton-Holt SRR, showed
+OM fishing history and variation in SSB
+(\(\log \text{SD}_{\text{SSB}}\)) provided substantial reductions in
+deviance for R+M (\textgreater13\%), R+Sel (\textgreater26\%), and R+q
+(\textgreater24\%) OMs (Table \ref{AIC_SRR_PRD_table}). For R OMs,
+fishing history provided the largest reduction in deviance
+(\textgreater9\%) whereas none of the attributes individually provided
+large reductions in deviance for R+S OMs (all \textless5\%). However,
+inclusion of all attributes provided larger reductions in deviance than
+the sum of individual contributions for both R (\textgreater30\%) and
+R+S (\textgreater18\%) OMs. For all OM process error types, inclusion of
+interaction terms provided relatively little reduction in residual
+deviance.
 
-\subsection*{AIC performance for process error
-structure}\label{aic-performance-for-process-error-structure}
-\addcontentsline{toc}{subsection}{AIC performance for process error
-structure}
-
-\subsubsection*{Deviance reduction and classification
-trees}\label{deviance-reduction-and-classification-trees-1}
-\addcontentsline{toc}{subsubsection}{Deviance reduction and
-classification trees}
-
-\subsubsection*{Full results}\label{full-results-1}
-\addcontentsline{toc}{subsubsection}{Full results}
-
-Marginal AIC accurately determined the correct process error assumptions
-in EMs when data were generated from R and R+S OMs, regardless of
-whether median natural mortality or a SRR was estimated (Figure
-\ref{pe_aic}, A). Attempting to estimate median natural mortality or a
-SRR separately had a negligible effect on the accuracy of determining
-the correct process error assumption. When both were estimated, there
-was a noticeable reduction in accuracy when OMs had a constant fishing
-pressure, low observation error, and larger variability in recruitment
-process errors.
-
-For R+M OMs, marginal AIC only accurately determined the correct process
-error model and correlation structure when observation error was low and
-variability in natural mortality process errors was high (Figures
-\ref{pe_aic}, B). Of these OMs, estimating the median natural mortality
-rate only reduced the accuracy of AIC when natural mortality process
-errors were independent and fishing pressure was constant. For OMs with
-poor model selection accuracy, AIC most frequently selected EMs with
-process errors in catchability (R+q) or selectivity (R+Sel). Selection
-of R+S EMs was generally unlikely.
-
-Marginal AIC most accurately determined the correct source of process
-error and correlation structure for R+Sel OMs with low observation error
-(Figures \ref{pe_aic}, C). When there was low variability in selectivity
-process errors and high observation error, R+q or R+S EMs were more
-likely to have the best AIC. Whether median natural morality or SRRs
-were estimated appeared to have little effect on the performance of AIC.
-
-Marginal AIC most accurately determined the correct source of process
-error and correlation structure for R+q OMs with high variability in
-catchability process errors (Figures \ref{pe_aic},D). The R+q OMs with
-low variability in catchability process errors and high observation
-error had the least model selection accuracy. However, for these OMs,
-the marginal AIC accurately determined the correct source of process
-error (but not correlation structure) except when OMs assumed a constant
-fishing pressure and EMs estimated both median natural morality and the
-SRR.
-
-\subsection*{AIC performance for the stock-recruit
-relationship}\label{aic-performance-for-the-stock-recruit-relationship}
-\addcontentsline{toc}{subsection}{AIC performance for the stock-recruit
-relationship}
-
-\subsubsection*{Deviance reduction and classification
-trees}\label{deviance-reduction-and-classification-trees-2}
-\addcontentsline{toc}{subsubsection}{Deviance reduction and
-classification trees}
-
-\subsubsection*{Full results}\label{full-results-2}
-\addcontentsline{toc}{subsubsection}{Full results}
-
-Our comparisons of model performance conditioned on assuming the true
-process error configuration is known (EM and OM process error types
-match) and we focus on results where the EMs assume median natural
-mortality is known because there was little difference in results when
-the EMs estimated this parameter. Broadly, we found generally poor
-accuracy of AIC in selecting models assuming a Beverton-Holt SRR over
-the null model without an SRR for all OMs. However, we also found
-increased accuracy of AIC in determining the Beverton-Holt SRR when the
-simulated population exhibited greater variation in spawning biomass for
-nearly every OM (Figure \ref{sr_aic}).
-
-With R and R+S process error assumptions, probability of lowest AIC for
-the B-H SRR as a function of SSB variability were greatest for OMs with
-contrast in fishing pressure and lower process variability in
-recruitment (Figure \ref{sr_aic}, A). The largest variation in SSB
-occurred in OMs with larger recruitment variability (\(\sigma_R = 1.5\);
-Figure \ref{sr_aic}, A, right column group), but the same high AIC
-accuracy was achieved for OMs with lower recruitment variability at
-lower levels of SSB variation. The level of observation error had little
-effect on AIC accuracy.
-
-For R+M OMs, probability of lowest AIC for the Beverton-Holt SRR
-increased steeply with variation in SSB whether it was induced by
-contrast in fishing or variation in natural mortality process error.
-(Figure \ref{sr_aic}, B). There was little difference in AIC accuracy
-whether the natural mortality process errors were correleted and,
-similar to R+S OMs, there was also little effect due to level of
-observation error.
-
-For R+Sel OMs, contrast in fishing pressure over time was the primary
-source of variation in SSB and these are the OMs where AIC accuracy for
-the Beverton-Holt SRR was greatest (Figure \ref{sr_aic}, C). There was
-little effect of variability or correlation of selectivity process
-errors or the level of observation error on AIC accuracy.
-
-Like the R+Sel OMs, the greatest accuracy for AIC in selecting the
-Beverton-Holt SRR occurred for R+q OMs where there was contrast in
-fishing pressure over time which is also where there was the greatest
-variation in SSB (Figure \ref{sr_aic}, D). There was also little effect
-of variability or correlation of catchability process errors or the
-level of observation error on AIC accuracy.
+Attributes defining the primary branches of classification trees for AIC
+selection of the SRR assumption were the same as those explaining the
+largest reductions in deviance for the logistic regression models
+(Figure \ref{AIC_SRR_class}). All branches based on variation in SSB
+showed better accuracy with larger variability in SSB and all branches
+based on fishing history showed better accuracy when there was contrast
+in fishing pressure. Branched based on OM observation error or
+recruitment variability showed better accuracy when they were lower. For
+R OMs, a combination of lower recruitment variability, contrast in
+fishing pressure, and higher SSB variability produced AIC accuracy over
+0.8. For R+S OMs, lower recruitment variability and observation error
+and higher SSB variability produced AIC accuracy of 0.79. For R+M,
+R+Sel, and R+q OM,s accuracy of 0.87 to 0.94 was observed just with
+higher SSB variability.
 
 \subsection*{Bias}\label{bias-1}
 \addcontentsline{toc}{subsection}{Bias}
 
-\subsubsection*{Deviance reduction and regression
-trees}\label{deviance-reduction-and-regression-trees}
-\addcontentsline{toc}{subsubsection}{Deviance reduction and regression
-trees}
+\subsubsection*{Terminal year spawning stock biomass, fishing mortality,
+and
+recruitment}\label{terminal-year-spawning-stock-biomass-fishing-mortality-and-recruitment}
+\addcontentsline{toc}{subsubsection}{Terminal year spawning stock
+biomass, fishing mortality, and recruitment}
 
-Across all OM process error types, fishing history was the most
-important single factor in reducing residual deviation in log-scale
-errors for the Beverton-Holt density-independent parameter \(a\), and
-also for the density-independent parameter \(b\) for R+M, R+Sel, and R+q
-OMs (Table \ref{bias_SR_pars_PRD_table}). For R and R+S OMs the EM
-process error assumption was equally important for estimating \(b\), but
-the the reductions were small (mostly less than 4\%) for any factor and
-any OM process error type. There was also no substantial reduction in
-deviance with second or third order interactions of factors for either
-parameter in any OM process error types.
+Regression models for log-scale errors in SSB that included the various
+OM and EM factors showed little reduction in deviance (\textless5\%) for
+any of the factors across all OM process error types (Table
+\ref{bias_SSB_PRD_table}). The attributes producing the largest
+reductions were the EM assumption for median natural mortality (known or
+estimated) for R, R+M, R+Sel, and R+q OMs (1-3\%), EM process error type
+for R+S OMs (4\%) and fishing history for all OM types (1-5\%).
+Including second interactions provided largest reductions in residual
+deviance (10- 26\%). Including third order interactions also provided
+large further reductions for R, R+S, and R+q OMs (between 5 and 11\%).
+In all regression trees, branches based on fishing history and level of
+observation error generally showed lower bias in SSB with contrast in
+fishing and lower observation error (Figure \ref{SSB_bias_regtree}). For
+branches based on treatment of median natural mortality rate, bias was
+generally lower when it was known rather than estimated. For some R+Sel
+and R+q OMs, less bias in SSB was shown when the EM process error
+configuration was correct.
 
-The regression trees indicate that having contrast in fishing pressure
-reduced the median error for both SR parameters for all OM types
+Results for bias in fishing mortality and recruitment generally matched
+those for SSB, except that directions of bias for fishing mortality were
+opposite to those for SSB and recruitment. Effects of individual OM and
+EM factors on regression models were similarly small as measured by
+reduction in deviance (Tables \ref{bias_F_PRD_table} and
+\ref{bias_R_PRD_table}). Primary branches of regression trees were in
+most cases identical to those for SSB (Figures \ref{F_bias_regtree} and
+\ref{R_bias_regtree}).
 
-We observed different effects of factors on deviance reduction for
-errors in estimation of the two Beverton-Holt stock-recruit parameters.
-When analyses were For bias of the density-dependent parameter \(b\) as
-measured by the log absolute value of log-scale errors, deviance was not
-reduced by any of the individual OM or EM factors except for variation
-in recruitment \(\sigma_R\) for R and R+S OMs. However, second and(or)
-third order interactions of the OM and EM factors also provided large
-reductions in deviance for all OM process error types which indicated
-that some combinations of factors could reduce bias for the \(b\)
-parameter. Despite the explanation variation in the \(b\) estimation
-erorrs, bias was still significant regardless of the combination of OM
-and EM factors (Figures regtrees and full results).
+\subsubsection*{Stock-recruit
+parameters}\label{stock-recruit-parameters}
+\addcontentsline{toc}{subsubsection}{Stock-recruit parameters}
 
-Median natural mortality rate showed reductions in deviance for R, R+S,
-and R+M OMs with second order interactions and R+M also showed
-reductions with third order interactions.
+Regression models for transformed relative errors of estimates of both
+the Beverton-Holt \(a\) and \(b\) parameters showed none of the factors
+explained large percent reductions in deviance (Table
+\ref{bias_SR_pars_PRD_table}). The OM fishing history provided the
+largest reduction for most OM process error types for both parameters,
+but percent reductions were less than 5.6\% except for R+Sel OMs where
+the percent reductions were 11.37\% and 7.97\% for the \(a\) and \(b\)
+parameters, respectively and for just the \(b\) parameter for R+q OMs
+(10\%). The EM process error assumption provided similar reductions in
+deviance for both parameters for R OMs. Including interactions also did
+not produce important reductions in deviance (increase of .
 
-\subsubsection*{Full results}\label{full-results-3}
-\addcontentsline{toc}{subsubsection}{Full results}
-
-\paragraph*{Spawning stock biomass}\label{spawning-stock-biomass}
-\addcontentsline{toc}{paragraph}{Spawning stock biomass}
-
-For R OMs (\(\sigma_{2+} = 0\)), there was no indication of bias (95\%
-confidence intervals included 0) in terminal year SSB for any of the
-estimating models regardless of process error assumptions, except when
-no SR assumption was made, recruitment variability was low, and there
-was contrast in fishing mortality and high observation error (Figure
-\ref{SSB_rel_error}, A). However, errors in terminal SSB estimates were
-highly variable when median natural mortality was estimated and there
-was constant fishing pressure and high observation error (Figure
-\ref{SSB_rel_error}, A, second row).
-
-For R+S OMs, the EMs with matching process error assumptions generally
-produced unbiased estimation of terminal SSB except when median natural
-mortality was estimated and there was high observation error. In R+S OMs
-with low observation error, EMs with incorrect process error assumptions
-typically provided biased estimation of terminal year SSB. Estimating
-the Beverton-Holt SRR had little discernible effect on bias of terminal
-year SSB estimation whereas estimating median M tended to produce more
-variability in errors in terminal SSB estimation similar to R OMs.
-
-For R+ M OMs with low variability in natural mortality process errors,
-low observation error and contrast in fishing motality over time all EMs
-produced low variability in SSB estimation error that indicated
-unbiasedness (Figure \ref{SSB_rel_error}, B, third row). However, larger
-variability in natural mortality process errors increased bias of EMs
-without the correct process error type. Estimating median natural
-mortality increased variability of SSB estimation error particularly for
-OMs with high observation error and constant fishing pressure over time.
-It also increased bias in SSB estimation for many R+M OMs. Like R and
-R+S OMs, estimating a SRR had little discernible effect on SSB bias.
-
-For R+Sel OMs, there was no evidence of bias for any EMs when
-variability in selectivity process error and observation error was low,
-and with contrast in fishing mortality (Figure \ref{SSB_rel_error}, C).
-The largest bias occurred for any EMs that estimated median natural
-mortality when the OMs had high observation error, constant fishing
-pressure, and greater variability in selectivity process errors
-(\(\sigma_{\text{Sel}} = 0.5\)) or low selectivity process errors
-(\(\sigma_{\text{Sel}} = 0.1\)) and low observation error. However,
-there was no evidence of SSB bias for correctly specified R+Sel EMs when
-observation error was low and variation in selectivity process errors
-was larger, whether median natural mortality was estimated or not
-(Figure \ref{SSB_rel_error}, C, third row). We only observed an effect
-of estimating the Beverton-Holt SRR for R+Sel OMs that had high
-observation error and contrast in fishing pressure where estimating the
-SRR produced less biased SSB estimation for many EMs (Figure
-\ref{SSB_rel_error}, C, top row).
-
-All EMs fit to data from R+q OMs with low observation error and contrast
-in fishing pressure exhibited little evidence of bias in terminal SSB
-estimation except for R+M EMs when there was no AR1 correlation in
-catchability process errors (Figure \ref{SSB_rel_error}, D). Many EMs
-also performed well in R+q OMs with low observation error, but no
-contrast in fishing pressure. For R+q OMs with high observation error
-and contrast in fishing pressure, EMs that estimated the Beverton-Holt
-SRR exhibited less SSB bias than those that did not. Estimating median
-natural mortality in the EMs only resulted in much more variable SSB
-estimation errors when there was no contrast in fishing pressure (Figure
-\ref{SSB_rel_error}, D, first and third rows).
-
-For all OM process error types, relative errors in terminal year
-recruitment were generally more variable than SSB, but effects of R and
-R+S OM and EM attributes on bias (i.e, negative or positive or none)
-were similar (Figure \ref{R_rel_error}, A). Furthermore, for EM
-configurations where bias in terminal SSB was evident, median relative
-errors in recruitment often indicated stronger bias in recruitment of
-the same sign.
-
-\subsubsection*{Beverton-Holt
-parameters}\label{beverton-holt-parameters}
-\addcontentsline{toc}{subsubsection}{Beverton-Holt parameters}
-
-Across all OMs, there was generally less bias and(or) lower variability
-in estimation of the Beverton Holt \(a\) parameter than the \(b\)
-parameter. In R and R+S OMs, EMs with the correct assumptions about
-process errors provided the least biased estimation of Beverton-Holt SRR
-parameters when there was a change in fishing pressure over time and
-lower variability of recruitment process errors, but there was little
-effect of estimating median natural mortality and a small increase in
-bias for those OMs that had high observation error (Figure
-\ref{SR_rel_error}, A). For other R and R+S OMs, estimating natural
-mortality often resulted in less biased estimation of SRR parameters.
-There was generally large variability in relative errors of the SRR
-parameter estimates, but the lowest variability occurred with low
-variability in recruitment and little or no variability in survival
-process errors (\(\sigma_{2+} \in \{0,0.25\}\)), and contrast in fishing
-pressure.
-
-In R+M OMs, the most accurate estimation of SRR parameters for all EM
-process error assumptions occurred when there was a change in fishing
-pressure, greater variability in natural mortality process errors, and
-lower observation error (Figure \ref{SR_rel_error}, B). Relative to the
-R, and R+S OMs, there was even less effect of estimating median natural
-mortality on estimation bias for the SRR parameters.
-
-Bias for SRR parameters was large and variability in relative errors was
-greatest for most EMs fit to R+Sel OMs with constant fishing pressure
-(Figure \ref{SR_rel_error}, C). Less bias in parameter estimation
-occurred for OMs with a change in fishing pressure and the best accuracy
-occurred for those OMs that had low observation error and more variable
-and uncorrelated selectivity process errors, and when the EMs had with
-the correct process error assumption. There was little effect of
-estimating natural mortality on relative errors for SRR parameters.
-
-Like R+Sel OMs, relative errors in SRR parameters for R+q OMs were more
-accurate for most EM process error types when OMs had contrast in
-fishing pressure and lower observation error (Figure \ref{SR_rel_error},
-D). However, the best accuracy occurred for those OMs that had lower
-variability in catchability process errors. The worst accuracy of SRR
-parameter estimation regardless of EM type occurred when R+q OMs had low
-observation error and constant fishing pressure (Figure
-\ref{SR_rel_error}, D, fourth row).
+For regression trees of log-scale error in Beverton-Holt \(a\) and \(b\)
+parameters, lower bias was indicated with contrast in OM fishing
+pressure for all branches in trees for each OM process error type
+(Figures \ref{SR_a_bias_regtree} and \ref{SR_b_bias_regtree}). For all
+branches based on recruitment variability in trees for R and R+S OMs,
+lower bias in both \(a\) and \(b\) was observed with less recruitment
+variability. For R OMs with contrast in fishing pressure and greater
+recruitment variability EMs that assumed the incorrect R+M process
+errors produced lower bias in both \(a\) and \(b\) than other process
+error assumptions. Across all OMs, there was generally less bias and(or)
+lower variability in estimation of the \(a\) parameter than the \(b\)
+parameter (Figure \ref{SR_rel_error}).
 
 \subsubsection*{Median natural mortality
 rate}\label{median-natural-mortality-rate}
 \addcontentsline{toc}{subsubsection}{Median natural mortality rate}
 
-Across all OMs and EMs there was little effect of estimating SRRs on the
-bias in estimation of median natural mortality (Figure
-\ref{M_rel_error}). Median natural mortality rate was estimated
-accurately by all EM process error types for all R OMs except those with
-high observation error and constant fishing pressure, in which case
-relative errors were high (Figure \ref{M_rel_error}, A,
-\(\sigma_{2+} = 0\)). For R+S OMs estimation of median natural mortality
-rate was most accurate when observation error was low and there was
-contrast in fishing pressure and the EM process error type was correct.
+Fitted regression models for log-scale errors in median natural
+mortality rate showed largest percent reductions in residual deviance
+for R+S and R\_M models (Table \ref{bias_median_M_PRD_table}). The
+largest reductions for a single attribute was the EM process error
+assumption (\textgreater20\%) and fishing history (\textgreater15\%) for
+R+S OMs. Fishing history also provided \textgreater10\% reduction for
+R+M OMs, but reductions for all factors in R, R+Sel, and R+q OMs were
+relatively low (\textless6\%). Interactions of OM and EM factors also
+provided substantial further reductions for R+S and R+M OMs (between 8
+and 15 \% for second order interactions).
 
-For R+M OMs, median natural mortality was estimated most accurately,
-regardless of EM process error type, when OMs had a change in fishing
-pressure and low observation error (Figure \ref{M_rel_error}, B).
-However, those R+M OMs that also had greatest variability in AR1
-correlated natural mortality process errors only had unbiased estimation
-when the EM process error type was correct.
-
-All EM process error types accurately estimated median natural mortality
-rate for R+Sel OMs that had contrast in fishing pressure, low
-observation error, and low selectivity process error variability (Figure
-\ref{M_rel_error}, C). When selectivity process error variability
-increased, the incorrect EM process errors produce more biased
-estimation of median natural mortality rate. The least accurate
-estimation occurred for all EM process error types when observation
-error was high and fishing pressure was constant.
-
-Like R+Sel OMs, all EM process error types produced accurate estimation
-of median natural mortality rate when fit to R+q OMs with contrast in
-fishing pressure, low observation error and low catchability process
-error variability (Figure \ref{M_rel_error}, D). Most EM process error
-types produced biased estimation of median natural mortality when R+q
-OMs had high observaiton error and constant fishing pressure.
+Regression trees with branches based on fishing history showed lower
+bias in median natural mortality rate with contrast in fishing pressure
+and branches based on level of observation error showed lower bias with
+more precise observations (Figure \ref{med_M_bias_regtree}). For R OMs,
+branches based on EM process error assumption showed lower bias with EMs
+assuming the correct R and the incorrect R+S assumption. For R+S and R+M
+OMs, branches based on EM process error showed only the correct EM
+process error assumption with less bias.
 
 \subsection*{\texorpdfstring{Mohn's
 \(\rho\)}{Mohn's \textbackslash rho}}\label{mohns-rho-1}
 \addcontentsline{toc}{subsection}{Mohn's \(\rho\)}
 
-\subsubsection*{Deviance reduction and regression
-trees}\label{deviance-reduction-and-regression-trees-1}
-\addcontentsline{toc}{subsubsection}{Deviance reduction and regression
-trees}
+Regression models for Mohn's \(\rho\) of SSB showed little reduction in
+deviance for any of the OM an EM attributes (\textless2\%; Table
+\ref{mohns_rho_SSB_PRD_table}). The lack of explanatory power is also
+reflected in the regression trees where median Mohn's \(\rho\) values
+are near zero unless a large combinations of OM and EM conditions occur
+(Figure \ref{SSB_mohns_rho_regtree}). For example, In R+S OMs, with
+constant fishing pressure, high observation error, and higher apparent
+survival process error, EMs that assume R+M process errors have a median
+Mohn's \(\rho = -0.068\).
 
-Fits of glms showed little explanatory power of any of the OM an EM
-attributes for Mohn's rho for SSB, F, and R. Note that the factors that
-showed the largest reductions in deviance (which were very small) often
-do not comport with factors that show differences in median Mohn's rho
-results. This is because the glms and regression trees are reducing
-residual variance and there could be large variability in values, but
-the medians are less sensitive to extreme values. For example we can see
-that there is large Mohn's rho for R in R OMs with larger variability
-assumed in recruitment and higher observation error (Figure X), but
-these factors suggest little reduction in residual deviance (Table X).
-
-\subsubsection*{Full results}\label{full-results-4}
-\addcontentsline{toc}{subsubsection}{Full results}
-
-Mohn's \(\rho\) for SSB was small in absolute value for all R and R+S
-OMs, regardless of EM process error types, and whether median natural
-mortality rate or SRRs were estimated (Figure \ref{mohns_rho_ssb}, A).
-The strongest retrospective patterns (highest absolute Mohn's \(\rho\)
-values) occurred in OMs with the largest apparent survival process error
-variability, high observation error, and contrast in fishing pressure,
-but only for EMs with the incorrect process error type and where median
-natural mortality rate was assumed known (median \(\rho\) was
-approximately -0.15). For R+M, R+Sel, and R+q OMs, Mohn's \(\rho\) was
-also small in absolute value, but median values were all closer to 0
-than the largest values in the R and R+S OMs (Figure
-\ref{mohns_rho_ssb},B-D). For these OMs, there was no noticeable effect
-of estimation of median natural mortality rate or SRRs on Mohn's
-\(\rho\) for any EM process error types.
-
-Mohn's \(\rho\) for recruitment was small in absolute value for all R
-OMs with low variability in recruitment process errors, regardless of EM
-process error type, and whether median natural mortality rate or SRRs
-were estimated (Figure \ref{mohns_rho_R}, A). However, R and R+S OMs
-with greater recruitment process variability and higher observation
-error had median Mohn's \(\rho\) for recruitment greater than zero for
-most EMs even when the EM process error type was correct. In R+S OMs
-with lower observation error, EMs with the correct process error type
-exhibited better median Mohn's \(\rho\) close to 0 than EMs with the
-incorrect process error type. For R+M, R+Sel, and R+q OMs, results for
-Mohn's \(\rho\) for recruitment are similar to those for SSB, but the
-range in median values and variation in Mohn's \(\rho\) values for a
-given OM are generally larger for recruitment (Figure \ref{mohns_rho_R},
-B-D).
+Similarly poor explanatory power of the OM and EM attributes occured
+when we fit regression models for Mohn's \(\rho\) of fishing mortality
+and recruitment (Tables \ref{mohns_rho_F_PRD_table} and
+\ref{mohns_rho_R_PRD_table}). Regression trees for Mohn's \(\rho\) of
+fishing mortality were similar to those for SSB in that median values of
+Mohn's \(\rho\) were close to zero for most combinations of OM and EM
+attributes (Figure \ref{F_mohns_rho_regtree}). However, we observed
+median Mohn's \(\rho\) for recruitment greater than 0.1 at branches much
+closer to the base of the trees with fewer interactions of the OM and EM
+attributes (Figure \ref{R_mohns_rho_regtree}). These branches with
+consistently large retrospective patterns were typically defined by
+larger OM observation error, OM constant fishing pressure, or incorrect
+EM process error configuration. Comparing regression model and
+regression tree fits, attributes defining the primary branches for all
+regression trees of all Mohn's \(\rho\) values (SSB, fishing mortality,
+and recruitment) generally matched those that explained the largest
+reductions in deviance.
 
 \section*{Discussion}\label{discussion}
 \addcontentsline{toc}{section}{Discussion}
@@ -1207,7 +1011,7 @@ Hessian of the optimized likelihood for invertibility (Carvalho et al.
 2018) and some thresholds would exclude models that in fact have an
 invertible Hessian. We found the Hessian at the optimized log-likelihood
 can often be invertible when the maximum absolute gradient was much
-larger than what would perceived to be a sensible threshold.
+larger than what might be perceived to be a sensible threshold.
 
 Li et al. (2024) found that convergence rate could be a useful
 diagnostic especially for separating the correct model from overly
@@ -1251,8 +1055,8 @@ TMB::checkConsistency) to check the validity of the Laplace
 approximation and the utility of this as a diagnostic for state-space
 assessment models should be explored further. Furthermore, numerical
 methods are used to calculate and invert the Hessian for variance
-estimation for models with random effects. Along with our results, the
-potential lack of accuracy imposed by these approximations, suggests at
+estimation for models with random effects. Our results, along with the
+potential lack of accuracy imposed by these approximations, suggest at
 least investigating whether the Hessian is positive definite when the
 calculated absolute gradients are not terribly large (e.g, \(< 1\)).
 
@@ -1290,7 +1094,7 @@ comparison of models that are fit to raw and independent observations,
 here we are comparing state-space models which account for observation
 error and estimate process errors in latent variables.
 
-Our results comport with those of de Valpine and Hastings (2002) who
+Our results comport with those of {de Valpine and Hastings} (2002) who
 found AIC could not distinguish among state-space SRRs that were fit
 just to SSB and recruitment observations (i.e., not an assessment
 model). Similarly, Britten et al. (In review) found AIC could not
@@ -1355,7 +1159,7 @@ toward the end of the time series (Legault 2009; Miller and Legault
 process errors changing over time may have trends in particular
 simulations, particularly when strong autocorrelation is imposed, but
 the random effects have no trend on average across simulations.
-Szuwalski et al. (2018) and lietal24 also found relatively small
+Szuwalski et al. (2018) and Li et al. (2024) also found relatively small
 retrospective patterns when the source of mis-specification was temporal
 variation in demography attributes. Indeed, it is common for the
 flexibility provided by temporal random effects to reduce retrospective
@@ -1368,40 +1172,62 @@ likely to be due to a mis-specification of a rapid shift in some model
 attribute rather than whether a particular process is assumed to be
 randomly varying temporally.
 
+\subsection*{Analytical approach}\label{analytical-approach}
+\addcontentsline{toc}{subsection}{Analytical approach}
+
+We found the use of regression models and classification and regression
+trees extremely useful in understanding the most important OM and EM
+attributes explaining variation in the measures of reliability we
+examined across all simulations. The classification and regression trees
+are generally a good tool for determining the values of the OM and EM
+attributes that produce better or worse measures of reliability.
+However, determining the combination of attributes that produce the best
+or worst measures of reliability can be challenging using the trees. For
+example, in the regression tree for median natural mortality rate
+estimates in R OMs (Figure \ref{median_M_bias_regtree}), the both of the
+first branches imply bias is low regardless of OM fishing history, but
+when OM fishing pressure is constant, results are much better when OM
+observation error is low (median RE about -6\%) than when OM observation
+error is high (median RE about 40\%). Therefore, inspection of results
+by all combinations of OM and EM factors (as provided in the
+supplementary materials) can be important.
+
 \subsection*{Conclusions}\label{conclusions}
 \addcontentsline{toc}{subsection}{Conclusions}
 
 Our simulation study examined the importance of several factors for
 reliable inferences from state-space age-structured assessment models.
-Contrast in fishing pressure was consistently an important factor across
-all measures of reliability we examined. AIC accurately distinguished
-models with process errors on recruitment only (R) or on recruitment and
-apparent survival (R+S). Accuracy for other process error types required
-a strong signal (high process variability) with low noise (low
-observation uncertainty). Therefore, we expect practitioners will find
-R+S configurations to provide satisfactory diagnostics across a range of
-life history and data quality scenarios. AIC generally performed poorly
-for selecting the SRR, but performance was improved with low recruitment
-variability and contrast in fishing pressure. Some bias in estimation in
-at least one of the SRR parameters existed in nearly all OM-EM
-combinations. Because bias in terminal SSB and retrospective patterns
-were indifferent to whether or not the SRR was estimated, and
-convergence was slightly better without the SRR, a sensible default
-would be to fit models without an assumed SRR.
+Contrast in fishing pressure and lower observation error consistently
+improved all measures of reliability we examined. AIC accurately
+distinguished models with process errors on recruitment only (R) or on
+recruitment and apparent survival (R+S). Therefore, we expect
+practitioners will find R+S configurations to provide satisfactory
+diagnostics across a range of life history and data quality scenarios.
+Accurate AIC selection of the Beverton-Holt SRR generally required a
+combination of low recruitment variability, contrast in fishing pressure
+and large variation in SSB over time. However, when the Beverton-Holt
+was correctly assumed, some bias in estimation in at least one of the
+parameters existed regardless of any of the other OM and EM
+configurations. Because bias in terminal SSB and retrospective patterns
+were indifferent to whether or not the SRR was estimated, the prevalence
+of bias in SRR parameter estimation, and often better convergence
+without the SRR, a sensible default would be to not assume a SRR when
+fitting assessment models.
 
 \section*{Acknowledgements}\label{acknowledgements}
 \addcontentsline{toc}{section}{Acknowledgements}
 
 This work was funded by NOAA Fisheries Northeast Fisheries Science
-Center. We thank Jon Deroba for helpful comments on an earlier version
-of this manuscript.
+Center. We thank Jon Deroba, 2 anonymous reviewers, and the associate
+editor for helpful comments on earlier versions of this manuscript that
+markedly improved its clarity.
 
 \pagebreak
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
-\phantomsection\label{refs}
+\protect\phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
 \bibitem[\citeproctext]{ref-aeberhardetal18}
 Aeberhard, W.H., Flemming, J.M., and Nielsen, A. 2018. Review of
@@ -1417,9 +1243,9 @@ estimation problems. Scientific reports \textbf{6}(1): 26677.
 doi:\href{https://doi.org/10.1038/srep26677}{10.1038/srep26677}.
 
 \bibitem[\citeproctext]{ref-augeretal21}
-Auger-Méthé, M., Newman, K., Cole, D., Empacher, F., Gryba, R., King,
+{Auger-Méthé, M., Newman, K., Cole, D., Empacher, F., Gryba, R., King,
 A.A., Leos-Barajas, V., Mills Flemming, J., Nielsen, A., Petris, G., and
-others. 2021. A guide to state--space modeling of ecological time
+others}. 2021. A guide to state--space modeling of ecological time
 series. Ecological Monographs \textbf{91}(4): e01470.
 doi:\href{https://doi.org/10.1002/ecm.1470}{10.1002/ecm.1470}.
 
@@ -1488,7 +1314,7 @@ in size-structured assessment models. Fisheries Research \textbf{239}:
 105927. Elsevier.
 
 \bibitem[\citeproctext]{ref-devalpinehastings02}
-de Valpine, P., and Hastings, A. 2002. Fitting population models
+{de Valpine, P., and Hastings, A.} 2002. Fitting population models
 incorporating process noise and observation error. Ecological Monographs
 \textbf{72}(1): 57--76.
 
@@ -1528,7 +1354,7 @@ doi:\href{https://doi.org/10.1016/j.fishres.2024.107195}{10.1016/j.fishres.2024.
 
 \bibitem[\citeproctext]{ref-hoyleetal22}
 Hoyle, S.D., Maunder, M.N., Punt, A.E., Mace, P.M., Devine, J.A., and
-A???mar, Z.T. 2022. Preface: Developing the next generation of stock
+A'mar, Z.T. 2022. Preface: Developing the next generation of stock
 assessment software. Fisheries Research \textbf{246}: 106176.
 doi:\href{https://doi.org/10.1016/j.fishres.2021.106176}{10.1016/j.fishres.2021.106176}.
 
@@ -1864,52 +1690,61 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{convergence_classification_plots}
+\includegraphics[width = 1.4\textwidth]{convergence_classification_plots}
 \end{center}
-\caption{Classification trees indicating primary factors determining convergence as defined by providing hessian-based standard errors for R, R+S, R+M, R+Sel and R+q OMs. Lower or higher convergence rates are indicated by red or green polygons, respectively}\label{conv_class}
+\caption{Classification trees indicating primary factors determining convergence as defined by providing hessian-based standard errors for R, R+S, R+M, R+Sel and R+q OMs. Lower or higher convergence rates are indicated by more red or green polygons, respectively}\label{conv_class}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{AIC_PE_classification_plots}
+\includegraphics[width = 1.4\textwidth]{AIC_PE_classification_plots}
 \end{center}
-\caption{Classification trees indicating primary factors determining which EM process error assumption provides the lowest AIC for R+S, R+M, R+Sel and R+q OMs. Each node shows the proportion of EM process error models with lowest AIC (top) and number of observations (bottom) for the corresponding subset. Lower or higher accuracy of the process error assumption are indicated by red or green polygons, respectively.}\label{AIC_PE_class}
+\caption{Classification trees indicating primary factors determining which EM process error assumption provides the lowest AIC for R+S, R+M, R+Sel and R+q OMs. Each node shows the proportion of EM process error models with lowest AIC (top) and number of observations (bottom) for the corresponding subset. Lower or higher accuracy of the process error assumption are indicated by more red or green polygons, respectively.}\label{AIC_PE_class}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{AIC_SRR_classification_plots}
+\includegraphics[width = 1.4\textwidth]{AIC_SRR_classification_plots}
 \end{center}
-\caption{Classification trees indicating primary factors determining which EM stock recruitment assumption (none or Beverton-Holt) provides the lowest AIC for R, R+S, R+M, R+Sel and R+q OMs. Each node shows the proportion of EMs that assume the stock-recruit relationship with lowest AIC (top) and number of observations (bottom) for the corresponding subset. Lower or higher accuracy of the process error assumption are indicated by more red or green polygons, respectively.}\label{AIC_SRR_class}
+\caption{Classification trees indicating primary factors determining which EM SRR assumption (none or Beverton-Holt) provides the lowest AIC for R, R+S, R+M, R+Sel and R+q OMs. Each node shows the proportion of EMs that assume the SRR with lowest AIC (top) and number of observations (bottom) for the corresponding subset. Lower or higher accuracy of the process error assumption are indicated by more red or green polygons, respectively.}\label{AIC_SRR_class}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{SR_a_bias_regtree_plots}
+\includegraphics[width = 1.4\textwidth]{SSB_bias_regtree_plots}
 \end{center}
-\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the Beverton-Holt stock-recruit parameter $a$ for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{SR_a_bias_regtree}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for terminal year SSB for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Median errors closer to or further from zero are indicated by more green or red polygons, respectively.}\label{SSB_bias_regtree}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{SR_b_bias_regtree_plots}
+\includegraphics[width = 1.4\textwidth]{SR_a_bias_regtree_plots}
 \end{center}
-\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the Beverton-Holt stock-recruit parameter $b$ for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{SR_b_bias_regtree}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the Beverton-Holt SRR parameter $a$ for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{SR_a_bias_regtree}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{med_M_bias_regtree_plots}
+\includegraphics[width = 1.4\textwidth]{SR_b_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the Beverton-Holt SRR parameter $b$ for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{SR_b_bias_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{med_M_bias_regtree_plots}
 \end{center}
 \caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the median natural mortality rate for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{med_M_bias_regtree}
 \end{figure}
@@ -1918,25 +1753,16 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{SSB_bias_regtree_plots}
+\includegraphics[width = 1.4\textwidth]{SSB_mohns_rho_regtree_plots}
 \end{center}
-\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for terminal year spawning stock biomass for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Median errors closer to or further from zero are indicated by more green or red polygons, respectively.}\label{SSB_bias_regtree}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{SSB_mohns_rho_regtree_plots}
-\end{center}
-\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in transformed Mohn's $\rho$ (Eq. \ref{bias_regression_response}) for spawning stock biomass for R+S, R+M, R+Sel and R+q OMs. Each node shows the median Mohn's $\rho$ (top) and number of observations (bottom) for the corresponding subset. Median Mohn's $\rho$ closer to or further from zero are indicated by more green or red polygons, respectively.}\label{SSB_mohns_rho_regtree}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in transformed Mohn's $\rho$ (Eq. \ref{bias_regression_response}) for SSB for R+S, R+M, R+Sel and R+q OMs. Each node shows the median Mohn's $\rho$ (top) and number of observations (bottom) for the corresponding subset. Median Mohn's $\rho$ closer to or further from zero are indicated by more green or red polygons, respectively.}\label{SSB_mohns_rho_regtree}
 \end{figure}
 \end{landscape}
 
 \pagebreak
 
 \begin{table}
-\caption{For each OM process error type (columns), percent reduction in deviance for logistic regression models fit to indicators of convergence with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{convergence_PRD_table}
+\caption{For each OM process error type (columns), percent reduction in deviance for logistic regression models fit to indicators of convergence (providing hessian-based standard errors) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{convergence_PRD_table}
 {\input{convergence_PRD_table}}
 \end{table}
 
@@ -1946,13 +1772,18 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 \end{table}
 
 \begin{table}
-\caption{For each OM process error type (columns), percent reduction in deviance for logistic regression models fit to indicators of EM stock-recruit assumption (none or Beverton-Holt) with lowest AIC with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{AIC_SRR_PRD_table}
+\caption{For each OM process error type (columns), percent reduction in deviance for logistic regression models fit to indicators of EM SRR assumption (none or Beverton-Holt) with lowest AIC with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{AIC_SRR_PRD_table}
 {\input{AIC_SRR_PRD_table}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year SSB with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_SSB_PRD_table}
+{\input{bias_SSB_PRD_table}}
 \end{table}
 
 \begin{landscape}
 \begin{table}
-\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the Beverton-Holt stock recruit relation ship parameters with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_SR_pars_PRD_table}
+\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the Beverton-Holt SRR parameters with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_SR_pars_PRD_table}
 {\input{bias_SR_pars_PRD_table}}
 \end{table}
 \end{landscape}
@@ -1963,15 +1794,12 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 \end{table}
 
 \begin{table}
-\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year spawning biomass with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_SSB_PRD_table}
-{\input{bias_SSB_PRD_table}}
-\end{table}
-
-\begin{table}
-\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to transformed Mohn's $\rho$ values for each simulation (Eq. \ref{bias_regression_response}) for spawning biomass with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mohns_rho_SSB_PRD_table}
+\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to transformed Mohn's $\rho$ values for each simulation (Eq. \ref{bias_regression_response}) for SSB with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mohns_rho_SSB_PRD_table}
 {\input{mohns_rho_SSB_PRD_table}}
 \end{table}
 
+\begin{landscape}
+\end{landscape}
 \pagebreak
 
 \setcounter{figure}{0}
@@ -1987,144 +1815,90 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 
 \pagebreak
 
+\subsection*{Referenced Figures}\label{referenced-figures}
+\addcontentsline{toc}{subsection}{Referenced Figures}
+
 \begin{figure}[!ht]
 \begin{center}
 \includegraphics[width = \textwidth]{om_input_plots_figure}
 \end{center}
-\caption{The proportion mature at age, weight at age, fleet and index selectivity at age, and Beverton-Holt stock-recruit relationship assumed for the population in all operating models. For operating models with random effects on fleet selectivity, this represents the selectivity at the mean of the random effects.}\label{om_inputs_fig}
+\caption{The proportion mature at age, weight at age, fleet and index selectivity at age, and Beverton-Holt SRR assumed for the population in all operating models. For operating models with random effects on fleet selectivity, this represents the selectivity at the mean of the random effects.}\label{om_inputs_fig}
 \end{figure}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{type_4_convergence_plots}
+\includegraphics[width = 1.4\textwidth]{convergence_gradient_classification_plots}
 \end{center}
-\caption{Estimated probability of fits providing hessian-based standard errors for EMs assuming alternative process error (colored points and lines), and median natural mortality (estimated or known) and Beverton-Holt stock-recruit relationships (estimated or not; along x-axis) when fitted to operating models that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error structures. Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{hessian_SE_convergence}
-\end{figure}
-\end{landscape}
-
-\clearpage
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{type_3_convergence_plots}
-\end{center}
-\caption{Probability of estimating models providing maximum absolute values of gradients less than $10^{-6}$ assuming alternative process error (colored points and lines), and median natural mortality (estimated or known) and Beverton-Holt stock-recruit relationships (estimated or not; along x-axis) when fitted to operating models that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error structures. Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{gradient_convergence}
+\caption{Classification trees indicating primary factors determining convergence as defined by a maximum absolute gradient < $10^{-6}$ for R, R+S, R+M, R+Sel and R+q OMs. Lower or higher convergence rates are indicated by more red or green polygons, respectively}\label{conv_gradient_class}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{hess_grad_convergence_plots}
+\includegraphics[width = 1.4\textwidth]{hess_grad_convergence_plots}
 \end{center}
-\caption{The maximum of the absolute values of all gradient values for all fits that provided hessian-based standard errors across all simuated data sets of a given OM configuration (A: R and R+S, B: R+M, C: R+Sel, or D: R+q).  Results are conditional on EM fits with alternative process error type (colored points and lines), median natural mortality (estimated or known) and recruitment assumptions (Beverton-Holt stock-recruit relationship or not). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{hess_grad}
+\caption{The maximum of the absolute values of all gradient values for all fits that provided hessian-based standard errors across all simuated data sets of a given OM configuration (A: R and R+S, B: R+M, C: R+Sel, or D: R+q).  Results are conditional on EM fits with alternative process error type (colored points and lines), median natural mortality (estimated or known) and recruitment assumptions (Beverton-Holt SRR or not). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{hess_grad}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{pe_aic_plots}
+\includegraphics[width = 1.4\textwidth]{pe_aic_plots}
 \end{center}
-\caption{Estimated probability of lowest AIC for EMs assuming alternative process error structures (colored bars) conditional on alternative assumptions for median natural mortality (estimated or known) and Beverton-Holt stock-recruit relationships (estimated or not; along x-axis) when fitted to operating models that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error structures. Striped bars indicate results where the EM process error structure matches that of the operating model.}\label{pe_aic}
-\end{figure}
-\end{landscape}
-
-\clearpage
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = 0.8\textheight]{sr_aic_plots_rev}
-\end{center}
-\caption{Estimated probability of lowest AIC from logistic regression on the log-standard deviation of the true log(SSB) in each simulation for estimating model with Beverton-Holt stock-recruit relationships, rather than the otherwise equivalent EM without the stock-recruit relationship. Results are conditional on median M is known in the EM and alternative assumptions EMs having the correct process error structure: R and R+S (A), R+Sel (B), R+M (C), or R+q (D), and median M is assumed known in the EM. Solid and dashed lines are for OMs with and without temporal contrast in fishing pressure, respectively, and polygons represent 95\% confidence intervals. Range of results indicates the range of log-standard deviation of log(SSB) for simulations of the particular OM.}\label{sr_aic}
+\caption{Estimated probability of lowest AIC for EMs assuming alternative process error structures (colored bars) conditional on alternative assumptions for median natural mortality (estimated or known) and Beverton-Holt SRR (estimated or not; along x-axis) when fitted to operating models that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error structures. Striped bars indicate results where the EM process error structure matches that of the operating model.}\label{pe_aic}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{sr_aic_plots}
+\includegraphics[width = 1.4\textwidth]{F_bias_regtree_plots}
 \end{center}
-\caption{Estimated probability of lowest AIC from logistic regression on the log-standard deviation of the true log(SSB) in each simulation for estimating model with Beverton-Holt stock-recruit relationships, rather than the otherwise equivalent EM without the stock-recruit relationship. Results are conditional on alternative assumptions for median natural mortality (estimated or known) and on EMs having the correct process error structure: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Rug along x-axis denotes $SD(\log(SSB))$ values for each simulation and polygons represent 95\% confidence intervals.}\label{sr_aic_supp}
-\end{figure}
-\end{landscape}
-
-\clearpage
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{term_SSB_bias_plots}
-\end{center}
-\caption{Median relative error of terminal year SSB for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{SSB_rel_error}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for terminal year fully-selected fishing mortality for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Median errors closer to or further from zero are indicated by more green or red polygons, respectively.}\label{F_bias_regtree}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{term_F_bias_plots}
+\includegraphics[width = 1.4\textwidth]{R_bias_regtree_plots}
 \end{center}
-\caption{Median relative error of terminal year fully-selected fishing mortality for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{F_rel_error}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for terminal year recruitment for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Median errors closer to or further from zero are indicated by more green or red polygons, respectively.}\label{R_bias_regtree}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{term_R_bias_plots}
+\includegraphics[width = 1.4\textwidth]{sr_bias_plots}
 \end{center}
-\caption{Median relative error of terminal year recruitment for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{R_rel_error}
+\caption{Median relative error of Beverton-Holt SRR parameters ($a$ and $b$) for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{SR_rel_error}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{sr_bias_plots}
+\includegraphics[width = 1.4\textwidth]{F_mohns_rho_regtree_plots}
 \end{center}
-\caption{Median relative error of Beverton-Holt stock-recruit parameters ($a$ and $b$) for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{SR_rel_error}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in transformed Mohn's $\rho$ (Eq. \ref{bias_regression_response}) for fishing mortality averaged over all age classes for R+S, R+M, R+Sel and R+q OMs. Each node shows the median Mohn's $\rho$ (top) and number of observations (bottom) for the corresponding subset. Median Mohn's $\rho$ closer to or further from zero are indicated by more green or red polygons, respectively.}\label{F_mohns_rho_regtree}
 \end{figure}
 \end{landscape}
 
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{M_bias_plots}
+\includegraphics[width = 1.4\textwidth]{R_mohns_rho_regtree_plots}
 \end{center}
-\caption{Median relative error of median natural mortality for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{M_rel_error}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in transformed Mohn's $\rho$ (Eq. \ref{bias_regression_response}) for recruitment for R+S, R+M, R+Sel and R+q OMs. Each node shows the median Mohn's $\rho$ (top) and number of observations (bottom) for the corresponding subset. Median Mohn's $\rho$ closer to or further from zero are indicated by more green or red polygons, respectively.}\label{R_mohns_rho_regtree}
 \end{figure}
 \end{landscape}
 
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{mohns_rho_ssb_plots}
-\end{center}
-\caption{Median Mohn's $\rho$ for SSB for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_ssb}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{mohns_rho_F_plots}
-\end{center}
-\caption{Median Mohn's $\rho$ of fishing mortality averaged over all age classes for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_F}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{mohns_rho_R_plots}
-\end{center}
-\caption{Median Mohn's $\rho$ of recruitment for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_R}
-\end{figure}
-\end{landscape}
+\subsection*{Referenced Tables}\label{referenced-tables}
+\addcontentsline{toc}{subsection}{Referenced Tables}
 
 \begin{landscape}
 \begin{table}
@@ -2160,6 +1934,89 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 \end{table}
 
 \begin{table}
+\caption{For each OM process error type (columns), percent reduction in deviance for logistic regression models fit to indicators of convergence (maximum absolute gradient < $10^{-6}$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{convergence_gradient_PRD_table}
+{\input{convergence_gradient_PRD_table}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year fully-selected fishing mortality with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_F_PRD_table}
+{\input{bias_F_PRD_table}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year recruitment with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_R_PRD_table}
+{\input{bias_R_PRD_table}}
+\end{table}
+
+\clearpage
+
+\subsection*{Further Detailed Results}\label{further-detailed-results}
+\addcontentsline{toc}{subsection}{Further Detailed Results}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_SSB_bias_plots}
+\end{center}
+\caption{Median relative error of terminal year SSB for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{SSB_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_F_bias_plots}
+\end{center}
+\caption{Median relative error of terminal year fully-selected fishing mortality for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{F_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_R_bias_plots}
+\end{center}
+\caption{Median relative error of terminal year recruitment for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{R_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{M_bias_plots}
+\end{center}
+\caption{Median relative error of median natural mortality for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{M_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{mohns_rho_ssb_plots}
+\end{center}
+\caption{Median Mohn's $\rho$ for SSB for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_ssb}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{mohns_rho_F_plots}
+\end{center}
+\caption{Median Mohn's $\rho$ of fishing mortality averaged over all age classes for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_F}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{mohns_rho_R_plots}
+\end{center}
+\caption{Median Mohn's $\rho$ of recruitment for estimating models fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_R}
+\end{figure}
+\end{landscape}
+
+\begin{table}
 \caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to transformed Mohn's $\rho$ values for each simulation (Eq. \ref{bias_regression_response}) for fishing mortality averaged over all age classes with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mohns_rho_F_PRD_table}
 {\input{mohns_rho_F_PRD_table}}
 \end{table}
@@ -2168,5 +2025,41 @@ doi:\href{https://doi.org/10.1007/978-1-4939-2818-7}{10.1007/978-1-4939-2818-7}.
 \caption{For each OM process error type (columns), percent reduction in deviance for linear regression models fit to transformed Mohn's $\rho$ values for each simulation (Eq. \ref{bias_regression_response}) for recruitment with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mohns_rho_R_PRD_table}
 {\input{mohns_rho_R_PRD_table}}
 \end{table}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{type_4_convergence_plots}
+\end{center}
+\caption{Probability of EMs providing hessian-based standard errors with alternative process error (colored points and lines), and median natural mortality (estimated or known) and Beverton-Holt SRR (estimated or not; along x-axis) assumptions when fitted to OMs that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error structures. Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{hessian_SE_convergence}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{type_3_convergence_plots}
+\end{center}
+\caption{Probability of EMs providing maximum absolute values of gradients less than $10^{-6}$ with alternative process error (colored points and lines), and median natural mortality (estimated or known) and Beverton-Holt SRR (estimated or not; along x-axis) assumptions when fitted to OMs that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error structures. Circled values indicate results where the EM process error structure matches that of the operating model and vertical lines represent 95\% confidence intervals.}\label{gradient_convergence}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = 0.8\textheight]{sr_aic_plots_rev}
+\end{center}
+\caption{Probability of lowest AIC from logistic regression on the log-standard deviation of the true log(SSB) in each simulation for estimating model with Beverton-Holt SRRs, rather than the otherwise equivalent EM without the SRR. Results are conditional on median M is known in the EM and alternative assumptions EMs having the correct process error structure: R and R+S (A), R+Sel (B), R+M (C), or R+q (D), and median M is assumed known in the EM. Solid and dashed lines are for OMs with and without temporal contrast in fishing pressure, respectively, and polygons represent 95\% confidence intervals. Range of results indicates the range of log-standard deviation of log(SSB) for simulations of the particular OM.}\label{sr_aic}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{sr_aic_plots}
+\end{center}
+\caption{Estimated probability of lowest AIC from logistic regression on the log-standard deviation of the true log(SSB) in each simulation for estimating model with Beverton-Holt SRRs, rather than the otherwise equivalent EM without the SRR. Results are conditional on alternative assumptions for median natural mortality (estimated or known) and on EMs having the correct process error structure: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Rug along x-axis denotes $SD(\log(SSB))$ values for each simulation and polygons represent 95\% confidence intervals.}\label{sr_aic_supp}
+\end{figure}
+\end{landscape}
 
 \end{document}

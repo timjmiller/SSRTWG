@@ -6,7 +6,8 @@ library(gratia)
 library(Hmisc)
 library(VGAM)
 #modified rpart.plot package to use plotmath in split labels...
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+# pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
 # pkgload::load_all("c:/work/rpart.plot")
 
 df.oms = list(naa = readRDS(here("Project_0", "inputs", "df.oms.RDS")))
@@ -137,28 +138,42 @@ for(i in names(om.em.rows)) {
 
   
   aic_df[[i]] <- aic_df[[i]] %>%
-    mutate(Obs._Error = recode(obs_error,
+    mutate(OM_Obs._Error = recode(obs_error,
       "L" = "Low",
       "H" = "High"
     ))
+  
   aic_df[[i]] <- aic_df[[i]] %>%
-    mutate(F_History = recode(as.character(Fhist),
-      "H-MSY" = "H->MSY",
-      "MSY" = "MSY"
-    ))
-
+    mutate(OM_F_History = recode(Fhist,
+      "H-MSY"  = "2.5*italic(F)[MSY] %->% italic(F)[MSY]",
+      "MSY" = "italic(F)[MSY]"))
+  
+  aic_df[[i]] <- aic_df[[i]] %>%
+  mutate(EM_SR = recode(as.character(SR_model),
+                        "2" = "None",
+                        "3" = "Estimated"
+  ))
+  
+  aic_df[[i]] <- aic_df[[i]] %>%
+    mutate(EM_M = recode(as.character(M_est),
+                       "TRUE" = "Estimated",
+                       "FALSE" = "Known"
+  ))
+  
   aic_df[[i]] <- aic_df[[i]][sort(names(aic_df[[i]]))]
 
 }
 aic_df <- do.call(rbind.data.frame, aic_df)
 aic_df$EM_assumption <- as.factor(aic_df$EM_assumption)
-aic_df$OM_F_History <- as.factor(aic_df$F_History)
+aic_df$OM_F_History <- as.factor(aic_df$OM_F_History)
+aic_df$EM_M <- as.factor(aic_df$EM_M)
+aic_df$EM_SR <- as.factor(aic_df$EM_SR)
 aic_df$OM_R_SD <- as.factor(aic_df$R_sig)
 aic_df$OM_NAA_SD <- as.factor(aic_df$NAA_sig)
 aic_df$sim <- as.factor(aic_df$sim)
 aic_df$OM_sim <- as.factor(aic_df$OM_sim)
 aic_df$OM_type <- as.factor(aic_df$OM_type)
-aic_df$OM_Obs._Error <- as.factor(aic_df$Obs._Error)
+aic_df$OM_Obs._Error <- as.factor(aic_df$OM_Obs._Error)
 aic_df$OM_q_sig <- as.factor(aic_df$q_sig)
 aic_df$OM_q_cor <- as.factor(aic_df$q_cor)
 aic_df$OM_M_sig <- as.factor(aic_df$M_sig)
@@ -167,17 +182,16 @@ aic_df$OM_Sel_sig <- as.factor(aic_df$Sel_sig)
 aic_df$OM_Sel_cor <- as.factor(aic_df$Sel_cor)
 aic_df$best_PE <- as.factor(aic_df$best_PE)
 aic_df$best_PE_cor <- as.factor(aic_df$best_PE_cor)
-sort(unique(aic_df$best_PE))
 
 vglm_fits <- list()
 dev.tables <- list(PRD = list())
 factors <- list()
 # null <- gam(conv ~ 1, family = binomial, method = "REML", data = temp)
-factors[["R"]] <- c("1", "OM_R_SD","EM_assumption", "OM_Obs._Error", "OM_F_History")
-factors[["R+S"]] <- c("1", "OM_R_SD","EM_assumption", "OM_Obs._Error", "OM_F_History","OM_NAA_SD")
-factors[["R+M"]] <- c("1", "EM_assumption", "OM_Obs._Error", "OM_F_History","OM_M_sig", "OM_M_cor")
-factors[["R+Sel"]] <- c("1", "EM_assumption", "OM_Obs._Error", "OM_F_History","OM_Sel_sig", "OM_Sel_cor")
-factors[["R+q"]] <- c("1", "EM_assumption", "OM_Obs._Error", "OM_F_History","OM_q_sig", "OM_q_cor")
+factors[["R"]] <- c("1","EM_M", "EM_SR", "OM_Obs._Error", "OM_F_History", "OM_R_SD")
+factors[["R+S"]] <- c("1", "EM_M", "EM_SR", "OM_Obs._Error", "OM_F_History", "OM_R_SD","OM_NAA_SD")
+factors[["R+M"]] <- c("1", "EM_M", "EM_SR", "OM_Obs._Error", "OM_F_History","OM_M_sig", "OM_M_cor")
+factors[["R+Sel"]] <- c("1", "EM_M", "EM_SR", "OM_Obs._Error", "OM_F_History","OM_Sel_sig", "OM_Sel_cor")
+factors[["R+q"]] <- c("1", "EM_M", "EM_SR", "OM_Obs._Error", "OM_F_History","OM_q_sig", "OM_q_cor")
 
 for(type in names(factors)){
   if(type == "R") temp <- subset(aic_df, OM_type == "naa" & OM_NAA_SD == 0)
@@ -200,7 +214,7 @@ for(type in names(factors)){
   dev.tables[["PRD"]][[type]] <- sapply(vglm_fits[[type]], \(x) 1 - x@criterion$deviance/vglm_fits[[type]][[1]]@criterion$deviance)
 }
 
-All.facs <- c("EM_assumption", "OM_Obs._Error", "OM_F_History","OM_R_SD","OM_NAA_SD","OM_M_sig", "OM_M_cor","OM_Sel_sig", "OM_Sel_cor","OM_q_sig", "OM_q_cor")
+All.facs <- c("EM_M", "EM_SR", "OM_Obs._Error", "OM_F_History","OM_R_SD","OM_NAA_SD","OM_M_sig", "OM_M_cor","OM_Sel_sig", "OM_Sel_cor","OM_q_sig", "OM_q_cor")
 PRD.table <- matrix(NA, length(All.facs)+3,5)
 colnames(PRD.table) <- c("R","R+S","R+M","R+Sel","R+q")
 rnames <- gsub("_", " ", All.facs, fixed = TRUE)
@@ -361,20 +375,23 @@ for(type in names(factors)){
   full.trees[[type]] <- rpart(form, data=temp_df, method = "class", control=rpart.control(cp=0, xval = 100))
   full.trees[[type]]$correct_level <- type
 }
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+# pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
 
 cairo_pdf(here("Project_0","manuscript", paste0("AIC_PE_classification_plots.pdf")), width = 30*2/3, height = 15*2/3)
-x <- matrix(c(1,2,3,4), 2, 2, byrow = TRUE)
+# x <- matrix(c(1,2,3,4), 2, 2, byrow = TRUE)
+anova.palette.sd <- 0.25
+x <- matrix(c(1,2,2,3,3,0,4,4,5,5), 2, 5, byrow = TRUE)
 layout.x <- layout(x)
-#layout.x <- layout(x, widths = c(1,0.05,1)) 
 par(oma = c(0,2,0,0))
-# plot.prune(full.trees[["R"]],cp = 0, type = "R", tweak = 1.2, mar = c(0,0,5,0))
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
-plot.prune(full.trees[["R+S"]],cp = 0.1, type = "R+S", tweak = 1.2, mar = c(0,2,5,1), legend.x = NA)
+plot.prune(full.trees[["R"]],cp = 0, type = "R", tweak = 1.4, mar = c(0,0,5,0))
+mtext("R OMs", side = 3, line = 0, cex = 2)
+plot.prune(full.trees[["R+S"]],cp = 0.1, type = "R+S", tweak = 1.4, mar = c(0,0,5,5), legend.x = NA)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+M"]],cp = 0.04, type = "R+M", tweak = 1.2, mar = c(0,2,5,1), legend.x = NA)
+plot.prune(full.trees[["R+M"]],cp = 0.04, type = "R+M", tweak = 1.4, mar = c(0,0,5,5), legend.x = NA)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+Sel"]],cp = 0.1, type = "R+Sel", tweak = 1.2, mar = c(0,2,5,1), legend.x = NA)
+plot.prune(full.trees[["R+Sel"]],cp = 0.1, type = "R+Sel", tweak = 1.4, mar = c(0,0,5,5), legend.x = NA)
 mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+q"]],cp = 800, type = "R+q", factor = "dev", tweak = 1.2, mar = c(0,2,5,1), legend.x = NA)
+plot.prune(full.trees[["R+q"]],cp = 800, type = "R+q", factor = "dev", tweak = 1.4, mar = c(0,0,5,5), legend.x = NA)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()

@@ -5,8 +5,7 @@ library(mgcv)
 library(gratia)
 library(Hmisc)
 #modified rpart.plot package to use plotmath in split labels...
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
-# pkgload::load_all("c:/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
 
 
 df.oms = list(naa = readRDS(here("Project_0", "inputs", "df.oms.RDS")))
@@ -119,8 +118,8 @@ for(i in names(om.em.rows)) {
     ))
   conv_df[[i]] <- conv_df[[i]] %>%
     mutate(EM_SR = recode(as.character(SR_model),
-      "2" = "Estimated",
-      "3" = "None"
+      "2" = "None",
+      "3" = "Estimated"
     ))
   conv_df[[i]] <- conv_df[[i]] %>%
     mutate(F_History = recode(as.character(Fhist),
@@ -229,7 +228,8 @@ x <- latex(x, file = here("Project_0","manuscript","convergence_PRD_table.tex"),
 library(rpart)
 #modified rpart.plot package to use plotmath in split labels...
 #library(rpart.plot)
-pkgload::load_all("c:/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+#pkgload::load_all("c:/work/rpart.plot")
 split.fun <- function(type = "R") {
 	# replace commas with spaces (needed for strwrap)
 	if(!type %in% c("R","R+S")){
@@ -330,11 +330,12 @@ for(type in names(factors)){
   form <- as.formula(paste("conv_txt ~", paste(factors[[type]], collapse = "+")))# (EM_PE + OM_R_SD + EM_M + EM_SR + OM_Obs._Error + OM_F_History)
 	full.trees[[type]] <- rpart(form, data=temp_df, method = "class", control=rpart.control(cp=0, xval = 100))
 }
+anova.palette.sd <- 0.25
 
 cairo_pdf(here("Project_0","manuscript", paste0("convergence_classification_plots.pdf")), width = 30*2/3, height = 20*2/3)
 x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
 layout.x <- layout(x) 
-par(mar = c(0,0,5,0), oma = c(0,0,0,0))
+par(oma = c(0,0,0,0))
 plot.prune(full.trees[["R"]],6300, "R", factor = "n", tweak = 1.2, mar = c(0,0,5,0))
 mtext("R OMs", side = 3, line = 0, cex = 2)
 plot.prune(full.trees[["R+S"]],0.03, "R+S", tweak = 1.2, mar = c(0,0,5,0))
