@@ -3,31 +3,42 @@ library(dplyr)
 library(tidyr)
 library(Hmisc)
 #modified rpart.plot package to use plotmath in split labels...
-pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
+pkgload::load_all(file.path(here(),"../../rpart.plot"))
+#pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
 # pkgload::load_all("c:/work/rpart.plot")
 
-aic_fn <- function(x, all_aic, df.oms, df.ems, rec_mod, M_est) {
+aic_fn <- function(x, all_aic, df.oms, df.ems, rec_mod, M_est, EM_PE_is_correct = TRUE) {
   if(!is.null(df.oms$NAA_sig)){
     if(is.na(df.oms$NAA_sig[x])) re_config <- "rec"
     else re_config <- "rec+1"  
-    em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$re_config == re_config)
+    
+    if(EM_PE_is_correct) em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$re_config == re_config)
+    else em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est)
   }
   if(!is.null(df.oms$M_sig)){
     if(df.oms$M_cor[x] == 0) re_config <- "iid"
     else re_config <- "ar1_y"  
-    em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$M_re_cor == re_config)
+    
+    if(EM_PE_is_correct) em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$M_re_cor == re_config)
+    else em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est)
   }
   if(!is.null(df.oms$Sel_sig)){
     if(df.oms$Sel_cor[x] == 0) re_config <- "iid"
     else re_config <- "ar1_y"  
-    em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$sel_re_cor == re_config)
+    
+    if(EM_PE_is_correct) em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$sel_re_cor == re_config)
+    else em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est)
   }
   if(!is.null(df.oms$q_sig)){
     if(df.oms$q_cor[x] == 0) re_config <- "iid"
     else re_config <- "ar1"  
-    em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$q_re_cor == re_config)
+    
+    if(EM_PE_is_correct) em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est & df.ems$q_re_cor == re_config)
+    else em_ind <- which(df.ems$SR_model == rec_mod & df.ems$M_est == M_est)
   }
-  return(all_aic[[x]][em_ind,]) #single EM/row
+  #if EM_PE_is_correct, single EM/row
+  out <- all_aic[[x]][em_ind,]
+  return(out) #single EM/row
 }
 
 df.ems = readRDS(file.path(here(),"Project_0","inputs", "df.ems.RDS"))
@@ -126,6 +137,24 @@ interactions.dev.table <- sapply(names(factors), \(x) 1 - c(glm_fits[[x]][["all"
 x <- as.data.frame(round(100*interactions.dev.table,2))
 x <- cbind(Model = c("No Interactions", "+ All Two Way", "+ All Three Way"), x)
 
+# # examine which combination of factors are important for bias of SRR pars for R and R+S OMs : what is PRD if we leave one out?
+x <- factors[["R"]]
+temp <- subset(obs_dfs[["naa"]], OM_NAA_sigma == 0)
+tfits <- lapply(x[-1], \(y) glm(as.formula(paste("BH_best", "~", paste(x[x!=y],collapse = "+"))), family = binomial, data = temp))
+names(tfits) <- paste0("not_",x[2:6])
+y <- t(combn(2:6,2))
+tfits[paste0(x[y[,1]],"+",x[y[,2]])] <- lapply(1:NROW(y), \(z) glm(as.formula(paste("BH_best", "~", paste(x[y[z,]],collapse = "+"))), family = binomial, data = temp))
+sapply(tfits, \(x) 1 - x$deviance/x$null.deviance)
+# 
+x <- factors[["R+S"]]
+temp <- subset(obs_dfs[["naa"]], OM_NAA_sigma != 0)
+tfits <- lapply(x[2:7], \(y) glm(as.formula(paste("BH_best", "~", paste(x[x!=y],collapse = "+"))), family = binomial, data = temp))
+names(tfits) <- paste0("not_",x[2:7])
+y <- t(combn(2:7,2))
+tfits[paste0(x[y[,1]],"+",x[y[,2]])] <- lapply(1:NROW(y), \(z) glm(as.formula(paste("BH_best", "~", paste(x[y[z,]],collapse = "+"))), family = binomial, data = temp))
+sapply(tfits, \(x) 1 - x$deviance/x$null.deviance)
+####################################################
+
 All.facs <- c("EM_M", "OM_Obs._Error", "OM_F_History","OM_R_sigma","OM_NAA_sigma","OM_M_sigma", "OM_M_rho","OM_Sel_sigma", "OM_Sel_rho","OM_q_sigma", "OM_q_rho", "log_sd_log_SSB")
 PRD.table <- matrix(NA, length(All.facs),5)
 colnames(PRD.table) <- c("R","R+S","R+M","R+Sel","R+q")
@@ -137,9 +166,9 @@ rnames <- gsub("NAA sigma", "$\\sigma_{2+}$ ", rnames, fixed = TRUE)
 rnames <- gsub("R sigma", "$\\sigma_R$", rnames, fixed = TRUE)
 rnames <- gsub("q sigma", "$\\sigma_q$", rnames, fixed = TRUE)
 rnames <- gsub("M sigma", "$\\sigma_M$", rnames, fixed = TRUE)
-rnames <- gsub("Sel sigma", "$\\sigma_{Sel}$", rnames, fixed = TRUE)
-rnames <- gsub("M rho", "$\\rho_R$", rnames, fixed = TRUE)
-rnames <- gsub("Sel rho", "$\\rho_{Sel}$", rnames, fixed = TRUE)
+rnames <- gsub("Sel sigma", "$\\sigma_{\\text{Sel}}$", rnames, fixed = TRUE)
+rnames <- gsub("M rho", "$\\rho_M$", rnames, fixed = TRUE)
+rnames <- gsub("Sel rho", "$\\rho_{\\text{Sel}}$", rnames, fixed = TRUE)
 rnames <- gsub("q rho", "$\\rho_q$", rnames, fixed = TRUE)
 
 rownames(PRD.table) <- rnames

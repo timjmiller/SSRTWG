@@ -56,14 +56,32 @@ make_plot_df <- function(om_type = "naa", res = naa_relSR_results, is_SE = FALSE
     df.oms <- readRDS(here::here("Project_0", "inputs", paste0("df.", om_type, ".oms.RDS")))
   }
   # df <- df %>% pivot_wider(names_from = type, values_from = stats) %>% as.data.frame
+  print(dim(df))
+  print(head(df))
   df <- cbind(df, df.oms[df$om,])
-
+  if(!is.null(M_or_SR)) if(M_or_SR == "SR"){
+    sd_log_SSB <- readRDS(file = here("Project_0","results", paste0("all_", om_type, "_sd_log_SSB.RDS")))
+    sd_log_SSB <- t(matrix(unname(unlist(sd_log_SSB)), nrow = 100))
+    print(dim(sd_log_SSB))
+    df$sd_log_SSB <- NA
+    for(i in 1:NROW(df.oms)) for(j in 1:100){
+      df$sd_log_SSB[df$om == i & df$sim == j] <- sd_log_SSB[i,j]
+    }
+    print(dim(df))
+    print(head(df))
+    df$log_sd_log_SSB <- log(df$sd_log_SSB)
+  }
+    
+#  df <- cbind(df, df.oms[df$om,])
+  print(head(df))
   if(!is.null(M_or_SR)) {
     if(M_or_SR == "SR"){
       df <- df %>% mutate(par = recode(par,
         "1" = "italic(a)",
         "2" = "italic(b)"
       ))
+      if(!is.null(year)) stop("Doing SR parameters, should not specify year in call to make_plot_df")
+      
       #df <- df %>% mutate(M_config = if_else(M_est, "M estimated", "M known"))
     }
     if(M_or_SR == "M"){
@@ -133,7 +151,7 @@ make_plot_df <- function(om_type = "naa", res = naa_relSR_results, is_SE = FALSE
         "H-MSY"  = "2.5*italic(F)[MSY] %->% italic(F)[MSY]",
         "MSY" = "italic(F)[MSY]"))
   df <- df %>% as.data.frame
-  facs <- c("OM", "OM_F_History","OM_NAA_sigma", "OM_R_sigma", "OM_M_sigma", "OM_M_rho", "OM_Sel_sigma", "OM_Sel_rho", "OM_q_sigma", "OM_q_rho", "OM_Obs._Error","EM_M", "make_plot_df", "correct_EM_PE")
+  facs <- c("OM", "OM_F_History","OM_NAA_sigma", "OM_R_sigma", "OM_M_sigma", "OM_M_rho", "OM_Sel_sigma", "OM_Sel_rho", "OM_q_sigma", "OM_q_rho", "OM_Obs._Error","EM_M", "correct_EM_PE")
   fac_names <- names(df)[names(df) %in% facs]  
   df[fac_names] <- lapply(df[fac_names], as.factor)
   # df$correct_EM_PE[df$correct_EM_PE== "No"] <- NA
@@ -165,12 +183,19 @@ split.fun <- function(type = "R") {
       labs <- gsub(" M rho", " rho['M']", labs, fixed = TRUE) #sigma_M
       labs <- gsub("R sigma", "sigma[R]", labs, fixed = TRUE) #sigma_R
       labs <- gsub("NAA sigma", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
+      labs <- gsub("log sd log SSB", "log(SD[SSB])", labs, fixed = TRUE)
       labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
       labs <- gsub("process error", "Process*phantom(0)*Error", labs, fixed = TRUE)
       labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
       labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
       labs <- gsub("*%", "%", labs, fixed = TRUE)
       labs <- gsub("%*", "%", labs, fixed = TRUE)
+      labs <- gsub("*<", "<", labs, fixed = TRUE)
+      labs <- gsub("*>", ">", labs, fixed = TRUE)
+      labs <- gsub("=*", "=", labs, fixed = TRUE)
+      labs <- gsub(">*", ">", labs, fixed = TRUE)
+      labs <- gsub("<*", "<", labs, fixed = TRUE)
+      labs <- gsub("^\\*", "", labs)
       labs
     }
   } else {
@@ -181,6 +206,7 @@ split.fun <- function(type = "R") {
       labs <- gsub(",", "*','*", labs, fixed = TRUE)
       labs <- gsub("+", "*'+'*", labs, fixed = TRUE)
       labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
+      labs <- gsub("log sd log SSB", "log(SD[SSB])", labs, fixed = TRUE)
       labs <- gsub("process error", "Process*phantom(0)*Error", labs, fixed = TRUE)
       labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
       labs <- gsub("EM SR", "EM*phantom(0)*SR*phantom(0)*Assumption", labs, fixed = TRUE)
@@ -189,6 +215,12 @@ split.fun <- function(type = "R") {
       labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
       labs <- gsub("*%", "%", labs, fixed = TRUE)
       labs <- gsub("%*", "%", labs, fixed = TRUE)
+      labs <- gsub("*<", "<", labs, fixed = TRUE)
+      labs <- gsub("*>", ">", labs, fixed = TRUE)
+      labs <- gsub("=*", "=", labs, fixed = TRUE)
+      labs <- gsub(">*", ">", labs, fixed = TRUE)
+      labs <- gsub("<*", "<", labs, fixed = TRUE)
+      labs <- gsub("^\\*", "", labs)
       labs
     }
   }
@@ -260,13 +292,24 @@ add_to_frame <- function(obj, data){
   origx$frame$yval_test <- NA
   origx$frame$median_yval <- NA
   all_node_names <- node_names <- as.numeric(rownames(newx$frame))
-  toss <- max(node_names %/% 2)
+  toss <- max(node_names %/% 2) #node furthest out from trunk (2 leaves are 2*toss and 2*toss +1)
+  # print(which((node_names %/% 2) == toss))
+  # print(toss)
+  #do calculations for all leaves in full model
+  leaf_rows_done <- leaf_rows <- sort(which(newx$frame$var == "<leaf>"))
+  leaf_names_done <- leaf_names <- all_node_names[leaf_rows_done]
+
   nloop <- 0
   data <- subset(data, !is.na(relerror_trans))
+  k = 0
   while(toss > -1){
-    leaf_rows <- sort(which(newx$frame$var == "<leaf>"))
+    # print(paste0("n leaves: ", length(leaf_rows)))
     for(i in leaf_rows){
+      #origx_index <- which(all_node_names == node_names[i])
+      # if(k == 1) print(i)
+      # if(k == 1) print(node_names[i])
       origx_index <- which(all_node_names == node_names[i])
+      # if(k == 1) print(origx_index)
       origx$frame$n_test[origx_index] <- NROW(data[which(newx$where == i),])
       origx$frame$yval_test[origx_index] <- mean(data$relerror_trans[which(newx$where == i)])
       origx$frame$median_yval[origx_index] <- median(data$relerror_trans[which(newx$where == i)])
@@ -275,15 +318,39 @@ add_to_frame <- function(obj, data){
       origx$frame$median_RE[origx_index] <- median(data$relerror[which(newx$where == i)])
       origx$frame$mean_abs_RE[origx_index] <- mean(abs(data$relerror[which(newx$where == i)]))
       origx$frame$median_abs_RE[origx_index] <- median(abs(data$relerror[which(newx$where == i)]))
+      # if(k == 1) print(origx$frame[origx_index,])
+      #print(paste0("end i: ", i))
     }
+    # print(paste0("toss: ", toss))
+    newx <- suppressWarnings(rpart::snip.rpart(newx, toss))
+    # print("newx done")
+    node_names <- as.numeric(rownames(newx$frame))
+    #print(tail(sort(node_names)))
+    # print(newx$frame[which(node_names == toss),])
+    leaf_names <- toss
+    # print(leaf_names)
+    leaf_rows <- which(node_names == toss)
+    # print(leaf_rows)
+    # print(paste0("n node_names: ", length(node_names)))
+    # leaf_rows <- which(newx$frame$var == "<leaf>")
+    # leaf_names <- node_names[leaf_rows]
+    # leaf_rows <- leaf_rows[which(!leaf_names %in% leaf_names_done)]
+    # leaf_names <- node_names[leaf_rows]
     if(max(node_names %/% 2) == toss & toss == 0) break
     toss <- max(node_names %/% 2)
-    newx <- suppressWarnings(rpart::snip.rpart(newx, toss))
-    node_names <- as.numeric(rownames(newx$frame))
+    # print(paste0("toss: ", toss))
+    k <- k + 1
+    #if(k == 2) stop()
+    # stop()
   }
   return(origx)
 }
-  
+# full.trees[[SR_par]][[OM_type]] <- add_to_frame(full.trees[[SR_par]][[OM_type]], temp)
+# OM_type = "R+Sel"
+# SR_par = "a"
+# temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
+# head(full.trees[[SR_par]][[OM_type]]$frame)
+
 node.fun <- function(x, labs, digits, varlen){
   # out <- paste0("Mean log(|RE|) = ", format(round(x$frame$yval,3), nsmall = 3))
   # out <- paste0("Mean |RE| = ", format(round(x$frame$mean_abs_RE,3), nsmall = 3))
@@ -300,7 +367,7 @@ get_small_data <- function(SR_par, OM_type, obs_dfs, factors, cv_limit){
   print(paste0("SR_par:", SR_par))
   par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
   print(paste0("par_type: ", par_type))
-  print(paste0("OM_type: ", OM_type)
+  print(paste0("OM_type: ", OM_type))
   facs <- factors[[par_type]][[OM_type]]
   dfs <- obs_dfs[[par_type]]
   
@@ -431,73 +498,105 @@ factors[["SSB"]][["R+q"]] <- c("1", "EM_process_error","EM_M","SR_model","OM_Obs
 factors[["F"]] <- factors[["R"]] <- factors[["SSB"]]
 ########################################
 
-glm_fits <- dev.tables <- PRD.tables <- list()
-
-cv_limit <- NA
-for(SR_par in c("a","b","M", "SSB", "F", "R")) {
-  print(SR_par)
-  par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
-  print(par_type)
-  glm_fits[[SR_par]] <- dev.tables[[SR_par]] <- PRD.tables[[SR_par]] <- list()
-  for(OM_type in names(factors[[par_type]])){
-    print(OM_type)
-    facs <- factors[[par_type]][[OM_type]]
-    temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
-    glm_fits[[SR_par]][[OM_type]] <- list()
-    dev.tables[[SR_par]][[OM_type]] <- list()
-    for(i in facs){
-      glm_fits[[SR_par]][[OM_type]][[i]] <- glm(as.formula(paste("relerror_trans", "~", i)), family = gaussian, data = temp)
-    }
-    sapply(glm_fits[[SR_par]][[OM_type]][facs[-1]], \(x) anova(x, test = "LRT")[[5]][2])
-    glm_fits[[SR_par]][[OM_type]][["all"]] <- glm(as.formula(paste("relerror_trans", "~", paste(facs,collapse = "+"))), family = gaussian, data = temp)
-    glm_fits[[SR_par]][[OM_type]][["all2"]] <- glm(as.formula(paste("relerror_trans", "~ (", paste(facs[-1],collapse = "+"), ")^2")), family = gaussian, data = temp)
-    glm_fits[[SR_par]][[OM_type]][["all3"]] <- glm(as.formula(paste("relerror_trans", "~ (", paste(facs[-1],collapse = "+"), ")^3")), family = gaussian, data = temp)
-
+# glm_fits <- dev.tables <- PRD.tables <- list()
+get_bias_reg_fits <- function(pars = c("a","b","M", "SSB", "F", "R"), factors, obs_dfs, cv_limit=NA){
+#cv_limit <- NA
+#for(SR_par in c("a","b","M", "SSB", "F", "R")) {
+  for(SR_par in pars) {
+    print(SR_par)
+    par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
+    print(par_type)
+    glm_fits[[SR_par]] <- dev.tables[[SR_par]] <- PRD.tables[[SR_par]] <- list()
+    for(OM_type in names(factors[[par_type]])){
+      print(OM_type)
+      facs <- factors[[par_type]][[OM_type]]
+      temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
+      glm_fits[[SR_par]][[OM_type]] <- list()
+      dev.tables[[SR_par]][[OM_type]] <- list()
+      for(i in facs){
+        glm_fits[[SR_par]][[OM_type]][[i]] <- glm(as.formula(paste("relerror_trans", "~", i)), family = gaussian, data = temp)
+      }
+      sapply(glm_fits[[SR_par]][[OM_type]][facs[-1]], \(x) anova(x, test = "LRT")[[5]][2])
+      glm_fits[[SR_par]][[OM_type]][["all"]] <- glm(as.formula(paste("relerror_trans", "~", paste(facs,collapse = "+"))), family = gaussian, data = temp)
+      glm_fits[[SR_par]][[OM_type]][["all2"]] <- glm(as.formula(paste("relerror_trans", "~ (", paste(facs[-1],collapse = "+"), ")^2")), family = gaussian, data = temp)
+      glm_fits[[SR_par]][[OM_type]][["all3"]] <- glm(as.formula(paste("relerror_trans", "~ (", paste(facs[-1],collapse = "+"), ")^3")), family = gaussian, data = temp)
     #percent reduction in deviance
-    dev.tables[[SR_par]][[OM_type]] <- sapply(glm_fits[[SR_par]][[OM_type]][facs], \(x) 1 - x$deviance/glm_fits[[SR_par]][[OM_type]][[1]]$null.deviance)
-
+    }
   }
-
-  interactions.dev.table <- sapply(names(factors[[par_type]]), \(x) 1 - c(glm_fits[[SR_par]][[x]][["all"]]$deviance, glm_fits[[SR_par]][[x]][["all2"]]$deviance,glm_fits[[SR_par]][[x]][["all3"]]$deviance)/glm_fits[[SR_par]][[x]][[1]]$null.deviance)
-  x <- as.data.frame(round(100*interactions.dev.table,2))
-  x <- cbind(Model = c("No Interactions", "+ All Two Way", "+ All Three Way"), x)
-
-  All.facs <- c("EM_process_error","OM_Obs._Error", "OM_F_History","OM_R_sigma","OM_NAA_sigma","OM_M_sigma", "OM_M_rho","OM_Sel_sigma", "OM_Sel_rho", "OM_q_sigma", "OM_q_rho")
-  if(SR_par %in% c("a","b")) All.facs <- c("EM_M", All.facs)
-  if(SR_par %in% c("M")) All.facs <- c("SR_model", All.facs)
-  if(SR_par %in% c("SSB", "F", "R")) All.facs <- c("EM_M", "SR_model",All.facs)
-  PRD.table <- matrix(NA, length(All.facs),5)
-  colnames(PRD.table) <- c("R","R+S","R+M","R+Sel","R+q")
-  rnames <- gsub("_", " ", All.facs, fixed = TRUE)
-  rnames <- gsub("process error", "Process Error", rnames, fixed = TRUE)
-  rnames <- gsub("F ", "$F$ ", rnames, fixed = TRUE)
-  rnames <- gsub("EM M", "EM $M$ Assumption", rnames, fixed = TRUE)
-  rnames <- gsub("log sd log SSB", "$\\log\\left(SD_\\text{SSB}]\\right)$", rnames, fixed = TRUE)
-  rnames <- gsub("NAA sigma", "$\\sigma_{2+}$ ", rnames, fixed = TRUE)
-  rnames <- gsub("R sigma", "$\\sigma_R$", rnames, fixed = TRUE)
-  rnames <- gsub("q sigma", "$\\sigma_q$", rnames, fixed = TRUE)
-  rnames <- gsub("M sigma", "$\\sigma_M$", rnames, fixed = TRUE)
-  rnames <- gsub("Sel sigma", "$\\sigma_{Sel}$", rnames, fixed = TRUE)
-  rnames <- gsub("M rho", "$\\rho_R$", rnames, fixed = TRUE)
-  rnames <- gsub("Sel rho", "$\\rho_{Sel}$", rnames, fixed = TRUE)
-  rnames <- gsub("q rho", "$\\rho_q$", rnames, fixed = TRUE)
-  rnames <- gsub("SR model", "EM SR assumption", rnames, fixed = TRUE)
-
-  rownames(PRD.table) <- rnames
-  print(dim(PRD.table))
-  for(i in c("R","R+S","R+M","R+Sel","R+q")) {
-    print(names(dev.tables[[SR_par]][[i]]))
-    print(All.facs)
-    print(length(dev.tables[[SR_par]][[i]][match(All.facs, names(dev.tables[[SR_par]][[i]]))]))
-    PRD.table[,i] <- dev.tables[[SR_par]][[i]][match(All.facs, names(dev.tables[[SR_par]][[i]]))]
-  }
-  y <- interactions.dev.table
-  rownames(y) <- c("All factors", "+ All Two Way", "+ All Three Way")
-  PRD.tables[[SR_par]] <- rbind(PRD.table,y)
-
+  return(glm_fits)
 }
+
+get_bias_PRD_tables <- function(pars = c("a","b","M", "SSB", "F", "R"), glm_fits, factors){
+  dev.tables <- PRD.tables <- list()
+  for(SR_par in pars) {
+    print(SR_par)
+    par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
+    print(par_type)
+    dev.tables[[SR_par]] <- PRD.tables[[SR_par]] <- list()
+    for(OM_type in names(glm_fits[[SR_par]])){
+      facs <- factors[[par_type]][[OM_type]]
+      dev.tables[[SR_par]][[OM_type]] <- sapply(glm_fits[[SR_par]][[OM_type]][facs], \(x) 1 - x$deviance/glm_fits[[SR_par]][[OM_type]][[1]]$null.deviance)
+    }
+    interactions.dev.table <- sapply(names(factors[[par_type]]), \(x) 1 - c(glm_fits[[SR_par]][[x]][["all"]]$deviance, glm_fits[[SR_par]][[x]][["all2"]]$deviance,
+      glm_fits[[SR_par]][[x]][["all3"]]$deviance)/glm_fits[[SR_par]][[x]][[1]]$null.deviance)
+    x <- as.data.frame(round(100*interactions.dev.table,2))
+    x <- cbind(Model = c("No Interactions", "+ All Two Way", "+ All Three Way"), x)
+  
+    All.facs <- c("EM_process_error","OM_Obs._Error", "OM_F_History","OM_R_sigma","OM_NAA_sigma","OM_M_sigma", "OM_M_rho","OM_Sel_sigma", "OM_Sel_rho", 
+      "OM_q_sigma", "OM_q_rho")
+    if(SR_par %in% c("a","b")) All.facs <- c("EM_M", All.facs)
+    if(SR_par %in% c("M")) All.facs <- c("SR_model", All.facs)
+    if(SR_par %in% c("SSB", "F", "R")) All.facs <- c("EM_M", "SR_model",All.facs)
+    PRD.table <- matrix(NA, length(All.facs),5)
+    colnames(PRD.table) <- c("R","R+S","R+M","R+Sel","R+q")
+    rnames <- gsub("_", " ", All.facs, fixed = TRUE)
+    rnames <- gsub("process error", "Process Error", rnames, fixed = TRUE)
+    rnames <- gsub("F ", "$F$ ", rnames, fixed = TRUE)
+    rnames <- gsub("EM M", "EM $M$ Assumption", rnames, fixed = TRUE)
+    rnames <- gsub("log sd log SSB", "$\\log\\left(SD_\\text{SSB}]\\right)$", rnames, fixed = TRUE)
+    rnames <- gsub("NAA sigma", "$\\sigma_{2+}$ ", rnames, fixed = TRUE)
+    rnames <- gsub("R sigma", "$\\sigma_R$", rnames, fixed = TRUE)
+    rnames <- gsub("q sigma", "$\\sigma_q$", rnames, fixed = TRUE)
+    rnames <- gsub("M sigma", "$\\sigma_M$", rnames, fixed = TRUE)
+    rnames <- gsub("Sel sigma", "$\\sigma_{\\text{Sel}}$", rnames, fixed = TRUE)
+    rnames <- gsub("M rho", "$\\rho_M$", rnames, fixed = TRUE)
+    rnames <- gsub("Sel rho", "$\\rho_{\\text{Sel}}$", rnames, fixed = TRUE)
+    rnames <- gsub("q rho", "$\\rho_q$", rnames, fixed = TRUE)
+    rnames <- gsub("SR model", "EM SR assumption", rnames, fixed = TRUE)
+  
+    rownames(PRD.table) <- rnames
+    print(dim(PRD.table))
+    for(i in c("R","R+S","R+M","R+Sel","R+q")) {
+      print(names(dev.tables[[SR_par]][[i]]))
+      print(All.facs)
+      print(length(dev.tables[[SR_par]][[i]][match(All.facs, names(dev.tables[[SR_par]][[i]]))]))
+      PRD.table[,i] <- dev.tables[[SR_par]][[i]][match(All.facs, names(dev.tables[[SR_par]][[i]]))]
+    }
+    y <- interactions.dev.table
+    rownames(y) <- c("All factors", "+ All Two Way", "+ All Three Way")
+    PRD.tables[[SR_par]] <- rbind(PRD.table,y)
+  }
+  return(PRD.tables)
+}
+
+glm_fits <- get_bias_reg_fits(factors = factors, obs_dfs = obs_dfs)
+PRD.tables <- get_bias_PRD_tables(glm_fits=glm_fits, factors = factors)
+
 saveRDS(glm_fits, here::here("Project_0","results", "glm_fits_bias.RDS"))
 
+
+# # examine which combination of factors are important for bias of SRR pars for R and R+S OMs : what is PRD if we leave one out?
+# x <- factors[["SR"]][["R"]]
+# tfits <- lapply(x[-1], \(y) glm(as.formula(paste("relerror_trans", "~", paste(x[x!=y],collapse = "+"))), family = gaussian, data = get_small_data("a", "R", obs_dfs, factors, NA)))
+# names(tfits) <- paste0("not_",x[2:6])
+# sapply(tfits, \(x) 1 - x$deviance/glm_fits[["a"]][["R"]][[1]]$null.deviance)
+# 
+# x <- factors[["SR"]][["R+S"]]
+# tfits <- lapply(x[2:8], \(y) glm(as.formula(paste("relerror_trans", "~", paste(x[x!=y],collapse = "+"))), family = gaussian, data = get_small_data("a", "R+S", obs_dfs, factors, NA)))
+# names(tfits) <- paste0("not_",x[2:7])
+# tfits[["R_sigma+SD_SSB"]] <- glm(as.formula(paste("relerror_trans", "~", paste(x[c(3,7:8)],collapse = "+"))), family = gaussian, data = get_small_data("a", "R+S", obs_dfs, factors, NA))
+# sapply(tfits, \(x) 1 - x$deviance/glm_fits[["a"]][["R+S"]][[1]]$null.deviance)
+####################################################
 
 x <- cbind(PRD.tables[["a"]],PRD.tables[["b"]])
 x[] <- format(round(100*x,2), nsmall = 2)
@@ -560,10 +659,6 @@ saveRDS(full.trees, here::here("Project_0","results", "reg_trees_bias.RDS"))
 anova.palette.sd <- 0.15
 # full.trees <- readRDS(here::here("Project_0","results", "reg_trees_bias.RDS"))
 
-
-# pkgload::load_all("/home/tmiller/FSAM_research/aug_backup/work/rpart.plot")
-pkgload::load_all(file.path(here(),"../../rpart.plot"))
-# round(PRD.tables$a,2)
 cairo_pdf(here("Project_0","manuscript", paste0("SR_a_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
 x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
 # x <- matrix(c(1,1,2,3,1,1,4,5), 2, 4, byrow = TRUE)
@@ -581,6 +676,7 @@ mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
 plot.prune(prune(full.trees[["a"]][["R+q"]], c(4,5,3)), cp = 0.0001, type = "R+q", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()
+
 
 # pkgload::load_all("c:/work/rpart.plot")
 # show_col(viridis::viridis_pal(option = "turbo", begin = 0.2, end = 0.8)(4))

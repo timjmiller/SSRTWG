@@ -8,11 +8,12 @@ df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.oms.RDS"))
 om_inputs = readRDS(file.path(here(),"Project_0","inputs", "NAA_om_inputs.RDS"))
 
 naa_om_tab <- df.oms
-naa_om_tab$Model <- paste0("$\\text{NAA}_{", 1:24, "}$")
+#naa_om_tab$Model <- paste0("$\\text{NAA}_{", 1:24, "}$")
+naa_om_tab$Model <- 1:24
 naa_om_tab <- naa_om_tab %>%
   mutate(obs_error = recode(obs_error,
-    "L" = "Index SD = 0.1, Age composition SD = 0.3",
-    "H" = "Index SD = 0.4, Age composition SD = 1.5"
+    "L" = "Low",
+    "H" = "High"
   ))
 naa_om_tab <- naa_om_tab %>%
   mutate(Fhist = recode(Fhist,
@@ -34,11 +35,12 @@ df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.M.oms.RDS"))
 om_inputs = readRDS(file.path(here(),"Project_0","inputs", "M_om_inputs.RDS"))
 
 om_tab <- df.oms
-om_tab$Model <- paste0("$M_{", 1:16, "}$")
+#om_tab$Model <- paste0("$M_{", 1:16, "}$")
+om_tab$Model <- 1:16
 om_tab <- om_tab %>%
   mutate(obs_error = recode(obs_error,
-    "L" = "Index SD = 0.1, Age composition SD = 0.3",
-    "H" = "Index SD = 0.4, Age composition SD = 1.5"
+                            "L" = "Low",
+                            "H" = "High"
   ))
 om_tab <- om_tab %>%
   mutate(Fhist = recode(Fhist,
@@ -61,11 +63,12 @@ df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.Sel.oms.RDS"))
 om_inputs = readRDS(file.path(here(),"Project_0","inputs", "Sel_om_inputs.RDS"))
 
 om_tab <- df.oms
-om_tab$Model <- paste0("$\\text{Sel}_{", 1:16, "}$")
+#om_tab$Model <- paste0("$\\text{Sel}_{", 1:16, "}$")
+om_tab$Model <- 1:16
 om_tab <- om_tab %>%
   mutate(obs_error = recode(obs_error,
-    "L" = "Index SD = 0.1, Age composition SD = 0.3",
-    "H" = "Index SD = 0.4, Age composition SD = 1.5"
+                            "L" = "Low",
+                            "H" = "High"
   ))
 om_tab <- om_tab %>%
   mutate(Fhist = recode(Fhist,
@@ -87,11 +90,12 @@ df.oms = readRDS(file.path(here(),"Project_0","inputs", "df.q.oms.RDS"))
 om_inputs = readRDS(file.path(here(),"Project_0","inputs", "q_om_inputs.RDS"))
 
 om_tab <- df.oms
-om_tab$Model <- paste0("$q_{", 1:16, "}$")
+#om_tab$Model <- paste0("$q_{", 1:16, "}$")
+om_tab$Model <- 1:16
 om_tab <- om_tab %>%
   mutate(obs_error = recode(obs_error,
-    "L" = "Index SD = 0.1, Age composition SD = 0.3",
-    "H" = "Index SD = 0.4, Age composition SD = 1.5"
+                            "L" = "Low",
+                            "H" = "High"
   ))
 om_tab <- om_tab %>%
   mutate(Fhist = recode(Fhist,
@@ -110,7 +114,8 @@ x = latex(om_tab, file = here("Project_0","manuscript","q_om_tab.tex"),
 
 
 em_tab <- df.ems
-em_tab$Model <- paste0("EM$_{", 1:32, "}$")
+#em_tab$Model <- paste0("EM$_{", 1:32, "}$")
+em_tab$Model <- 1:32
 em_tab$pe <- em_tab$re_config
 em_tab$pe[which(em_tab$pe == "M_re")] = paste0(em_tab$pe[which(em_tab$pe == "M_re")], "_", em_tab$M_re_cor[which(em_tab$pe == "M_re")])
 em_tab$pe[which(em_tab$pe == "sel_re")] = paste0(em_tab$pe[which(em_tab$pe == "sel_re")], "_", em_tab$sel_re_cor[which(em_tab$pe == "sel_re")])
@@ -135,10 +140,10 @@ em_tab <- em_tab %>%
     "q_re_ar1" = "R+q ($\\rho_{q}$ estimated)",
   ))
 em_tab <- em_tab[c("Model","SR_model","Median $M$", "pe")]
-em_tab[["R,R+S OMs"]] <- rep(c("$+$","$-$"), c(20,12))
-em_tab[["R+M OMs"]] <- rep(c("$-$","$+$","$-$"), c(4,20,8))
-em_tab[["R+Sel OMs"]] <- rep(c("$-$","$+$","$-$","$+$","$-$"), c(4,16,4,4,4))
-em_tab[["R+q OMs"]] <- rep(c("$-$","$+$","$-$","$+$"), c(4,16,8,4))
+em_tab[["R,R+S OMs"]] <- rep(c("$+$",NA), c(20,12))
+em_tab[["R+M OMs"]] <- rep(c(NA,"$+$",NA), c(4,20,8))
+em_tab[["R+Sel OMs"]] <- rep(c(NA,"$+$",NA,"$+$",NA), c(4,16,4,4,4))
+em_tab[["R+q OMs"]] <- rep(c(NA,"$+$",NA,"$+$"), c(4,16,8,4))
 names(em_tab)[2] <- "Recruitment model"
 names(em_tab)[4] <- "Process error"
 

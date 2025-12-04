@@ -360,9 +360,9 @@ for(par_type in c("F","R","SSB")){
   rnames <- gsub("R sigma", "$\\sigma_R$", rnames, fixed = TRUE)
   rnames <- gsub("q sigma", "$\\sigma_q$", rnames, fixed = TRUE)
   rnames <- gsub("M sigma", "$\\sigma_M$", rnames, fixed = TRUE)
-  rnames <- gsub("Sel sigma", "$\\sigma_{Sel}$", rnames, fixed = TRUE)
-  rnames <- gsub("M rho", "$\\rho_R$", rnames, fixed = TRUE)
-  rnames <- gsub("Sel rho", "$\\rho_{Sel}$", rnames, fixed = TRUE)
+  rnames <- gsub("Sel sigma", "$\\sigma_{\\text{Sel}}$", rnames, fixed = TRUE)
+  rnames <- gsub("M rho", "$\\rho_M$", rnames, fixed = TRUE)
+  rnames <- gsub("Sel rho", "$\\rho_{\\text{Sel}}$", rnames, fixed = TRUE)
   rnames <- gsub("q rho", "$\\rho_q$", rnames, fixed = TRUE)
   rnames <- gsub("SR model", "EM SR assumption", rnames, fixed = TRUE)
   
