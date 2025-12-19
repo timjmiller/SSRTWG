@@ -88,8 +88,8 @@ for(i in 1:4) {
   }
   df$log_sd_log_SSB <- log(df$sd_log_SSB)
   df <- df %>% mutate(OM_F_History = recode(Fhist,
-        "H-MSY"  = "H->MSY",
-        "MSY" = "MSY"))
+    "H-MSY"  = "2.5*italic(F)[MSY] %->% italic(F)[MSY]",
+    "MSY" = "italic(F)[MSY]"))
   df <- df %>% mutate(OM_Obs._Error = recode(obs_error,
       "L" = "Low",
       "H" = "High"))
@@ -205,9 +205,13 @@ split.fun <- function(type = "R") {
       labs <- gsub(" (AR1)","(AR1)", labs, fixed = TRUE)
       labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
       labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
-      labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
-      labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
-      labs <- gsub("R sigma", "sigma[R]", labs, fixed = TRUE) #sigma_2+
+#      labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
+#      labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+      labs <- gsub(" %->% ", "*phantom(0)%->%phantom(0)*", labs, fixed = TRUE)
+      labs <- gsub("OM ", "OM*phantom(0)*", labs, fixed = TRUE)
+			labs <- gsub("Obs. Error", "Obs.*phantom(0)*Error", labs, fixed = TRUE)
+			labs <- gsub("EM Process", "EM*phantom(0)*Process", labs, fixed = TRUE)
+			labs <- gsub("R sigma", "sigma[R]", labs, fixed = TRUE) #sigma_2+
       labs <- gsub("NAA sigma", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
       labs <- gsub("log sd log SSB", "log(SD[SSB])", labs, fixed = TRUE)
       labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
@@ -232,8 +236,12 @@ split.fun <- function(type = "R") {
       labs <- gsub(",", "*','*", labs, fixed = TRUE)
       labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
       labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
-      labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
-      labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+      # labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
+      # labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+      labs <- gsub(" %->% ", "*phantom(0)%->%phantom(0)*", labs, fixed = TRUE)
+      labs <- gsub("OM ", "OM*phantom(0)*", labs, fixed = TRUE)
+      labs <- gsub("Obs. Error", "Obs.*phantom(0)*Error", labs, fixed = TRUE)
+      labs <- gsub("EM Process", "EM*phantom(0)*Process", labs, fixed = TRUE)
       labs <- gsub("R sigma", "sigma[R]", labs, fixed = TRUE) #sigma_2+
       labs <- gsub("NAA sigma", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
       labs <- gsub("log sd log SSB", "log(SD[SSB])", labs, fixed = TRUE)
@@ -257,7 +265,12 @@ split.fun <- function(type = "R") {
 
 node.fun <- function(x, labs, digits, varlen)
 {
-  paste0("Prop. Correct = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\n", x$frame$n)
+  # paste0("Prop. Correct = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\n", x$frame$n)
+  n <- x$frame$n
+  n.print<- character()
+  n.print[which(nchar(n)<5)]<- format(n[which(nchar(n)<5)])
+  n.print[which(nchar(n)>4)] <- format(n, big.mark = " ")[which(nchar(n)>4)]
+  paste0(format(round(x$frame$yval2[,5]*100,1), nsmall = 1),"%\n", n.print)
 }
 
 #modified from part package to allow more flexibility in pruning in plots
@@ -312,16 +325,16 @@ cairo_pdf(here("Project_0","manuscript", paste0("AIC_SRR_classification_plots.pd
 x <- matrix(c(1,1,2,2,4,4,3,3,3,5,5,5), 2, 6, byrow = TRUE)
 layout.x <- layout(x) 
 par(mar = c(0,0,5,0), oma = c(0,0,0,0))
-plot.prune(full.trees[["R"]],0.1, "R", tweak = 1.2, mar = c(0,0,5,0), roundint = FALSE)
+plot.prune(full.trees[["R"]],0.1, "R", tweak = 1.6, mar = c(0,0,5,0), roundint = FALSE)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+S"]],0.03, "R+S", tweak = 1.2, mar = c(0,0,5,0), roundint = FALSE)
+plot.prune(full.trees[["R+S"]],0.03, "R+S", tweak = 1.6, mar = c(0,0,5,0), roundint = FALSE)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 x <- prune(full.trees[["R+M"]],0.005)
-plot.prune(x,cp = 100, factor = "dev", type = "R+M", tweak= 1.2, mar = c(0,0,5,0), roundint= FALSE)
+plot.prune(x,cp = 100, factor = "dev", type = "R+M", tweak= 1.6, mar = c(0,0,5,0), roundint= FALSE)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+Sel"]],0.005, "R+Sel", tweak = 1.2, mar = c(0,0,5,0), roundint= FALSE)
+plot.prune(full.trees[["R+Sel"]],0.005, "R+Sel", tweak = 1.6, mar = c(0,0,5,0), roundint= FALSE)
 mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
 x <- prune(full.trees[["R+q"]],0.01)
-plot.prune(x,100, factor = "dev", type = "R+q", tweak = 1.2, mar = c(0,0,5,0), roundint= FALSE)
+plot.prune(x,100, factor = "dev", type = "R+q", tweak = 1.6, mar = c(0,0,5,0), roundint= FALSE)
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
 dev.off()

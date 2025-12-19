@@ -123,9 +123,9 @@ for(i in names(om.em.rows)) {
     ))
   conv_df[[i]] <- conv_df[[i]] %>%
     mutate(F_History = recode(as.character(Fhist),
-      "H-MSY" = "H->MSY",
-      "MSY" = "MSY"
-    ))
+      "H-MSY"  = "2.5*italic(F)[MSY] %->% italic(F)[MSY]",
+      "MSY" = "italic(F)[MSY]"
+  ))
 
 	conv_df[[i]] <- conv_df[[i]][sort(names(conv_df[[i]]))]
 
@@ -244,11 +244,16 @@ split.fun <- function(type = "R") {
 			labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
 			labs <- gsub("PE", "Process*phantom(0)*Error", labs, fixed = TRUE)
 			labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
-			labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
-			labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+			labs <- gsub(" %->% ", "*phantom(0)%->%phantom(0)*", labs, fixed = TRUE)
+			labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
+			#labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+			#labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
 			labs <- gsub("EM SR", "EM*phantom(0)*SR*phantom(0)*Assumption", labs, fixed = TRUE)
+			labs <- gsub("OM ", "OM*phantom(0)*", labs, fixed = TRUE)
+			labs <- gsub("Obs. Error", "Obs.*phantom(0)*Error", labs, fixed = TRUE)
+			labs <- gsub("EM Process", "EM*phantom(0)*Process", labs, fixed = TRUE)
 			labs <- gsub("NAA SD", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
-			labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
+			#labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
 			#can't do this with math expressions
 			# for(i in 1:length(labs)) {
 			# 	# split labs[i] into multiple lines
@@ -265,11 +270,15 @@ split.fun <- function(type = "R") {
 			labs <- gsub(" M", "*phantom(0)*italic(M)", labs, fixed = TRUE) #italic M
 			labs <- gsub("PE", "Process*phantom(0)*Error", labs, fixed = TRUE)
 			labs <- gsub("F ", "italic(F)*phantom(0)*", labs, fixed = TRUE)
-			labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
-			labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+			labs <- gsub(" %->% ", "*phantom(0)%->%phantom(0)*", labs, fixed = TRUE)
+			#labs <- gsub("MSY", "italic(F)[MSY]", labs, fixed = TRUE)
+			#labs <- gsub("H->MSY", "2.5*italic(F)[MSY]%->%phantom(0)*italic(F)[MSY]", labs, fixed = TRUE)
 			labs <- gsub("EM SR", "EM*phantom(0)*SR*phantom(0)*Assumption", labs, fixed = TRUE)
+			labs <- gsub("OM ", "OM*phantom(0)*", labs, fixed = TRUE)
+			labs <- gsub("Obs. Error", "Obs.*phantom(0)*Error", labs, fixed = TRUE)
+			labs <- gsub("EM Process", "EM*phantom(0)*Process", labs, fixed = TRUE)
 			labs <- gsub("NAA SD", "sigma['2+']", labs, fixed = TRUE) #sigma_2+
-			labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
+			#labs <- gsub(" ", "*phantom(0)*", labs, fixed = TRUE)
 			#can't do this with math expressions
 			# for(i in 1:length(labs)) {
 			# 	split labs[i] into multiple lines
@@ -283,7 +292,13 @@ split.fun <- function(type = "R") {
 
 node.fun <- function(x, labs, digits, varlen)
 {
-	paste0("Conv. Rate = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\nn = ", x$frame$n)
+	# paste0("Conv. Rate = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\nn = ", x$frame$n)
+  
+  n <- x$frame$n
+  n.print<- character()
+  n.print[which(nchar(n)<5)]<- format(n[which(nchar(n)<5)])
+  n.print[which(nchar(n)>4)] <- format(n, big.mark = " ")[which(nchar(n)>4)]
+  paste0(format(round(x$frame$yval2[,5]*100,1), nsmall = 1),"%\n", n.print)
 }
 
 #modified from part package to allow more flexibility in pruning in plots
@@ -336,16 +351,16 @@ cairo_pdf(here("Project_0","manuscript", paste0("convergence_classification_plot
 x <- matrix(c(1,1,2,2,3,3,0,4,4,5,5,0), 2, 6, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
-plot.prune(full.trees[["R"]],6300, "R", factor = "n", tweak = 1.2, mar = c(0,0,5,0))
+plot.prune(full.trees[["R"]],6300, "R", factor = "n", tweak = 1.6, mar = c(0,0,5,0))
 mtext("R OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+S"]],0.03, "R+S", tweak = 1.2, mar = c(0,0,5,0))
+plot.prune(full.trees[["R+S"]],0.03, "R+S", tweak = 1.6, mar = c(0,0,5,0))
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+M"]],2600, "R+M", factor = "dev", tweak= 1.2, mar = c(0,0,5,0))
-mtext("R+M OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+Sel"]],1500, "R+Sel", factor = "dev", tweak = 1.2, mar = c(0,0,5,0))
-mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
-plot.prune(full.trees[["R+q"]],3000, "R+q",factor = "dev", tweak = 1.2, mar = c(0,0,5,0))
+plot.prune(full.trees[["R+q"]],3000, "R+q",factor = "dev", tweak = 1.6, mar = c(0,0,5,0))
 mtext("R+q OMs", side = 3, line = 0, cex = 2)
+plot.prune(full.trees[["R+Sel"]],1500, "R+Sel", factor = "dev", tweak = 1.6, mar = c(0,0,5,0))
+mtext("R+Sel OMs", side = 3, line = 0, cex = 2)
+plot.prune(full.trees[["R+M"]],2600, "R+M", factor = "dev", tweak= 1.6, mar = c(0,0,5,0))
+mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
 # "\U1D440"#italic M
