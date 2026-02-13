@@ -51,16 +51,22 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
         conv_ind <- 1:100 #all of them
         if(!is.null(conv_type)) conv_ind <- conv_fn(om,em_ind[j],conv_res,Type = conv_type) #subset consistent with convergence results
         error <- bias_res[[om]][[em_ind_[j]]][,1] #em indexes among only 6 ems fitted (either with ecov_beta or with median M estimated
+        sehat <- bias_res[[om]][[em_ind_[j]]][,2]
         true_se <- sd(bias_res[[om]][[em_ind_[j]]][,1], na.rm=T)
-        se_error <- bias_res[[om]][[em_ind_[j]]][,2] - true_se
+        se_error <- sehat - true_se
         se_rel_error <- se_error/true_se
         ci_coverage_ind <- bias_res[[om]][[em_ind_[j]]][,3]
         conv <- rep(0,100)
         conv[conv_ind] <- 1
+        # if(any(conv == 0 & !is.na(se_error))) {
+        #   print(paste0("i: ", i," om: ", om, " em: ", em_ind[j]))
+        #   print(which(conv == 0 & !is.na(se_error)))
+        #   stop()
+        # }
         if(!length(conv_ind)) {
           print(paste0("i: ", i," om: ", om, " em: ", em_ind[j]))
         }
-        return(cbind.data.frame(om=om,em=em_ind[j],conv = conv, error=error, se_error = se_error, se_rel_error = se_rel_error, ci_coverage = ci_coverage_ind))
+        return(cbind.data.frame(om=om,em=em_ind[j],conv = conv, error=error, se = sehat, se_error = se_error, se_rel_error = se_rel_error, ci_coverage = ci_coverage_ind))
       })
       out <- do.call(rbind,out)
       return(out)
@@ -109,16 +115,16 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
       "1" = "True",
       "0" = "False"
     ))
-  df <- df %>%
-    mutate(ci_coverage = recode(ci_coverage,
-      "1" = "Yes",
-      "0" = "No"
-    ))
+  # df <- df %>%
+  #   mutate(ci_coverage = recode(ci_coverage,
+  #     "1" = "Yes",
+  #     "0" = "No"
+  #   ))
   return(df)
 }
 
 
-get_bias_reg_fits <- function(factors, dfs, type = "mean_M", response = "error", is_SE = FALSE){
+get_bias_reg_fits <- function(factors, dfs, type = "mean_M", response = "error", is_SE = FALSE, family = "gaussian"){
   glm_fits <- dev.tables <- PRD.tables <- list()
   df <- dfs[[type]]
   if(is_SE) {
@@ -133,12 +139,12 @@ get_bias_reg_fits <- function(factors, dfs, type = "mean_M", response = "error",
     dev.tables[[OM_type]] <- list()
     for(i in factors){
       print(i)
-      glm_fits[[OM_type]][[i]] <- glm(as.formula(paste(response, "~", i)), family = gaussian, data = temp)
+      glm_fits[[OM_type]][[i]] <- glm(as.formula(paste(response, "~", i)), family = family, data = temp)
     }
-    glm_fits[[OM_type]][["all"]] <- glm(as.formula(paste(response, "~", paste(factors,collapse = "+"))), family = gaussian, data = temp)
-    glm_fits[[OM_type]][["all2"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^2")), family = gaussian,
+    glm_fits[[OM_type]][["all"]] <- glm(as.formula(paste(response, "~", paste(factors,collapse = "+"))), family = family, data = temp)
+    glm_fits[[OM_type]][["all2"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^2")), family = family,
       data = temp)
-    glm_fits[[OM_type]][["all3"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^3")), family = gaussian,
+    glm_fits[[OM_type]][["all3"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^3")), family = family,
       data = temp)
     #percent reduction in deviance
   }
@@ -195,8 +201,33 @@ for(i in c("mean_M", "ecov_beta")){
   dfs[[i]] <- df  
 }
 
-head(dfs[["mean_M"]])
-head(dfs[["ecov_beta"]])
+# tail(sort(dfs[["mean_M"]]$error),20)
+# 
+# head(sort(dfs[["mean_M"]]$error),20)
+# tail(sort(dfs[["mean_M"]]$error),20)
+# head(dfs[["ecov_beta"]])
+# head(sort(dfs[["ecov_beta"]]$error),20)
+# tail(sort(dfs[["ecov_beta"]]$error),20)
+# hist(dfs[["mean_M"]]$error)
+# hist(dfs[["ecov_beta"]]$error)
+# temp <- subset(dfs[["ecov_beta"]], conv == "True")
+# temp <- subset(temp, error > -5 & error < 5)
+# hist(temp[[1]]$error)
+# hist(dfs[["ecov_beta"]]$error)
+# 
+# head(sort(temp$error),20)
+# tail(sort(temp$error),20)
+# temp <- list(ecov_beta = temp)
+# facs <- factors[!factors %in% c("EM_beta_ecov", "conv")]
+# fits <- get_bias_reg_fits(factors = facs, dfs = temp, type = "ecov_beta")
+# prd_table <- get_bias_PRD_tables(glm_fits=fits, factors = factors[-1])
+# prd_table*100
+# round(prd_table/max(prd_table),2)
+# round(PRD.tables[["ecov_beta"]][["converged"]]/max(PRD.tables[["ecov_beta"]][["converged"]]),2)
+# ind <- which(temp[["ecov_beta"]]$error < 172.8)
+# temp[["ecov_beta"]]$error
+# x <- sapply(fits[["R"]], AIC)
+# x-min(x)
 
 glm_fits <- list()
 for(i in c("mean_M", "ecov_beta")){
@@ -206,17 +237,28 @@ for(i in c("mean_M", "ecov_beta")){
   glm_fits[[i]][["complete"]] <- get_bias_reg_fits(factors = facs, dfs = dfs, type = i)
   glm_fits[[i]][["converged"]] <- get_bias_reg_fits(factors = facs, dfs = dfs, type = i, is_SE = TRUE)
   glm_fits[[i]][["se"]] <- get_bias_reg_fits(factors = facs, dfs = dfs, type = i, response = "se_rel_error_trans", is_SE = TRUE)
+  glm_fits[[i]][["ci_coverage"]] <- get_bias_reg_fits(factors = facs, dfs = dfs, type = i, response = "ci_coverage", is_SE = TRUE, family = "binomial")
 }
 
+PRD.tables <- list()
 for(i in c("mean_M", "ecov_beta")){
-  for(j in c("complete", "converged", "se")){
-    PRD.table <- get_bias_PRD_tables(glm_fits=glm_fits[[i]][[j]], factors = factors[-1])
-    x <- PRD.table
+  PRD.tables[[i]] <- list()
+  for(j in c("complete", "converged", "se", "ci_coverage")){
+    PRD.tables[[i]][[j]] <- get_bias_PRD_tables(glm_fits=glm_fits[[i]][[j]], factors = factors[-1])
+  }
+}
+PRD.tables[["ecov_beta"]]
+
+for(i in c("mean_M", "ecov_beta")){
+  for(j in c("complete", "converged", "se", "ci_coverage")){
+    x <- PRD.tables[[i]][[j]]
     x[] <- format(round(100*x,2), nsmall = 2)
     dim(x)
     x[which(is.na(as.numeric(x)))] <- "--"
     x[which(as.numeric(x) == 0)] <- "< 0.01"
-    x <- latex(x, file = here("Ecov_study","mortality","manuscript",paste0("bias_", i,"_", j, "_PRD_table.tex")), 
+    j_name <- j
+    if(j %in% c("complete","converged")) j_name <- paste0("bias_",j)
+    x <- latex(x, file = here("Ecov_study","mortality","manuscript",paste0(i,"_", j_name, "_PRD_table.tex")), 
       table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
   }
 }
@@ -280,6 +322,9 @@ prune.rpart <- function(tree, cp, factor = "complexity", ...)
 }
 
 plot.prune<- function(mod,cp, type, factor = "complexity", extra = 7, ...) {
+  fn <- node.fun
+  print(names(mod))
+  if(mod$method == "class") fn <- ci.coverage.node.fun
   rpart.plot(prune.rpart(mod, cp = cp, factor = factor),
              yesno=FALSE,
              type=4, 
@@ -287,7 +332,7 @@ plot.prune<- function(mod,cp, type, factor = "complexity", extra = 7, ...) {
              xcompact = FALSE,
              ycompact = FALSE,
              extra = extra, 
-             node.fun = node.fun, 
+             node.fun = fn, 
              split.fun = split.fun(type), 
              box.palette = "RdGn", 
              branch = 0.2, 
@@ -344,6 +389,17 @@ node.fun <- function(x, labs, digits, varlen){
   paste0(out, "\n", n.print)
 }
 
+ci.coverage.node.fun <- function(x, labs, digits, varlen) {
+  # paste0("Conv. Rate = ", format(round(x$frame$yval2[,5],3), nsmall = 3), "\nn = ", x$frame$n)
+  
+  n <- x$frame$n
+  n.print<- character()
+  n.print[which(nchar(n)<5)]<- format(n[which(nchar(n)<5)])
+  n.print[which(nchar(n)>4)] <- format(n, big.mark = " ")[which(nchar(n)>4)]
+  paste0(format(round(x$frame$yval2[,5]*100,1), nsmall = 1),"%\n", n.print)
+}
+
+
 full.trees <- list()
 for(i in c("mean_M", "ecov_beta")){
   full.trees[[i]] <- list()
@@ -353,6 +409,7 @@ for(i in c("mean_M", "ecov_beta")){
     print(OM_type)
     full.trees[[i]][[OM_type]] <- list()
     temp <- subset(dfs[[i]], OM_PE == OM_type)
+    temp$ci_cov_txt <- as.factor(c("Yes","No")[match(temp$ci_coverage,1:0)])
     response <- "error"
     form <- as.formula(paste(response,"~", paste(facs, collapse = "+")))
     full.trees[[i]][[OM_type]][["complete"]] <- rpart(form, data=temp, method = "anova", control=rpart.control(cp=0, xval = 100), model = TRUE)
@@ -363,9 +420,26 @@ for(i in c("mean_M", "ecov_beta")){
     response <- "se_rel_error_trans"
     form <- as.formula(paste(response,"~", paste(facs, collapse = "+")))
     full.trees[[i]][[OM_type]][["se"]] <- rpart(form, data=temp, method = "anova", control=rpart.control(cp=0, xval = 100), model = TRUE)
+    response <- "ci_cov_txt"
+    form <- as.formula(paste(response,"~", paste(facs, collapse = "+")))
+    full.trees[[i]][[OM_type]][["ci_coverage"]] <- rpart(form, data=temp, method = "class", control=rpart.control(cp=0, xval = 100), model = TRUE)
     print("OM_type done")
   }
 }
+
+# for(i in c("mean_M", "ecov_beta")){
+#   if(i == "mean_M") facs <- factors[factors != "EM_M"]
+#   if(i == "ecov_beta") facs <- factors[factors != "EM_beta_ecov"]
+#   for(OM_type in levels(dfs[[i]]$OM_PE)){
+#     temp <- subset(dfs[[i]], OM_PE == OM_type)
+#     temp$ci_cov_txt <- as.factor(c("Yes","No")[match(temp$ci_coverage,1:0)])
+#     facs <- facs[which(facs != "conv")]
+#     response <- "ci_cov_txt"
+#     form <- as.formula(paste(response,"~", paste(facs, collapse = "+")))
+#     full.trees[[i]][[OM_type]][["ci_coverage"]] <- rpart(form, data=temp, method = "class", control=rpart.control(cp=0, xval = 100), model = TRUE)
+#   }
+# }
+
 
 for(i in c("mean_M", "ecov_beta")){
   print(i)
@@ -373,61 +447,155 @@ for(i in c("mean_M", "ecov_beta")){
     print(OM_type)
     temp <- subset(dfs[[i]], OM_PE == OM_type)
     full.trees[[i]][[OM_type]][["complete"]] <- add_to_frame(full.trees[[i]][[OM_type]][["complete"]], temp, response = "error")
-    temp <- subset(temp, conv == "True")
-    full.trees[[i]][[OM_type]][["converged"]] <- add_to_frame(full.trees[[i]][[OM_type]][["converged"]], temp, response = "error")
-    full.trees[[i]][[OM_type]][["se"]] <- add_to_frame(full.trees[[i]][[OM_type]][["se"]], temp, response = "se_rel_error_trans")
+    temp <- subset(temp, conv == "True") #median error for each node
+    full.trees[[i]][[OM_type]][["converged"]] <- add_to_frame(full.trees[[i]][[OM_type]][["converged"]], temp, response = "error") #median error for each node
+    full.trees[[i]][[OM_type]][["se"]] <- add_to_frame(full.trees[[i]][[OM_type]][["se"]], temp, response = "se_rel_error") #median RE for each node
   }
 }
 
 anova.palette.sd <- 0.15
 
+#median error
 cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("median_M_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
 x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
-par(mfrow = c(1,2))
-plot.prune(full.trees[["mean_M"]][["R"]][["complete"]], cp = 1e-9, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["mean_M"]][["R"]][["complete"]],c(64,66,34,36,37,80,48,49,25,13,7)), cp = 1e-9, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(full.trees[["mean_M"]][["R"]][["converged"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["complete"]],c(3,8,36,74,75,38,39,10,22,46,47)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["converged"]],c(4,6,14,30,31,42,20,22,23)), cp = 0.00001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["complete"]], c(3,8,175,40,44,47)), cp = 1e-9, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["ecov_beta"]][["R"]][["complete"]],c(15)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#par(mfrow = c(1,2))
+# plot.prune(full.trees[["mean_M"]][["R"]][["complete"]], cp = 1e-9, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+# plot.prune(prune(full.trees[["mean_M"]][["R"]][["complete"]],c(64,66,34,36,37,80,48,49,25,13,7)), cp = 1e-9, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R"]][["converged"]], c(3,20,32,33,17,36,37,19)), cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-#plot.prune(full.trees[["SSB"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(14,30,31)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["converged"]],c(4,20,42,22,6,14)), cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-# plot.prune(full.trees[["SSB"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(62,63)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R+M"]][["converged"]],c(8,36,38,10,11,3)), cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
-cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("term_F_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+#median error
+cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("ecov_beta_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
 x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
-#plot.prune(full.trees[["F"]][["R"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["F"]][["R"]],c(8)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#par(mfrow = c(1,2))
+#plot.prune(full.trees[["ecov_beta"]][["R"]][["converged"]], cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R"]][["converged"]], c(4,3)), cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-#plot.prune(full.trees[["F"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["F"]][["R+S"]],c(9,16)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#plot.prune(full.trees[["ecov_beta"]][["R+S"]][["converged"]], cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R+S"]][["converged"]], c(16,34,35,24)), cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-#plot.prune(full.trees[["F"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["F"]][["R+M"]],c(32,33)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#plot.prune(full.trees[["ecov_beta"]][["R+M"]][["converged"]], cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R+M"]][["converged"]],c(64,65,66,34)), cp = 0.0001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -1)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
-cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("term_M_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+#median SE error
+cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("median_M_SE_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+#cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("temp.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(1,2,3), 1, 3, byrow = TRUE)
+layout.x <- layout(x) 
+par(oma = c(0,1,0,0))
+#plot.prune(full.trees[["mean_M"]][["R"]][["se"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#plot.prune(prune(full.trees[["mean_M"]][["R"]][["se"]], c(8,5,12,15,28)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6)
+#plot.prune(prune(full.trees[["mean_M"]][["R"]][["se"]], c(8,5,12,15,28,59,26,54,18,38,78,79,55,116,117)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6)
+plot.prune(prune(full.trees[["mean_M"]][["R"]][["se"]], c(2,8,5,12,15,28,59,26,54,38,78,79,55,116,117)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4)
+#plot.prune(prune(full.trees[["mean_M"]][["R"]][["se"]], c(8,18,38,78,12,15)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6)
+#plot.prune(prune(full.trees[["mean_M"]][["R"]][["se"]], c(8,9,12,18,38,78,5,25,15)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6)
+mtext("R OMs", side = 3, line = 0, cex = 2)
+#plot.prune(full.trees[["mean_M"]][["R+S"]][["se"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["se"]],c(4,10,22,3,94,190,191,184,370,371,186,374,92)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0.5)
+#plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["se"]],c(4,10,6,7)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R+S OMs", side = 3, line = 0, cex = 2)
+#plot.prune(full.trees[["mean_M"]][["R+M"]][["se"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R+M"]][["se"]], c(32,33,34,70,71,18,38,39,5,3)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.4, split.yshift = 0.5)
+#plot.prune(prune(full.trees[["mean_M"]][["R+M"]][["se"]], c(4:7)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R+M OMs", side = 3, line = 0, cex = 2)
+dev.off()
+
+#median SE error
+cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("ecov_beta_SE_bias_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(c(1,1,2,3,3), 1, 5, byrow = TRUE)
+layout.x <- layout(x) 
+par(oma = c(0,0,0,0))
+#plot.prune(full.trees[["ecov_beta"]][["R"]][["se"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R"]][["se"]], c(8,18,19,5,12,13,14,15)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R OMs", side = 3, line = 0, cex = 2)
+#plot.prune(full.trees[["ecov_beta"]][["R+S"]][["se"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R+S"]][["se"]],c(2,6,14,30)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R+S OMs", side = 3, line = 0, cex = 2)
+#plot.prune(full.trees[["ecov_beta"]][["R+M"]][["se"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R+M"]][["se"]], c(2,4,10,22,46,47,12,26,14,30)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R+M OMs", side = 3, line = 0, cex = 2)
+dev.off()
+
+anova.palette.sd <- 0.25
+
+anova.palette.sd <- 0.1
+cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("median_M_CI_coverage_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
 x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
-#plot.prune(full.trees[["M"]][["R"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["M"]][["R"]],c(8,18)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#plot.prune(full.trees[["mean_M"]][["R"]][["ci_coverage"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R"]][["ci_coverage"]],c(4)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
-#plot.prune(full.trees[["M"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["M"]][["R+S"]],c(8,9)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#plot.prune(full.trees[["mean_M"]][["R+S"]][["ci_coverage"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R+S"]][["ci_coverage"]],c(4,10,12)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
-#plot.prune(full.trees[["M"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["M"]][["R+M"]],c(8,36)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+#plot.prune(full.trees[["mean_M"]][["R+M"]][["ci_coverage"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["mean_M"]][["R+M"]][["ci_coverage"]],c(4)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
+
+
+anova.palette.sd <- 0.1
+cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("ecov_beta_CI_coverage_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
+x <- matrix(1:3, 1, 3, byrow = TRUE)
+layout.x <- layout(x) 
+par(oma = c(0,0,0,0))
+#plot.prune(full.trees[["ecov_beta"]][["R"]][["ci_coverage"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R"]][["ci_coverage"]],c(8,18,38)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R OMs", side = 3, line = 0, cex = 2)
+#plot.prune(full.trees[["ecov_beta"]][["R+S"]][["ci_coverage"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R+S"]][["ci_coverage"]],c(16,34,18,38)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R+S OMs", side = 3, line = 0, cex = 2)
+#plot.prune(full.trees[["ecov_beta"]][["R+M"]][["ci_coverage"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["ecov_beta"]][["R+M"]][["ci_coverage"]],c(4,12,28)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+mtext("R+M OMs", side = 3, line = 0, cex = 2)
+dev.off()
+
+# library(dplyr)
+# median_summary <- dfs[["ecov_beta"]] %>% 
+#   filter(OM_PE == "R" & conv == "True") %>%
+#   group_by(Ecov_obs_sig,Ecov_effect) %>%
+#   summarise(Median_Value = median(se_error, na.rm = TRUE)) %>% # na.rm = TRUE handles missing values
+#   as.data.frame
+# median_summary  
+# median_summary <- dfs[["ecov_beta"]] %>% 
+#   filter(conv == "True" & Ecov_est) %>%
+#   group_by(OM_PE,OM_F_history, obs_error, Ecov_effect, Ecov_obs_sig, Ecov_re_sig, Ecov_re_cor, EM_PE, EM_M) %>%
+#   summarise(Median_Value = median(se_error, na.rm = TRUE)) %>% # na.rm = TRUE handles missing values
+#   as.data.frame
+# median_summary  
+# temp <- subset(median_summary, Median_Value>0)
+# table(temp$OM_PE)
+# subset(temp, OM_PE == "R+M")
+# 
+# median_summary <- dfs[["ecov_beta"]] %>% 
+#   filter(conv == "True" & OM_PE == "R+M" & Ecov_est) %>%
+#   group_by(Ecov_effect, obs_error, Ecov_re_sig) %>%
+#   summarise(Median_Value = median(se_error, na.rm = TRUE)) %>% # na.rm = TRUE handles missing values
+#   as.data.frame
+# median_summary  
+# 
+# median_summary <- dfs[["ecov_beta"]] %>% 
+#   filter(conv == "True" & OM_PE == "R" & Ecov_est) %>%
+#   group_by(Ecov_effect, Ecov_obs_sig) %>%
+#   summarise(median = median(se_error, na.rm = TRUE)) %>% # na.rm = TRUE handles missing values
+#   as.data.frame
+# median_summary  
+# 
+# CI_summary <- dfs[["ecov_beta"]] %>% 
+#   filter(conv == "True" & OM_PE == "R" & Ecov_est) %>%
+#   group_by(Ecov_effect, Ecov_obs_sig) %>%
+#   summarise(cov_rate = mean(ci_coverage, na.rm = TRUE),cov_rate2 = mean((error < (qnorm(0.975)*se)) & (error>(qnorm(0.025)*se)), na.rm = TRUE)) %>% # na.rm = TRUE handles missing values
+#   as.data.frame
+# CI_summary  

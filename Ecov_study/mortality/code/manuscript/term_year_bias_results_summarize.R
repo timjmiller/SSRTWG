@@ -240,19 +240,6 @@ for(i in c("SSB", "F", "M")[-1]){
     table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
 }
 
-for(i in c("mean_M", "ecov_beta")){
-  if(i == "mean_M") facs <- factors[factors != "EM_M"]
-  if(i == "ecov_beta") facs <- factors[factors != "EM_beta_ecov"]
-  glm_fits <- get_bias_reg_fits(factors = facs, dfs = dfs, type = i)
-  PRD.table <- get_bias_PRD_tables(glm_fits=glm_fits, factors = factors[-1])
-  x <- PRD.table
-  x[] <- format(round(100*x,2), nsmall = 2)
-  dim(x)
-  x[which(is.na(as.numeric(x)))] <- "--"
-  x[which(as.numeric(x) == 0)] <- "< 0.01"
-  x <- latex(x, file = here("Ecov_study","mortality","manuscript",paste0("bias_",i,"_PRD_table.tex")), 
-    table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
-}
 
 #Regression trees
 #########################################
@@ -373,7 +360,11 @@ add_to_frame <- function(obj, data){
 node.fun <- function(x, labs, digits, varlen){
   out <- rep("", NROW(x$frame))
   if(!is.null(x$frame$median_yval)) out <- paste0(format(round(x$frame$median_yval,3), nsmall = 3))
-  paste0(out, "\n", x$frame$n)
+  n <- x$frame$n
+  n.print<- character()
+  n.print[which(nchar(n)<5)]<- format(n[which(nchar(n)<5)])
+  n.print[which(nchar(n)>4)] <- format(n, big.mark = " ")[which(nchar(n)>4)]
+  paste0(out, "\n", n.print)
 }
 
 full.trees <- list()
@@ -405,13 +396,13 @@ x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
 #plot.prune(full.trees[["SSB"]][["R"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R"]],c(15)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["SSB"]][["R"]],c(15)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["SSB"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(14,30,31)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(14,30,31)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 # plot.prune(full.trees[["SSB"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(62,63)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(62,63)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
@@ -420,13 +411,13 @@ x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
 #plot.prune(full.trees[["F"]][["R"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["F"]][["R"]],c(8)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["F"]][["R"]],c(8)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["F"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["F"]][["R+S"]],c(9,16)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["F"]][["R+S"]],c(9,16)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["F"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["F"]][["R+M"]],c(32,33)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["F"]][["R+M"]],c(32,33)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
@@ -435,12 +426,12 @@ x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
 #plot.prune(full.trees[["M"]][["R"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["M"]][["R"]],c(8,18)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["M"]][["R"]],c(8,18)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["M"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["M"]][["R+S"]],c(8,9)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["M"]][["R+S"]],c(8,9)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["M"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["M"]][["R+M"]],c(8,36)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
+plot.prune(prune(full.trees[["M"]][["R+M"]],c(8,36)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()

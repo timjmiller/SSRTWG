@@ -65,32 +65,32 @@ State-space population models are now used widely for fisheries stock assessment
 
 State-space stock assessment models, with non-linear functions of latent processes and numerous observation types with different probability distribution assumptions represent one of most complex classes of state-space models. The literature on the effects of various factors on reliability of inferences from state-space assessment models is growing [@lietal24;@milleretal_inreview1]. The importance of contrast in population size and fishing mortality ($F$) and quality of data used to fit assessment models including the state-space variety is known [@magnussonhilborn07;@milleretal_inreview1]. Furthermore, estimation of natural mortality ($M$), and even temporal variability in $M$ is possible in many scenarios [@leeetal11;@cadigan16;@millerhyun18;@milleretal_inreview1].
 
-The effects of temporal variation in recruitment via undefined or explicit environmental factors have been extensively investigated in both traditional assessment models and state space models [@myers98; @haltuchpunt11; @johnsonetal16; @milleretal16]. Reliability of estimating environmental and spawning biomass effects on recruitment in state-space assessment models requires a combination of strong effects, good age composition data quality, contrast in the environmental covariate and lower recruitment variability [@brittenetal_inreview;@milleretal_inreview1]. 
+The effects of temporal variation in recruitment via undefined or explicit environmental factors have been extensively investigated in both traditional assessment models and state space models [@myers98; @haltuchpunt11; @johnsonetal16; @milleretal16]. Reliability of estimating environmental and spawning biomass effects on recruitment in state-space assessment models requires a combination of strong effects, good age composition data quality, contrast in the environmental covariate and lower recruitment variability [@brittenetal26;@milleretal_inreview1]. 
 
 A critical aspect of fisheries assessment models and their use in management is short-term projections that are used to determine catch advice. While understanding drivers of recruitment is important particularly for subsequent effects on reference points, recruitment in short-term projections typically has little impact on the exploitable biomass in the first few projection years. However, assumptions for $M$ have immediate and larger effects on projected biomass because they affect the abundances at older age classes at the end of the data time series that constitute spawning biomass and catch [@brodziaketal08;@stocketal21]. 
 
 Because of the effects of $M$ on both biological reference points and short term projections, better understanding sources of variation in $M$ would provide more accurate estimation of abundance and productivity and therefore improved management. Temporal variation in $M$ is less studied than recruitment, but its importance for explaining variability in observations has been demonstrated in state-space assessment models for Atlantic cod and yellowtail flounder [@cadigan16;@stocketal21]. @derisoetal08 also demonstrated the importance of several factors affecting $M$ for Pacific herring. 
 
-Assessment models could include temporal variation in many aspects of population dynamics or how observations are related to the population. For example the Woods Hole Assessment Model (WHAM) can include process errors treated as random effects for transition in cohorts over time (hereafter referred to as apparent survival), catchability for indices of abundance, selectivity of fishing fleets or indices, movement between regions, or in $M$ [@stockmiller21;@milleretal_inreview]. However, misspecified temporal population process errors could lead to biased population and stock status estimation, and, therefore, poor fisheries management decisions [ @legaultpalmer16; @szuwalskietal18]. Studies of the reliability of inferences regarding the presence of temporal variability in $M$ are limited. @milleretal_inreview1 found AIC could accurately distinguish process errors in apparent survival, but not for those specifically due to $M$ except when uncertainty in population observations (indices, catch and age composition) was low and there was greater temporal variation in $M$. In their simulation studies looking at models with multiple sources of process error, @lietal24 found including more sources of process error than existed in the operating model was a better model-building approach than excluding them a priori.
+Assessment models could include temporal variation in many aspects of population dynamics or how observations are related to the population. For example the Woods Hole Assessment Model (WHAM) can include process errors treated as random effects for transition in cohorts over time (hereafter referred to as apparent survival), catchability for indices of abundance, selectivity of fishing fleets or indices, movement between regions, or in $M$ [@stockmiller21;@milleretal25]. However, misspecified temporal population process errors could lead to biased population and stock status estimation, and, therefore, poor fisheries management decisions [ @legaultpalmer16; @szuwalskietal18]. Studies of the reliability of inferences regarding the presence of temporal variability in $M$ are limited. @milleretal_inreview1 found AIC could accurately distinguish process errors in apparent survival, but not for those specifically due to $M$ except when uncertainty in population observations (indices, catch and age composition) was low and there was greater temporal variation in $M$. In their simulation studies looking at models with multiple sources of process error, @lietal24 found including more sources of process error than existed in the operating model was a better model-building approach than excluding them a priori.
 
-Here we conduct a simulation study with operating models (OMs) varying by degree of observation error uncertainty, sources of process error, fishing history, temporal variation in environmental covariates, and magnitude of the effect of the covariate on $M$. The simulated observations from these OMs are fitted with estimating models that make alternative assumptions for sources of process error, and whether median $M$ and covariate effects are estimated. We evaluate the effects of these factors on convergence of fitted models, whether Akaike's information criterion (AIC) can determine the correct source of process error and correct assumption about covariate effects on $M$, and the accuracy for estimators of relevant parameters and stock size and harvest rates derived from the assessment model.
+Here we conduct a simulation study with operating models (OMs) varying by degree of observation error uncertainty, sources of process error, fishing history, temporal variation in environmental covariates, and magnitude of the effect of the covariate on $M$. The simulated observations from these OMs are fitted with estimating models that make alternative assumptions for sources of process error, and whether median $M$ and covariate effects are estimated. We evaluate the effects of these factors on convergence of fitted models, whether Akaike's information criterion (AIC) can determine the correct source of process error and correct assumption about covariate effects on $M$, estimation bias for median $M$ and covariate effects, and the accuracy for estimators of important terminal year $M$ and spawning stock biomass (SSB).
 
 
 # Methods {-}
 
-Our analyses used the Woods Hole Assessment Model (WHAM) to construct both OMs and estimation models (EMs) [@millerstock20; @stockmiller21; @milleretal_inreview]. The WHAM package has been used extensively to configure OMs and EMs for several other simulation studies [@stocketal21;@legaultetal23; @lietal24; @brittenetal_inreview; @lietal_inreview_a] and is used to assess many commercially important stocks in the Northeast U.S. [e.g., @nefsc22;@nefsc22a;@nefsc24]. We used [version 1.0.6.9000, commit 77bbd94](https://github.com/timjmiller/wham/tree/77bbd946e4881216a439933473d1c58b21c270c3) to generate all results. 
+Our analyses used the Woods Hole Assessment Model (WHAM) to construct both OMs and estimation models [EMs, @millerstock20; @stockmiller21; @milleretal25]. The WHAM package has been used extensively to configure OMs and EMs for several other simulation studies [@stocketal21;@legaultetal23; @lietal24; @brittenetal26; @lietal26_a] and is used to assess many commercially important stocks in the Northeast U.S. [e.g., @nefsc22;@nefsc22a;@nefsc24]. We used [version 1.0.6.9000, commit 77bbd94](https://github.com/timjmiller/wham/tree/77bbd946e4881216a439933473d1c58b21c270c3) to generate all results. 
 
-We completed a simulation study with 288 operating models. The factors defining the configuration of each operating model, described in detail in subsequent sections, include source of population process error (3 levels), index and catch observation uncertainty (2 levels), environmental covariate uncertainty (2 levels), temporal variation in the latent environmental covariate (4 levels), and fishing history (2 levels). We simulated 100 data sets for each operating model that included simulations of process errors. 
+We completed a simulation study with 288 operating models. The factors defining the configuration of each operating model, described in detail in subsequent sections, include source of population process error (3 levels), index and catch observation uncertainty (2 levels), environmental covariate uncertainty (2 levels), temporal variation in the latent environmental covariate (4 levels), size of the covariate effect on $M$ (3 levels), and fishing history (2 levels). We simulated 100 data sets for each operating model that included simulations of process errors. 
 
-For each simulated data set we fit a set of 12 EMs. The factors that distinguish the estimating models, also described in detail below, include source of population process error type (3 levels) whether (median) $M$ was estimated or assumed known (2 levels), and whether the effect of the environmental covariate on $M$ was estimated or not (2 levels).
+For each simulated data set we fit a set of 12 EMs. The factors that distinguish the estimating models, also described in detail below, include source of population process error type (3 levels) whether median $M$ was estimated or assumed known (2 levels), and whether the environmental covariate effect on $M$ was estimated or not (2 levels).
 
-The sources of population process error that were used in the OMs or assumed in the EMs were on recruitment only (R), recruitment and apparent survival (R+S), or recruitment and $M$ (R+M). We did not use the log-normal bias-correction feature for process errors or observations described by @stockmiller21 for OMs and EMs [@lietal_inreview]. Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarizing results can be found at https://github.com/timjmiller/SSRTWG/ecov_study/mortality.
+The sources of population process error that were used in the OMs or assumed in the EMs were on recruitment only (R), recruitment and apparent survival (R+S), or recruitment and $M$ (R+M). We did not use the log-normal bias-correction feature for process errors or observations described by @stockmiller21 for OMs and EMs [@lietal26]. Simulations were all carried out on the University of Massachusetts Green High-Performance Computing Cluster. Code for completing the simulations and summarizing results can be found at https://github.com/timjmiller/SSRTWG/ecov_study/mortality.
 
 ## Operating models {-}
 
 ### Environmental covariate {-}
 
-In the WHAM model, environmental covariates are assumed to be described as state-space processes with annual observations of the true latent covariate [@milleretal16;@stockmiller21]. In our simulations, the latent covariate is assumed to be a stationary first order autoregressive (AR1) process
+In the WHAM framework, environmental covariates are modeled as state-space processes with annual observations of the true latent covariate [@milleretal16;@stockmiller21]. In our simulations, the latent covariate is assumed to be a stationary first order autoregressive (AR1) process
 $$
 X_y|X_{y-1} \sim \text{N}\left(\mu_E\left(1-\rho_E\right) + \rho_E X_{y-1}, \left(1-\rho_E^2\right)\sigma^2_E\right)
 $$
@@ -104,7 +104,7 @@ The standard deviation of the environmental observations in the operating models
 
 ### Population {-}
 
-Many of the characteristics of the population biology and structure including the age classes (10 age classes (ages 1 to 10+)), time span (40 years), maturity (Figure \ref{om_inputs_fig}, top left), growth  (Figure \ref{om_inputs_fig}, top right), time of spawning (1/4 of the year), and recruitment (Figure \ref{om_inputs_fig}, bottom right) are identical to @milleretal_inreview1. The maturity at age is a logistic function with age at 50\% maturity ($a_{50}$) = 2.89 and slope = 0.88 and weight at age is derived from a von Beralanffy growth function where $t_0 = 0$, $L_\infty = 85$, and $k = 0.3$, and a length-weight relationship
+Many of the characteristics of the population biology and structure including the age classes (10 age classes: 1 to 10+), time span (40 years), maturity (Figure \ref{om_inputs_fig}, top left), growth  (Figure \ref{om_inputs_fig}, top right), time of spawning (1/4 of the year), and recruitment (Figure \ref{om_inputs_fig}, bottom right) are identical to @milleretal_inreview1. The maturity at age is a logistic function with age at 50\% maturity ($a_{50}$) = 2.89 and slope = 0.88 and weight at age is derived from a von Beralanffy growth function where $t_0 = 0$, $L_\infty = 85$, and $k = 0.3$, and a length-weight relationship
 $$
 W_a = \theta_1 L_a^{\theta_2}
 $$
@@ -142,11 +142,11 @@ Estimating models were fit to each of 100 simulated data sets from each operatin
 
 The configuration of the process errors in the estimating models generally matched the corresponding options in the operating models. For example, uncorrelated R+S was assumed for both the estimating and operating model. However, R+M EMs did not assume $M$ random effects were uncorrelated ($\rho_M$ was estimated). The environmental covariate observations were included in all estimation models, whether effects on $M$ were estimated or not, to ensure comparability of AIC. All fixed effects parameters for selectivity, catchability, fully-selected $F$, mean recruitment, initial abundance at age, and variances for logistic-normal age composition distributions were estimated. Any process error variance parameters for recruitment, survival, and $M$ were also estimated. The observation error variance of the environmental observations and aggregate catch and indices were all assumed known at the true values.
 
-## Performance measures {-}
+## Measures of reliability {-}
 
 ### EM convergence {-}
 
-We measured the frequency of convergence when fitting each EM to the simulated data sets for each OM. There are various ways to assess convergence of the fit [e.g., @carvalhoetal21], but we defined successful convergence as the Hessian of the marginal log-likelihood being invertible and providing variance estimates for the fixed effects parameters as recommended by @milleretal_inreview1. We calculated 95\% confidence intervals (CIs) for probability of convergence using the Clopper-Pearson exact method [@clopperpearson34;@thulin14].
+We measured the frequency of convergence when fitting each EM to the simulated data sets for each OM. There are various ways to assess convergence of the fit [e.g., @carvalhoetal21], but we defined successful convergence as the Hessian of the marginal log-likelihood being invertible and providing variance estimates for the fixed effects parameters as recommended by @milleretal_inreview1. 
 
 ### AIC for model selection {-}
 
@@ -154,69 +154,184 @@ We measured the frequency of correct model selection using marginal AIC. For a g
 $$
 \text{AIC}_m = -2\left[{\text{argmax}}_{\boldsymbol{\theta}} \log L_m\left({\boldsymbol{\theta}}\right) - n\left({\boldsymbol{\theta}}\right)\right].
 $$
-All model fits that successfully completed the optimization were used for this set of analyses. We used all of these fits because some lack of convergence would be expected for the correct behavior of more complicated models that include process errors that did not exist in the operating model. For example R+M EMs fit to R OMs would be expected to estimate no variance in the $M$  random effects and the estimated variance parameter going to zero would cause poor convergence.
+All model fits that successfully completed the optimization were used for this set of analyses. We did not condition on convergence as defined above because some lack of convergence would be expected for the correct behavior of more complicated models that include process errors that did not exist in the operating model. For example R+M EMs fit to R OMs would be expected to estimate no variance in the $M$  random effects and the estimated variance parameter going to zero would cause poor convergence but have the same marginal log-likelihood and therefore higher AIC as expected. The correct EM makes the correct assumption for the source of process errors (R, R+S, R+M) and either includes a covariate effect on M when an effect is simulated ($\beta_E \in \{0.25,0.5\}$ or does not include an effect when one is not simulated ($\beta_E = 0$).
 
-### Parameter estimation {-}
+### Parameter estimation bias and accuracy {-}
 
 All results here use OM simulations with fits that satisfied the convergence criterion described above. We used this conditioning to reflect how practitioners would proceed in analyses of model fits with real assessment data. That is, practitioners would ensure models converged such that Hessian-based standard errors were available for all model parameter estimates.
 
-We focused on statistical behavior of estimators of the covariate effect on $M$ ($\widehat \beta_E$), the estimator of the median $M$ parameter ($\widehat \beta_M$), and estimators of terminal year $M$ ($\widehat M$), spawning stock biomass ($\widehat{\text{SSB}}$), and fully-selected $F$ ($\widehat F$). In preliminary analyses we examined results for the estimators of all the annual values for $M$, SSB and $F$ over the whole time series, but we found no appreciable differences in patterns across the various factors defining the OMs and EMs. Furthermore, results for terminal year $F$ were generally inversely related to those for spawning stock biomass, and are provided in the Supplementary Materials and not discussed further.
+We focused on statistical behavior of estimators of the covariate effect on natural mortality ($\widehat \beta_E$), the estimator of the median $M$ parameter ($\widehat \beta_M$), and estimators of terminal year $M$ ($\widehat M$), spawning stock biomass ($\widehat{\text{SSB}}$), and fully-selected $F$ ($\widehat F$). In preliminary analyses we examined results for the estimators of all the annual values for $M$, SSB and $F$ over the whole time series, but we found no appreciable differences in patterns across the various factors defining the OMs and EMs. Furthermore, results for terminal year $F$ were generally inversely related to those for spawning stock biomass, and are provided in the Supplementary Materials and not discussed further.
 
-We calculated median errors (ME) of $\widehat \beta_E$ and $\widehat \beta_M$, and the Hessian-based standard error estimators of these parameters ($\widehat{SE}\left(\widehat \beta_E\right)$ and $\widehat{SE}\left(\widehat \beta_M\right)$). We calculated the median relative errors (MRE) of terminal year $\widehat M$, $\widehat{\text{SSB}}$, and $\widehat F$. We also calculated the root mean square error (RMSE) and estimated probability of coverage of constructed 95\% CIs for $\widehat \beta_E$ and $\widehat \beta_M$ for EMs that estimated these parameters. We constructed the CIs for probabilities of CI coverage using the same methods as those for probabilities of convergence.
+We calculated errors of $\widehat \beta_E$ and $\widehat \beta_M$, and the Hessian-based standard error estimators of these parameters ($\widehat{SE}\left(\widehat \beta_E\right)$ and $\widehat{SE}\left(\widehat \beta_M\right)$) as
+$$
+\delta_i = \widehat \theta_i - \theta_i
+$$
+where $\theta_i$ is the true value of a given parameter or population attribute for simulation $i$ and $\widehat \theta_i$ is the estimate from a model fitted to data from simulation $i$. For standard errors the true standard error was estimated as the standard deviation of estimates across fits for simulations of a given OM and EM configuration. We calculated the relative errors for terminal year $M$, SSB, and $F$
+$$
+\text{RE}_i\left(\theta_i\right) = \frac{\widehat \theta_i - \theta_i}{\theta_i}.
+$$
+To measure accuracy we also calculated the root mean square error (RMSE),
+$$
+\text{RMSE}\left(\widehat \theta\right) = \sqrt{\frac{1}{n}\sum^n\left(\widehat \theta_i - \theta_i\right)^2},
+$$
+where $n$ is the number of simulations with converged fits of an EM and OM configuration. The true values for terminal year SSB, and in some OMs $M$ (R+M OMs and any OM with covariate effects on $M$), vary among simulations. Finally, we recorded whether 95\% CIs for $\widehat \beta_E$ and $\widehat \beta_M$ using Hessian-based standard error estimates for converged EMs that estimated these parameters provided simulations.
 
-The true values for terminal year SSB and $F$ vary among simulations.  For the $i$th simulated data the relative error for terminal year value $\theta_i$ provided from the fitted estimation model is
-$$
-\text{RE}_i\left(\theta\right) = \frac{\widehat \theta_i - \theta_i}{\theta_i}
-$$
-We calculated RMSE as
-$$
-\text{RMSE}\left(\widehat \theta\right) = \sqrt{\frac{1}{n}\sum^n\left(\widehat \theta_i - \theta_i\right)^2}
-$$
-For ME and MRE of estimators, we constructed 95\% CIs using the binomial distribution approach as in @stockmiller21 and @milleretal_inreview1. Because of the inverse relationship of the CI and the null hypothesis significance test, when the CI contains zero we do not have evidence of bias from the simulation study. 
+
+### Summarizing results across OM and EM attributes {-}
+
+<!-- The measures of central tendency and variability of observed values for specific OM and EM attributes (e.g., low or high observation error) that we described above can indicate scenarios that provide better or poorer reliability.  -->
+
+There are numerous OM and EM attributes across all simulation scenarios and, like @milleretal_inreview1, we used two methods to summarize the major factors explaining differences in results for each measure of reliability. First, we fit regression models with the responses as the measures of reliability described above and the predictor variables were defined based on OM and EM attributes [e.g., @mackinnonetal95; @wangetal17; @harwelletal18]. We used logistic regression for binary indicators of convergence and AIC-based selection of the appropriate assumption of the covariate effect on natural mortality. For indicators of AIC-based selection of EM process error source (multiple categories) we performed multinomial regressions. For other measures of reliability we fit linear regression models to transformed responses. Because relative errors (Eq. \ref{relerror}) for the various parameters are bounded below at -1, we used a transformation of these values
+\begin{equation}\label{regression_response}
+y_i = f\left(\widehat \theta_i,\theta_i\right) 
+\end{equation}
+for relative errors 
+\begin{equation}
+f\left(\widehat \theta_i,\theta_i\right)  = \log\left[\text{RE}\left(\widehat \theta_i,\theta_i\right)+1\right]
+\end{equation}
+for RMSE there is only one value calculated from all simulation fits from a given OM scenario
+\begin{equation}
+f\left(\widehat \theta_i,\theta_i\right)  = \log\left[\text{RMSE}\left(\widehat \theta\right)\right]
+\end{equation}
+We omitted fits where estimated terminal year SSB, $M$, or $F$ was equal to zero. For all regressions we fit separate models with just individual OM and EM factors included, all factors combined, with all second order interactions, and with all third order interactions. For the multinomial regression, we used the \verb|vglm| function from the VGAM package [@yee08;@yee15]. We calculated percent reduction of residual deviance (from the null model with no factors) for each of the regression fits. As @milleretal_inreview1 note, there is a lack of independence of the results for each EM fitted to the same simulated data set of a given OM and therefore we did not perform formal statistical analyses of effects of OM and EM attributes.
+
+For the second summarization method we used classification and regression trees [@breimanetal84] to illustrate the primary OM and EM attributes and interactions that partition the values for each measure of reliability [e.g., @gonzalezetal18;@collieretal22]. We used classification trees for categorical measures (convergence and AIC model selection) and regression trees for the other measures with continuous scales (relative error, RMSE). The response variables were the same as the regressions for the deviance reduction analyses. We used the \verb|rpart| function in the rpart package [@rpart] to fit trees. Full trees were determined using default settings except that we increased the number of cross-validations to 100. For one classification tree fitted to AIC selection of process error configuration results for R+S OMs, we had to make a small changes to the default prior probabilities (the proportions of each class in the in the data) used in the criterion on whether to allow branches from a given node because the default priors would not produce any branches. For clarity, we manually pruned the full trees to show just the primary branches.
+
+All OM and EM factors we used to examine reductions in deviance and regression trees are given in Table \ref{factor_table}. We provide more detailed results for each EM and OM configuration in the Supplementary Materials using similar methods to @milleretal_inreview1.  We estimated probability of convergence. For AIC-based model selection, we estimated the probability of each EM having lowest AIC. We estimated bias as the median of errors for $\beta_M$ and $\beta_E$ and corresonding standard error estimates, and median relative errors for terminal year SSB, $F$, and $M$.
 
 # Results {-}
 
-@milleretal_inreview1 found inferences are most reliable for distinguishing process error sources and stock-recruit relationships in scenarios with lower observation error for indices and age composition data and with temporal contrast in fishing pressure. Our expectation is that inferences for covariate effects on $M$ would require data to be at least that informative and inspection of the comprehensive set of results across all OMs generally confirms this (See Supplemental Materials). Therefore, we restrict our attention to these OM scenarios with more informative data (temporal contrast in fishing and lower population observation error).
+<!-- @milleretal_inreview1 found inferences are most reliable for distinguishing process error sources and stock-recruit relationships in scenarios with lower observation error for indices and age composition data and with temporal contrast in fishing pressure. Our expectation is that inferences for covariate effects on $M$ would require data to be at least that informative and inspection of the comprehensive set of results across all OMs generally confirms this (See Supplemental Materials). Therefore, we restrict our attention to these OM scenarios with more informative data (temporal contrast in fishing and lower population observation error). -->
 
 ## EM Convergence {-}
 
-In OMs with contrast in fishing pressure and lower uncertainty in population observations (catch, indices and age composition), R EMs generally converged with high frequency except when EMs estimated covariate effects on $M$ and the covariate uncertainty ($\sigma_e$) was high (Figure \ref{convergence}). R+S EMs generally converged with low frequency when the OM process error did not match the EM configuration. R+M EMs generally did not converge with high frequency except for R+S OMs with low covariate uncertainty and where the EMs assumed median $M$ as known. There was generally little effect of the treatment of median $M$ (known or estimated) on convergence for any of the other EMs. The largest impact of the size of the true covariate effect ($\beta_E$) on convergence was observed for R and R+M EMs that estimated covariate effects in R and R+M OMs with high uncertainty in covariate observations ($\sigma_e$) and high temporal variability in the latent covariate ($\sigma_E$). There was an increase in convergence frequency with increased temporal variability in the covariate for many EMs in OMs with large covariate uncertainty.
+For convergence, the EM process error assumption provided the largest percent reduction in deviance (9-25\%) of all OM and EM attributes for all three OM process error types (Table \ref{convergence_PRD_table}). Including second order interactions of OM and EM factors also provided further reduction of residual deviance (between 7 and 11\%), indicating successful convergence depended on a combination OM and EM attributes.
+
+Classification trees for each OM process error source all had the primary branch defined using the same attribute (EM process error assumption) that provided the largest reduction in deviance (Figure \ref{conv_class}). Across all fits for each OM Process error configuration, convergence was best for R+S OMs, but better convergence occurred when the process error was correct for R and R+S OMs. For R+M OMs, R EMs converged well (88\%) and good convergence of correctly specified R+M EMs (80.2\%) required constant fishing pressure and median natural mortality rate parameter ($\beta_M$) to be known. All branches based on observation error of covariates or other assessment data (indices and age composition) showed better convergence with more precise observations. Better convergence also occurred for EMs that did not estimate covariate effects regardless of whether the OM simulated them, EMs that assumed median natural mortality rate was known, and when OMs assumed greater temporal variability in the true environmental covariate. EMs assuming R+M process error (either correctly or not) converged better for OM with constant fishing pressure.
+
+<!-- In OMs with contrast in fishing pressure and lower uncertainty in population observations (catch, indices and age composition), R EMs generally converged with high frequency except when EMs estimated covariate effects on $M$ and the covariate uncertainty ($\sigma_e$) was high (Figure \ref{convergence}). R+S EMs generally converged with low frequency when the OM process error did not match the EM configuration. R+M EMs generally did not converge with high frequency except for R+S OMs with low covariate uncertainty and where the EMs assumed median $M$ as known. There was generally little effect of the treatment of median $M$ (known or estimated) on convergence for any of the other EMs. The largest impact of the size of the true covariate effect ($\beta_E$) on convergence was observed for R and R+M EMs that estimated covariate effects in R and R+M OMs with high uncertainty in covariate observations ($\sigma_e$) and high temporal variability in the latent covariate ($\sigma_E$). There was an increase in convergence frequency with increased temporal variability in the covariate for many EMs in OMs with large covariate uncertainty. -->
 
 ## AIC performance {-}
 
-We only present results for EMs where the median $M$ rate parameter was estimated because results differed little whether this parameter was estimated or assumed known (see Figures \ref{aic_Rom} to \ref{aic_RMom}). When there was temporal contrast in fishing pressure and lower uncertainty in population observations, the only OM scenarios where AIC was consistently accurate for both covariate effect and process error configurations were R OMs with high variability in the covariate and low uncertainty in observations of the covariate (Figure \ref{aic}). R+M OMs with those same covariate attributes were only accurate for the covariate effect (low Type I and II errors) and the incorrect process error almost always chosen was R rather than R+S. We also observed high accuracy for both covariate effect and process error configurations for R+S OMs where either no effect of the covariate or the strongest effect of the covariate was simulated. All R and R+S OMs were accurate for process error configuration and across all OMs, AIC accurately selects models without covariate effects when there are none (low Type I error). See Figures \ref{aic_Rom} to \ref{aic_RMom} for full results.
+### Process error source selection {-}
 
-## Covariate effect estimation {-}
+The level of error in both the population and covariate observations were the attributes that resulted in the largest percent reductions in deviance for AIC selection of the process error configuration for all OM process error types (Table \ref{AIC_PE_PRD_table}). For R+S and R+M OMs, population observation error provided deviance reduction (19\% and 13\%, respectively) much larger than any other OM and EM factors whereas covariate observation error provided the largest reduction (8\%0 for R OMs. Lesser deviance reduction (2-3\%) occurred for the true covariate effect size and whether the EM made the correct assumption about including a covariate effect for R OMs and covariate observation error for R+M OMs. Including second and third order interactions, provided the largest reductions in residual deviance for R OMs (24\%) and little reduction for R+S and R+M OMs (4\% and 6\%, respectively).
 
-When there was temporal contrast in fishing pressure, lower uncertainty in population observations, low uncertainty in environmental observations, and larger temporal contrast in the simulated true environmental covariate, we observed little or no bias in estimation of covariate effects ($\widehat \beta_E$) across all EM and OM process error assumptions, both EM configurations of median $M$, and all true covariate effect sizes (Figure \ref{beta_E_bias}, rows 3 and 4). The only exception to this was when R EMs with median $M$ estimated were fit to R+S OMs with those configurations. Decreasing trends in bias of $\widehat \beta_E$ for EMs fit to many configurations of R and R+M OMs indicate that $\widehat \beta_E$ values were closer to zero on average even when the true effect increased. For R+S OMs, EMs with the matching process error configuration showed little evidence of bias in estimating $\beta_E$ across a range of covariate and covariate observation configurations. R+S and R+M EMs generally performed similarly when fitted to either R+S or R+M OMs except R+S OMs with high covariate uncertainty and low covariate variability (Figure \ref{beta_E_bias}, rows 5 and 6 of middle columns).
-
-Bias of Hessian-based standard error estimation for $\widehat \beta_E$ was also close to zero in the same OM scenarios where bias in estimation of $\beta_E$ itself was close to zero (Figure \ref{se_beta_E_bias}, rows 3 and 4). However, in these high information OMs, bias of standard error estimation was observed for several EMs that did not have the matching R+S and R+M process error configuration. Estimation of standard errors was essentially unreliable for most EMs when OMs had higher uncertainty in covariate observations (Figure \ref{se_beta_E_bias}, rows 5 to 8).
-
-Despite the reliable estimation of covariate effects and standard errors with low uncertainty in environmental observations, and larger temporal contrast in the simulated true environmental covariate, we found poor CI coverage for many EMs fitted to R+S and R+M OMs (Figure \ref{beta_E_CI_coverage}, rows 3 and 4). For example, R+M EMs fit to R+M OMs showed little bias in estimation of the covariate effect and standard errors, but CI coverage was negatively biased (rows 3 and 4 in right two columns of Figures \ref{beta_E_bias}, \ref{beta_E_CI_coverage}, and \ref{se_beta_E_bias}). However, there appears to be a positive correlation of the covariate and standard error estimates such that estimates less than the true value had negatively biased standard error estimates which would make CIs too small (Figure \ref{ex_lm_beta_E_SE_beta_E}). CI coverage was most reliable for R+S OMs when the EMs had the matching process error configuration (Figure \ref{beta_E_CI_coverage}, middle 2 columns).
+For all OM process error sources, the attributes defining the primary branches of classification trees matched those that provided the largest reductions in deviance (Figure \ref{AIC_PE_class}). AIC performed poorly in selecting the correct process error for R+M OMs where lowest AIC occurred for the simpler R EMs. However, accuracy of AIC-based selection was high for R and R+S OMs. In R+S OM simulations where mis-classification occurred, the simpler R EMs had lowest AIC. For R OMs, there was a small decrease in accuracy when the OMs included the largest covariate effect on $M$, but in those scenarios, AIC was more accurate for the process error assumption when it also incorrectly assumed no covariate effect.
 
 
-## Median natural mortality rate estimation {-}
+### Covariate effect selection {-}
+
+The factors explaining the largest reduction in deviance for AIC selection of the correct covariate effect assumption depended on the magnitude of the true effect assumed in the OM. When OMs had no covariate effect ($\beta_E = 0$) the OM process errror type provided the largest reduction in deviance (4\%) (Table \ref{AIC_Ecov_effect_PRD_table}). When OMs assumed a covariate effect ($\beta_E>0$), population observation error and magnitude of temporal variability in the true covariate provided the largest reductions in deviance (4\% and 8-21%, respectively). The reduction in deviance provided by the magnitude of covariate temporal variability also increased with larger true covariate effect. Including second and third order interactions provided a modest reduction in deviance (5-7\%).
+
+The factors defining the primary branches of classification trees for indicators of AIC selecting the correct covariate effect assumption matched the factors providing the largest deviance reductions (Figure \ref{AIC_Ecov_effect_class}). Accuracy of AIC-based model selection for the covariate effect assumption was high overall for OMs with no covariate effect (88\%) (low Type I error) and low when there was a covariate effect (23\% and 35\% for OMs with $\beta_E$ = 0.25 and 0.5, respectively) (high Type II error), but higher accuracy occurred for certain combinations of OM attributes. When the true covariate effect was greatest ($\beta_E = 0.5$), AIC accuracy was 91\% for models fit to OMs with high temporal variability in the covariate and low error in population and covariate observations regardless of whether the EM process error was correct. However, when the covariate effect was weaker ($\beta_E = 0.25$), high accuracy only occurred for a subset of those OMs with R or R+M process errors (76\%), and the further conditioning on OMs with high autocorrelation of the covariate provided higher accuracy (86\%). When there was no covariate effect, AIC accuracy was best for OMs with the R process error configuration (95\%), and for the other two process error configuration, accuracy was improved if the OMs also had lower population observation error and the EM process error assumption was correct (85\%).
+
+<!-- We only present results for EMs where the median $M$ rate parameter was estimated because results differed little whether this parameter was estimated or assumed known (see Figures \ref{aic_Rom} to \ref{aic_RMom}). When there was temporal contrast in fishing pressure and lower uncertainty in population observations, the only OM scenarios where AIC was consistently accurate for both covariate effect and process error configurations were R OMs with high variability in the covariate and low uncertainty in observations of the covariate (Figure \ref{aic}). R+M OMs with those same covariate attributes were only accurate for the covariate effect (low Type I and II errors) and the incorrect process error almost always chosen was R rather than R+S. We also observed high accuracy for both covariate effect and process error configurations for R+S OMs where either no effect of the covariate or the strongest effect of the covariate was simulated. All R and R+S OMs were accurate for process error configuration and across all OMs, AIC accurately selects models without covariate effects when there are none (low Type I error). See Figures \ref{aic_Rom} to \ref{aic_RMom} for full results. -->
+
+## Covariate effect inferences {-}
+
+### Estimation bias {-}
+
+For regression models fit to errors in estimation of the covariate effect $\beta_E$, we found very little reduction in deviance for any of the OM and EM factors (Table \ref{bias_ecov_beta_converged_PRD_table}). For the Gaussian model in these regressions, deviance is the sum of squares and there are extremely large estimates of $\beta_E$ (and errors) for many simulations resulting in extremely large sums of squares and relative differences from the null model are therefore small. Nevertheless, observation error of the covariate provided the either the largest or second largest reductions in deviance of any of the single OM and EM attributes for OM process error configuration types (0.04\% to 0.08\%). OM fishing history provided reductions of similar scale for R and R+S OMs (0.03 and 0.06\%, respectively. Other factors providing similar reductions were true covariate effect size for R OMs (0.05\%) and level of population observation error and EM process error assumption for R+S OMs (0.06\% for each). Including second and third order interactions also provided relatively large reductions in residual deviance (0.2\% to 1.5\%).
+
+Median errors for $\widehat \beta_E$ across all simulations for each OM process error configuration were negative but close to 0 (-0.1 to -0.07) and primary branches were based on factors that matched those providing the largest reductions in deviance (Figure \ref{ecov_effect_bias_regtree}). Branches based on level of error in population or covariate observations provided better median estimation error (closer to 0) with lower uncertainty. Branches based on level of covariate temporal variation provided better median estimation error with higher temporal variation. For R OMs with the largest true covariate effect, estimation error was poor unless there was also high temporal variation and low observation error for the covariate. We observed high estimation error for some R+M OMs with the largest covariate effect size. The detailed results for all OM and EM configurations demonstrate that the median errors get worse with increased values for the true $\beta_E$, indicating that the estimates remain close to zero when the true $\beta_E>0$ (Figures \ref{beta_E_bias_Rom} to \ref{beta_E_bias_RMom}). For R+S OMs, we also found lower estimation error when the EM process error assumption matched.
+
+<!-- When there was temporal contrast in fishing pressure, lower uncertainty in population observations, low uncertainty in environmental observations, and larger temporal contrast in the simulated true environmental covariate, we observed little or no bias in estimation of covariate effects ($\widehat \beta_E$) across all EM and OM process error assumptions, both EM configurations of median $M$, and all true covariate effect sizes (Figure \ref{beta_E_bias}, rows 3 and 4). The only exception to this was when R EMs with median $M$ estimated were fit to R+S OMs with those configurations. Decreasing trends in bias of $\widehat \beta_E$ for EMs fit to many configurations of R and R+M OMs indicate that $\widehat \beta_E$ values were closer to zero on average even when the true effect increased. For R+S OMs, EMs with the matching process error configuration showed little evidence of bias in estimating $\beta_E$ across a range of covariate and covariate observation configurations. R+S and R+M EMs generally performed similarly when fitted to either R+S or R+M OMs except R+S OMs with high covariate uncertainty and low covariate variability (Figure \ref{beta_E_bias}, rows 5 and 6 of middle columns). -->
+
+### Standard error estimation bias {-}
+
+Factors providing the largest reductions in deviance for errors in estimation of the standard error of the covariate effect size ($\widehat {\text{SE}}\left(\widehat\beta_E\right)$) were generally similar to those that were most important for estimation of $\beta_E$ itself (Table \ref{bias_ecov_beta_se_PRD_table}). Level of covariate observation error and EM process error assumption was important for all OM process error configurations (6-13\% and 3-4\%, respectively). Level of population observation error provided relatively large reductions in deviance for R+S and R+M OMs (3\% and  8\%, respectively). The OM fishing pressure history provided a lesser reduction in deviance for all OM process error types (2-4\%). Like estimation of $\beta_E$, relatively large further reductions in deviance also occurred when second and third order interactions of OM and EM attributes were included in the regression models (11-31\%).
+
+Median errors in estimation of the standard error for $\widehat \beta_E$ across all simulations for a given OM process error configuration were strongly negative (-0.8 to -0.6), but combinations of OM and EM attributes resulted in improved values closer to zero (Figure \ref{ecov_effect_SE_bias_regtree}). For all OM process error types, branches with lower covariate observation error provided better median errors in the standard error estimator (closer to 0). Branches where EMs assumed median natural mortality rate was known also generally improved standard error estimation except for R OMs where covariate observation error was high. However, branches with higher temporal variability in the covariate in R and R+S OMs provided improved median errors. For some configurations of R+S OMs, EMs with matching process error assumptions provided improved standard error estimation, but some EMs with the incorrect process error assumptions provided median errors close to 0 for some R and R+M OMs. 
+
+<!-- Bias of Hessian-based standard error estimation for $\widehat \beta_E$ was also close to zero in the same OM scenarios where bias in estimation of $\beta_E$ itself was close to zero (Figure \ref{se_beta_E_bias}, rows 3 and 4). However, in these high information OMs, bias of standard error estimation was observed for several EMs that did not have the matching R+S and R+M process error configuration. Estimation of standard errors was essentially unreliable for most EMs when OMs had higher uncertainty in covariate observations (Figure \ref{se_beta_E_bias}, rows 5 to 8). -->
+
+### Confidence interval bias {-}
+
+For logistic regressions of indicators of confidence intervals including the true value of $\beta_E$, factors that provided the largest reductions in deviance were true covariate effect size for R and R+M OMs (11\% and 3\%, respectively) and EM process error configuration for R+S OMs (7\%) (Table \ref{ecov_beta_ci_coverage_PRD_table}). Covariate observation error also provided relatively large reduction in deviance for R OMs (8\%). Lesser reductions of 1-2\% occurred for level of population observation error and covariate temporal variability for all OM process error types. Including second and third order interactions also provided relatively large further reductions in deviance (5-9\%).
+
+Over all simulations rates of 95\% confidence interval coverage indicated negative bias with rates ranging 85-88\% for the different OM process error configurations (Figure \ref{ecov_effect_CI_coverage_regtree}). Factors defining the primary branches matched the factors that made the largest reductions in deviance for for fitted logistic regression models.  For R OMs, the primary branch based on covariate observation error indicated higher rates of confidence interval coverage with lower error, but when that error was higher, higher rates were associated with OMs where no covariate affect was assumed ($\beta_E = 0$). Conditional on those OMs with some covariate effect was simulated with higher observation error, higher rates of coverage occurred with higher error in the population observations. For R+S OMs, higher rates of CI interval coverage were observed for EMs that assumed R+S or R+M process errors. 
+
+The more detailed results for each OM and EM configuration show that good confidence interval coverage can be obtained for all of the investigated covariate effect sizes when there is low covariate and population observation error, high covariate temporal variability and contrast in fishing pressure for R and R+S OMs. The EM process error configuration was not a factor for the R OMs, but R+S or R+M EM configurations were necessary for R+S OMs (Figures \ref{beta_E_CI_coverage_Rom} to \ref{beta_E_CI_coverage_RMom}).
+
+<!-- Despite the reliable estimation of covariate effects and standard errors with low uncertainty in environmental observations, and larger temporal contrast in the simulated true environmental covariate, we found poor CI coverage for many EMs fitted to R+S and R+M OMs (Figure \ref{beta_E_CI_coverage}, rows 3 and 4). For example, R+M EMs fit to R+M OMs showed little bias in estimation of the covariate effect and standard errors, but CI coverage was negatively biased (rows 3 and 4 in right two columns of Figures \ref{beta_E_bias}, \ref{beta_E_CI_coverage}, and \ref{se_beta_E_bias}). However, there appears to be a positive correlation of the covariate and standard error estimates such that estimates less than the true value had negatively biased standard error estimates which would make CIs too small (Figure \ref{ex_lm_beta_E_SE_beta_E}). -->
+ 
+<!-- Despite the reliable estimation of covariate effects and standard errors with low uncertainty in environmental observations, and larger temporal contrast in the simulated true environmental covariate, we found poor CI coverage for many EMs fitted to R+S and R+M OMs (Figure \ref{beta_E_CI_coverage}, rows 3 and 4). For example, R+M EMs fit to R+M OMs showed little bias in estimation of the covariate effect and standard errors, but CI coverage was negatively biased (rows 3 and 4 in right two columns of Figures \ref{beta_E_bias}, \ref{beta_E_CI_coverage}, and \ref{se_beta_E_bias}). However, there appears to be a positive correlation of the covariate and standard error estimates such that estimates less than the true value had negatively biased standard error estimates which would make CIs too small (Figure \ref{ex_lm_beta_E_SE_beta_E}). CI coverage was most reliable for R+S OMs when the EMs had the matching process error configuration (Figure \ref{beta_E_CI_coverage}, middle 2 columns). -->
 
 
-We observed negligible bias in estimating the median $M$ parameter ($\beta_M$) over a much wider set of operating models than that for estimating the covariate effect on $M$. When there is temporal contrast in fishing pressure, lower uncertainty in population observations, all EMs fit to R and R+M OMs showed little evidence of bias for $\widehat \beta_M$  (Figure \ref{beta_M_bias}, left and right sets of columns). For R+S OMs with those conditions, only EMs with the matching process error assumption showed little evidence of bias. 
+## Median natural mortality rate inferences {-}
 
-We also found little or no bias of Hessian-based standard error estimation for $\beta_M$ in many of the same OM scenarios where bias of $\widehat \beta_M$ was close to zero except for some EMs with the process error source mis-specified or where the OM simulated the strongest covariate effect (Figure \ref{se_beta_M_bias}). Like $\widehat \beta_M$, reliability of standard error estimation in R+S OMs required the EMs to have the matching process error assumption. 
+### Estimation bias {-}
 
-we found CI coverage to be unreliable for many EM-OM combinations even for OM and EM combinations where bias in $\widehat \beta_M$ and its standard error estimators was negligible, much like that for $\widehat \beta_E$ (Figure \ref{beta_M_CI_coverage}). In the same EM OM combination we investigated above for $\widehat \beta_E$, we observed an opposite negative correlation of $\widehat \beta_M$ and its standard error estimates (Figure \ref{ex_lm_beta_M_SE_beta_M}), which would result in CIs being too narrow when $\widehat \beta_M$ values are larger than average. The exceptions to the general poor CI coverage were for all EMs fit to several R OMs with low covariate uncertainty and covariate variability (Figure \ref{beta_M_CI_coverage}, first two columns) and for R+S EMs in many R+S OMs (Figure \ref{beta_M_CI_coverage}, middle two columns) .
+Across all OM process error types, regression models fit to errors in natural mortality rate parameter estimation $\beta_M$ showed largest reductions in deviance from the type of OM fishing pressure (4-17\%), EM process error assumption (2-12\%), and the EM covariate effect assumption (3-7\%, Figure \ref{bias_median_M_converged_PRD_table}). The level of observation error also provided a similar reduction in deviance for R OMs (3\%). Relatively large reductions in deviance also occurred with second and third order interactions (7-16\%).
+
+Like $\widehat \beta_E$, median errors for $\widehat \beta_E$ were negative but close to 0 (-0.1 to -0.07) across all simulations for each OM process error configuration (Figure \ref{med_M_bias_regtree}). The primary branches for all OM process error types were defined by the type of OM fishing pressure, with median errors closer to zero when there was a change in fishing pressure for R+S and R+M OMs. Branches based on the OM population observation error showed median errors closer to zero with more precise observations. For R+S and R+M OMs, branches that included the matching EM process error assumption provided better median errors.
+
+
+<!-- We observed negligible bias in estimating the median $M$ parameter ($\beta_M$) over a much wider set of operating models than that for estimating the covariate effect on $M$. When there is temporal contrast in fishing pressure, lower uncertainty in population observations, all EMs fit to R and R+M OMs showed little evidence of bias for $\widehat \beta_M$  (Figure \ref{beta_M_bias}, left and right sets of columns). For R+S OMs with those conditions, only EMs with the matching process error assumption showed little evidence of bias.  -->
+
+### Standard error estimation bias {-}
+
+The EM process error assumption provided the largest reduction in deviance for regression models fitted to errors in estimation of the standard errors of $\widehat \beta_M$ from R (3\%) and R+M (7\%) OM simulations (Table \ref{median_M_se_bias_PRD_table}). The type of OM fishing pressure provided the largest reduction (13\%) for R+S OMs and a lesser reduction in devaince for R+M OMs (4\%). The EM covariate effect assumption also provided similar reductions in deviance for R+S (9\%) and R+M (4\%) OMs.
+
+The factors defining the primary branches of regression trees matched those providing the largest reductions in deviance for errors in  $\widehat {\text{SE}}\left(\widehat\beta_M\right)$, but median errors indicated strong negative bias across all OM process error types (Figure \ref{med_M_SE_bias_regtree}). Branches with lower population observation error provided better median errors (closer to 0). For R+S OMs, branches where the EM process error assumption was correct provided better median errors. 
+
+Detailed results for each OM and EM configuration indicate little bias in certain scenarios where OMs had temporal contrast in fishing pressure and low population observation error (Figures \ref{se_beta_M_bias_Rom} to \ref{se_beta_M_bias_RMom}). For R and R+M OMs with those conditions, all EM process error assumptions provided median errors close to zero except for OMs with the true covariate effect strongest and the true covariate time series was autocorrelated and had high temporal variation. For R+S OMs with those conditions, only EMs with the correct process error assumption exhibited low (absolute) median error. 
+
+<!-- We also found little or no bias of Hessian-based standard error estimation for $\beta_M$ in many of the same OM scenarios where bias of $\widehat \beta_M$ was close to zero except for some EMs with the process error source mis-specified or where the OM simulated the strongest covariate effect (Figure \ref{se_beta_M_bias}). Like $\widehat \beta_M$, reliability of standard error estimation in R+S OMs required the EMs to have the matching process error assumption.  -->
+
+### Confidence interval bias {-}
+
+For logistic regressions of indicators of confidence intervals including $\beta_M$, factors that provided the largest reductions in deviance were the OM fishing history and level of OM population observation error for all OM process error types (0.3-6\%) (Table \ref{mean_M_ci_coverage_PRD_table}). Including second and third order interactions provided the largest relative increase in deviance reduction for R+S (8-11\%) and R+M OMs (5-8\%) and lesser increases for R OMs (3-5\%).
+
+The factors defining the primary branches of classification trees for indicators of confidence interval inclusion of $\beta_M$ matched those providing the largest reductions in deviance for each of the OM process error types ((Figure \ref{med_M_CI_coverage_regtree}). Across all simulations, rates of 95\% confidence interval coverage indicated negative bias with rates ranging 83-87\% for the different OM process error types. Branches based on contrast in OM fishing history and lower population observation error indicated less bias in confidence interval coverage except R+S OMs in conditions where the EM process error was incorrectly assumed to be R only.
+
+The more detailed results for each OM and EM configuration show that good confidence interval coverage can be obtained for many R and R+S OM scenarios with low population observation error and contrast in fishing pressure for R and R+S OMs, but coverage was generally unreliable for all R+M OM scenarios (Figures \ref{beta_E_CI_coverage_Rom} to \ref{beta_E_CI_coverage_RMom}).
+
+
+In the same EM OM combination we investigated above for $\widehat \beta_E$, we observed an opposite negative correlation of $\widehat \beta_M$ and its standard error estimates (Figure \ref{ex_lm_beta_M_SE_beta_M}), which would result in CIs being too narrow when $\widehat \beta_M$ values are larger than average. 
+
+<!-- we found CI coverage to be unreliable for many EM-OM combinations even for OM and EM combinations where bias in $\widehat \beta_M$ and its standard error estimators was negligible, much like that for $\widehat \beta_E$ (Figure \ref{beta_M_CI_coverage}). In the same EM OM combination we investigated above for $\widehat \beta_E$, we observed an opposite negative correlation of $\widehat \beta_M$ and its standard error estimates (Figure \ref{ex_lm_beta_M_SE_beta_M}), which would result in CIs being too narrow when $\widehat \beta_M$ values are larger than average. The exceptions to the general poor CI coverage were for all EMs fit to several R OMs with low covariate uncertainty and covariate variability (Figure \ref{beta_M_CI_coverage}, first two columns) and for R+S EMs in many R+S OMs (Figure \ref{beta_M_CI_coverage}, middle two columns) . -->
 
  
 ## Terminal year natural morality rate {-}
 
-The EMs with either R or R+S process error configurations with median $M$ assumed known and covariate effects not estimated will have terminal year $M$ correctly specified when fitted to either R or R+S OMs with no covariate effect because $M$ is constant in both the EM and OM at the same value. We exclude those OM-EM combinations from our results here.
+### Estimation bias {-}
 
-In many of the OMs with temporal contrast in fishing pressure and lower uncertainty in population observations, there was little difference in bias for terminal year $M$ among EMs whether the median $M$ parameter ($\beta_M$) was estimated (Figure \ref{terminal_M_bias}). However, when there were differences, bias in terminal year $M$ was closer to zero when the EM assumed $\beta_M$ known, as would be expected. For R OMs, all estimating models exhibited little evidence of bias except when OMs simulated the largest covariate effect ($\beta_E = 0.5$). However, bias estimates were at worst around 10\% (Figure \ref{terminal_M_bias}, left columns). For R+S OMs, the R+S EMs generally exhibited the least evidence for bias and R+M EMs generally estimated terminal $M$ lower than the true value, particularly when observation uncertainty in the covariate was lower. For R+M OMs, many of the EM configurations provided little bias in terminal $\widehat M$, but the biases were generally further from zero than the results for the R OMs (Figure \ref{terminal_M_bias}, right columns). 
+Regressions of errors in estimation of terminal year natural mortality rate show largest reductions in deviance from whether the EM treats $\beta_M$ as known (Table \ref{bias_M_PRD_table}). For R and R+S OMs, annual natural mortality rates are constant therefore terminal $M$ is known when $\beta_M$ is assumed known and there will be no error in any of those EMs. Beyond the $\beta_M$ assumption, the OM fishing history, level of population observation error, and EM assumptions for covariate effect and process error all provided reductions that were also of importance.
 
-Accuracy (lower RMSE) of terminal year $\widehat M$ was similar for all of the EMs when fitted to R+M OMs (Figure \ref{terminal_M_rmse}). For R+S OMs, accuracy was generally better for R+S EM than other process error assumptions, particularly when $\beta_E$ was also estimated. Accuracy for R+S EMs was also generally as good as other EM process error assumptions even when the OM process error type was different. As would be expected, the accuracy of terminal year $\widehat M$ where median $M$ was assumed known was better than when it was estimated, when there were differences.
+Regression trees for errors in estimation of terminal year $M$ have primary branches based on the whether $\beta_M$ was assumed known or estimated fro all OM process error types (Figure \ref{term_M_bias_regtree}). For R and R+S OMs, the branches where $\beta_M$ is assumed known have no error as expected because yearly $M$ is equal to $e^\beta_M$. For the same branch in R+M OMs, there was also very little error in terminal year $M$. When M was estimated, median errors were near zero for many scenarios regardless of EM process error configuration. However, median error was problematic for all of the conditional subsets of results where $\beta_M$ was estimated in regression trees for R+S OMs.  Detailed results for each OM and EM attribute show that there was little evidence of bias for R+S OMs when population observation error was low and there was contrast in fishing pressure (Figure \ref{terminal_M_bias_RSom}). In R+M OMs, median errors indicated little bias overall with temporal contrast in fishing pressure, although detailed results demonstrated best reliability when there was also lower population observation error (Figure \ref{terminal_M_bias_RMom}). 
+
+<!-- The EMs with either R or R+S process error configurations with median $M$ assumed known and covariate effects not estimated will have terminal year $M$ correctly specified when fitted to either R or R+S OMs with no covariate effect because $M$ is constant in both the EM and OM at the same value. We exclude those OM-EM combinations from our results here. -->
+
+<!-- In many of the OMs with temporal contrast in fishing pressure and lower uncertainty in population observations, there was little difference in bias for terminal year $M$ among EMs whether the median $M$ parameter ($\beta_M$) was estimated (Figure \ref{terminal_M_bias}). However, when there were differences, bias in terminal year $M$ was closer to zero when the EM assumed $\beta_M$ known, as would be expected. For R OMs, all estimating models exhibited little evidence of bias except when OMs simulated the largest covariate effect ($\beta_E = 0.5$). However, bias estimates were at worst around 10\% (Figure \ref{terminal_M_bias}, left columns). For R+S OMs, the R+S EMs generally exhibited the least evidence for bias and R+M EMs generally estimated terminal $M$ lower than the true value, particularly when observation uncertainty in the covariate was lower.  For R+M OMs, many of the EM configurations provided little bias in terminal $\widehat M$, but the biases were generally further from zero than the results for the R OMs (Figure \ref{terminal_M_bias}, right columns).  -->
+
+### Estimation accuracy {-}
+
+Table \ref{rmse_M_PRD_table}
+
+Like bias of terminal $M$, whether when median $M$ was known or estimated provided the largest reduction in deviance (22-45\%) for accuracy of estimates as measured by RMSE for all OM process error types (Table \ref{rmse_M_PRD_table}). Including second and third order interactions also provided large further reductions in deviance (21-38\%).
+
+Also like bias, regression trees fit to log-RMSE of terminal $M$ showed better accuracy when EMS assumed the median $M$ was known rather than estimated (Figure \ref{term_M_rmse_regtree}). Better accuracy was also generally associated with lower population observation error and temporal contrast in fishing pressure. For R+S OMs, R+S EMs provided better accuracy than incorrect process error assumptions. 
+
+<!-- Accuracy (lower RMSE) of terminal year $\widehat M$ was similar for all of the EMs when fitted to R+M OMs (Figure \ref{terminal_M_rmse}). For R+S OMs, accuracy was generally better for R+S EM than other process error assumptions, particularly when $\beta_E$ was also estimated. Accuracy for R+S EMs was also generally as good as other EM process error assumptions even when the OM process error type was different. As would be expected, the accuracy of terminal year $\widehat M$ where median $M$ was assumed known was better than when it was estimated, when there were differences. -->
 
 
 ## Terminal year spawning stock biomass {-}
 
-In OMs with temporal contrast in fishing pressure and lower uncertainty in population observations, we found little bias in estimates of terminal year SSB for all EM configurations when fitted to R or R+M OMs (Figure \ref{terminal_ssb_bias}). We also found little or no evidence of bias for R+S OMs when the EMs assumed the correct process error configuration. We found the worst bias in terminal year SSB estimation for R EMs with $\beta_M$ estimated when fitted to R+S OMs, and R+M EMs also had more bias than R+S EMs in these OMs. Like the bias results, accuracy, as measured by RMSE, was similar for many of EMs when fit to R and R+M OMs. Accuracy was generally worse (higher RMSE) when EMs were fit to R+S OMs, and the worst accuracy occurred when the EM process error assumption did not match that of the OM (Figure \ref{terminal_ssb_rmse}).
+### Estimation bias {-}
+
+Fits of regression models to log-scale errors of terminal SSB resulted in largest reducitons in deviance for OM fishing history (2-3\%), population observation error (1\% for R and R+M OMs), and EM median $M$ assumption (2\%; Table \ref{bias_SSB_PRD_table}). The type of EM process error assumed also provided a relevant reduction in deviance for R+S OMs (1\%). Including second and third order interactions of OM and EM attributes provided further relevant deviance reductions of 5-10\%.
+
+The primary branches of regression trees fitted to log-scale errors in terminal SSB were based on type of OM fishing history for all OM process error types, but differences in median errors between branches were small (Figure \ref{term_SSB_bias_regtree}). For R+S and R+M OMs, branches that assumed median $M$ was known indicated less bias than those with median $M$ estimated. For R+S OMs with constant fishing pressure and median $M$ estimated, less bias was indicated when the EM process error assumption was correct.
+
+### Estimation accuracy {-}
+
+Largest reductions in deviance for accuracy of terminal year SSB as measured by RMSE were provided by whether median $M$ was known or estimated (20-21\%) and whether there was temporal contrast in fishing pressure (20-33\%) across all OM process error types (Table \ref{rmse_SSB_PRD_table}). Lesser reductions were also provided by the EM process error assumption for R and R+M OMs. Inclusion of second and third order interactions of OM and EM attributes also provided important reductions in deviance (26-40\%).
+
+Primary branches of regression trees fit to log-RMSE of terminal year SSB were based on the same factors that provided the largest reduction in deviance (Figure \ref{term_SSB_rmse_regtree}). All branches with temporal change in fishing pressure provided better accuracy than branches with constant fishing pressure. Similarly, better accuracy occurred for branches with median $M$ assumed known rather than estimated, and lower population observation error.
+
+<!-- In OMs with temporal contrast in fishing pressure and lower uncertainty in population observations, we found little bias in estimates of terminal year SSB for all EM configurations when fitted to R or R+M OMs (Figure \ref{terminal_ssb_bias}). We also found little or no evidence of bias for R+S OMs when the EMs assumed the correct process error configuration. We found the worst bias in terminal year SSB estimation for R EMs with $\beta_M$ estimated when fitted to R+S OMs, and R+M EMs also had more bias than R+S EMs in these OMs. Like the bias results, accuracy, as measured by RMSE, was similar for many of EMs when fit to R and R+M OMs. Accuracy was generally worse (higher RMSE) when EMs were fit to R+S OMs, and the worst accuracy occurred when the EM process error assumption did not match that of the OM (Figure \ref{terminal_ssb_rmse}). -->
 
 # Discussion {-}
 
@@ -234,6 +349,11 @@ The R+S and R+M EMs both include process error for the survival of cohorts and w
 
 The ability to accurately infer covariate effects on $M$ in some realistic situations indicates that such investigations may be fruitful. Ability to make inferences could improve further when WHAM is extended to incorporate tagging data [@milleretal_inreview]. Tagging data can greatly inform natural mortality estimation [@pollocketal91;@hampton00], and this impact on $M$ estimation should also apply to estimation of covariate effects or unexplained temporal variation in $M$. Given our findings and planned future WHAM development, we expect investigations of and accounting for covariate effects on $M$ to become more common within the fisheries stock assessment process. At the same time, it will be equally important to conduct research that will improve our understanding of how best to measure the depletion of stocks and determine catch advice for these stocks with covariate effects on $M$.
 
+Higher rates of coverage could be due to positive bias in SE estimates which would provide larger CIs including the true value more often. However, the true standard error of the estimator of $\beta_M$ and $\beta_E$ is unknown and way well be a function of the realized time series of random effects for each simulation. That is, the standard error estimate from the hessian is conditional on the realized time series and the variability it is estimating is the variability of observations conditional on the realized time series. Therefore, the true standard error could be approximated  for each realized time series by conditionally simulating the observations and holding the random effects constant. It would be interesting to see how much the true SE varies with alternative realizations of the random effects. This is related to work by Cadigan and colleagues. Confidence interval coverage error could similarly be a function of the realized time series, but assessing the bias of the coverage rate over simulations should still indicate whether the rates are good integrating over that variation.
+
+
+Should point out that regression fits and classificaiton/regression trees model the means of data subsets and therefore results are sensitive to extreme values. The ggplots and the values we present in nodes of regression trees are medians which are more robust to extreme values. This would explain patterns in medians of the ggplots being somewhat different than the results of the regressions and regression trees. This was what lead us to analyse converged estimates of $\beta_E$ and $\beta_M$ rather than all values from fitted models. Using median regression and extending regression trees to use median absolute deviations as loss function may be useful approaches [e.g., @chaudhuriloh02]. Similarly random forests that include quantile regression methods may be a worthwhile alternative to summarizing relative importance of alternative OM and EM attributes [@meinshausenridgeway06]. 
+
 <!-- We conditioned our investigations of reliability of parameter estimation on simulations with fits that converged satisfactorily. However, these simulations could exclude many realizations of covariate, population, and observation time series that are not sufficiently informative for all the parameters that we were estimating. Why might this matter? -->
 
 <!-- Note that the results for bias of covariate effect all assume ecov beta is estimated. The lack of bias in certain situations might suggest including the effect even if AIC says it isn't better at least when contrast in Ecov is high. -->
@@ -246,7 +366,7 @@ The ability to accurately infer covariate effects on $M$ in some realistic situa
 
 
 
-<!-- Poor quality of biological, fishery, and observation may adversely affect ability to distinguish between true process and observational error [@puntetal14; @stewartmonnahan17; @croninpunt21; @fischetal23; @lietal_inreview_a]. -->
+<!-- Poor quality of biological, fishery, and observation may adversely affect ability to distinguish between true process and observational error [@puntetal14; @stewartmonnahan17; @croninpunt21; @fischetal23; @lietal26_a]. -->
 
 <!-- Uncertainty in estimated population attributes such as spawnign biomass can be increased considerably when $M$ is estimated. This is also a consideration for estimating covariate effects on $M$ even if the median $M$ parameter is assumed known. -->
 
@@ -292,6 +412,79 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \end{figure}
 \end{landscape}
 
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{AIC_PE_classification_plots}
+\end{center}
+\caption{Classification trees indicating primary factors determining which EM process error assumption provides the lowest AIC for R, R+S, and R+M OMs. Each node shows the percentage of EM process error models with lowest AIC and number of observations for the corresponding subset. Lower or higher accuracy of the process error assumption are indicated by more red or green polygons, respectively.}\label{AIC_PE_class}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{AIC_Ecov_effect_classification_plots}
+\end{center}
+\caption{Classification trees indicating primary factors determining whether the correct EM assumption for covariate effect on natural mortality (no effect with OM $\beta_E = 0$ or estimated effect when OM $\beta_E > 0$) provides the lowest AIC for OMs assuming values for $\beta_E$ of 0, 0.25, and 0.5. Nodes denote the percentage of EMs with correct assumption and lowest AIC (top), and number of observations (bottom) for the corresponding subset. Lower or higher accuracy of the process error assumption are indicated by more red or green polygons, respectively.}\label{AIC_Ecov_effect_class}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{ecov_beta_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the covariate effect on natural mortality for R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{ecov_effect_bias_regtree}
+\end{figure}
+\end{landscape}
+
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{ecov_beta_CI_coverage_regtree_plots}
+\end{center}
+\caption{Classification trees indicating primary factors determining whether confidence intervals for estimated covariate effects on natural mortalityin EMs fitted to R, R+S, and R+M OMs included the true value. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{ecov_effect_CI_coverage_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{median_M_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the median natural mortality rate parameter in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{med_M_bias_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{median_M_CI_coverage_regtree_plots}
+\end{center}
+\caption{Classification trees indicating primary factors determining whether confidence intervals for estimated median natural mortality rate parameter in EMs fitted to R, R+S, and R+M OMs included the true value. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{med_M_CI_coverage_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_SSB_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year SSB in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{term_SSB_bias_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_M_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year natural mortality rate in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{term_M_bias_regtree}
+\end{figure}
+\end{landscape}
+
 
 \pagebreak
 
@@ -299,41 +492,85 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \caption{For each OM process error source (columns), percent reduction in deviance for logistic regression models fit to indicators of convergence (providing Hessian-based standard errors) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{convergence_PRD_table}
 {\input{convergence_PRD_table}}
 \end{table}
+\pagebreak
+
 
 \begin{table}
-\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the median natural mortality rate parameter with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_median_M_converged_PRD_table}
-{\input{bias_mean_M_converged_PRD_table}}
+\caption{For each OM process error source (columns), percent reduction in deviance for multinomial logistic regression models fit to indicators of EM process error assumption with lowest AIC with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{AIC_PE_PRD_table}
+{\input{AIC_PE_PRD_table}}
 \end{table}
+\pagebreak
+
 
 \begin{table}
-\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the the standard error of the MLE for median natural mortality rate ($\widehat {SE}\left(\widehat \beta_M\right)$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_median_M_se_PRD_table}
-{\input{bias_mean_M_se_PRD_table}}
+\caption{For each OM covariate effect assumption (columns), percent reduction in deviance for logistic regression models fit to indicators of correct EM covariate effect assumption (no effect with OM $\beta_E = 0$ or estimated effect when OM $\beta_E > 0$) with lowest AIC with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{AIC_Ecov_effect_PRD_table}
+{\input{AIC_Ecov_effect_PRD_table}}
 \end{table}
+\pagebreak
+
 
 \begin{table}
-\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the covariate effect on natural mortality ($\beta_E$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_ecov_beta_converged_PRD_table}
-{\input{bias_ecov_beta_converged_PRD_table}}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the covariate effect on natural mortality ($\widehat \beta_E$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_ecov_beta_converged_PRD_table}
+{\input{ecov_beta_bias_converged_PRD_table}}
 \end{table}
+\pagebreak
+
 
 \begin{table}
-\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the the standard error of the MLE for covariate effect on natural mortality  ($\widehat {SE}\left(\widehat \beta_E\right)$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_median_M_se_PRD_table}
-{\input{bias_ecov_beta_se_PRD_table}}
+\caption{For each OM process error source (columns), percent reduction in deviance for logistic regression models fit to indicators of whether confidence intervals for covariate effect estimates includes the true value with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{ecov_beta_ci_coverage_PRD_table}
+{\input{ecov_beta_ci_coverage_PRD_table}}
 \end{table}
+\pagebreak
+
+
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the median natural mortality rate parameter ($\widehat \beta_M$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_median_M_converged_PRD_table}
+{\input{mean_M_bias_converged_PRD_table}}
+\end{table}
+\pagebreak
+
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for logistic regression models fit to indicators of whether confidence intervals for median natural mortality rate estimates includes the true value with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mean_M_ci_coverage_PRD_table}
+{\input{mean_M_ci_coverage_PRD_table}}
+\end{table}
+\pagebreak
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year natural mortality with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_M_PRD_table}
+{\input{bias_M_PRD_table}}
+\end{table}
+\pagebreak
 
 \begin{table}
 \caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year SSB with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_SSB_PRD_table}
 {\input{bias_SSB_PRD_table}}
 \end{table}
-
-
 \pagebreak
-
-
-# Supplemental Materials {-}
 
 
 \setcounter{figure}{0}
 \renewcommand\thefigure{S\arabic{figure}}
+
+\setcounter{table}{0}
+\renewcommand\thetable{S\arabic{table}}
+
+\begin{landscape}
+\end{landscape}
+
+# Supplemental Materials {-}
+
+## Referenced Figures and Tables {-}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{Ecov_true_obs_example}
+\end{center}
+\caption{Example simulations of environmental covariate latent processes and observations with different levels of observation error, and different assumptions about variability of the latent process.}\label{om_ecov_example}
+\end{figure}
+\end{landscape}
 
 \begin{figure}
 \begin{center}
@@ -344,106 +581,79 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 
 \begin{landscape}
 \begin{figure}
-\caption{Example simulations of environmental covariate latent processes and observations with different levels of observation error, and different assumptions about variability of the latent process.}\label{om_ecov_example}
-\begin{center}
-\includegraphics[height = \textheight]{Ecov_true_obs_example}
-\end{center}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\caption{Example simulations of annual natural mortality rates that may be a function of a temporally varying environmental covariate and autoregressive random effects.}\label{M_example}
 \begin{center}
 \includegraphics[height = \textheight]{M_example}
 \end{center}
+\caption{Example simulations of annual natural mortality rates that may be a function of a temporally varying environmental covariate and autoregressive random effects.}\label{M_example}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{ecov_beta_SE_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the Hessian-based standard error estimates for covariate effect on natural mortality ($\widehat {\text{SE}}\left(\widehat \beta_E\right)$) for R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{ecov_effect_SE_bias_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{median_M_SE_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the Hessian-based standard error estimates for median natural mortality rate parameter ($\widehat {\text{SE}}\left(\widehat \beta_M\right)$) in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{med_M_SE_bias_regtree}
+\end{figure}
+\end{landscape}
+
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_M_rmse_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the RMSE of terminal year natural mortality rate in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{term_M_rmse_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_SSB_rmse_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the RMSE of terminal year SSB in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{term_SSB_rmse_regtree}
 \end{figure}
 \end{landscape}
 
 \begin{table}
-\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the median natural mortality rate parameter with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_median_M_complete_PRD_table}
-{\input{bias_mean_M_complete_PRD_table}}
+\caption{OM and EM attributes used in analyses of deviance reduction and classification and regression trees.}\label{factor_table}
+{\input{factor_table}}
 \end{table}
 
 \begin{table}
-\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the covariate effect on natural mortality ($\beta_E$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_ecov_beta_complete_PRD_table}
-{\input{bias_ecov_beta_complete_PRD_table}}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the Hessian-based standard error of the estimates of the covariate effect on natural mortality  ($\widehat {\text{SE}}\left(\widehat \beta_E\right)$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_ecov_beta_se_PRD_table}
+{\input{ecov_beta_se_PRD_table}}
 \end{table}
 
 
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics{convergence_main}
-\end{center}
-\caption{Estimated probability of fits providing Hessian-based standard errors for EMs with alternative process error assumptions, treatment of median natural mortality ($\beta_M$ known or estimated), and treatment of covariate effect ($\beta_E = 0$ or estimated). The OMs have R (left) and R+S (middle), or R+M (right) process error structures, alternative configurations of covariate time series structure and levels of observation uncertainty (rows), and three levels of true covariate effect on median natural mortality (x axis). All OMs had low observation error for fish population observations and temporal contrast in fishing pressure. Vertical lines represent 95\% confidence intervals.}\label{convergence}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{aic_main}
-\end{center}
-\caption{For each OM, the proportion of simulated data sets where the EM type (treatment of environmental covariate effect and  assumed process error type) had the lowest AIC. All OMs had low observation error for fish population observations and temporal contrast in fishing pressure. All EMs estimated median natural mortality rate.}\label{aic}
-\end{figure}
-\end{landscape}
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the Hessian-based standard error of the estimates of the median natural mortality rate parameter ($\widehat {\text{SE}}\left(\widehat \beta_M\right)$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{median_M_se_bias_PRD_table}
+{\input{mean_M_se_PRD_table}}
+\end{table}
 
 
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{beta_E_bias_main}
-\end{center}
-\caption{Median error (ME) of estimates of environmental effect on natural mortality $\beta_E$ from fitting EMs with alternative process error assumptions and treatment of median natural mortality ($\beta_M$ known or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_E_bias}
-\end{figure}
-\end{landscape}
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to RMSE of terminal year $M$ measured by Eq. \ref{bias_regression_response}  with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{rmse_M_PRD_table}
+{\input{rmse_M_PRD_table}}
+\end{table}
+\pagebreak
 
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{beta_E_CI_coverage_main}
-\end{center}
-\caption{Probability of 95\% confidence interval for $\beta_E$ containing the true value for EMs with alternative process error assumptions and treatment of median natural mortality ($\beta_M$ known or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_E_CI_coverage}
-\end{figure}
-\end{landscape}
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to RMSE of terminal year SSB measured by Eq. \ref{bias_regression_response}  with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{rmse_SSB_PRD_table}
+{\input{rmse_ssb_PRD_table}}
+\end{table}
+\pagebreak
 
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{beta_M_bias_main}
-\end{center}
-\caption{Median error (ME) of estimates of $\beta_M$ from fitting EMs with alternative process error assumptions and treatment of covariate effect ($\beta_E = 0$ or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_M_bias}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{beta_M_CI_coverage_main}
-\end{center}
-\caption{Probability of 95\% confidence interval for $\beta_M$ containing the true value for EMs with alternative process error assumptions and treatment of covariate effect ($\beta_E = 0$ or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_M_CI_coverage}
-\end{figure}
-\end{landscape}
-
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{terminal_year_M_bias_main}
-\end{center}
-\caption{Median relative error (MRE) of estimates of natural mortality rate in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known).  All OMs had low observation error and contrast in fishing mortality.}\label{terminal_M_bias}
-\end{figure}
-\end{landscape}
-
-\begin{landscape}
-\begin{figure}
-\begin{center}
-\includegraphics[height = \textheight]{terminal_year_ssb_bias_main}
-\end{center}
-\caption{Median relative error (MRE) of estimates of spawning stock biomass (SSB) in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known). All OMs had low observation error and contrast in fishing mortality.}\label{terminal_ssb_bias}
-\end{figure}
-\end{landscape}
 
 ## Convergence results {-}
 
@@ -456,7 +666,7 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{convergence_Rom}
+\includegraphics[height = \textheight]{convergence_Rom}
 \end{center}
 \caption{Estimated probability of fits providing Hessian-based standard errors for EMs assuming alternative process error, that estimate or assume known median natural mortality, and that estimate or assume no covariate effect on median natural mortality when fitted to R OMs and three levels of true covariate effect on median natural mortality (x axis). Vertical lines represent 95\% confidence intervals.}\label{convergence_Rom}
 \end{figure}
@@ -465,7 +675,7 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{convergence_RSom}
+\includegraphics[height = \textheight]{convergence_RSom}
 \end{center}
 \caption{Estimated probability of fits providing Hessian-based standard errors for EMs assuming alternative process error, that estimate or assume known median natural mortality, and that estimate or assume no covariate effect on median natural mortality when fitted to R+S OMs and three levels of true covariate effect on median natural mortality (x axis). Vertical lines represent 95\% confidence intervals.}\label{convergence_RSom}
 \end{figure}
@@ -474,7 +684,7 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics{convergence_RMom}
+\includegraphics[height = \textheight]{convergence_RMom}
 \end{center}
 \caption{Estimated probability of fits providing Hessian-based standard errors for EMs assuming alternative process error, that estimate or assume known median natural mortality, and that estimate or assume no covariate effect on median natural mortality when fitted to R+M OMs and three levels of true covariate effect on median natural mortality (x axis). Vertical lines represent 95\% confidence intervals.}\label{convergence_RMom}
 \end{figure}
@@ -523,6 +733,13 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 <!-- When the EMs assumed the median natural mortality rate was known, we observed generally accurate estimation of environmental effects across all EM and OM process error assumptions and all true covariate effect sizes, when ther was low uncertainty in environmental observations and larger temporal contrast in the simulated true environmental covariate (Figure \ref{beta_E_bias}). We observed a negative trend in bias of the environmental effect with increased effect size when temporal variation in the covariate was lower and/or uncertainty in the covariate observations was higher. When the OMs had R+S process errors with low temporal variation in the true environmental covariate and lower uncertainty in the indices age age composition, estimated covariate effects were highly variable.  In most cases the relative error of $\beta_E$ did not depend on the source of process error assumed in the EM. When there was an effect of the EM process error assumption it was when OMs had R+S process errors. The worst bias was observed when OMs assumed R+S process errors, high uncertainty in covariate observations, low variability in the covariate, and low uncertainty in index and age composition observations. -->
 
 <!-- When the median natural mortality rate was estimated in the EM, results were similar except estimated effects were even more variable for data simulated with R+S process errors (Figure \ref{beta_E_bias}). There was also more separation of reliability of the estimation of the effect among EMs with different process error assumptions. The separation was most apparent when OMs simulated R+S process errors and larger variability in the environmental covariate wehere EMs with process errors other than R+S showing more bias than when the mean natural mortality rate was assumed known. -->
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the covariate effect on natural mortality ($\beta_E$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions. Includes results from all unconverged and converged models.}\label{bias_ecov_beta_complete_PRD_table}
+{\input{bias_ecov_beta_complete_PRD_table}}
+\end{table}
+
+
 
 
 \begin{landscape}
@@ -624,6 +841,21 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
+\includegraphics[width = 1.4\textwidth]{ecov_beta_rmse_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the RMSE of covariate effect on natural mortality ($\text{RMSE}\left(\widehat \beta_E\right)$) for R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{ecov_effect_rmse_regtree}
+\end{figure}
+\end{landscape}
+
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the the RMSE for estimates of the covariate effect on natural mortality  ($\text{RMSE}\left(\widehat \beta_E\right)$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{RMSE_ecov_beta_PRD_table}
+{\input{rmse_ecov_beta_PRD_table}}
+\end{table}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
 \includegraphics[height = \textheight]{beta_E_rmse_main}
 \end{center}
 \caption{Root mean square error (RMSE) of estimates of covariate effect on natural mortality $\beta_E$ from fitting EMs with alternative process error assumptions and treatment of median natural mortality ($e^\beta_M$ known or estimated). All OMs had low observation error and contrast in fishing mortality.}\label{beta_E_rmse}
@@ -662,7 +894,7 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics[height = \textheight]{om_69_em_5_beta_E_se_beta_E_lm_plot}
+\includegraphics[height = 0.9\textheight]{om_69_em_5_beta_E_se_beta_E_lm_plot}
 \end{center}
 \caption{Positive correlation of covariate effect estimates and Hessian-based standard error estimates for EM that also estimates the median natural mortality parameter and has correct R+M process error assumption fitted to simulated data from the OM with R+M process errors, temporal contrast in fishing pressure, low observation uncertainty for both population ($Low OE$) and covariate observations ($\sigma_e = 0.1$), high and uncorrelated temporal variability in the true covariate ($\sigma_E = 0.5$ and $\rho_E = 0$), and the strongest covariate effect on natural mortality ($\beta_E = 0.5$).}\label{ex_lm_beta_E_SE_beta_E}
 \end{figure}
@@ -672,6 +904,12 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 ## Median Natural mortality parameter bias {-}
 
 <!-- We found high accuracy for estimation of the median natural mortality rate parameter ($\beta_M$) for all EM process errors assumptions when OMs had step changes in fishing mortality, lower uncertainty in index and age composition observations, and either R or R+M process errors (Figure \ref{beta_M_bias}). The most variation in estimates occurred when fishing mortality was constant and there was higher uncertainty in index and age composition observations. For OMs with R+S process errors, the most reliable estimation of $\beta_M$ was obtained when the EM also assumed R+S process errors across all other factors. For OMs with R+M process errors, the matching assumption for the EM only showed the best reliability when there was low uncertainty in index and age composition observations and fishing mortality was constant.  -->
+
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the median natural mortality rate parameter with each OM and EM factor (rows) included individually, combined, and with second and third order interactions. Includes results from all unconverged and converged models.}\label{bias_median_M_complete_PRD_table}
+{\input{bias_mean_M_complete_PRD_table}}
+\end{table}
 
 \begin{landscape}
 \begin{figure}
@@ -772,13 +1010,30 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
-\includegraphics[height = \textheight]{om_69_em_5_beta_M_se_beta_M_lm_plot}
+\includegraphics[height = 0.9\textheight]{om_69_em_5_beta_M_se_beta_M_lm_plot}
 \end{center}
 \caption{Negative correlation of $\beta_M$ estimates and Hessian-based standard error estimates for EM that also estimates the covariate effect and has correct R+M process error assumption fitted to simulated data from the OM with R+M process errors, temporal contrast in fishing pressure, low observation uncertainty for both population ($Low OE$) and covariate observations ($\sigma_e = 0.1$), high and uncorrelated temporal variability in the true covariate ($\sigma_E = 0.5$ and $\rho_E = 0$), and the strongest covariate effect on natural mortality ($\beta_E = 0.5$).}\label{ex_lm_beta_M_SE_beta_M}
 \end{figure}
 \end{landscape}
 
 ## Median Natural mortality parameter RMSE {-}
+
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{median_M_rmse_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the RMSE of estimates for the median natural mortality rate parameter ($\text{RMSE}\left(\widehat \beta_M\right)$) in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{med_M_rmse_regtree}
+\end{figure}
+\end{landscape}
+
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. \ref{bias_regression_response} for the the RMSE for estimates of the median natural mortality rate parameter ($\text{RMSE}\left(\widehat \beta_M\right)$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{RMSE_mean_M_PRD_table}
+{\input{rmse_mean_M_PRD_table}}
+\end{table}
+
 
 \begin{landscape}
 \begin{figure}
@@ -974,6 +1229,16 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
+\includegraphics[width = 1.4\textwidth]{term_F_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the terminal year fishing mortality rate in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{term_F_bias_regtree}
+\end{figure}
+\end{landscape}
+
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
 \includegraphics[height = \textheight]{terminal_year_F_bias_main}
 \end{center}
 \caption{Median relative error (MRE) of estimates of fully-selected fishing mortality ($F$) in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known). All OMs had low population observation error and contrast in fishing mortality.}\label{terminal_F_bias}
@@ -1012,6 +1277,15 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \begin{landscape}
 \begin{figure}
 \begin{center}
+\includegraphics[width = 1.4\textwidth]{term_F_rmse_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. \ref{bias_regression_response} for the RMSE of terminal year fishing mortality rate in EMs fitted to R, R+S, and R+M OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Lower or higher median absolute errors of the process error assumption are indicated by more green or red polygons, respectively.}\label{term_F_rmse_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
 \includegraphics[height = \textheight]{terminal_year_F_rmse_main}
 \end{center}
 \caption{Root mean square error (RMSE) of estimates of fully-selected fishing mortality ($F$)  in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known). All OMs had low population observation error and contrast in fishing mortality.}\label{terminal_F_rmse}
@@ -1042,5 +1316,80 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center.
 \includegraphics[height = \textheight]{terminal_year_F_rmse_RMom}
 \end{center}
 \caption{For R+M OMs, root mean square error (RMSE) of estimates of fully-selected fishing mortality ($F$)  in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known).}\label{terminal_F_rmse_RMom}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = 0.9\textheight]{convergence_main}
+\end{center}
+\caption{Estimated probability of fits providing Hessian-based standard errors for EMs with alternative process error assumptions, treatment of median natural mortality ($\beta_M$ known or estimated), and treatment of covariate effect ($\beta_E = 0$ or estimated). The OMs have R (left) and R+S (middle), or R+M (right) process error structures, alternative configurations of covariate time series structure and levels of observation uncertainty (rows), and three levels of true covariate effect on median natural mortality (x axis). All OMs had low observation error for fish population observations and temporal contrast in fishing pressure. Vertical lines represent 95\% confidence intervals.}\label{convergence}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{aic_main}
+\end{center}
+\caption{For each OM, the proportion of simulated data sets where the EM type (treatment of environmental covariate effect and  assumed process error type) had the lowest AIC. All OMs had low observation error for fish population observations and temporal contrast in fishing pressure. All EMs estimated median natural mortality rate.}\label{aic}
+\end{figure}
+\end{landscape}
+
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{beta_E_bias_main}
+\end{center}
+\caption{Median error (ME) of estimates of environmental effect on natural mortality $\beta_E$ from fitting EMs with alternative process error assumptions and treatment of median natural mortality ($\beta_M$ known or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_E_bias}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{beta_E_CI_coverage_main}
+\end{center}
+\caption{Probability of 95\% confidence interval for $\beta_E$ containing the true value for EMs with alternative process error assumptions and treatment of median natural mortality ($\beta_M$ known or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_E_CI_coverage}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{beta_M_bias_main}
+\end{center}
+\caption{Median error (ME) of estimates of $\beta_M$ from fitting EMs with alternative process error assumptions and treatment of covariate effect ($\beta_E = 0$ or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_M_bias}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{beta_M_CI_coverage_main}
+\end{center}
+\caption{Probability of 95\% confidence interval for $\beta_M$ containing the true value for EMs with alternative process error assumptions and treatment of covariate effect ($\beta_E = 0$ or estimated). All OMs had low observation error and contrast in fishing mortality. Vertical lines represent 95\% confidence intervals.}\label{beta_M_CI_coverage}
+\end{figure}
+\end{landscape}
+
+
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{terminal_year_M_bias_main}
+\end{center}
+\caption{Median relative error (MRE) of estimates of natural mortality rate in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known).  All OMs had low observation error and contrast in fishing mortality.}\label{terminal_M_bias}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = \textheight]{terminal_year_ssb_bias_main}
+\end{center}
+\caption{Median relative error (MRE) of estimates of spawning stock biomass (SSB) in the terminal year for EMs with alternative process error assumptions, treatment of covariate effect ($\beta_E = 0$ or estimated), and treatment of median natural mortality parameter ($\beta_M$ estimated or known). All OMs had low observation error and contrast in fishing mortality.}\label{terminal_ssb_bias}
 \end{figure}
 \end{landscape}

@@ -270,7 +270,7 @@ anova.palette.sd <- 0.25
 cairo_pdf(here("Ecov_study","mortality","manuscript", "convergence_classification_plots.pdf"), width = 30*2/3, height = 20*2/3)
 x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
-par(oma = c(0,0,0,0))
+par(oma = c(0,4,0,0))
 #plot.prune(full.trees[["R"]], cp = 0.001, "R", tweak = 1.2, mar = c(0,0,5,0), split.yshift = -3)
 plot.prune(prune(full.trees[["R"]],c(12, 56)), cp = 0.001, "R", tweak = 1.6, mar = c(0,0,5,0), split.yshift = -3)
 mtext("R OMs", side = 3, line = 0, cex = 2)

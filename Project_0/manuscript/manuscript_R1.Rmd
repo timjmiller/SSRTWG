@@ -356,7 +356,7 @@ This work was funded by NOAA Fisheries Northeast Fisheries Science Center. We th
 \begin{center}
 \includegraphics[width = 1.4\textwidth]{convergence_classification_plots}
 \end{center}
-\caption{Classification trees indicating primary factors determining convergence as defined by providing Hessian-based standard errors for R, R+S, R+M, R+Sel and R+q OMs. Nodes denote percent convergence (top) and number of fits (bottom)  for the corresponding subset. Lower or higher convergence rates are indicated by more red or green polygons, respectively}\label{conv_class}
+\caption{Classification trees indicating primary factors determining convergence as defined by providing Hessian-based standard errors for R, R+S, R+M, R+Sel and R+q OMs. Nodes denote percent convergence (top) and number of fits (bottom)  for the corresponding subset. Lower or higher convergence rates are indicated by more red or green polygons, respectively.}\label{conv_class}
 \end{figure}
 \end{landscape}
 
