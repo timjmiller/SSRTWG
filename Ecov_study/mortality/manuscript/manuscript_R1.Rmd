@@ -118,7 +118,7 @@ where the process errors are modeled as random effects that may, in general, be 
 $$
 \varepsilon_{M,y}|\varepsilon_{M,y-1} \sim \text{N}\left(\varepsilon_{M,y-1},(1-\rho_M^2)\sigma_M^2\right)
 $$ 
-[@stockmiller21], but we assume $\rho_M = 0$ in our R+M OMs. We assume the median $M$ rate $e^{\beta_M} = 0.2$ is constant across ages. For R and R+S OMs and EMs, $\varepsilon_{M,y} = 0$. For all R+M OMs, we assume the same standard deviation $\sigma_M = 0.3$, which is estimated in the R+M EMs. The covariate effect is one of 3 alternative values in the operating models, $\beta_\text{E} \in \{0,0.25,0.5\}$. The parameters defining the simulated covariate time series, size of the covariate effect, and any $M$ random effects result in a range of different levels of variation in annual values (Figure \ref{M_example}).
+[@stockmiller21], but we assume $\rho_M = 0$ in our R+M OMs. We assume the median $M$,  $e^{\beta_M} = 0.2$, is constant across ages. For R and R+S OMs and EMs, $\varepsilon_{M,y} = 0$. For all R+M OMs, we assume the same standard deviation $\sigma_M = 0.3$, which is estimated in the R+M EMs. The covariate effect is one of 3 alternative values in the operating models, $\beta_\text{E} \in \{0,0.25,0.5\}$. The parameters defining the simulated covariate time series, size of the covariate effect, and any $M$ random effects result in a range of different levels of variation in annual values (Figure \ref{M_example}).
 
 We assumed expected recruitment each year is from a Beverton-Holt stock-recruit relationship (SRR)
 \[
