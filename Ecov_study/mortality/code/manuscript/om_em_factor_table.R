@@ -1,9 +1,5 @@
 library(here)
-library(dplyr)
 library(Hmisc)
-df.ems <- readRDS(file.path(here(),"Ecov_study","mortality", "inputs", "df.ems.RDS"))
-df.oms <- readRDS(file.path(here(),"Ecov_study","mortality", "inputs", "df.oms.RDS"))
-om_inputs <- readRDS(file.path(here(),"Ecov_study","mortality", "inputs", "om_inputs.RDS"))
 
 factor_tab <- cbind.data.frame(
   Factor = c(
@@ -16,7 +12,7 @@ factor_tab <- cbind.data.frame(
     "OM Covariate Process Error Correlation ($\\rho_E$)",
     "EM Process Error",
     "EM Covariate Effect",
-    "EM Median Natural Mortality Rate Parameter"),
+    "EM Median Natural Mortality Rate Parameter ($\\beta_M$)"),
   Levels = 
     c("R, R+S, R+M", 
     "$F_{\\text{MSY}}$, $2.5F_{\\text{MSY}} \\rightarrow F_{\\text{MSY}}$", 

@@ -54,25 +54,14 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
           conv_ind <- 1:100 #all of them
           if(!is.null(conv_type)) conv_ind <- conv_fn(om,em,conv_res,Type = conv_type) #subset consistent with convergence results
           # r_e <- bias_res[[om]][,em,y,2]/bias_res[[om]][,em,y,1]-1
+          rmse <- sqrt(mean((bias_res[[om]][conv_ind,em,y,2]-bias_res[[om]][conv_ind,em,y,1])^2, na.rm = TRUE))
+          # conv <- rep(0,100)
+          # conv[conv_ind] <- 1
           if(!length(conv_ind)) {
             print(paste0("i: ", i," om: ", om, " em: ", em))
-            rmse <- corr <- NA
-          } else{
-            rmse <- sqrt(mean((bias_res[[om]][conv_ind,em,y,2]-bias_res[[om]][conv_ind,em,y,1])^2, na.rm = TRUE))
-            corr <- cor(bias_res[[om]][conv_ind,em,y,2],bias_res[[om]][conv_ind,em,y,1], use = "complete.obs")
-            if(!is.na(corr)) if(corr==-1 & length(conv_ind)>2){
-              print(corr)
-              print(length(conv_ind))
-              print(em)
-              print(om)
-              print(bias_res[[om]][conv_ind,em,y,2])
-              print(bias_res[[om]][conv_ind,em,y,1])
-              stop()
-            }
-            # conv <- rep(0,100)
-            # conv[conv_ind] <- 1
+            rmse <- NA
           }
-          return(cbind.data.frame(year = y, om=om,em=em,rmse=rmse, corr = corr, n_conv = length(conv_ind)))
+          return(cbind.data.frame(year = y, om=om,em=em,rmse=rmse))
         })
         return(do.call(rbind,out))
       })
@@ -142,7 +131,7 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
 }
 
 
-get_reg_fits <- function(factors, dfs, type = "SSB", response = "rmse_trans"){
+get_reg_fits <- function(factors, dfs, type = "SSB"){
   glm_fits <- dev.tables <- PRD.tables <- list()
   df <- dfs[[type]]
   for(OM_type in levels(df$OM_PE)){
@@ -151,6 +140,7 @@ get_reg_fits <- function(factors, dfs, type = "SSB", response = "rmse_trans"){
     print(dim(temp))
     glm_fits[[OM_type]] <- list()
     dev.tables[[OM_type]] <- list()
+    response <- "rmse_trans"
     if(type == "mean_M") factors <- factors[which(factors != "EM_M")]
     if(type == "ecov_beta") factors <- factors[which(factors != "EM_beta_ecov")]
     for(i in factors){
@@ -226,28 +216,6 @@ for(i in c("SSB", "F", "M")){
     table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
 }
 
-  i <- "M"
-  glm_fits <- get_reg_fits(factors = factors, dfs = dfs, type = i, response = "corr")
-  PRD.table <- get_PRD_tables(glm_fits=glm_fits, factors = factors[-1])
-  x <- PRD.table
-  x[] <- format(round(100*x,2), nsmall = 2)
-  dim(x)
-  x[which(is.na(as.numeric(x)))] <- "--"
-  x[which(as.numeric(x) == 0)] <- "< 0.01"
-  x <- latex(x, file = here("Ecov_study","mortality","manuscript",paste0("corr_",i,"_PRD_table.tex")), 
-    table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
-
-  i <- "SSB"
-  glm_fits <- get_reg_fits(factors = factors, dfs = dfs, type = i, response = "corr")
-  PRD.table <- get_PRD_tables(glm_fits=glm_fits, factors = factors[-1])
-  x <- PRD.table
-  x[] <- format(round(100*x,2), nsmall = 2)
-  dim(x)
-  x[which(is.na(as.numeric(x)))] <- "--"
-  x[which(as.numeric(x) == 0)] <- "< 0.01"
-  x <- latex(x, file = here("Ecov_study","mortality","manuscript",paste0("corr_",i,"_PRD_table.tex")), 
-    table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
-  
   i <- "ecov_beta"
   bias_res <- readRDS(file.path(here::here(),"Ecov_study","mortality", "results", paste0(i,"_bias_results.RDS")))
   dfs[[i]] <- rbind(
@@ -357,17 +325,9 @@ plot.prune<- function(mod,cp, type, factor = "complexity", extra = 7, ...) {
 add_to_frame <- function(obj, data){
   
   origx <- newx <- obj
-  yname <- as.character(attr(obj$terms, "variables")[-1])[1]
-  print(yname)
-  if(yname == "rmse_trans"){
-    data <- subset(data, !is.na(rmse_trans))
-    origx$frame$mean_rmse <- NA
-    origx$frame$median_rmse <- NA
-  }
-  if(yname == "corr"){
-    data <- subset(data, !is.na(corr))
-    origx$frame$median_corr <- NA
-  }
+  origx$frame$mean_rmse <- NA
+  # origx$frame$mean_abs_RE <- NA
+  origx$frame$median_rmse <- NA
   # origx$frame$median_abs_RE <- NA
   origx$frame$n_test <- NA
   origx$frame$yval_test <- NA
@@ -380,27 +340,16 @@ add_to_frame <- function(obj, data){
   leaf_names_done <- leaf_names <- all_node_names[leaf_rows_done]
   
   nloop <- 0
+  data <- subset(data, !is.na(rmse_trans))
   k = 0
   while(toss > -1){
     for(i in leaf_rows){
       origx_index <- which(all_node_names == node_names[i])
       origx$frame$n_test[origx_index] <- NROW(data[which(newx$where == i),])
-      if(yname == "rmse_trans"){
-        origx$frame$median_yval[origx_index] <- median(data$rmse_trans[which(newx$where == i)])
-        origx$frame$median_rmse[origx_index] <- median(data$rmse[which(newx$where == i)])
-        origx$frame$mean_rmse[origx_index] <- mean(data$rmse[which(newx$where == i)])
-        origx$frame$yval_test[origx_index] <- mean(data$rmse_trans[which(newx$where == i)])
-      }
-      if(yname == "corr"){
-        origx$frame$median_yval[origx_index] <- median(data$corr[which(newx$where == i)])
-        origx$frame$median_corr[origx_index] <- median(data$corr[which(newx$where == i)])
-        origx$frame$yval_test[origx_index] <- mean(data$corr[which(newx$where == i)])
-        if(any(is.na(origx$frame$median_corr[origx_index]))){
-          print(data$corr[which(newx$where == i)])
-          print(origx$frame[origx_index,])
-          stop()
-        }
-      }
+      origx$frame$yval_test[origx_index] <- mean(data$rmse_trans[which(newx$where == i)])
+      origx$frame$median_yval[origx_index] <- median(data$rmse_trans[which(newx$where == i)])
+      origx$frame$median_rmse[origx_index] <- median(data$rmse[which(newx$where == i)])
+      origx$frame$mean_rmse[origx_index] <- mean(data$rmse[which(newx$where == i)])
       # x <- data$relerror[which(newx$where == i)]
       # origx$frame$mean_RE[origx_index] <- mean(data$relerror[which(newx$where == i)])
       # origx$frame$median_RE[origx_index] <- median(data$relerror[which(newx$where == i)])
@@ -421,7 +370,6 @@ add_to_frame <- function(obj, data){
 node.fun <- function(x, labs, digits, varlen){
   out <- rep("", NROW(x$frame))
   if(!is.null(x$frame$median_rmse)) out <- paste0(format(round(x$frame$median_rmse,3), nsmall = 3))
-  if(!is.null(x$frame$median_corr)) out <- paste0(format(round(x$frame$median_corr,3), nsmall = 3))
   paste0(out, "\n", x$frame$n)
 }
 
@@ -467,7 +415,6 @@ for(i in c("ecov_beta", "mean_M")){
     full.trees[[i]][[OM_type]] <- add_to_frame(full.trees[[i]][[OM_type]], temp)
   }
 }
-
 
 anova.palette.sd <- 1
 anova.palette.mean <- min(sapply(c("R", "R+S", "R+M"), \(x) min(log(full.trees[["SSB"]][[x]]$frame$median_rmse)))) +1
@@ -570,59 +517,5 @@ plot.prune(prune(full.trees[["ecov_beta"]][["R+S"]],c(4,10,11,3)), cp = 0.001, "
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["ecov_beta"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
 plot.prune(prune(full.trees[["ecov_beta"]][["R+M"]],c(4,10,11,12,13,7)), cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
-mtext("R+M OMs", side = 3, line = 0, cex = 2)
-dev.off()
-
-
-corr.full.trees <- list()
-for(i in c("SSB","M")) {
-  print(i)
-  corr.full.trees[[i]] <- list()
-  for(OM_type in levels(dfs[[i]]$OM_PE)){
-    print(OM_type)
-    temp <- subset(dfs[[i]], OM_PE == OM_type)
-    form <- as.formula(paste("corr ~", paste(factors, collapse = "+")))
-    corr.full.trees[[i]][[OM_type]] <- rpart(form, data=temp, method = "anova", control=rpart.control(cp=0, xval = 100), model = TRUE)
-    corr.full.trees[[i]][[OM_type]] <- add_to_frame(corr.full.trees[[i]][[OM_type]], temp)
-    print("OM_type done")
-  }
-}
-
-anova.palette.mean <- mean(sapply(c("R", "R+S", "R+M"), \(x) mean(corr.full.trees[["M"]][[x]]$frame$median_corr))) 
-anova.palette.sd <- 0.4
-anova.palette.mean <- 0.5
-#anova.palette.sd <- 0.5
-anova.palette.min <- -1
-anova.palett.max <- 1
-# anova.palette.min <- min(sapply(c("R", "R+S", "R+M"), \(x) min(corr.full.trees[["M"]][[x]]$frame$median_corr)))-0.1 
-# anova.palette.max <- max(sapply(c("R", "R+S", "R+M"), \(x) max(corr.full.trees[["M"]][[x]]$frame$median_corr)))+0.1
-
-cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("term_M_corr_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
-x <- matrix(1:3, 1, 3, byrow = TRUE)
-layout.x <- layout(x) 
-par(oma = c(0,0,0,0))
-#plot.prune(corr.full.trees[["M"]][["R"]], cp = 0, "R", extra = 1)
-plot.prune(prune(corr.full.trees[["M"]][["R"]],c(2,6,28,58,30,31)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -1)
-mtext("R OMs", side = 3, line = 0, cex = 2)
-#plot.prune(corr.full.trees[["M"]][["R+S"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(corr.full.trees[["M"]][["R+S"]],c(2,6,14,30,31)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
-mtext("R+S OMs", side = 3, line = 0, cex = 2)
-#plot.prune(corr.full.trees[["M"]][["R+M"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(corr.full.trees[["M"]][["R+M"]],c(2,6,14,30)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
-mtext("R+M OMs", side = 3, line = 0, cex = 2)
-dev.off()
-
-cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("term_ssb_corr_regtree_plots.pdf")), width = 30*2/3, height = 15*2/3)
-x <- matrix(1:3, 1, 3, byrow = TRUE)
-layout.x <- layout(x) 
-par(oma = c(0,0,0,0))
-#plot.prune(corr.full.trees[["SSB"]][["R"]], cp = 0, "R", extra = 1)
-plot.prune(prune(corr.full.trees[["SSB"]][["R"]],c(3,4,10,11)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -1)
-mtext("R OMs", side = 3, line = 0, cex = 2)
-#plot.prune(corr.full.trees[["SSB"]][["R+S"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(corr.full.trees[["SSB"]][["R+S"]],c(3,8,18,19,5)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
-mtext("R+S OMs", side = 3, line = 0, cex = 2)
-#plot.prune(corr.full.trees[["SSB"]][["R+M"]], cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(corr.full.trees[["SSB"]][["R+M"]],c(3,4,10,11)), cp = 0, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()

@@ -52,15 +52,17 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
     res <- lapply(om_ind, function(x) {
       if(is.null(years)) years <- 1:40
       ssb_res <- lapply(years, function(y) {
-        out <- matrix(NA,length(em_ind), 8)
+        out <- matrix(NA,length(em_ind), 10)
         for(j in em_ind){
           conv_ind <- 1:100 #all of them
           if(!is.null(conv_type)) conv_ind <- conv_fn(x,j,conv_res,Type = conv_type) #subset consistent with convergence results
           r_e <- ssb_bias[[x]][conv_ind,j,y,2]/ssb_bias[[x]][conv_ind,j,y,1]-1
           rmse <- sqrt(mean((ssb_bias[[x]][conv_ind,j,y,2]-ssb_bias[[x]][conv_ind,j,y,1])^2, na.rm = TRUE))
-          out[which(em_ind==j),] <- c(median(r_e, na.rm = TRUE), sd(r_e, na.rm=T)/sqrt(sum(!is.na(r_e))), custom_boxplot_stat(r_e), rmse)
+          corr <- NA
+          if(length(conv_ind)>1) suppressWarnings(corr <- cor(ssb_bias[[x]][conv_ind,j,y,2],ssb_bias[[x]][conv_ind,j,y,1], use = "complete.obs"))
+          out[which(em_ind==j),] <- c(median(r_e, na.rm = TRUE), sd(r_e, na.rm=T)/sqrt(sum(!is.na(r_e))), custom_boxplot_stat(r_e), rmse, corr, length(conv_ind))
         }
-        colnames(out) <- c("bias_est", "bias_se", "ymin", "lower", "middle", "upper", "ymax", "rmse")
+        colnames(out) <- c("bias_est", "bias_se", "ymin", "lower", "middle", "upper", "ymax", "rmse", "corr", "n_conv")
         return(out)
       })
       names(ssb_res) <- years
@@ -79,7 +81,7 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
       all_res <- rbind.data.frame(all_res, res)
     }
   }
-  all_res$type <- c("bias_est", "bias_se", "ymin", "lower", "middle", "upper", "ymax", "rmse")[all_res$type]
+  all_res$type <- c("bias_est", "bias_se", "ymin", "lower", "middle", "upper", "ymax", "rmse","corr", "n_conv")[all_res$type]
   all_res$em_config <- c("rec", "rec+1", "rec+M")[all_res$em_config]
   
   all_res<- all_res %>% tidyr::pivot_wider(names_from = type, values_from = value) %>% as.data.frame
@@ -237,4 +239,28 @@ for(i in 1:length(OMs)){
   cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("terminal_year_ssb_rmse_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
   print(plt)
   dev.off()
+}
+
+
+for(i in 1:length(OMs)){
+  temp <- subset(all_res, OM_process_error == OMs[i])
+  temp$bias_est[temp$rmse == 0] <-NA
+  temp$rmse[temp$rmse == 0] <-NA
+  temp$corr[which(temp$n_conv ==2)] <- NA
+  plt <- ggplot(temp, aes(x = Ecov_effect, y = corr, colour = EM_process_error, shape = M)) + scale_fill_viridis_d(begin = 0.2, end = 0.8, option = "turbo", drop = FALSE) + 
+    geom_hline(aes(yintercept=0), linewidth = 2, linetype = "dashed", colour = "grey") +
+    geom_line(position = position_dodge(0.1), linewidth = 1) + 
+    geom_point(position = position_dodge(0.1), size = 4) + 
+    scale_x_continuous(breaks = c(0,0.25,0.5)) + 
+    facet_nested(Ecov_obs_sig+Ecov_re_sig+Ecov_re_cor ~ Fhist + oe + beta_Ecov,
+      labeller = labeller(Ecov_obs_sig = label_parsed, Ecov_re_sig = label_parsed, Ecov_re_cor = label_parsed,  Fhist = label_parsed, beta_Ecov = label_parsed)) +
+    #coord_cartesian(ylim = c(-0.5, 0.5)) + 
+    ylab(bquote(Cor(widehat(SSB),SSB)~"in"~terminal~year)) + xlab(expression("True "*beta[italic(E)])) +
+    guides(col = guide_legend(override.aes = list(shape = 15, size = 10, linetype = 0), order = 1), size = "none", fill = "none") +
+    labs(colour = "EM process error", fill = "EM process error", shape = expression("Median "*italic(M)*" assumption"))
+  plt
+  cairo_pdf(here("Ecov_study","mortality","manuscript", paste0("terminal_year_ssb_corr_",OMs_lab[i],".pdf")), width = 30*2/3, height = 20*2/3)
+  print(plt)
+  dev.off()
+  
 }

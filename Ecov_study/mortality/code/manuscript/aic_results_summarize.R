@@ -41,16 +41,16 @@ make_df_fn <- function(M_est = TRUE){
     em_ind <- which(df.ems$M_est == M_est) #all EM PE assumptions
     om_ind <- which(df.oms$NAA_M_re == re_mod) #om and em match
     res <- aic_fn(aic_res, em_ind, om_ind)
-    print(length(res))
-    print(dim(res[[1]]))
+    # print(length(res))
+    # print(dim(res[[1]]))
     res <- lapply(1:length(om_ind), \(x) cbind.data.frame(om = om_ind[x], res[[x]]))
-    print(dim(res[[1]]))
-    stop()
-    print(length(res))
+    # print(dim(res[[1]]))
+    # print(length(res))
     res <- do.call(rbind, res)
-    print(dim(res))
+    # print(dim(res))
     res <- cbind(df.oms[res$om,], df.ems[res$em_ind,], res)
     print(dim(res))
+    return(res)
     # print(res[1:20,])
     #res <- cbind(df.oms[rep(om_ind, each = length(em_ind)),], df.ems[rep(em_ind, length(om_ind)),], n = c(Mfixed_rec))
     # if(i == 1) {
@@ -59,8 +59,11 @@ make_df_fn <- function(M_est = TRUE){
     #   df <- rbind(df, res)
     # }
   })
+  print(sapply(df,dim))
   df <- do.call(rbind, df)
   print(dim(df))
+  print(class(df))
+  # stop()
   # df <- df %>%
   #   mutate(Ecov_obs_sig = recode(Ecov_obs_sig,
   #     "0.1" = "sigma[italic(e)] == 0.1",
@@ -233,6 +236,7 @@ split.fun <- function(type = "R") {
     labs <- gsub("Ecov_re_sig", "sigma[italic(E)]", labs, fixed = TRUE)
     labs <- gsub("Ecov_re_cor", "rho[italic(E)]", labs, fixed = TRUE)
     labs <- gsub("Ecov_obs_sig", "sigma[italic(e)]", labs, fixed = TRUE)
+    labs <- gsub("Ecov_correct", "EM*phantom(0)*beta[italic(E)]*phantom(0)*Assumption*phantom(0)*Correct", labs, fixed = TRUE)
     labs <- gsub("obs_error", "OM*phantom(0)*Pop.*phantom(0)*OE", labs, fixed = TRUE)
     labs <- gsub("conv==", "EM*phantom(0)*Converged==", labs, fixed = TRUE)
     print(labs)
