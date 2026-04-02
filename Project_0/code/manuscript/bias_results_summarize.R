@@ -502,17 +502,17 @@ factors[["F"]] <- factors[["R"]] <- factors[["SSB"]]
 get_bias_reg_fits <- function(pars = c("a","b","M", "SSB", "F", "R"), factors, obs_dfs, cv_limit=NA){
 #cv_limit <- NA
 #for(SR_par in c("a","b","M", "SSB", "F", "R")) {
+  glm_fits <- list()
   for(SR_par in pars) {
     print(SR_par)
     par_type <- ifelse(SR_par %in% c("a","b"), "SR", SR_par)
     print(par_type)
-    glm_fits[[SR_par]] <- dev.tables[[SR_par]] <- PRD.tables[[SR_par]] <- list()
+    glm_fits[[SR_par]] <- list()
     for(OM_type in names(factors[[par_type]])){
       print(OM_type)
       facs <- factors[[par_type]][[OM_type]]
       temp <- get_small_data(SR_par, OM_type, obs_dfs, factors, cv_limit)
       glm_fits[[SR_par]][[OM_type]] <- list()
-      dev.tables[[SR_par]][[OM_type]] <- list()
       for(i in facs){
         glm_fits[[SR_par]][[OM_type]][[i]] <- glm(as.formula(paste("relerror_trans", "~", i)), family = gaussian, data = temp)
       }
@@ -581,6 +581,8 @@ get_bias_PRD_tables <- function(pars = c("a","b","M", "SSB", "F", "R"), glm_fits
 
 glm_fits <- get_bias_reg_fits(factors = factors, obs_dfs = obs_dfs)
 PRD.tables <- get_bias_PRD_tables(glm_fits=glm_fits, factors = factors)
+glm_fits <- get_bias_reg_fits(factors = factors, obs_dfs = obs_dfs, pars = c("a","b"))
+PRD.tables <- get_bias_PRD_tables(glm_fits=glm_fits, factors = factors, pars = c("a","b"))
 
 saveRDS(glm_fits, here::here("Project_0","results", "glm_fits_bias.RDS"))
 
@@ -604,7 +606,7 @@ dim(x)
 x[which(is.na(as.numeric(x)))] <- "--"
 x[which(as.numeric(x) == 0)] <- "< 0.01"
 x <- latex(x, file = here("Project_0","manuscript","bias_SR_pars_PRD_table.tex"), 
-  cgroup = c("Beverton-Holt $a$","Beverton-Holt $b$"), n.cgroup = c(5,5),
+  cgroup = c("Beverton-Holt $\\alpha$","Beverton-Holt $\\beta$"), n.cgroup = c(5,5),
   table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
 
 x <- PRD.tables[["M"]]

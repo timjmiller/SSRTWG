@@ -177,11 +177,11 @@ get_bias_PRD_tables <- function(glm_fits, factors){
   rnames <- gsub("F ", "$F$ ", rnames, fixed = TRUE)
   rnames <- gsub("EM M", "EM $M$ assumption", rnames, fixed = TRUE)
   rnames <- gsub("obs error", "OM Obs. Error", rnames, fixed = TRUE)
-  rnames <- gsub("Ecov obs sig", "$OM \\sigma_e$", rnames, fixed = TRUE)
-  rnames <- gsub("Ecov re sig", "$OM \\sigma_E$", rnames, fixed = TRUE)
-  rnames <- gsub("Ecov re cor", "$OM \\rho_{E}$", rnames, fixed = TRUE)
+  rnames <- gsub("Ecov obs sig", "OM $\\sigma_e$", rnames, fixed = TRUE)
+  rnames <- gsub("Ecov re sig", "OM $\\sigma_E$", rnames, fixed = TRUE)
+  rnames <- gsub("Ecov re cor", "OM $\\rho_{E}$", rnames, fixed = TRUE)
   rnames <- gsub("Ecov effect", "OM $\\beta_{E}$", rnames, fixed = TRUE)
-  rnames <- gsub("EM beta ecov", "$EM \\beta_{E}$ assumption", rnames, fixed = TRUE)
+  rnames <- gsub("EM beta ecov", "EM $\\beta_{E}$ assumption", rnames, fixed = TRUE)
   rnames <- c(rnames,"All factors", "+ All Two Way", "+ All Three Way")
   rownames(PRD.table) <- rnames
   print(PRD.table)
@@ -208,30 +208,16 @@ for(i in c("SSB", "F", "M")){
   dfs[[i]] <- df  
 }
 
-for(i in c("mean_M", "ecov_beta")){
-  bias_res <- readRDS(file.path(here::here(),"Ecov_study","mortality", "results", paste0(i,"_bias_results.RDS")))
-  if(i == "mean_M") {
-    df <- rbind(
-      plot_df_fn(df.ems, df.oms, Ecov_est = FALSE, M_est = TRUE, conv_type = 3, bias_res = bias_res, conv_res = conv_res, FE = i),
-      plot_df_fn(df.ems, df.oms, Ecov_est = TRUE, M_est = TRUE, conv_type = 3, bias_res = bias_res, conv_res = conv_res, FE = i))
-  } else {
-    df <- rbind(
-      plot_df_fn(df.ems, df.oms, Ecov_est = TRUE, M_est = TRUE, conv_type = 3, bias_res = bias_res, conv_res = conv_res, FE = i),
-      plot_df_fn(df.ems, df.oms, Ecov_est = TRUE, M_est = FALSE, conv_type = 3, bias_res = bias_res, conv_res = conv_res, FE = i))
-  }
-  df$sd_rel_error_trans <- log(df$sd_rel_error + 1)
-  df$sd_rel_error_trans[which(is.infinite(df$sd_rel_error_trans))] <- NA
-  
-  df[factors[-1]] <- lapply(df[factors[-1]], as.factor)
-  df$OM_PE <- factor(df$OM_PE, levels= c("R","R+S", "R+M"))
-  df$EM_PE <- factor(df$EM_PE, levels= c("R","R+S", "R+M"))
-  dfs[[i]] <- df  
-}
+glm_fits <- PRD.tables <- list()
 
-for(i in c("SSB", "F", "M")[-1]){
-  glm_fits <- get_bias_reg_fits(factors = factors, dfs = dfs, type = i)
-  PRD.table <- get_bias_PRD_tables(glm_fits=glm_fits, factors = factors[-1])
-  x <- PRD.table
+for(i in c("SSB", "F", "M")){
+  glm_fits[[i]] <- get_bias_reg_fits(factors = factors, dfs = dfs, type = i)
+}
+for(i in c("SSB", "F", "M")){
+  PRD.tables[[i]] <- get_bias_PRD_tables(glm_fits=glm_fits[[i]], factors = factors[-1])
+}
+for(i in c("SSB", "F", "M")){
+  x <- PRD.tables[[i]]
   x[] <- format(round(100*x,2), nsmall = 2)
   dim(x)
   x[which(is.na(as.numeric(x)))] <- "--"

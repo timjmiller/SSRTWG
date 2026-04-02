@@ -124,7 +124,7 @@ plot_df_fn <- function(df.ems, df.oms, Ecov_est = FALSE, M_est = FALSE, conv_typ
 }
 
 
-get_bias_reg_fits <- function(factors, dfs, type = "mean_M", response = "error", is_SE = FALSE, family = "gaussian"){
+get_bias_reg_fits <- function(factors, dfs, type = "mean_M", response = "error", is_SE = FALSE, family = "gaussian", method = "glm"){
   glm_fits <- dev.tables <- PRD.tables <- list()
   df <- dfs[[type]]
   if(is_SE) {
@@ -137,26 +137,46 @@ get_bias_reg_fits <- function(factors, dfs, type = "mean_M", response = "error",
     print(dim(temp))
     glm_fits[[OM_type]] <- list()
     dev.tables[[OM_type]] <- list()
-    for(i in factors){
-      print(i)
-      glm_fits[[OM_type]][[i]] <- glm(as.formula(paste(response, "~", i)), family = family, data = temp)
+    if(method =="glm"){
+      for(i in factors){
+        print(i)
+        glm_fits[[OM_type]][[i]] <- glm(as.formula(paste(response, "~", i)), family = family, data = temp)
+      }
+      glm_fits[[OM_type]][["all"]] <- glm(as.formula(paste(response, "~", paste(factors,collapse = "+"))), family = family, data = temp)
+      glm_fits[[OM_type]][["all2"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^2")), family = family,
+        data = temp)
+      glm_fits[[OM_type]][["all3"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^3")), family = family,
+        data = temp)
     }
-    glm_fits[[OM_type]][["all"]] <- glm(as.formula(paste(response, "~", paste(factors,collapse = "+"))), family = family, data = temp)
-    glm_fits[[OM_type]][["all2"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^2")), family = family,
-      data = temp)
-    glm_fits[[OM_type]][["all3"]] <- glm(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^3")), family = family,
-      data = temp)
-    #percent reduction in deviance
+    if(method == "qr"){
+      for(i in factors){
+        print(i)
+        glm_fits[[OM_type]][[i]] <- rq(as.formula(paste(response, "~", i)), data = temp, method = "br")
+      }
+      glm_fits[[OM_type]][["all"]] <- rq(as.formula(paste(response, "~", paste(factors,collapse = "+"))), data = temp, method = "br")
+      glm_fits[[OM_type]][["all2"]] <- rq(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^2")), data = temp, method = "br")
+      glm_fits[[OM_type]][["all3"]] <- rq(as.formula(paste(response, "~ (", paste(factors[-1],collapse = "+"), ")^3")), data = temp, method = "br")
+    }
   }
   return(glm_fits)
 }
 
-get_bias_PRD_tables <- function(glm_fits, factors){
+get_bias_PRD_tables <- function(glm_fits, factors, method = "glm", aic = FALSE){
   dev.tables <- PRD.table <- list()
   factors <- factors[factors %in% names(glm_fits[[1]])]
   for(OM_type in names(glm_fits)){
-    dev.tables[[OM_type]] <- sapply(glm_fits[[OM_type]][c(factors,paste0("all",c("",2:3)))], 
-      \(x) 1 - x$deviance/glm_fits[[OM_type]][[1]]$null.deviance)
+    if(aic) {
+      dev.tables[[OM_type]] <- sapply(glm_fits[[OM_type]][c(factors,paste0("all",c("",2:3)))], AIC)
+    } else {
+      if(method == "glm") {
+        dev.tables[[OM_type]] <- sapply(glm_fits[[OM_type]][c(factors,paste0("all",c("",2:3)))], 
+          \(x) 1 - x$deviance/glm_fits[[OM_type]][[1]]$null.deviance)
+      } 
+      if(method == "qr"){
+        dev.tables[[OM_type]] <- sapply(glm_fits[[OM_type]][c(factors,paste0("all",c("",2:3)))], 
+          \(x) 1 - x$rho/glm_fits[[OM_type]][[1]]$rho)
+      }
+    }
   }
   print(dev.tables[[1]])
   PRD.table <- do.call(cbind,dev.tables)
@@ -201,33 +221,6 @@ for(i in c("mean_M", "ecov_beta")){
   dfs[[i]] <- df  
 }
 
-# tail(sort(dfs[["mean_M"]]$error),20)
-# 
-# head(sort(dfs[["mean_M"]]$error),20)
-# tail(sort(dfs[["mean_M"]]$error),20)
-# head(dfs[["ecov_beta"]])
-# head(sort(dfs[["ecov_beta"]]$error),20)
-# tail(sort(dfs[["ecov_beta"]]$error),20)
-# hist(dfs[["mean_M"]]$error)
-# hist(dfs[["ecov_beta"]]$error)
-# temp <- subset(dfs[["ecov_beta"]], conv == "True")
-# temp <- subset(temp, error > -5 & error < 5)
-# hist(temp[[1]]$error)
-# hist(dfs[["ecov_beta"]]$error)
-# 
-# head(sort(temp$error),20)
-# tail(sort(temp$error),20)
-# temp <- list(ecov_beta = temp)
-# facs <- factors[!factors %in% c("EM_beta_ecov", "conv")]
-# fits <- get_bias_reg_fits(factors = facs, dfs = temp, type = "ecov_beta")
-# prd_table <- get_bias_PRD_tables(glm_fits=fits, factors = factors[-1])
-# prd_table*100
-# round(prd_table/max(prd_table),2)
-# round(PRD.tables[["ecov_beta"]][["converged"]]/max(PRD.tables[["ecov_beta"]][["converged"]]),2)
-# ind <- which(temp[["ecov_beta"]]$error < 172.8)
-# temp[["ecov_beta"]]$error
-# x <- sapply(fits[["R"]], AIC)
-# x-min(x)
 
 glm_fits <- list()
 for(i in c("mean_M", "ecov_beta")){
@@ -240,6 +233,7 @@ for(i in c("mean_M", "ecov_beta")){
   glm_fits[[i]][["ci_coverage"]] <- get_bias_reg_fits(factors = facs, dfs = dfs, type = i, response = "ci_coverage", is_SE = TRUE, family = "binomial")
 }
 
+
 PRD.tables <- list()
 for(i in c("mean_M", "ecov_beta")){
   PRD.tables[[i]] <- list()
@@ -247,7 +241,6 @@ for(i in c("mean_M", "ecov_beta")){
     PRD.tables[[i]][[j]] <- get_bias_PRD_tables(glm_fits=glm_fits[[i]][[j]], factors = factors[-1])
   }
 }
-PRD.tables[["ecov_beta"]]
 
 for(i in c("mean_M", "ecov_beta")){
   for(j in c("complete", "converged", "se", "ci_coverage")){
@@ -262,6 +255,7 @@ for(i in c("mean_M", "ecov_beta")){
       table.env = FALSE, col.just = rep("r", dim(x)[2]), rowlabel = "Factor", rowlabel.just = "l")#, rowname = NULL)
   }
 }
+
 
 #Regression trees
 #########################################
