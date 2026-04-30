@@ -1,0 +1,307 @@
+---
+title: |
+  | An investigation of factors affecting inferences from and reliability of state-space age-structured assessment models: 
+  | Supplementary Materials
+fontsize: 12pt
+output:
+  pdf_document:
+#    citation_package: natbib
+    fig_caption: yes
+    includes:
+      in_header:
+      - options_final.sty
+#      - journalshortcuts.tex
+    keep_tex: yes
+    number_sections: yes
+  html_document:
+    df_print: paged
+#  word_document: default
+csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
+bibliography: manuscript.bib
+#biblio-style: cjfas2.bst
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
+#knitr::opts_knit$set(root.dir = '../' )
+library(knitr)
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(png)
+library(forcats)
+type <- "latex"
+if(knitr::is_latex_output()) type <- "latex"
+if(knitr::is_html_output()) type <- "html"
+```
+
+Timothy J. Miller: ORCID ID 0000-0003-1411-1206; corresponding author: timothy.j.miller@noaa.gov; Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
+\
+Gregory L. Britten: ORCID ID 0000-0003-1391-9086; Biology Department, Woods Hole Oceanographic Institution, 266 Woods Hole Rd. Woods Hole, MA, USA\
+\
+Elizabeth N. Brooks: ORCID ID 0000-0002-9142-4372; Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
+\
+Gavin Fay: ORCID ID 0000-0003-0425-9952; Department of Fisheries Oceanography, School for Marine Science and Technology, University of Massachusetts Dartmouth, 836 S Rodney French Boulevard, New Bedford, MA 02740, USA\
+\
+Alexander C. Hansell: ORCID ID 0000-0001-7827-1749; Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
+\
+Christopher M. Legault: ORCID ID 0000-0002-0328-1376; Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA\
+\
+Chengxue Li: ORCID ID 0000-0001-7518-7234; Northeast Fisheries Science Center, Woods Hole Laboratory, 166 Water Street, Woods Hole, MA 02543 USA; Current Address: Stony Brook University, Stony Brook, NY 11794 USA\
+\
+Brandon Muffley: ORCID ID 0009-0005-8681-0489; Mid-Atlantic Fishery Management Council, 800 North State Street, Suite 201, Dover, DE 19901 USA\
+\
+Brian C. Stock: ORCID ID 0000-0002-2393-6747; Institute of Marine Research, Nye Flødevigveien 20, 4817 His, Norway\
+\
+John Wiedenmann: ORCID ID 0000-0001-7622-9053; Department of Ecology, Evolution, and Natural Resources, Rutgers University, 14 College Farm Rd W, New Brunswick, NJ 08901 USA\
+
+
+\pagebreak
+
+\setcounter{figure}{0}
+\renewcommand\thefigure{S\arabic{figure}}
+
+\setcounter{table}{0}
+\renewcommand\thetable{S\arabic{table}}
+
+\pagebreak
+
+\pagebreak
+
+# Referenced Figures {-}
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width = \textwidth]{om_input_plots_figure}
+\end{center}
+\caption{The proportion mature at age, weight at age, fleet and index selectivity at age, and Beverton-Holt SRR assumed for the population in all OMs. For OMs with random effects on fleet selectivity, this represents the selectivity at the mean of the random effects.}\label{om_inputs_fig}
+\end{figure}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{convergence_gradient_classification_plots}
+\end{center}
+\caption{Classification trees indicating primary factors determining convergence as defined by a maximum absolute gradient < $10^{-6}$ for R, R+S, R+M, R+Sel and R+q OMs. Nodes denote percent convergence (top) and number of fits (bottom)  for the corresponding subset. Branch labels indicate the levels of OM and EM factors distinguishing each subset and left branch labels are positioned higher and note the factor. Lower or higher convergence rates are indicated by more red or green polygons, respectively.}\label{conv_gradient_class}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{hess_grad_convergence_plots}
+\end{center}
+\caption{The maximum of the absolute values of all gradient values for all fits that provided Hessian-based standard errors across all simuated data sets of a given OM configuration (A: R and R+S, B: R+M, C: R+Sel, or D: R+q).  Results are conditional on EM fits with alternative process error assumptions (colored points and lines), median natural mortality rate(estimated or known) and recruitment assumptions (Beverton-Holt SRR or not). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{hess_grad}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{pe_aic_plots}
+\end{center}
+\caption{Estimated probability of lowest AIC for EMs assuming alternative process error assumptions (colored bars) conditional on alternative assumptions for median natural mortality rate (estimated or known) and Beverton-Holt SRR (estimated or not; along x-axis) when fitted to OMs that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error sources. Striped bars indicate results where the EM process error structure matches that of the OM.}\label{pe_aic}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{F_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. 3 for terminal year fully-selected fishing mortality for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Branch labels indicate the levels of OM and EM factors distinguishing each subset and left branch labels are positioned higher and note the factor. Median errors closer to or further from zero are indicated by more green or red polygons, respectively.}\label{F_bias_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{R_bias_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in estimation measured by Eq. 3 for terminal year recruitment for R+S, R+M, R+Sel and R+q OMs. Each node shows the median error (top) and number of observations (bottom) for the corresponding subset. Branch labels indicate the levels of OM and EM factors distinguishing each subset and left branch labels are positioned higher and note the factor. Median errors closer to or further from zero are indicated by more green or red polygons, respectively.}\label{R_bias_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{sr_bias_plots}
+\end{center}
+\caption{Median relative error of Beverton-Holt SRR parameters ($a = \alpha$ and $b = \beta$) for EMs fitted to data sets simulated with alternative process error structures: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{SR_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{F_mohns_rho_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in transformed Mohn's $\rho$ (Eq. 3) for fishing mortality averaged over all age classes for R+S, R+M, R+Sel and R+q OMs. Each node shows the median Mohn's $\rho$ (top) and number of observations (bottom) for the corresponding subset. Branch labels indicate the levels of OM and EM factors distinguishing each subset and left branch labels are positioned higher and note the factor. Median Mohn's $\rho$ closer to or further from zero are indicated by more green or red polygons, respectively.}\label{F_mohns_rho_regtree}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{R_mohns_rho_regtree_plots}
+\end{center}
+\caption{Regression trees indicating primary factors determining reductions in sums of squares of errors in transformed Mohn's $\rho$ (Eq. 3) for recruitment for R+S, R+M, R+Sel and R+q OMs. Each node shows the median Mohn's $\rho$ (top) and number of observations (bottom) for the corresponding subset. Branch labels indicate the levels of OM and EM factors distinguishing each subset and left branch labels are positioned higher and note the factor. Median Mohn's $\rho$ closer to or further from zero are indicated by more green or red polygons, respectively.}\label{R_mohns_rho_regtree}
+\end{figure}
+\end{landscape}
+
+# Referenced Tables {-}
+
+\begin{table}
+\caption{Distinguishing characteristics of the OMs with random effects on recruitment and apparent survival (R, R+S). When observation uncertainty is low, standard deviations for log-normal distributed indices and logistic normal distributed age composition observations are 0.1 and 0.3, respectively, and when it is high, standard deviations are 0.4 and 1.5, respectively. Fishing mortality either changes from 2.5$F_{\text{MSY}}$ to $F_{\text{MSY}}$ after year 20 (of 40) or is constant at $F_{\text{MSY}}$ over all years.}\label{naa_om_table}
+{\footnotesize \input{naa_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the OMs with random effects on recruitment and natural mortality rate (R+M). When observation uncertainty is low, standard deviations for log-normal distributed indices and logistic normal distributed age composition observations are 0.1 and 0.3, respectively, and when it is high, standard deviations are 0.4 and 1.5, respectively. Fishing mortality either changes from 2.5$F_{\text{MSY}}$ to $F_{\text{MSY}}$ after year 20 (of 40) or is constant at $F_{\text{MSY}}$ over all years. For AR1 process errors, $\sigma_M$ is defined for the marginal distribution of the processes.}\label{M_om_table}
+{\input{M_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the OMs with random effects on recruitment and selectivity (R+Sel). When observation uncertainty is low, standard deviations for log-normal distributed indices and logistic normal distributed age composition observations are 0.1 and 0.3, respectively, and when it is high, standard deviations are 0.4 and 1.5, respectively. Fishing mortality either changes from 2.5$F_{\text{MSY}}$ to $F_{\text{MSY}}$ after year 20 (of 40) or is constant at $F_{\text{MSY}}$ over all years. For AR1 process errors, $\sigma_{\text{Sel}}$ is defined for the marginal distribution of the processes.}\label{sel_om_table}
+{\input{Sel_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the OMs with random effects on recruitment and catchability (R+q). When observation uncertainty is low, standard deviations for log-normal distributed indices and logistic normal distributed age composition observations are 0.1 and 0.3, respectively, and when it is high, standard deviations are 0.4 and 1.5, respectively. Fishing mortality either changes from 2.5$F_{\text{MSY}}$ to $F_{\text{MSY}}$ after year 20 (of 40) or is constant at $F_{\text{MSY}}$ over all years. For AR1 process errors, $\sigma_q$ is defined for the marginal distribution of the processes.}\label{q_om_table}
+{\input{q_om_tab}}
+\end{table}
+
+\begin{table}
+\caption{Distinguishing characteristics of the EMs and indication (+) of which OM process error sources (R, R+S, R+M, R+Sel, R+q) each EM configuration was fit.}\label{em_table}
+{\scriptsize \input{em_tab}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for logistic regression models fit to indicators of convergence (maximum absolute gradient < $10^{-6}$) with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{convergence_gradient_PRD_table}
+{\input{convergence_gradient_PRD_table}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. 3 for the terminal year fully-selected fishing mortality with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_F_PRD_table}
+{\input{bias_F_PRD_table}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to errors in estimation measured by Eq. 3 for the terminal year recruitment with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{bias_R_PRD_table}
+{\input{bias_R_PRD_table}}
+\end{table}
+
+\clearpage 
+
+# Further Results {-}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_SSB_bias_plots}
+\end{center}
+\caption{Median relative error of terminal year SSB for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{SSB_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_F_bias_plots}
+\end{center}
+\caption{Median relative error of terminal year fully-selected fishing mortality for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{F_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{term_R_bias_plots}
+\end{center}
+\caption{Median relative error of terminal year recruitment for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{R_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{M_bias_plots}
+\end{center}
+\caption{Median relative error of median natural mortality rate for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{M_rel_error}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{mohns_rho_ssb_plots}
+\end{center}
+\caption{Median Mohn's $\rho$ for SSB for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_ssb}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{mohns_rho_F_plots}
+\end{center}
+\caption{Median Mohn's $\rho$ of fishing mortality averaged over all age classes for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_F}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{mohns_rho_R_plots}
+\end{center}
+\caption{Median Mohn's $\rho$ of recruitment for EMs fitted to data sets simulated with alternative process error sources: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{mohns_rho_R}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{type_4_convergence_plots}
+\end{center}
+\caption{Probability of EMs providing Hessian-based standard errors with alternative process error (colored points and lines), and median natural mortality rate (estimated or known) and Beverton-Holt SRR (estimated or not; along x-axis) assumptions when fitted to OMs that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error sources. Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{hessian_SE_convergence}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{type_3_convergence_plots}
+\end{center}
+\caption{Probability of EMs providing maximum absolute values of gradients less than $10^{-6}$ with alternative process error (colored points and lines), and median natural mortality rate (estimated or known) and Beverton-Holt SRR (estimated or not; along x-axis) assumptions when fitted to OMs that have R and R+S (A), R+Sel (B), R+M (C), or R+q (D) process error sources. Circled values indicate results where the EM process error structure matches that of the OM and vertical lines represent 95\% confidence intervals.}\label{gradient_convergence}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[height = 0.8\textheight]{sr_aic_plots_rev}
+\end{center}
+\caption{Probability of lowest AIC from logistic regression on the log-standard deviation of the true log(SSB) in each simulation for EM with Beverton-Holt SRRs, rather than the otherwise equivalent EM without the SRR. Results are conditional on median M is known in the EM and alternative assumptions EMs having the correct process error structure: R and R+S (A), R+Sel (B), R+M (C), or R+q (D), and median M is assumed known in the EM. Solid and dashed lines are for OMs with and without temporal contrast in fishing pressure, respectively, and polygons represent 95\% confidence intervals. Range of results indicates the range of log-standard deviation of log(SSB) for simulations of the particular OM.}\label{sr_aic}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\begin{center}
+\includegraphics[width = 1.4\textwidth]{sr_aic_plots}
+\end{center}
+\caption{Estimated probability of lowest AIC from logistic regression on the log-standard deviation of the true log(SSB) in each simulation for EM with Beverton-Holt SRRs, rather than the otherwise equivalent EM without the SRR. Results are conditional on alternative assumptions for median natural mortality rate (estimated or known) and on EMs having the correct process error structure: R and R+S (A), R+Sel (B), R+M (C), or R+q (D). Rug along x-axis denotes $SD(\log(SSB))$ values for each simulation and polygons represent 95\% confidence intervals.}\label{sr_aic_supp}
+\end{figure}
+\end{landscape}
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to transformed Mohn's $\rho$ values for each simulation (Eq. 3) for fishing mortality averaged over all age classes with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mohns_rho_F_PRD_table}
+{\input{mohns_rho_F_PRD_table}}
+\end{table}
+
+\begin{table}
+\caption{For each OM process error source (columns), percent reduction in deviance for linear regression models fit to transformed Mohn's $\rho$ values for each simulation (Eq. 3) for recruitment with each OM and EM factor (rows) included individually, combined, and with second and third order interactions.}\label{mohns_rho_R_PRD_table}
+{\input{mohns_rho_R_PRD_table}}
+\end{table}
+
+
