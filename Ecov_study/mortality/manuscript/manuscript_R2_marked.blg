@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: manuscript_R2_marked.aux
+The style file: cjfas.bst.bst
+Database file #1: manuscript.bib
+Warning--entry type for "rpart" isn't style-file defined
+--line 1347 of file manuscript.bib
+You've used 57 entries,
+            2960 wiz_defined-function locations,
+            941 strings with 16488 characters,
+and the built_in function-call counts, 38435 in all, are:
+= -- 3234
+> -- 1977
+< -- 26
++ -- 692
+- -- 607
+* -- 3023
+:= -- 5885
+add.period$ -- 215
+call.type$ -- 57
+change.case$ -- 488
+chr.to.int$ -- 58
+cite$ -- 57
+duplicate$ -- 2564
+empty$ -- 2579
+format.name$ -- 791
+if$ -- 7602
+int.to.chr$ -- 4
+int.to.str$ -- 1
+missing$ -- 573
+newline$ -- 336
+num.names$ -- 228
+pop$ -- 1147
+preamble$ -- 1
+purify$ -- 430
+quote$ -- 0
+skip$ -- 1164
+stack$ -- 0
+substring$ -- 1683
+swap$ -- 1427
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 507
+warning$ -- 0
+while$ -- 252
+width$ -- 0
+write$ -- 826
+(There was 1 warning)

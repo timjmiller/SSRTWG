@@ -182,9 +182,9 @@ get_PRD_tables <- function(glm_fits, factors){
   rnames <- gsub("F ", "$F$ ", rnames, fixed = TRUE)
   rnames <- gsub("EM M", "EM $M$ assumption", rnames, fixed = TRUE)
   rnames <- gsub("obs error", "OM Obs. Error", rnames, fixed = TRUE)
-  rnames <- gsub("Ecov obs sig", "$OM \\sigma_e$", rnames, fixed = TRUE)
-  rnames <- gsub("Ecov re sig", "$OM \\sigma_E$", rnames, fixed = TRUE)
-  rnames <- gsub("Ecov re cor", "$OM \\rho_{E}$", rnames, fixed = TRUE)
+  rnames <- gsub("Ecov obs sig", "OM $\\sigma_e$", rnames, fixed = TRUE)
+  rnames <- gsub("Ecov re sig", "OM $\\sigma_E$", rnames, fixed = TRUE)
+  rnames <- gsub("Ecov re cor", "OM $\\rho_{E}$", rnames, fixed = TRUE)
   rnames <- gsub("Ecov effect", "OM $\\beta_{E}$", rnames, fixed = TRUE)
   rnames <- gsub("EM beta ecov", "$EM \\beta_{E}$ assumption", rnames, fixed = TRUE)
   rnames <- c(rnames,"All factors", "+ All Two Way", "+ All Three Way")
@@ -418,11 +418,44 @@ add_to_frame <- function(obj, data){
   return(origx)
 }
 
+sci_note <- function(x){
+  temp <- formatC(x, format = "e")
+  print(temp)
+  temp <- strsplit(temp, "e")
+  print(temp)
+  exps <- suppressWarnings(as.integer(sapply(temp, function(x) x[2])))
+  print(exps)
+  coefs <- suppressWarnings(as.numeric(sapply(temp, function(x) x[1])))
+  print(coefs)
+  coefs <- formatC(coefs, format = "f", digits = 3)
+  print(coefs)
+  do.notation <- which(abs(exps) > 3)
+  print(do.notation)
+  NA.ind <- which(is.na(x))
+  x <- formatC(round(x,3), format = "f", digits = 3)
+  print(x)
+  x[do.notation] <- paste0(coefs[do.notation], "%*%10^", exps[do.notation]) 
+  print(x)
+  #x <- paste0("$", x, "$")
+  print(x)
+  x[NA.ind] <- NA
+  return(x)
+}
+
 node.fun <- function(x, labs, digits, varlen){
   out <- rep("", NROW(x$frame))
-  if(!is.null(x$frame$median_rmse)) out <- paste0(format(round(x$frame$median_rmse,3), nsmall = 3))
-  if(!is.null(x$frame$median_corr)) out <- paste0(format(round(x$frame$median_corr,3), nsmall = 3))
-  paste0(out, "\n", x$frame$n)
+  if(!is.null(x$frame$median_rmse)) {
+    #out <- paste0(format(round(x$frame$median_rmse,3), nsmall = 3))
+    #out <- paste0(out, "\n", x$frame$n)
+    out <- sci_note(x$frame$median_rmse)
+    if(any(grepl("%*%", out, fixed = T))) out <- paste0("atop(",out,",", x$frame$n,")")
+    else out <- paste0(out, "\n", x$frame$n)
+  }
+  if(!is.null(x$frame$median_corr)) {
+    out <- paste0(format(round(x$frame$median_corr,3), nsmall = 3))
+    out <- paste0(out, "\n", x$frame$n)
+  }
+  return(out)
 }
 
 full.trees <- list()
@@ -468,6 +501,7 @@ for(i in c("ecov_beta", "mean_M")){
   }
 }
 
+sci_note(full.trees[["SSB"]][["R"]]$frame$mean_rmse)
 
 anova.palette.sd <- 1
 anova.palette.mean <- min(sapply(c("R", "R+S", "R+M"), \(x) min(log(full.trees[["SSB"]][[x]]$frame$median_rmse)))) +1
@@ -479,13 +513,13 @@ x <- matrix(1:3, 1, 3, byrow = TRUE)
 layout.x <- layout(x) 
 par(oma = c(0,0,0,0))
 #plot.prune(full.trees[["SSB"]][["R"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R"]],c(7)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+plot.prune(prune(full.trees[["SSB"]][["R"]],c(7)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3,yspace = 3)
 mtext("R OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["SSB"]][["R+S"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(13,7,15)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+plot.prune(prune(full.trees[["SSB"]][["R+S"]],c(13,7,15)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3,yspace = 3)
 mtext("R+S OMs", side = 3, line = 0, cex = 2)
 #plot.prune(full.trees[["SSB"]][["R+M"]], cp = 0.001, "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1)
-plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(6,7)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3)
+plot.prune(prune(full.trees[["SSB"]][["R+M"]],c(6,7)), cp = 0.001, type = "R", roundint = FALSE, extra = 1, mar = c(0,0,5,0), tweak = 1.6, split.yshift = -3,yspace = 3)
 mtext("R+M OMs", side = 3, line = 0, cex = 2)
 dev.off()
 
