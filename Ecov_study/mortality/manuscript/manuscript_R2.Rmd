@@ -3,8 +3,10 @@ title: Factors affecting inferences on natural mortality and associated environm
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 fontsize: 12pt
 output:
-  bookdown::pdf_document2:
-    toc: no
+#  bookdown::pdf_document2:
+#    toc: no
+#    citation_package: natbib
+  pdf_document:
     citation_package: natbib
     fig_caption: yes
     includes:
@@ -22,6 +24,7 @@ biblio-style: cjfas.bst
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
+options(tinytex.clean = FALSE)
 knitr::opts_chunk$set(echo = TRUE, tidy=FALSE, tidy.opts=list(width.cutoff=60), warning = FALSE, message = FALSE, fig.align = "center")
 knitr::opts_knit$set(root.dir = '../' )
 library(knitr)
