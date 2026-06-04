@@ -1,0 +1,332 @@
+\begin{thebibliography}{55}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Aitchison and Shen(1980)]{aitchisonshen80}
+J.~Aitchison and S.~M. Shen.
+\newblock Logistic-normal distributions: some properties and uses.
+\newblock \emph{Biometrika}, 67\penalty0 (2):\penalty0 261--272, 1980.
+\newblock \doi{10.2307/2335470}.
+
+\bibitem[Auger-M{\'e}th{\'e} et~al.(2016)Auger-M{\'e}th{\'e}, Field, Albertsen, Derocher, Lewis, Jonsen, and Mills~Flemming]{augermetheetal16}
+Marie Auger-M{\'e}th{\'e}, Chris Field, Christoffer~M Albertsen, Andrew~E Derocher, Mark~A Lewis, Ian~D Jonsen, and Joanna Mills~Flemming.
+\newblock State-space models' dirty little secrets: even simple linear {G}aussian models can have estimation problems.
+\newblock \emph{Scientific reports}, 6\penalty0 (1):\penalty0 26677, 2016.
+\newblock \doi{10.1038/srep26677}.
+
+\bibitem[Boyko and {O'Meara}(2024)]{boykoomeara24}
+James~D. Boyko and Brian~C. {O'Meara}.
+\newblock dentist: Quantifying uncertainty by sampling points around maximum likelihood estimates.
+\newblock \emph{Methods in Ecology and Evolution}, 15\penalty0 (4):\penalty0 628--638, 2024.
+\newblock \doi{10.1111/2041-210X.14297}.
+
+\bibitem[Breiman et~al.(1984)Breiman, Friedman, Olshen, and Stone]{breimanetal84}
+L.~Breiman, J.~H. Friedman, R~.A. Olshen, and C.~J. Stone.
+\newblock \emph{Classification and Regression Trees}.
+\newblock Chapman and Hall/CRC, New York, NY USA, 1984.
+\newblock \doi{10.1201/9781315139470}.
+\newblock 368p.
+
+\bibitem[Britten et~al.(2026)Britten, Brooks, and Miller]{brittenetal26}
+G.~Britten, E.~N. Brooks, and T.~J. Miller.
+\newblock Factors affecting the inference on stock-recruitment relationships in state-space assessment models.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 2026.
+\newblock \doi{10.1139/cjfas-2025-0210}.
+
+\bibitem[Brodziak et~al.(2008)Brodziak, Cadrin, Legault, and Murawski]{brodziaketal08}
+Jon Brodziak, Steve~X. Cadrin, Christopher~M. Legault, and Steve~A. Murawski.
+\newblock Goals and strategies for rebuilding {N}ew {E}ngland groundfish stocks.
+\newblock \emph{Fisheries Research}, 94\penalty0 (3):\penalty0 355--366, 2008.
+\newblock \doi{10.1016/j.fishres.2008.03.008}.
+
+\bibitem[Cadigan(2016)]{cadigan16}
+N.~G. Cadigan.
+\newblock A state-space stock assessment model for {N}orthern cod, including under-reported catches and variable natural mortality rates.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 73\penalty0 (2):\penalty0 296--308, 2016.
+\newblock \doi{10.1139/cjfas-2015-0047}.
+
+\bibitem[Cadigan et~al.(2024)Cadigan, Albertsen, Zheng, and Nielsen]{cadiganetal24}
+Noel~G Cadigan, Christoffer~Moesgaard Albertsen, Nan Zheng, and Anders Nielsen.
+\newblock Are state-space stock assessment model confidence intervals accurate? {C}ase studies with {SAM} and {B}arents {S}ea stocks.
+\newblock \emph{Fisheries Research}, 272:\penalty0 106950, 2024.
+\newblock \doi{10.1016/j.fishres.2024.106950}.
+
+\bibitem[Carvalho et~al.(2021)Carvalho, Winker, Courtney, Kapur, Kell, Cardinale, Schirripa, Kitakado, Yemane, Piner, Maunder, Taylor, Wetzel, Doering, Johnson, and Methot]{carvalhoetal21}
+Felipe Carvalho, Henning Winker, Dean Courtney, Maia Kapur, Laurence Kell, Massimiliano Cardinale, Michael Schirripa, Toshihide Kitakado, Dawit Yemane, Kevin~R. Piner, Mark~N. Maunder, Ian Taylor, Chantel~R. Wetzel, Kathryn Doering, Kelli~F. Johnson, and Richard~D. Methot.
+\newblock A cookbook for using model diagnostics in integrated stock assessments.
+\newblock \emph{Fisheries Research}, 240:\penalty0 105959, 2021.
+\newblock \doi{10.1016/j.fishres.2021.105959}.
+
+\bibitem[Collier et~al.(2022)Collier, Zhang, and Soyoye]{collieretal22}
+Zachary~K. Collier, Haobai Zhang, and Olushola Soyoye.
+\newblock Alternative methods for interpreting {M}onte {C}arlo experiments.
+\newblock \emph{Communications in Statistics - Simulation and Computation}, pages 1--16, 2022.
+\newblock \doi{10.1080/03610918.2022.2082474}.
+
+\bibitem[Deriso et~al.(2008)Deriso, Maunder, and Pearson]{derisoetal08}
+Richard~B. Deriso, Mark~N. Maunder, and Walter~H. Pearson.
+\newblock Incorporating covariates into fisheries stock assessment models with application to {P}acific herring.
+\newblock \emph{Ecological Applications}, 18\penalty0 (5):\penalty0 1270--1286, 2008.
+\newblock \doi{10.1890/07-0708.1}.
+
+\bibitem[Gonzalez et~al.(2018)Gonzalez, O’Rourke, Wurpts, and Grimm]{gonzalezetal18}
+Oscar Gonzalez, Holly~P. O’Rourke, Ingrid~C. Wurpts, and Kevin~J. Grimm.
+\newblock Analyzing {M}onte {C}arlo simulation studies with classification and regression trees.
+\newblock \emph{Structural Equation Modeling: A Multidisciplinary Journal}, 25\penalty0 (3):\penalty0 403--413, 2018.
+\newblock \doi{10.1080/10705511.2017.1369353}.
+
+\bibitem[Haltuch and Punt(2011)]{haltuchpunt11}
+Melissa~A. Haltuch and A.~E. Punt.
+\newblock The promises and pitfalls of including decadal-scale climate forcing of recruitment in groundfish stock assessment.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 68\penalty0 (5):\penalty0 912--926, 2011.
+\newblock \doi{10.1139/f2011-030}.
+
+\bibitem[Hampton(2000)]{hampton00}
+John Hampton.
+\newblock Natural mortality rates in tropical tunas: size really does matter.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 57\penalty0 (5):\penalty0 1002--1010, 2000.
+\newblock \doi{10.1139/f99-287}.
+
+\bibitem[Harwell et~al.(2018)Harwell, Kohli, and Peralta-Torres]{harwelletal18}
+Michael Harwell, Nidhi Kohli, and Yadira Peralta-Torres.
+\newblock A survey of reporting practices of computer simulation studies in statistical research.
+\newblock \emph{The American Statistician}, 72\penalty0 (4):\penalty0 321--327, 2018.
+\newblock \doi{10.1080/00031305.2017.1342692}.
+
+\bibitem[Hoyle et~al.(2022)Hoyle, Maunder, Punt, Mace, Devine, and A’mar]{hoyleetal22}
+Simon~D Hoyle, Mark~N Maunder, Andr{\'e}~E Punt, Pamela~M Mace, Jennifer~A Devine, and Z~Teresa A’mar.
+\newblock Preface: Developing the next generation of stock assessment software.
+\newblock \emph{Fisheries Research}, 246:\penalty0 106176, 2022.
+
+\bibitem[Johnson et~al.(2016)Johnson, Councill, Thorson, Brooks, Methot, and Punt]{johnsonetal16}
+Kelli~F. Johnson, Elizabeth Councill, James~T. Thorson, Elizabeth Brooks, Richard~D. Methot, and A.~E. Punt.
+\newblock Can autocorrelated recruitment be estimated using integrated assessment models and how does it affect population forecasts?
+\newblock \emph{Fisheries Research}, 183:\penalty0 222--232, 2016.
+\newblock \doi{10.1016/j.fishres.2016.06.004}.
+
+\bibitem[Kiefer and Wolfowitz(1956)]{kieferwolfowitz56}
+J.~Kiefer and J.~Wolfowitz.
+\newblock Consistency of the maximum likelihood estimator in the presence of infinitely many incidental parameters.
+\newblock \emph{The Annals of Mathematical Statistics}, 27\penalty0 (4):\penalty0 887--906, 1956.
+
+\bibitem[Kristensen et~al.(2016)Kristensen, Nielsen, Berg, Skaug, and Bell]{kristensenetal16}
+K.~Kristensen, A.~Nielsen, C.~W. Berg, H.~Skaug, and B.~M. Bell.
+\newblock {TMB}: Automatic differentiation and {L}aplace approximation.
+\newblock \emph{Journal of Statistical Software}, 70\penalty0 (5):\penalty0 1--21, 2016.
+
+\bibitem[Lee et~al.(2011)Lee, Maunder, Piner, and Methot]{leeetal11}
+Hui-Hua Lee, Mark~N. Maunder, Kevin~R. Piner, and Richard~D. Methot.
+\newblock Estimating natural mortality within a fisheries stock assessment model: An evaluation using simulation analysis based on twelve stock assessments.
+\newblock \emph{Fisheries Research}, 109\penalty0 (1):\penalty0 89--94, 2011.
+\newblock \doi{10.1016/j.fishres.2011.01.021}.
+
+\bibitem[Legault and Palmer(2016)]{legaultpalmer16}
+Christopher~M Legault and Michael~C Palmer.
+\newblock In what direction should the fishing mortality target change when natural mortality increases within an assessment?
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 73\penalty0 (3):\penalty0 349--357, 2016.
+\newblock \doi{10.1139/cjfas-2015-0232}.
+
+\bibitem[Legault et~al.(2023)Legault, Wiedenmann, Deroba, Fay, Miller, Brooks, Bell, Langan, Cournane, Jones, and Muffley]{legaultetal23}
+Christopher~M. Legault, John Wiedenmann, Jonathan~J. Deroba, Gavin Fay, Timothy~J. Miller, Elizabeth~N. Brooks, Richard~J. Bell, Joseph~A. Langan, Jamie~M. Cournane, Andrew~W. Jones, and Brandon Muffley.
+\newblock Data-rich but model-resistant: an evaluation of data-limited methods to manage fisheries with failed age-based stock assessments.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 80\penalty0 (1):\penalty0 27--42, 2023.
+\newblock \doi{10.1139/cjfas-2022-0045}.
+
+\bibitem[Li et~al.(2024)Li, Deroba, Miller, Legault, and Perretti]{lietal24}
+C.~Li, J.~J. Deroba, T.~J. Miller, C.~M. Legault, and C.~T. Perretti.
+\newblock An evaluation of common stock assessment diagnostic tools for choosing among state-space models with multiple random effects processes.
+\newblock \emph{Fisheries Research}, 273:\penalty0 106968, 2024.
+\newblock \doi{10.1016/j.fishres.2024.106968}.
+
+\bibitem[Li et~al.(2026{\natexlab{a}})Li, Deroba, Berger, Goethel, Langseth, Schueller, and Miller]{lietal26_a}
+C.~Li, J.~J. Deroba, A.~M. Berger, D.~R. Goethel, B.~J. Langseth, A.~M. Schueller, and T.~J. Miller.
+\newblock Random effects on numbers-at-age transitions implictly account for movement dynamics and improve performance within a state-space stock assessment.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 83:\penalty0 1--18, 2026{\natexlab{a}}.
+\newblock \doi{10.1139/cjfas-2025-0092}.
+
+\bibitem[Li et~al.(2026{\natexlab{b}})Li, Deroba, Miller, Legault, and Perretti]{lietal26}
+C.~Li, J.~J. Deroba, T.~J. Miller, C.~M. Legault, and C.~Perretti.
+\newblock Guidance on bias-correction of log-normal random effects and observations in state-space assessment models.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 83:\penalty0 1--11, 2026{\natexlab{b}}.
+\newblock \doi{10.1139/cjfas-2025-0093}.
+
+\bibitem[MacKinnon et~al.(1995)MacKinnon, Warsi, and Dwyer]{mackinnonetal95}
+David~P. MacKinnon, Ghulam Warsi, and James~H. Dwyer.
+\newblock A simulation study of mediated effect measures.
+\newblock \emph{Multivariate Behavioral Research}, 30\penalty0 (1):\penalty0 41--62, 1995.
+\newblock \doi{10.1207/s15327906mbr3001\_3}.
+
+\bibitem[Magnusson and Hilborn(2007)]{magnussonhilborn07}
+Arni Magnusson and Ray Hilborn.
+\newblock What makes fisheries data informative?
+\newblock \emph{Fish and Fisheries}, 8\penalty0 (4):\penalty0 337--358, 2007.
+\newblock \doi{https://doi.org/10.1111/j.1467-2979.2007.00258.x}.
+
+\bibitem[Miller and Brooks(2021)]{millerbrooks21}
+T.~J. Miller and E.~N. Brooks.
+\newblock Steepness is a slippery slope.
+\newblock \emph{Fish and Fisheries}, 22\penalty0 (3):\penalty0 634--645, 2021.
+\newblock \doi{10.1111/faf.12534}.
+
+\bibitem[Miller and Hyun(2018)]{millerhyun18}
+T.~J. Miller and S.-Y. Hyun.
+\newblock Evaluating evidence for alternative natural mortality and process error assumptions using a state-space, age-structured assessment model.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 75\penalty0 (5):\penalty0 691--703, 2018.
+\newblock \doi{10.1139/cjfas-2017-0035}.
+
+\bibitem[Miller et~al.(2016)Miller, Hare, and Alade]{milleretal16}
+T.~J. Miller, J.~A. Hare, and L.~Alade.
+\newblock A state-space approach to incorporating environmental effects on recruitment in an age-structured assessment model with an application to {S}outhern {N}ew {E}ngland yellowtail flounder.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 73\penalty0 (8):\penalty0 1261--1270, 2016.
+\newblock \doi{10.1139/cjfas-2015-0339}.
+
+\bibitem[Miller et~al.(2025)Miller, Curti, and Hansell]{milleretal25}
+T.~J. Miller, K.~L. Curti, and A.~C. Hansell.
+\newblock Space for {WHAM}: a multi-region, multi-stock generalization of the {W}oods {H}ole {A}ssessment {M}odel with an application to black sea bass.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 82:\penalty0 1--26, 2025.
+\newblock \doi{10.1139/cjfas-2025-0097}.
+
+\bibitem[Miller et~al.(2026)Miller, Britten, Brooks, Fay, Hansell, Legault, Li, Muffley, Stock, and Wiedenmann]{milleretal26}
+T.~J. Miller, G.~Britten, E.~N. Brooks, G.~Fay, A.~Hansell, C.~M. Legault, C.~Li, B.~Muffley, B.~C. Stock, and J.~Wiedenmann.
+\newblock An investigation of factors affecting inferences from and reliability of state-space age-structured assessment models.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 2026.
+\newblock \doi{10.1139/cjfas-2025-0149}.
+
+\bibitem[Miller and Stock(2020)]{millerstock20}
+Timothy~J. Miller and Brian~C. Stock.
+\newblock The {{Woods Hole Assessment Model}} ({{WHAM}}), 2020.
+\newblock URL \url{https://timjmiller.github.io/wham/}.
+
+\bibitem[Myers(1998)]{myers98}
+R.~A. Myers.
+\newblock When do environment–recruitment correlations work?
+\newblock \emph{Reviews in Fish Biology and Fisheries}, 8\penalty0 (3):\penalty0 229--249, 1998.
+\newblock \doi{10.1023/A:1008828730759}.
+
+\bibitem[{NEFSC}(2022{\natexlab{a}})]{nefsc22}
+{NEFSC}.
+\newblock Final report of the haddock research track assessment working group.
+\newblock {Available} at https://s3.us-east-1.amazonaws.com/nefmc.org/14b\_EGB\_Research\_Track\_Haddock\_WG\_Report\_DRAFT.pdf., 2022{\natexlab{a}}.
+
+\bibitem[{NEFSC}(2022{\natexlab{b}})]{nefsc22a}
+{NEFSC}.
+\newblock Report of the {A}merican plaice research track working group.
+\newblock {Available} at https://s3.us-east-1.amazonaws.com/nefmc.org/2\_American-Plaice-WG-Report.pdf., 2022{\natexlab{b}}.
+
+\bibitem[NEFSC(2024)]{nefsc24}
+NEFSC.
+\newblock Butterfish research track assessment report.
+\newblock US Dept Commer Northeast Fish Sci Cent Ref Doc. 24-03; 191 p., 2024.
+
+\bibitem[Neyman and Scott(1948)]{neymanscott48}
+J.~Neyman and Elizabeth~L. Scott.
+\newblock Consistent estimates based on partially consistent observations.
+\newblock \emph{Econometrica}, 16\penalty0 (1):\penalty0 1--32, 1948.
+\newblock \doi{10.2307/1914288}.
+
+\bibitem[Nielsen and Berg(2014)]{nielsenberg14}
+Anders Nielsen and Casper~W. Berg.
+\newblock Estimation of time-varying selectivity in stock assessments using state-space models.
+\newblock \emph{Fisheries Research}, 158:\penalty0 96--101, 2014.
+\newblock \doi{10.1016/j.fishres.2014.01.014}.
+
+\bibitem[Pedersen and Berg(2017)]{pedersenberg17}
+Martin~W. Pedersen and Casper~W. Berg.
+\newblock A stochastic surplus production model in continuous time.
+\newblock \emph{Fish and Fisheries}, 18\penalty0 (2):\penalty0 226--243, 2017.
+\newblock ISSN 14672960.
+\newblock \doi{10.1111/faf.12174}.
+
+\bibitem[Pollock et~al.(1991)Pollock, Hoenig, and Jones]{pollocketal91}
+K.H. Pollock, J.M. Hoenig, and C.M. Jones.
+\newblock Estimation of fishing and natural mortality when a tagging study is combined with a creel survey or port sampling.
+\newblock \emph{American Fisheries Society Symposium}, 12:\penalty0 423--434, 1991.
+
+\bibitem[Punt(2023)]{punt23}
+Andr{\'e}~E Punt.
+\newblock Those who fail to learn from history are condemned to repeat it: A perspective on current stock assessment good practices and the consequences of not following them.
+\newblock \emph{Fisheries Research}, 261:\penalty0 106642, 2023.
+
+\bibitem[Stock and Miller(2021)]{stockmiller21}
+Brian~C. Stock and Timothy~J. Miller.
+\newblock The {W}oods {H}ole {A}ssessment {M}odel ({WHAM}): {A} general state-space assessment framework that incorporates time- and age-varying processes via random effects and links to environmental covariates.
+\newblock \emph{Fisheries Research}, 240:\penalty0 105967, 2021.
+\newblock \doi{10.1016/j.fishres.2021.105967}.
+
+\bibitem[Stock et~al.(2021)Stock, Xu, Miller, Thorson, and Nye]{stocketal21}
+Brian~C. Stock, Haikun Xu, Timothy~J. Miller, James~T. Thorson, and Janet~A. Nye.
+\newblock {Implementing two-dimensional autocorrelation in either survival or natural mortality improves a state-space assessment model for Southern New England-Mid Atlantic yellowtail flounder}.
+\newblock \emph{Fisheries Research}, 237:\penalty0 105873, 2021.
+\newblock \doi{10.1016/j.fishres.2021.105873}.
+
+\bibitem[Szuwalski et~al.(2018)Szuwalski, Ianelli, and Punt]{szuwalskietal18}
+Cody~S Szuwalski, James~N Ianelli, and Andr{\'e}~E Punt.
+\newblock Reducing retrospective patterns in stock assessment and impacts on management performance.
+\newblock \emph{ICES Journal of Marine Science}, 75\penalty0 (2):\penalty0 596--609, 2018.
+\newblock \doi{10.1093/icesjms/fsx159}.
+
+\bibitem[Therneau and Atkinson(2025)]{rpart}
+Terry Therneau and Beth Atkinson.
+\newblock rpart: {R}ecursive {P}artitioning and {R}egression {T}rees, 2025.
+\newblock URL \url{https://github.com/bethatkinson/rpart}.
+\newblock R package version 4.1.25.
+
+\bibitem[Thorson and Minto(2015)]{thorsonminto15}
+James~T. Thorson and C{\'o}il{\'i}n Minto.
+\newblock Mixed effects: a unifying framework for statistical modelling in fisheries biology.
+\newblock \emph{ICES Journal of Marine Science}, 72\penalty0 (5):\penalty0 1245--1256, 2015.
+\newblock \doi{10.1093/icesjms/fsu213}.
+
+\bibitem[Trijoulet et~al.(2020)Trijoulet, Fay, and Miller]{trijouletetal20}
+Vanessa Trijoulet, Gavin Fay, and Timothy~J Miller.
+\newblock Performance of a state-space multispecies model: What are the consequences of ignoring predation and process errors in stock assessments?
+\newblock \emph{Journal of Applied Ecology}, 57\penalty0 (1):\penalty0 121--135, 2020.
+\newblock \doi{10.1111/1365-2664.13515}.
+
+\bibitem[Trijoulet et~al.(2023)Trijoulet, Albertsen, Kristensen, Legault, Miller, and Nielsen]{trijouletetal23}
+Vanessa Trijoulet, Christoffer~Moesgaard Albertsen, Kasper Kristensen, Christopher~M. Legault, Timothy~J. Miller, and Anders Nielsen.
+\newblock Model validation for compositional data in stock assessment models: Calculating residuals with correct properties.
+\newblock \emph{Fisheries Research}, 257:\penalty0 106487, 2023.
+\newblock \doi{10.1016/j.fishres.2022.106487}.
+
+\bibitem[Vaida and Blanchard(2005)]{vaidablanchard05}
+F.~Vaida and S.~Blanchard.
+\newblock Conditional {A}kaike information for mixed-effects models.
+\newblock \emph{Biometrika}, 92\penalty0 (2):\penalty0 351--370, 2005.
+\newblock \doi{10.1093/biomet/92.2.351}.
+
+\bibitem[Wang et~al.(2017)Wang, Cadigan, and Beno{\^i}t]{wangetal17}
+S.~Wang, N.~G. Cadigan, and H.~P. Beno{\^i}t.
+\newblock Inference about regression parameters using highly stratified survey count data with over-dispersion and repeated measurements.
+\newblock \emph{Journal of Applied Statistics}, 44\penalty0 (6):\penalty0 1013--1030, 2017.
+\newblock \doi{10.1080/02664763.2016.1191622}.
+
+\bibitem[Wiedenmann et~al.(2019)Wiedenmann, Free, and Jensen]{wiedenmannetal19}
+J.~Wiedenmann, C.~M. Free, and O.~P. Jensen.
+\newblock Evaluating the performance of data-limited methods for setting catch targets through application to data-rich stocks: A case study using northeast {U.S.} fish stocks.
+\newblock \emph{Fisheries Research}, 209\penalty0 (1):\penalty0 129--142, 2019.
+\newblock \doi{10.1016/j.fishres.2018.09.018}.
+
+\bibitem[Yee(2015)]{yee15}
+T.~W. Yee.
+\newblock \emph{Vector Generalized Linear and Additive Models: With an Implementation in {R}}.
+\newblock Springer, New York, NY USA, 2015.
+\newblock \doi{10.1007/978-1-4939-2818-7}.
+\newblock 589p.
+
+\bibitem[Yee(2008)]{yee08}
+Thomas~W. Yee.
+\newblock The {VGAM} package.
+\newblock \emph{R News}, 8\penalty0 (2):\penalty0 28--39, 2008.
+\newblock URL \url{https://journal.r-project.org/articles/RN-2008-014/}.
+
+\bibitem[Zhang et~al.(2020)Zhang, Rideout, and Cadigan]{zhangetal20}
+Fan Zhang, Rick~M. Rideout, and Noel~G. Cadigan.
+\newblock Spatiotemporal variations in juvenile mortality and cohort strength of {A}tlantic cod (\textit{{G}adus morhua}) off {N}ewfoundland and {L}abrador.
+\newblock \emph{Canadian Journal of Fisheries and Aquatic Sciences}, 77\penalty0 (3):\penalty0 625--635, 2020.
+\newblock \doi{10.1139/cjfas-2019-0156}.
+
+\end{thebibliography}
